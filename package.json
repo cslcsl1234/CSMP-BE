@@ -1,0 +1,19 @@
+{
+  "name": "node-rest-auth-example",
+  "version": "0.0.0",
+  "dependencies": {
+    "debug": "^2.6.3",
+    "express": "~3.1.0",
+    "mongoose": "~3.5.5",
+    "body-parser": "*",
+    "nconf": "*",
+    "node-uuid": "*",
+    "synchronize": "*",
+    "unirest": "*"
+
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "debug": "*"
+  }
+}
