@@ -34,7 +34,7 @@ var switchController = function (app) {
         var param = {};
         param['filter_name'] = 'name=\'Availability\'';
         param['keys'] = ['device'];
-        param['fields'] = ['vendor','model','ip','devdesc'];
+        param['fields'] = ['devicesn','vendor','model','ip','devdesc'];
 
         if (typeof deviceid !== 'undefined') { 
             param['filter'] = 'device=\''+deviceid+'\'&devtype==\'FabricSwitch\'&!(parttype==\'Fabric\'|parttype=\'Zone%\')&!datagrp=\'%ZONE%\'';
@@ -44,6 +44,54 @@ var switchController = function (app) {
 
         CallGet(param, function(param) { 
             res.json(200, param.result);
+        });
+
+         
+    });
+
+    app.get('/api/switch', function (req, res) {
+  
+
+
+        var deviceid = req.query.device;
+
+        var param = {};
+        param['filter_name'] = 'name=\'Availability\'';
+        param['keys'] = ['device'];
+        param['fields'] = ['devicesn','vendor','model','ip','devdesc'];
+
+        if (typeof deviceid !== 'undefined') { 
+            param['filter'] = 'device=\''+deviceid+'\'&devtype==\'FabricSwitch\'&!(parttype==\'Fabric\'|parttype=\'Zone%\')&!datagrp=\'%ZONE%\'';
+        } else {
+            res.json(400, 'Must be special a device!');
+        } 
+
+        CallGet(param, function(param) { 
+
+		SwitchObj.findOne({"basicInfo.device" : deviceid}, function (err, doc) {
+		    //system error.
+		    if (err) {
+			return   done(err);
+		    }
+
+		    if ( param.result.length > 0 ) {
+			    if (!doc) { //user doesn't exist.
+				console.log("app is not exist. insert it."); 
+				param.result[0]['info'] = {};
+			    }
+			    else {
+				console.log("App is exist!");
+				console.log(doc);
+		 
+				param.result[0]['info'] = doc;
+
+			    }
+            		res.json(200, param.result[0]);
+		    }
+		    else 
+			res.json(200, {} );
+
+		});
         });
 
          
@@ -234,7 +282,7 @@ var switchController = function (app) {
 
         var reqBody = req.body;
 
-        SwitchObj.findOne({"basicInfo.serialnb" : reqBody.basicInfo.serialnb}, function (err, doc) {
+        SwitchObj.findOne({"basicInfo.device" : reqBody.basicInfo.device}, function (err, doc) {
             //system error.
             if (err) {
                 return   done(err);

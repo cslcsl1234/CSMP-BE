@@ -18,7 +18,7 @@ var mongoose = require('mongoose')
 switchSchema = new Schema({
     basicInfo : {
 
-        serialnb: {
+        device : {
             type: String, 
             unique: true
         },
