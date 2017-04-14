@@ -71,21 +71,49 @@ var arrayController = function (app) {
             getArrayPerformance(function(result) {
                 console.log("---------------- Finished ------------");
                 
-                for ( var i in param.result ) {
-                    var item = param.result[i];
-                    item['perf'] = [];
+                if ( param.result.length > 0 ) {
 
-                    for ( var j in result.values ) {
-                        var perfItem = result.values[j]; 
-                        
-                        if ( item.device == perfItem.properties.device ) {
-                            item.perf.push(perfItem);  
+                   for ( var i in param.result ) {
+                        var item = param.result[i];
+                        item['perf'] = [];
+
+                        for ( var j in result.values ) {
+                            var perfItem = result.values[j]; 
+                            
+                            if ( item.device == perfItem.properties.device ) {
+                                item.perf.push(perfItem);  
+                            }
                         }
                     }
+
+                //
+                // get specific a array infomation.
+                //
+                if (typeof arraysn !== 'undefined') { 
+
+                    ArrayObj.findOne({"basicInfo.serialnb" : arraysn}, function (err, doc) {
+                        //system error.
+                        if (err) {
+                            return   done(err);
+                        }
+                        if (!doc) { //user doesn't exist.
+                            console.log("array is not exist. insert it."); 
+
+                            param.result[0]['info'] = {};
+                        
+                        }
+                        else {
+                            console.log("Array is exist!");
+             
+                            param.result[0]['info'] = doc;
+ 
+                        }
+                        res.json(200, param.result);
+                    });
                 }
 
-                res.json(200, param.result);
-            });
+                }
+             });
 
         });
 
