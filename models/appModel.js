@@ -25,6 +25,9 @@ appSchema = new Schema({
             required: true,
             unique: true
         },
+        alias: {
+            type: String 
+        },
         status: {
             type: String, 
             enum: APP_STATUS

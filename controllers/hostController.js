@@ -6,23 +6,22 @@
  * This is AOP.
  * @param app
  */
-const debug = require('debug')('appController')  
+const debug = require('debug')('hostController')  
 const name = 'my-app'  
 var unirest = require('unirest');
 var configger = require('../config/configger');
 var unirest1 = require('unirest');
 var async = require('async');
- 
-var RecordFlat = require('../lib/RecordFlat');
+  
 var util = require('../lib/util');
-var App = require('../lib/App');
+
+var host = require('../lib/Host');
 
 var mongoose = require('mongoose');
-var AppObj = mongoose.model('Application');
+var HostObj = mongoose.model('Host');
  
-var getTopos = require('./topos.js');
 
-var appController = function (app) {
+var hostController = function (app) {
 
     var config = configger.load();
 
@@ -40,31 +39,35 @@ var appController = function (app) {
     });
 
 
-    app.get('/api/application', function (req, res) {
 
-
-        App.GetApps(function(code, result) {
-            res.json(code , result);
-
-        })
-
+    app.get('/api/hosts', function (req, res) {
+        var hostname = req.query.device; 
+        host.GetHosts(hostname, function(code,result) {
+            res.json(500 , result);
+        });
 
     });
 
 
-    app.get('/api/application/list', function (req, res) {
+    app.get('/api/host/list', function (req, res) {
 
-        var query = AppObj.find({}).select({ "name": 1, "_id": 0});
+        var query = HostObj.find({}).select({ "baseinfo.name": 1, "_id": 0});
         query.exec(function (err, doc) {
             //system error.
             if (err) { 
                 res.json(500 , {status: err})
             }
             if (!doc) { //user doesn't exist.
-                res.json(200 , []); 
+                res.json(500 , []); 
             }
             else {
-                res.json(500 , doc);
+
+                var result = [];
+                for ( var i in doc ) {
+                    var item = doc[i].baseinfo.name;
+                    result.push(item);
+                }
+                res.json(200 , result);
             }
 
         });
@@ -75,42 +78,40 @@ var appController = function (app) {
 /* 
 *  Create a app record 
 */
-    app.post('/api/application', function (req, res) {
+    app.post('/api/host', function (req, res) {
         console.log(req.body);
 
-        var app = req.body;
+        var host = req.body;
 
-        AppObj.findOne({"name" : app.name}, function (err, doc) {
+        HostObj.findOne({"name" : host.baseinfo.name}, function (err, doc) {
             //system error.
             if (err) {
                 return   done(err);
             }
             if (!doc) { //user doesn't exist.
-                console.log("app is not exist. insert it."); 
+                console.log("host is not exist. insert it."); 
 
-                var newapp = new AppObj(app);
+                var newhost = new HostObj(host);
                 console.log('Test1');
-                newapp.save(function(err, thor) {
+                newhost.save(function(err, thor) {
                  console.log('Test2');
                  if (err)  {
                     console.dir(thor);
                     return res.json(400 , err);
                   } else 
-                    return res.json(200, app);
+                    return res.json(200, {status: "The Host has inserted."});
                 });
             }
             else {
-                console.log("App is exist!");
+                console.log("the host is exist!");
  
-console.log(doc);
-                doc.update(app, function(error, course) {
-                    if(error) res.json(500 , {status: error});
-                    else
-                    return  res.json(500 , {status: "The App has exist! Update it."});
+
+                doc.update(host, function(error, course) {
+                    if(error) return next(error);
                 });
 
 
-                
+                return  res.json(500 , {status: "The Host has exist! Update it."});
             }
 
         });
@@ -129,4 +130,4 @@ console.log(doc);
 
 };
 
-module.exports = appController;
+module.exports = hostController;

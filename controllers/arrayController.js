@@ -18,9 +18,16 @@ var util = require('../lib/util');
 
 var mongoose = require('mongoose');
 var ArrayObj = mongoose.model('Array');
-
+ 
 var CallGet = require('../lib/CallGet'); 
+
+var App = require('../lib/App'); 
 var getTopos = require('./topos.js');
+
+
+var GetEvents = require('../lib/GetEvents');
+var VMAX = require('../lib/Array_VMAX');
+var host = require('../lib/Host');
 
 var arrayController = function (app) {
 
@@ -40,14 +47,193 @@ var arrayController = function (app) {
     });
 
 
+     app.get('/api/array/apps', function (req, res) {
+
+ 
+        var arraysn = req.query.device; 
+        var finalRecord = [];
+
+        VMAX.GetAssignedHosts(arraysn, function(result) {
+
+            var finalRecord = [];
+            for ( var i in result ) {
+                var item = result[i];
+
+                var findApp  = false;
+                if ( typeof item.host !== 'undefined') {
+
+                   var applist = item.host.app_name.split(',');
+                    for ( var appi in applist )  {
+                        var appName = applist[appi];
+
+                        for ( var recordi in finalRecord ) {
+                            var finalRecordItem = finalRecord[recordi];
+                            if ( finalRecordItem.app_name == appName ) {
+                                findApp = true;
+                                util.MergeAndDistinctItem( item.StorageGroup , finalRecordItem.Devices, 'partsn');
+                                break;
+                            }
+                        }
+                        if ( findApp == false ) {
+                            var newRecord = {};
+                            newRecord['app_name'] = appName;
+                            newRecord['Devices'] = item.StorageGroup;
+                            finalRecord.push(newRecord);
+                        }
+                    }
+                } else {
+
+                    for ( var recordi in finalRecord ) {
+                        var finalRecordItem = finalRecord[recordi];
+                        if ( finalRecordItem.app_name == item.hba_wwn ) {
+                            findApp = true;
+                            util.MergeAndDistinctItem( item.StorageGroup , finalRecordItem.Devices, 'partsn');
+                            break;
+                        }
+                    }
+                    if ( findApp == false ) {
+                        var newRecord = {};
+                        newRecord['app_name'] = item.hba_wwn;
+                        newRecord['Devices'] = item.StorageGroup;
+                        finalRecord.push(newRecord);   
+                    }
+
+                
+                }
+ 
+            }
+
+            // Calculat the count and capacity of devices each host
+            for ( var i in finalRecord) {
+                var item = finalRecord[i];
+                if ( typeof item.Devices !== 'undefined') {
+                    var count = 0;
+                    var capacity = 0;
+                    for ( var j in item.Devices ) {
+                        var deviceItem = item.Devices[j];
+                        count++;
+                        capacity += parseFloat(deviceItem.Capacity);
+                    }
+                    item['DeviceCount'] = count;
+                    item['Capacity'] = capacity;
+                } else {
+                    item['DeviceCount'] = 0;
+                    item['Capacity'] = 0;                    
+                }
+            }
+
+            App.GetApps( function( app_code, app_result ) {
+
+                for ( var i in finalRecord) {
+                    var item = finalRecord[i];
+
+                    for ( var j in app_result ) {
+                        var appItem = app_result[j];
+                        if ( item.app_name == appItem.alias ) {
+                            item['app'] = appItem;
+                        }
+                    }
+ 
+                }
+                res.json(200,finalRecord);
+            });  // GetApps
+
+        });
+ 
+
+    });
 
 
-    app.get('/api/arrays', function (req, res) {
+     app.get('/api/array/hosts', function (req, res) {
+
+ 
+        var arraysn = req.query.device; 
+        var finalRecord = [];
+
+        VMAX.GetAssignedHosts(arraysn, function(result) {
+
+
+            for (var i in result ) {
+                var item = result[i];
+                var finalRecordItem = {};
+                if ( typeof item.host !== 'undefined' ) {
+                    // Find a host
+                    var findHost = false;
+                    for ( var j in finalRecord ) {
+                        var hostItem = finalRecord[j];
+                        if ( item.host.hostname == hostItem.host_name ) {
+                            findHost = true;
+
+                            util.MergeAndDistinctItem( item.StorageGroup , hostItem.Devices, 'partsn');
+
+                            break;
+                        } 
+                    }
+                    if ( findHost == false ) {
+                        finalRecordItem['app_name'] = item.host.app_name;                        
+                        finalRecordItem['host_name'] = item.host.hostname;
+                        finalRecordItem['host_type'] = item.host.host_type;
+                        finalRecordItem['host_status'] = item.host.host_status;
+                        finalRecordItem['host_ip'] = item.host.ip;
+                        finalRecordItem['host_os'] = item.host.OS;
+                        finalRecordItem['host_osversion'] = item.host.OSVersion;
+                        finalRecordItem['Devices'] = item.StorageGroup;
+                        finalRecord.push(finalRecordItem);
+                    }
+
+                                        
+                } else {
+                    // Not find host
+                    finalRecordItem['app_name'] = '';
+                    
+                    finalRecordItem['host_name'] = item.hba_wwn;
+                    finalRecordItem['host_type'] = '';
+                    finalRecordItem['host_status'] = '';
+                    finalRecordItem['host_ip'] = '';
+                    finalRecordItem['host_os'] = '';
+                    finalRecordItem['host_osversion'] = '';
+                    finalRecordItem['Devices'] = item.StorageGroup;
+
+                    finalRecord.push(finalRecordItem);
+
+                }
+                
+            }
+
+            // Calculat the count and capacity of devices each host
+            for ( var i in finalRecord) {
+                var item = finalRecord[i];
+                if ( typeof item.Devices !== 'undefined') {
+                    var count = 0;
+                    var capacity = 0;
+                    for ( var j in item.Devices ) {
+                        var deviceItem = item.Devices[j];
+                        count++;
+                        capacity += parseFloat(deviceItem.Capacity);
+                    }
+                    item['DeviceCount'] = count;
+                    item['Capacity'] = capacity;
+                } else {
+                    item['DeviceCount'] = 0;
+                    item['Capacity'] = 0;                    
+                }
+            }
+
+
+            res.json(200,finalRecord);
+        });
+ 
+
+    });
+
+
+
+   app.get('/api/arrays', function (req, res) {
  
         var param = {};
-        var arraysn = req.query.arraysn; 
+        var arraysn = req.query.device; 
         if (typeof arraysn !== 'undefined') { 
-            param['filter'] = 'device=\''+arraysn+'\'&!parttype&(datatype==\'Block\'|datatype==\'File\'|datatype==\'Virtual\'|datatype==\'Object\')';
+            param['filter'] = 'device=\''+arraysn+'\'&(datatype==\'Block\'|datatype==\'File\'|datatype==\'Virtual\'|datatype==\'Object\')';
         } else {
             param['filter'] = '!parttype&(datatype==\'Block\'|datatype==\'File\'|datatype==\'Virtual\'|datatype==\'Object\')';
         } 
@@ -57,74 +243,156 @@ var arrayController = function (app) {
         param['fields'] = ['sstype','device','model','vendor','devdesc'];
 
 
-        CallGet(param, function(param) {
-            for ( var i in param.result) {
-                var item = param.result[i];
+        async.waterfall([
+            function(callback){ 
+                CallGet.CallGet(param, function(param) {
+                    for ( var i in param.result) {
+                        var item = param.result[i];
 
-                var ConfiguredUsableCapacity = item.ConfiguredUsableCapacity;
-                var UsedCapacity = item.UsedCapacity;
-                var UsedPercent = UsedCapacity / ConfiguredUsableCapacity * 100;
-                console.log(item.serialnb + '=' + UsedPercent.toFixed(0));
-                item['UsedPercent'] = UsedPercent.toFixed(0);
-            }
+                        var ConfiguredUsableCapacity = item.ConfiguredUsableCapacity;
+                        var UsedCapacity = item.UsedCapacity;
+                        var UsedPercent = UsedCapacity / ConfiguredUsableCapacity * 100;
+                        //console.log(item.device + '=' + UsedPercent.toFixed(0));
+                        item['UsedPercent'] = UsedPercent.toFixed(0);
 
-            getArrayPerformance(function(result) {
-                console.log("---------------- Finished ------------");
+                        item.TotalMemory = Math.round(item.TotalMemory).toString();
+                        item.TotalDisk = Math.round(item.TotalDisk).toString();
+                        item.TotalLun = Math.round(item.TotalLun).toString();
+
+                    }
+                    callback(null,param);
+                });
+
                 
+
+            },
+            function(param,  callback){  
+
                 if ( param.result.length > 0 ) {
 
-                   for ( var i in param.result ) {
-                        var item = param.result[i];
-                        item['perf'] = [];
-
-                        for ( var j in result.values ) {
-                            var perfItem = result.values[j]; 
-                            
-                            if ( item.device == perfItem.properties.device ) {
-                                item.perf.push(perfItem);  
-                            }
-                        }
-                    }
-
-                //
-                // get specific a array infomation.
-                //
-                if (typeof arraysn !== 'undefined') { 
-
-                    ArrayObj.findOne({"basicInfo.serialnb" : arraysn}, function (err, doc) {
-                        //system error.
-                        if (err) {
-                            return   done(err);
-                        }
-                        if (!doc) { //user doesn't exist.
-                            console.log("array is not exist. insert it."); 
-
-                            param.result[0]['info'] = {};
+                    getArrayPerformance(function(result) { 
                         
-                        }
-                        else {
-                            console.log("Array is exist!");
-             
-                            param.result[0]['info'] = doc;
- 
-                        }
-                        res.json(200, param.result);
+                        
+                           for ( var i in param.result ) {
+                                var item = param.result[i];
+                                item['perf'] = [];
+
+                                for ( var j in result.values ) {
+                                    var perfItem = result.values[j]; 
+                                    
+                                    if ( item.device == perfItem.properties.device ) {
+                                        item.perf.push(perfItem);  
+                                    }
+                                }
+
+
+                                //
+                                // get specific a array infomation.
+                                //
+                                if (typeof arraysn !== 'undefined') { 
+
+                                    ArrayObj.findOne({"basicInfo.serialnb" : arraysn}, function (err, doc) {
+                                        //system error.
+                                        if (err) {
+                                            return   done(err);
+                                        }
+                                        if (!doc) { //user doesn't exist.
+                                            console.log("array is not exist. insert it."); 
+
+                                            param.result[0]['info'] = {};
+                                        
+                                        }
+                                        else {
+                                            console.log("Array is exist!");
+                             
+                                            param.result[0]['info'] = doc;
+                 
+                                        }
+                                        callback(null,param);
+                                    });
+                                } else {
+                                    callback(null,param);
+                                } 
+
+
+                            } 
+     
                     });
-                }
 
-                }
-             });
+                } else 
+                    callback(null,param);
 
+            },
+            function(param,  callback){ 
+
+                if ( param.result.length > 0 ) {
+
+                    var eventParam = {};
+                    eventParam['filter'] = '!acknowledged&active=\'1\'&devtype=\'Array\'';
+                    GetEvents.GetEvents(eventParam, function(result) {   
+
+                        if ( param.result.length > 0 ) {
+
+                           for ( var i in param.result ) {
+                                var item = param.result[i];
+                                item['event'] = [];
+
+                                for ( var j in result ) {
+                                    var eventItem = result[j]; 
+                                    
+                                    if ( item.device == eventItem.device ) {
+                                        item.event.push(eventItem);  
+                                    }
+                                }
+                            }
+                        } else {
+                            item['event'] = [];
+                        }
+
+
+                        callback(null,param);
+                    });
+
+                
+                } else 
+                    callback(null,param);
+
+
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result.result);
         });
 
-         
     });
 
+
+     app.get('/api/array/maskviews', function (req, res) {
+
+
+        var arraysn = req.query.device; 
+
+        VMAX.GetMaskViews(arraysn, function(result) {
+            res.json(200,result);
+        });
+
+    });
+
+     app.get('/api/array/initialgroups', function (req, res) {
+
+
+        var arraysn = req.query.device; 
+
+        VMAX.GetInitialGroups(arraysn, function(result) {
+            res.json(200,result);
+        });
+
+    });
 
      app.get('/api/array/disks', function (req, res) {
  
 
-        var arraysn = req.query.arraysn; 
+        var arraysn = req.query.device; 
 
         var param = {};
         param['filter_name'] = '(name=\'Capacity\'|name=\'FreeCapacity\'|name=\'Availability\')';
@@ -137,7 +405,7 @@ var arrayController = function (app) {
             param['filter'] = 'parttype=\'Disk\'';
         } 
 
-        CallGet(param, function(param) {
+        CallGet.CallGet(param, function(param) {
             res.json(200, param.result);
         });
 
@@ -145,30 +413,15 @@ var arrayController = function (app) {
 
          
     });
-
     app.get('/api/array/luns', function ( req, res )  {
 
-        var arraysn = req.query.arraysn; 
+        var arraysn = req.query.device; 
 
-        var param = {};
-        param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'Availability\'|name=\'PoolUsedCapacity\')';
-        param['keys'] = ['serialnb','part'];
-        param['fields'] = ['alias','parttype','config','poolemul','purpose','dgstype','poolname'];
-
-        if (typeof arraysn !== 'undefined') { 
-            param['filter'] = 'serialnb=\''+arraysn+'\'&(parttype=\'MetaMember\'|parttype=\'LUN\')';
-        } else {
-            param['filter'] = '(parttype=\'MetaMember\'|parttype=\'LUN\')';
-        } 
-
-        CallGet(param, function(param) {
-            res.json(200, param.result);
+        VMAX.GetDevices(arraysn, function(result) {
+            res.json(200,result);
         });
+    });
 
-
-
-    } ) ;
- 
  
 
      app.get('/api/array/pools', function ( req, res )  {
@@ -186,7 +439,7 @@ var arrayController = function (app) {
             param['filter'] = 'parttype=\'Storage Pool\'';
         } 
 
-        CallGet(param, function(param) {
+        CallGet.CallGet(param, function(param) {
             res.json(200, param.result);
         });
 
@@ -208,12 +461,21 @@ var arrayController = function (app) {
             param['filter'] = 'parttype=\'Port\'';
         } 
 
-        CallGet(param, function(param) {
+        CallGet.CallGet(param, function(param) {
             res.json(200, param.result);
         });
      } ) ;
 
- 
+     app.get('/api/array/ports1', function ( req, res )  {
+
+        var arraysn = req.query.device; 
+
+        VMAX.GetFEPorts(arraysn, function(result) {
+            res.json(200,result);
+        });
+
+     } ) ;
+
 
      app.get('/api/array/switchs', function ( req, res )  {
 
@@ -490,17 +752,35 @@ var arrayController = function (app) {
     });
 
 
+    app.get('/api/array/events', function (req, res) {
+ 
+ 
+        var arraysn = req.query.device; 
+        var eventParam = {};
+        if (typeof arraysn !== 'undefined') { 
+            eventParam['filter'] = 'device=\''+arraysn + '\'&!acknowledged&active=\'1\'&devtype=\'Array\'';
+            var filterbase = 'device=\''+arraysn+'\'&!parttype';
+        } else {
+            eventParam['filter'] = '!acknowledged&active=\'1\'&devtype=\'Array\'';
+        } 
 
+        //console.log(eventParam);
+        GetEvents.GetEvents(eventParam, function(result) {   
+
+            res.json(200,result);
+        });
+
+
+    });
 
 
  
 
      app.get('/api/array/test', function ( req, res )  {
-
-        getArrayPerformance(function(result) {
-                console.log("---------------- Finished ------------");
-
-                res.json(200, result);
+        var param = {};
+        param['filter'] = '!acknowledged&active=\'1\'&devtype=\'Array\'';
+        GetEvents.GetEvents(param, function(result) { 
+            res.json(200,result);
         });
 
 
@@ -509,8 +789,10 @@ var arrayController = function (app) {
 
     var getArrayPerformance =  function (callback) {
  
-        var start = '2016-06-20T18:30:00+08:00'
-        var end = '2016-07-01T18:30:00+08:00'
+        //var start = '2016-06-20T18:30:00+08:00'
+        //var end = '2016-07-01T18:30:00+08:00'
+        var start = util.getPerfStartTime();
+        var end = util.getPerfEndTime();
         var filterbase = '!parttype'; 
 
         async.waterfall([
@@ -524,8 +806,7 @@ var arrayController = function (app) {
                 var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
                 //var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '3600'}; 
 
-  
-                console.log(queryString);
+   
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
                         .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                         .headers({'Content-Type': 'multipart/form-data'}) 

@@ -42,7 +42,7 @@ var switchController = function (app) {
             param['filter'] = 'devtype==\'FabricSwitch\'&!parttype';
         } 
 
-        CallGet(param, function(param) { 
+        CallGet.CallGet(param, function(param) { 
             res.json(200, param.result);
         });
 
@@ -66,7 +66,7 @@ var switchController = function (app) {
             res.json(400, 'Must be special a device!');
         } 
 
-        CallGet(param, function(param) { 
+        CallGet.CallGet(param, function(param) { 
 
 		SwitchObj.findOne({"basicInfo.device" : deviceid}, function (err, doc) {
 		    //system error.
@@ -116,7 +116,7 @@ var switchController = function (app) {
         param['filter'] = 'device=\''+deviceid+'\'&parttype=\'Port\'&!iftype=\'Ethernet\'&!discrim=\'FCoE\'';
 
 
-        CallGet(param, function(param) { 
+        CallGet.CallGet(param, function(param) { 
             res.json(200, param.result);
         });
 

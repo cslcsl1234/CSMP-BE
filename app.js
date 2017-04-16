@@ -36,6 +36,7 @@ require('./controllers/arrayController')(app);
 
 require('./controllers/switchController')(app);
 require('./controllers/appController')(app);
+require('./controllers/hostController')(app);
 
 app.listen(config.SERVER.PORT, function () {
 	console.log('=== The Backend server listening on [' + config.Backend.URL + '] ===');

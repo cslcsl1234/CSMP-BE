@@ -22,6 +22,8 @@ require('./../models/arrayModel');
 require('./../models/switchModel');
 require('./../models/appModel');
 
+require('./../models/hostModel');
+
 //connect to db.
 mongoose.connect(dbUrl, function (err, res) {
     if (err) {

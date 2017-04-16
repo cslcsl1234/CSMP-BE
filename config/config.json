@@ -6,7 +6,7 @@
     },
     "MongoDBURL" : "mongodb://localhost/csmp",
     "SRM_RESTAPI" : {
-        "SERIES_BEGIN_TS": "2016-07-01T18:30:00+08:00",
+        "SERIES_BEGIN_TS": "2016-04-01T18:30:00+08:00",
         "SERIES_LIMITS": "50000",
         "METRICS_PROPERTIES_VALUE": "/metrics/properties/values",
 		"METRICS_SERIES_VALUE": "/metrics/series/values"
