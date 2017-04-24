@@ -47,6 +47,25 @@ var arrayController = function (app) {
     });
 
 
+
+   app.get('/api/arrays', function (req, res) { 
+        var device; 
+        VMAX.GetArrays(device, function(ret) {
+            res.json(200,ret);
+        })
+    });
+
+   app.get('/api/arrays/:device', function (req, res) {
+        console.log(req.params.device);
+
+        VMAX.GetArrays(req.params.device, function(ret) {
+            res.json(200,ret);
+        })
+    });
+
+
+
+
      app.get('/api/array/apps', function (req, res) {
 
  
@@ -143,6 +162,13 @@ var arrayController = function (app) {
 
     });
 
+app.get('/api/array/host1', function(req, res) {
+        var arraysn = req.query.device; 
+        VMAX.GetAssignedHosts(arraysn, function(result) {
+            res.json(200,result);
+        });
+
+});
 
      app.get('/api/array/hosts', function (req, res) {
 
@@ -228,145 +254,6 @@ var arrayController = function (app) {
 
 
 
-   app.get('/api/arrays', function (req, res) {
- 
-        var param = {};
-        var arraysn = req.query.device; 
-        if (typeof arraysn !== 'undefined') { 
-            param['filter'] = 'device=\''+arraysn+'\'&(datatype==\'Block\'|datatype==\'File\'|datatype==\'Virtual\'|datatype==\'Object\')';
-        } else {
-            param['filter'] = '!parttype&(datatype==\'Block\'|datatype==\'File\'|datatype==\'Virtual\'|datatype==\'Object\')';
-        } 
-
-        param['filter_name'] = '(name=\'TotalDisk\'|name=\'TotalMemory\'|name=\'RawCapacity\'|name=\'TotalLun\'|name=\'ConfiguredRawCapacity\'|name=\'UnconfiguredCapacity\'|name=\'HotSpareCapacity\'|name=\'UnusableCapacity\'|name=\'UsedCapacity\'|name=\'ConfiguredUsableCapacity\')';
-        param['keys'] = ['device'];
-        param['fields'] = ['sstype','device','model','vendor','devdesc'];
-
-
-        async.waterfall([
-            function(callback){ 
-                CallGet.CallGet(param, function(param) {
-                    for ( var i in param.result) {
-                        var item = param.result[i];
-
-                        var ConfiguredUsableCapacity = item.ConfiguredUsableCapacity;
-                        var UsedCapacity = item.UsedCapacity;
-                        var UsedPercent = UsedCapacity / ConfiguredUsableCapacity * 100;
-                        //console.log(item.device + '=' + UsedPercent.toFixed(0));
-                        item['UsedPercent'] = UsedPercent.toFixed(0);
-
-                        item.TotalMemory = Math.round(item.TotalMemory).toString();
-                        item.TotalDisk = Math.round(item.TotalDisk).toString();
-                        item.TotalLun = Math.round(item.TotalLun).toString();
-
-                    }
-                    callback(null,param);
-                });
-
-                
-
-            },
-            function(param,  callback){  
-
-                if ( param.result.length > 0 ) {
-
-                    getArrayPerformance(function(result) { 
-                        
-                        
-                           for ( var i in param.result ) {
-                                var item = param.result[i];
-                                item['perf'] = [];
-
-                                for ( var j in result.values ) {
-                                    var perfItem = result.values[j]; 
-                                    
-                                    if ( item.device == perfItem.properties.device ) {
-                                        item.perf.push(perfItem);  
-                                    }
-                                }
-
-
-                                //
-                                // get specific a array infomation.
-                                //
-                                if (typeof arraysn !== 'undefined') { 
-
-                                    ArrayObj.findOne({"basicInfo.serialnb" : arraysn}, function (err, doc) {
-                                        //system error.
-                                        if (err) {
-                                            return   done(err);
-                                        }
-                                        if (!doc) { //user doesn't exist.
-                                            console.log("array is not exist. insert it."); 
-
-                                            param.result[0]['info'] = {};
-                                        
-                                        }
-                                        else {
-                                            console.log("Array is exist!");
-                             
-                                            param.result[0]['info'] = doc;
-                 
-                                        }
-                                        callback(null,param);
-                                    });
-                                } else {
-                                    callback(null,param);
-                                } 
-
-
-                            } 
-     
-                    });
-
-                } else 
-                    callback(null,param);
-
-            },
-            function(param,  callback){ 
-
-                if ( param.result.length > 0 ) {
-
-                    var eventParam = {};
-                    eventParam['filter'] = '!acknowledged&active=\'1\'&devtype=\'Array\'';
-                    GetEvents.GetEvents(eventParam, function(result) {   
-
-                        if ( param.result.length > 0 ) {
-
-                           for ( var i in param.result ) {
-                                var item = param.result[i];
-                                item['event'] = [];
-
-                                for ( var j in result ) {
-                                    var eventItem = result[j]; 
-                                    
-                                    if ( item.device == eventItem.device ) {
-                                        item.event.push(eventItem);  
-                                    }
-                                }
-                            }
-                        } else {
-                            item['event'] = [];
-                        }
-
-
-                        callback(null,param);
-                    });
-
-                
-                } else 
-                    callback(null,param);
-
-
-            }
-        ], function (err, result) {
-           // result now equals 'done'
-           res.json(200, result.result);
-        });
-
-    });
-
-
      app.get('/api/array/maskviews', function (req, res) {
 
 
@@ -426,7 +313,7 @@ var arrayController = function (app) {
 
      app.get('/api/array/pools', function ( req, res )  {
 
-        var arraysn = req.query.arraysn; 
+        var arraysn = req.query.device; 
 
         var param = {};
         param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\')';
@@ -448,7 +335,7 @@ var arrayController = function (app) {
  
      app.get('/api/array/ports', function ( req, res )  {
 
-        var arraysn = req.query.arraysn; 
+        var arraysn = req.query.device; 
 
         var param = {};
         param['filter_name'] = '(name=\'IORate\'|name=\'Throughput\'|name=\'Availability\')';
@@ -479,7 +366,7 @@ var arrayController = function (app) {
 
      app.get('/api/array/switchs', function ( req, res )  {
 
-        var arraysn = req.query.arraysn; 
+        var arraysn = req.query.device; 
 
 
         getTopos(function(topos) { 
@@ -511,7 +398,7 @@ var arrayController = function (app) {
 
     app.get('/api/array/perf/trend', function (req, res) {
 
-        var arraysn = req.query.arraysn; 
+        var arraysn = req.query.device; 
         var start = req.query.start; 
         var end = req.query.end; 
 
@@ -570,7 +457,7 @@ var arrayController = function (app) {
 
     app.get('/api/array/capacity/trend', function (req, res) {
 
-        var arraysn = req.query.arraysn; 
+        var arraysn = req.query.device; 
         var start = req.query.start; 
         var end = req.query.end; 
 
@@ -624,7 +511,7 @@ var arrayController = function (app) {
     app.get('/api/array/capacity', function (req, res) {
  
  
-         var arraysn = req.query.arraysn; 
+         var arraysn = req.query.device; 
         if (typeof arraysn !== 'undefined') { 
             var filterbase = 'device=\''+arraysn+'\'&!parttype';
         } else {
@@ -787,69 +674,54 @@ var arrayController = function (app) {
 
     } ) ;
 
-    var getArrayPerformance =  function (callback) {
+
+
+
+
+
+
+
+    app.get('/api/array/performance', function (req, res) {
  
-        //var start = '2016-06-20T18:30:00+08:00'
-        //var end = '2016-07-01T18:30:00+08:00'
-        var start = util.getPerfStartTime();
-        var end = util.getPerfEndTime();
-        var filterbase = '!parttype'; 
+ 
+        var arraysn = req.query.device; 
+        var eventParam = {};
+        if (typeof arraysn !== 'undefined') { 
+            eventParam['filter'] = 'device=\''+arraysn + '\'&!acknowledged&active=\'1\'&devtype=\'Array\'';
+            var filterbase = 'device=\''+arraysn+'\'&!parttype';
+        } else {
+            eventParam['filter'] = '!acknowledged&active=\'1\'&devtype=\'Array\'';
+        } 
 
-        async.waterfall([
-            function(callback){ 
-                var filter = filterbase + '&(name==\'ReadRequests\'|name==\'WriteRequests\')';
-                var fields = 'device,name';
-                var keys = ['device'];
+        //console.log(eventParam);
+        VMAX.getArrayPerformance( function(result) {   
 
-
-
-                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
-                //var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '3600'}; 
-
-   
-                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
-                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
-                        .headers({'Content-Type': 'multipart/form-data'}) 
-                        .query(queryString) 
-                        .end(function (response) { 
-                            if ( response.error ) {
-                                console.log(response.error);
-                                return response.error;
-                            } else {  
-                                //console.log(response.body);   
-                                var resultRecord = response.body;
-                                callback(null,resultRecord);
-                            }
-         
-                        }); 
-
-     
-            },
-            function(arg1,  callback){  
-               callback(null,arg1);
-
-
-            }
-        ], function (err, result) {
-           // result now equals 'done'
-           //res.json(200, result);
-           var r = JSON.parse(result);
-           callback(r);
+            res.json(200,result);
         });
 
 
+    });
+
+
  
 
-         
-    };
+
+    app.get('/api/array/lunperf', function (req, res) {
+ 
+ 
+        var arraysn = req.query.device; 
+
+        //console.log(eventParam);
+        VMAX.getArrayLunPerformance(arraysn, function(result) {   
+
+            res.json(200,result);
+        });
 
 
+    });
 
 
-
-
-
-
+ 
 
 
 

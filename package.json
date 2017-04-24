@@ -9,7 +9,8 @@
     "nconf": "*",
     "node-uuid": "*",
     "synchronize": "*",
-    "unirest": "*"
+    "unirest": "*",
+    "jsonpath": "0.2.11"
 
   },
   "devDependencies": {

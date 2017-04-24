@@ -16,7 +16,6 @@ for (var k in interfaces) {
     }
 }
 
-
 //Initial mongoDB related settings.
 require('./config/db');
 
@@ -27,7 +26,6 @@ app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.static(__dirname + '/public'));
 app.use(app.router);
- 
 
 require('./config/authController')(app);
 require('./controllers/demoController')(app);
@@ -37,6 +35,9 @@ require('./controllers/arrayController')(app);
 require('./controllers/switchController')(app);
 require('./controllers/appController')(app);
 require('./controllers/hostController')(app);
+
+require('./controllers/eventController')(app);
+
 
 app.listen(config.SERVER.PORT, function () {
 	console.log('=== The Backend server listening on [' + config.Backend.URL + '] ===');
