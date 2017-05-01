@@ -1,5 +1,9 @@
+. /etc/profile
+cd /root/CSMP-BE
+
 npm install nodemon -g --registry=https://registry.npm.taobao.org
 npm install grunt -g --registry=https://registry.npm.taobao.org
+npm install  --registry=https://registry.npm.taobao.org
 
 
 ##----------------------
@@ -24,10 +28,5 @@ service mongod start
 ## ------------------------
 ##  Initial BackendServer Mongodb
 ## ------------------------
-cd ~/CSMP-BE
 grunt
-
-
-npm install  --registry=https://registry.npm.taobao.org
-
 
