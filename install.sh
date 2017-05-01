@@ -1,5 +1,5 @@
-npm install nodemon -g
-npm install grant -g
+npm install nodemon -g --registry=https://registry.npm.taobao.org
+npm install grunt -g --registry=https://registry.npm.taobao.org
 
 
 ##----------------------
@@ -26,5 +26,8 @@ service mongod start
 ## ------------------------
 cd ~/CSMP-BE
 grunt
+
+
+npm install  --registry=https://registry.npm.taobao.org
 
 
