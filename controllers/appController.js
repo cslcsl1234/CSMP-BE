@@ -1,5 +1,6 @@
 "use strict";
 
+
 /**
  * This controller is to demo the common APIs a project provides.
  * In spite of there are various level authorizations, the auth-controlled logic is not mixed with any auth code.
