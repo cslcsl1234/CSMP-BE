@@ -1,0 +1,487 @@
+[
+  {
+    "array_portwwn": "50000971580B0880",
+    "array_port": "FA-3D:32",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B08CA",
+    "array_port": "FA-4D:10",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B0808",
+    "array_port": "FA-1D:8",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "209B50EB1AA83C54",
+    "switch_port": "7/27",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000971580B0881",
+    "array_port": "FA-3D:33",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B08CB",
+    "array_port": "DX-4E:11",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "208850EB1AA83C54",
+    "switch_port": "7/8",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B0809",
+    "array_port": "FA-1D:9",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20A350EB1AA83C54",
+    "switch_port": "7/35",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000971580B0882",
+    "array_port": "FA-3D:34",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B0849",
+    "array_port": "FA-2D:9",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20A250EB1AA83C54",
+    "switch_port": "7/34",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000971580B0883",
+    "array_port": "FA-3D:35",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B0848",
+    "array_port": "FA-2D:8",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "208950EB1AA83C54",
+    "switch_port": "7/9",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B08C4",
+    "array_port": "FA-4D:4",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20D350EB1AA83C54",
+    "switch_port": "8/19",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B0804",
+    "array_port": "FA-1D:4",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "208C50EB1AA83C54",
+    "switch_port": "7/12",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B0805",
+    "array_port": "FA-1D:5",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "209A50EB1AA83C54",
+    "switch_port": "7/26",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B0845",
+    "array_port": "FA-2D:5",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20A450EB1AA83C54",
+    "switch_port": "7/36",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B08C5",
+    "array_port": "FA-4D:5",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20A750EB1AA83C54",
+    "switch_port": "7/39",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B0844",
+    "array_port": "FA-2D:4",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20D950EB1AA83C54",
+    "switch_port": "8/25",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B08C8",
+    "array_port": "FA-4D:8",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "209F50EB1AA83C54",
+    "switch_port": "7/31",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B0888",
+    "array_port": "FA-3D:8",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20A050EB1AA83C54",
+    "switch_port": "7/32",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B0889",
+    "array_port": "FA-3D:9",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "209C50EB1AA83C54",
+    "switch_port": "7/28",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B080B",
+    "array_port": "DX-1E:11",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "208B50EB1AA83C54",
+    "switch_port": "7/11",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B08C9",
+    "array_port": "FA-4D:9",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20A150EB1AA83C54",
+    "switch_port": "7/33",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B08DF",
+    "array_port": "FA-4D:31",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B089E",
+    "array_port": "FA-3D:30",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B089F",
+    "array_port": "FA-3D:31",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B08DE",
+    "array_port": "FA-4D:30",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000971580B0843",
+    "array_port": "FA-2D:35",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000971580B0841",
+    "array_port": "FA-2D:33",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000971580B0842",
+    "array_port": "FA-2D:34",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B0887",
+    "array_port": "DX-3E:7",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20DD50EB1AA83C54",
+    "switch_port": "8/29",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000971580B0840",
+    "array_port": "FA-2D:32",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B0886",
+    "array_port": "RF-3F:6",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "209D50EB1AA83C54",
+    "switch_port": "7/29",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B0807",
+    "array_port": "DX-1E:7",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "206050EB1AA83C54",
+    "switch_port": "2/32",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B088B",
+    "array_port": "DX-3E:11",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20C850EB1AA83C54",
+    "switch_port": "8/8",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B0846",
+    "array_port": "RF-2F:6",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "209E50EB1AA83C54",
+    "switch_port": "7/30",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000971580B08C0",
+    "array_port": "FA-4D:32",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000971580B08C1",
+    "array_port": "FA-4D:33",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B088A",
+    "array_port": "FA-3D:10",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B084A",
+    "array_port": "FA-2D:10",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000971580B0800",
+    "array_port": "FA-1D:32",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000971580B0801",
+    "array_port": "FA-1D:33",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B0847",
+    "array_port": "DX-2E:7",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20CF50EB1AA83C54",
+    "switch_port": "8/15",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B080A",
+    "array_port": "FA-1D:10",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B0884",
+    "array_port": "FA-3D:4",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "208A50EB1AA83C54",
+    "switch_port": "7/10",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B0885",
+    "array_port": "FA-3D:5",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20A550EB1AA83C54",
+    "switch_port": "7/37",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B08DD",
+    "array_port": "FA-4D:29",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B089C",
+    "array_port": "FA-3D:28",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B08DC",
+    "array_port": "FA-4D:28",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B084B",
+    "array_port": "DX-2E:11",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20AE50EB1AA83C54",
+    "switch_port": "7/46",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B089D",
+    "array_port": "FA-3D:29",
+    "array": "000296800706"
+  },
+  {
+    "array_portwwn": "50000975580B0806",
+    "array_port": "RF-1F:6",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20AA50EB1AA83C54",
+    "switch_port": "7/42",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B08C7",
+    "array_port": "DX-4E:7",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "205F50EB1AA83C54",
+    "switch_port": "2/31",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  },
+  {
+    "array_portwwn": "50000975580B08C6",
+    "array_port": "RF-4F:6",
+    "array": "000296800706",
+    "switch": "Brocade_DCX4S-100050EB1AA83CD3",
+    "switch_model": "Brocade DCX 8510-4",
+    "switch_firmware": "v7.0.2c",
+    "switch_portwwn": "20A650EB1AA83C54",
+    "switch_port": "7/38",
+    "switch_porttype": "F-Port",
+    "switch_maxspeed": "8Gbps",
+    "switch_portstat": "Enabled"
+  }
+]
+

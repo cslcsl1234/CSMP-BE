@@ -35,6 +35,20 @@ var host = require('../lib/Host');
 // ----------------------------------------
 
 var VMAXListJSON = require('../demodata/arrayContorller');
+var demo_array_apps = require('../demodata/array_apps');
+var demo_array_hosts= require('../demodata/array_hosts');
+var demo_array_maskviews= require('../demodata/array_maskviews');
+var demo_array_capacity = require('../demodata/array_capacity');
+var demo_array_capacity_trend = require('../demodata/array_capacity_trend');
+var demo_array_disks = require('../demodata/array_disks');
+var demo_array_initialgroups = require('../demodata/array_initialgroups');
+var demo_array_lunperf = require('../demodata/array_lunperf');
+var demo_array_luns = require('../demodata/array_luns');
+var demo_array_performance = require('../demodata/array_performance');
+var demo_array_pools = require('../demodata/array_pools');
+var demo_array_ports = require('../demodata/array_ports');
+var demo_array_switchs = require('../demodata/array_switchs');
+
 
 
 var arrayController = function (app) {
@@ -70,10 +84,22 @@ var arrayController = function (app) {
    app.get('/api/arrays/:device', function (req, res) {
         console.log(req.params.device);
 	
+        if ( config.ProductType == 'demo' ) {
+		var rets = [];
+		for ( var i in VMAXListJSON ) {
+			var item = VMAXListJSON[i];
+			if ( item.device == req.params.device )  {
+				rets.push(item);
 
-        VMAX.GetArrays(req.params.device, function(ret) {
-            res.json(200,ret);
-        })
+			}
+		}
+                res.json(200,rets);
+        } else {
+		VMAX.GetArrays(req.params.device, function(ret) {
+		    res.json(200,ret);
+		})
+	}
+
     });
 
 
@@ -84,6 +110,10 @@ var arrayController = function (app) {
  
         var arraysn = req.query.device; 
         var finalRecord = [];
+	if ( config.ProductType == 'demo' ) {
+		res.json(200,demo_array_apps);
+		return;
+	} ;
 
         VMAX.GetAssignedHosts(arraysn, function(result) {
 
@@ -175,19 +205,17 @@ var arrayController = function (app) {
 
     });
 
-app.get('/api/array/host1', function(req, res) {
-        var arraysn = req.query.device; 
-        VMAX.GetAssignedHosts(arraysn, function(result) {
-            res.json(200,result);
-        });
-
-});
 
      app.get('/api/array/hosts', function (req, res) {
 
  
         var arraysn = req.query.device; 
         var finalRecord = [];
+
+	if ( config.ProductType == 'demo' ) {
+		res.json(200,demo_array_hosts);
+		return;
+	} ;
 
         VMAX.GetAssignedHosts(arraysn, function(result) {
 
@@ -272,6 +300,11 @@ app.get('/api/array/host1', function(req, res) {
 
         var arraysn = req.query.device; 
 
+	if ( config.ProductType == 'demo' ) {
+		res.json(200,demo_array_maskviews);
+		return;
+	} ;
+
         VMAX.GetMaskViews(arraysn, function(result) {
             res.json(200,result);
         });
@@ -283,6 +316,12 @@ app.get('/api/array/host1', function(req, res) {
 
         var arraysn = req.query.device; 
 
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_array_initialgroups);
+                return;
+        } ;
+
+
         VMAX.GetInitialGroups(arraysn, function(result) {
             res.json(200,result);
         });
@@ -293,6 +332,12 @@ app.get('/api/array/host1', function(req, res) {
  
 
         var arraysn = req.query.device; 
+
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_array_disks);
+                return;
+        } ;
+
 
         var param = {};
         param['filter_name'] = '(name=\'Capacity\'|name=\'FreeCapacity\'|name=\'Availability\')';
@@ -317,6 +362,11 @@ app.get('/api/array/host1', function(req, res) {
 
         var arraysn = req.query.device; 
 
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_array_luns);
+                return;
+        } ;
+
         VMAX.GetDevices(arraysn, function(result) {
             res.json(200,result);
         });
@@ -327,6 +377,12 @@ app.get('/api/array/host1', function(req, res) {
      app.get('/api/array/pools', function ( req, res )  {
 
         var arraysn = req.query.device; 
+
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_array_pools);
+                return;
+        } ;
+
 
         var param = {};
         param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\')';
@@ -350,25 +406,11 @@ app.get('/api/array/host1', function(req, res) {
 
         var arraysn = req.query.device; 
 
-        var param = {};
-        param['filter_name'] = '(name=\'IORate\'|name=\'Throughput\'|name=\'Availability\')';
-        param['keys'] = ['device','feport'];
-        param['fields'] = ['nodewwn','portwwn','partstat'];
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_array_ports);
+                return;
+        } ;
 
-        if (typeof arraysn !== 'undefined') { 
-            param['filter'] = 'device=\''+arraysn+'\'&parttype=\'Port\'';
-        } else {
-            param['filter'] = 'parttype=\'Port\'';
-        } 
-
-        CallGet.CallGet(param, function(param) {
-            res.json(200, param.result);
-        });
-     } ) ;
-
-     app.get('/api/array/ports1', function ( req, res )  {
-
-        var arraysn = req.query.device; 
 
         VMAX.GetFEPorts(arraysn, function(result) {
             res.json(200,result);
@@ -380,6 +422,12 @@ app.get('/api/array/host1', function(req, res) {
      app.get('/api/array/switchs', function ( req, res )  {
 
         var arraysn = req.query.device; 
+
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_array_switchs);
+                return;
+        } ;
+
 
 
         getTopos(function(topos) { 
@@ -491,6 +539,12 @@ app.get('/api/array/host1', function(req, res) {
             return;
         }
 
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_array_capacity_trend);
+                return;
+        } ;
+
+
         console.log(start);
 
         var filter = filterbase + '&(name==\'UsedCapacity\'|name==\'PoolFreeCapacity\')';
@@ -525,6 +579,14 @@ app.get('/api/array/host1', function(req, res) {
  
  
          var arraysn = req.query.device; 
+
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_array_capacity);
+                return;
+        } ;
+
+
+
         if (typeof arraysn !== 'undefined') { 
             var filterbase = 'device=\''+arraysn+'\'&!parttype';
         } else {
@@ -553,7 +615,7 @@ app.get('/api/array/host1', function(req, res) {
                                 console.log(response.error);
                                 return response.error;
                             } else {  
-                                    var arrayCapacitys = RecordFlat(response.body, keys);   
+                                    var arrayCapacitys = RecordFlat.RecordFlat(response.body, keys);   
                                     var resultRecord =[];
                                     for ( var i in arrayCapacitys ) {
                                         var item = arrayCapacitys[i];
@@ -698,6 +760,14 @@ app.get('/api/array/host1', function(req, res) {
  
  
         var arraysn = req.query.device; 
+
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_array_performance);
+                return;
+        } ;
+
+
+
         var eventParam = {};
         if (typeof arraysn !== 'undefined') { 
             eventParam['filter'] = 'device=\''+arraysn + '\'&!acknowledged&active=\'1\'&devtype=\'Array\'';
@@ -723,6 +793,12 @@ app.get('/api/array/host1', function(req, res) {
  
  
         var arraysn = req.query.device; 
+
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_array_lunperf);
+                return;
+        } ;
+
 
         //console.log(eventParam);
         VMAX.getArrayLunPerformance(arraysn, function(result) {   

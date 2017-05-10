@@ -1,0 +1,783 @@
+[
+  {
+    "partstat": "Enabled but Offline",
+    "name": "Availability",
+    "device": "Brocade_DCX4S-100050EB1A90B3B7",
+    "portwwn": " ",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "partstat": "Enabled but Offline",
+    "name": "Availability",
+    "device": "Brocade_DCX4S-100050EB1AA83CD3",
+    "portwwn": " ",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-1D:32",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000971580B0800",
+    "IORate": "1.30832",
+    "LastTS": "1493251200",
+    "Throughput": "0.00750348",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-2D:32",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000971580B0840",
+    "IORate": "0.0095513",
+    "LastTS": "1493251200",
+    "Throughput": "4.56304E-5",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-3D:32",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000971580B0880",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-4D:32",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000971580B08C0",
+    "IORate": "2.52318",
+    "LastTS": "1493251200",
+    "Throughput": "0.0180309",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-1D:33",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000971580B0801",
+    "IORate": "3.20385",
+    "LastTS": "1493251200",
+    "Throughput": "0.0460026",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-2D:33",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000971580B0841",
+    "IORate": "0.00959875",
+    "LastTS": "1493251200",
+    "Throughput": "4.5643E-5",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-3D:33",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000971580B0881",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-4D:33",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000971580B08C1",
+    "IORate": "37.9242",
+    "LastTS": "1493251200",
+    "Throughput": "0.466924",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-2D:34",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000971580B0842",
+    "IORate": "0.00961046",
+    "LastTS": "1493251200",
+    "Throughput": "4.53679E-5",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-3D:34",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000971580B0882",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-2D:35",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000971580B0843",
+    "IORate": "0.00964569",
+    "LastTS": "1493251200",
+    "Throughput": "4.62468E-5",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-3D:35",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000971580B0883",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-1D:4",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B0804",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-2D:4",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B0844",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-3D:4",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B0884",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-4D:4",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B08C4",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-1D:5",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B0805",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-2D:5",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B0845",
+    "IORate": "0.00269237",
+    "LastTS": "1493251200",
+    "Throughput": "1.31463E-6",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-3D:5",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B0885",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-4D:5",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B08C5",
+    "IORate": "8.20717E-5",
+    "LastTS": "1493251200",
+    "Throughput": "4.0074E-8",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-1D:8",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B0808",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-2D:8",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B0848",
+    "IORate": "0.00269237",
+    "LastTS": "1493251200",
+    "Throughput": "1.31463E-6",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-3D:8",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B0888",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-4D:8",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B08C8",
+    "IORate": "8.20717E-5",
+    "LastTS": "1493251200",
+    "Throughput": "4.0074E-8",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-1D:9",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B0809",
+    "IORate": "0.00269237",
+    "LastTS": "1493251200",
+    "Throughput": "1.31463E-6",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-2D:9",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B0849",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-3D:9",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B0889",
+    "IORate": "8.20717E-5",
+    "LastTS": "1493251200",
+    "Throughput": "4.0074E-8",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "FA-4D:9",
+    "name": "IORate",
+    "device": "000296800706",
+    "portwwn": "50000975580B08C9",
+    "IORate": "0.0",
+    "LastTS": "1493251200",
+    "Throughput": "0.0",
+    "Availability": "100.0"
+  },
+  {
+    "feport": "DF-1C:12",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-1C:13",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-1C:16",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-1C:17",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DX-1E:11",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B080B",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DX-1E:7",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B0807",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "RF-1F:6",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B0806",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-2C:12",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-2C:13",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-2C:16",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-2C:17",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DX-2E:11",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B084B",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DX-2E:7",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B0847",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "RF-2F:6",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B0846",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-3C:12",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-3C:13",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-3C:16",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-3C:17",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DX-3E:11",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B088B",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DX-3E:7",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B0887",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "RF-3F:6",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B0886",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-4C:12",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-4C:13",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-4C:16",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DF-4C:17",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DX-4E:11",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B08CB",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "DX-4E:7",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B08C7",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "RF-4F:6",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B08C6",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-1D:10",
+    "nodewwn": "50000975580B0BFF",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B080A",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-2D:10",
+    "nodewwn": "50000975580B0BFF",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B084A",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-3D:28",
+    "nodewwn": "50000975580B0BFF",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B089C",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-3D:29",
+    "nodewwn": "50000975580B0BFF",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B089D",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-3D:30",
+    "nodewwn": "50000975580B0BFF",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B089E",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-3D:31",
+    "nodewwn": "50000975580B0BFF",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B089F",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-3D:10",
+    "nodewwn": "50000975580B0BFF",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B088A",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-4D:28",
+    "nodewwn": "50000975580B0BFF",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B08DC",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-4D:29",
+    "nodewwn": "50000975580B0BFF",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B08DD",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-4D:30",
+    "nodewwn": "50000975580B0BFF",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B08DE",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-4D:31",
+    "nodewwn": "50000975580B0BFF",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B08DF",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "FA-4D:10",
+    "nodewwn": "50000975580B0BFF",
+    "partstat": "Online",
+    "name": "Availability",
+    "device": "000296800706",
+    "portwwn": "50000975580B08CA",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "feport": "SP A:4",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "500601643EA015EC",
+    "Availability": "0.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP A:5",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "500601653EA015EC",
+    "Availability": "0.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP A:6",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "500601663EA015EC",
+    "Availability": "0.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP A:7",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "500601673EA015EC",
+    "Availability": "0.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP B:4",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "5006016C3EA015EC",
+    "Availability": "0.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP B:5",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "5006016D3EA015EC",
+    "Availability": "0.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP B:6",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "5006016E3EA015EC",
+    "Availability": "0.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP B:7",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "5006016F3EA015EC",
+    "Availability": "0.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP A:0",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "500601603EA015EC",
+    "Availability": "100.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP A:1",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "500601613EA015EC",
+    "Availability": "100.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP A:2",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "500601623EA015EC",
+    "Availability": "100.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP A:3",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "500601633EA015EC",
+    "Availability": "0.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP B:0",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "500601683EA015EC",
+    "Availability": "100.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP B:1",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "500601693EA015EC",
+    "Availability": "100.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP B:2",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "5006016A3EA015EC",
+    "Availability": "100.0",
+    "LastTS": "1492041600"
+  },
+  {
+    "feport": "SP B:3",
+    "name": "Availability",
+    "device": "VNX01",
+    "portwwn": "5006016B3EA015EC",
+    "Availability": "0.0",
+    "LastTS": "1492041600"
+  }
+]
+

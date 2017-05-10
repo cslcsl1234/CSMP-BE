@@ -18,6 +18,14 @@ var getTopos = require('./topos');
 var mongoose = require('mongoose');
 var SwitchObj = mongoose.model('Switch');
 
+// -----------------------------------
+// For demo data
+// ----------------------------------
+var demo_switchs = require('../demodata/switchs');
+var demo_switch_ports = require('../demodata/switch_ports');
+var demo_fabrics = require('../demodata/fabrics');
+var demo_fabric_zone = require('../demodata/fabric_zone');
+
 
 var switchController = function (app) {
 
@@ -30,6 +38,14 @@ var switchController = function (app) {
 
 
         var deviceid = req.query.device;
+
+
+
+	if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_switchs);
+                return;
+        } ;
+
 
         var param = {};
         param['filter_name'] = 'name=\'Availability\'';
@@ -49,11 +65,21 @@ var switchController = function (app) {
          
     });
 
+
+
     app.get('/api/switch', function (req, res) {
   
 
 
         var deviceid = req.query.device;
+
+
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_switchs);
+                return;
+        } ;
+
+
 
         var param = {};
         param['filter_name'] = 'name=\'Availability\'';
@@ -104,6 +130,14 @@ var switchController = function (app) {
 
         var deviceid = req.query.device;
         
+	
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_switch_ports);
+                return;
+        } ;
+
+
+
         if ( typeof deviceid === 'undefined' ) {
             res.json(400, 'Must be special a deviceid!');
             return;
@@ -141,6 +175,14 @@ var switchController = function (app) {
         //var fields = 'device,deviceid,vendor,model,ip,devdesc,devicesn,domainid,firmware,psname,pswwn,bootdate';
  
         var deviceid = req.query.deviceid;
+
+	
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_fabrics);
+                return;
+        } ;
+
+
         
         if ( typeof deviceid === 'undefined' ) {
             var fields = 'part,psname,pswwn,device,deviceid,fabwwn,lswwn,lsname';
@@ -209,6 +251,14 @@ var switchController = function (app) {
         //var fields = 'device,deviceid,vendor,model,ip,devdesc,devicesn,domainid,firmware,psname,pswwn,bootdate';
  
         var fabwwn = req.query.fabwwn;
+
+	
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_fabric_zone);
+                return;
+        } ;
+
+
         
         if ( typeof fabwwn === 'undefined' ) {
             res.json(200, 'Must be special fabwwn!');

@@ -1,0 +1,25 @@
+[
+  {
+    "devdesc": "Fibre Channel Switch",
+    "vendor": "Brocade",
+    "ip": "10.32.32.28",
+    "name": "Availability",
+    "model": "Brocade DCX 8510-4",
+    "device": "Brocade_DCX4S-100050EB1A90B3B7",
+    "devicesn": "ANN2529L004",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  },
+  {
+    "devdesc": "Fibre Channel Switch",
+    "vendor": "Brocade",
+    "ip": "10.32.32.29",
+    "name": "Availability",
+    "model": "Brocade DCX 8510-4",
+    "device": "Brocade_DCX4S-100050EB1AA83CD3",
+    "devicesn": "ANN2534L007",
+    "Availability": "100.0",
+    "LastTS": "1493251200"
+  }
+]
+

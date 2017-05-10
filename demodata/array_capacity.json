@@ -1,0 +1,87 @@
+[
+  {
+    "device": "000296800706",
+    "LastTS": "1493251200",
+    "Raw": {
+      "ConfiguredRawCapacity": "92233.7",
+      "ConfiguredUsableCapacity": "58161.6",
+      "HotSpareCapacity": "0.0",
+      "RAIDOverheadCapacity": "34071.8",
+      "UnconfiguredCapacity": "0.0078125",
+      "UnusableCapacity": "4121.48",
+      "ConfiguredUsableCapacityDetail": {
+        "FreeCapacity": "1282.48",
+        "PoolFreeCapacity": "51571.5",
+        "UsedCapacity": "5136.5",
+        "UsedCapacityByType": {
+          "BlockUsedCapacity": "5136.5",
+          "FileUsedCapacity": "0.0",
+          "VirtualUsedCapacity": "0.0"
+        },
+        "UsedCapacityByPurpose": {
+          "PrimaryUsedCapacity": "4215.28",
+          "LocalReplicaUsedCapacity": "0.0",
+          "RemoteReplicaUsedCapacity": "0.0",
+          "SystemUsedCapacity": "921.224"
+        }
+      }
+    }
+  },
+  {
+    "device": "VNX01",
+    "LastTS": "1492041600",
+    "Raw": {
+      "ConfiguredRawCapacity": "13686.1",
+      "ConfiguredUsableCapacity": "10041.2",
+      "HotSpareCapacity": "2194.48",
+      "RAIDOverheadCapacity": "3644.91",
+      "UnconfiguredCapacity": "1073.61",
+      "UnusableCapacity": "41.8323",
+      "ConfiguredUsableCapacityDetail": {
+        "FreeCapacity": "52.0",
+        "PoolFreeCapacity": "4959.35",
+        "UsedCapacity": "10014.6",
+        "UsedCapacityByType": {
+          "BlockUsedCapacity": "4989.71",
+          "FileUsedCapacity": "0.0",
+          "VirtualUsedCapacity": "0.0"
+        },
+        "UsedCapacityByPurpose": {
+          "PrimaryUsedCapacity": "5024.85",
+          "LocalReplicaUsedCapacity": "0.0",
+          "RemoteReplicaUsedCapacity": "0.0",
+          "SystemUsedCapacity": "4989.71"
+        }
+      }
+    }
+  },
+  {
+    "device": "Unity01",
+    "LastTS": "1493251200",
+    "Raw": {
+      "ConfiguredRawCapacity": "0.0",
+      "ConfiguredUsableCapacity": "0.0",
+      "HotSpareCapacity": "0.0",
+      "RAIDOverheadCapacity": "0.0",
+      "UnconfiguredCapacity": "0.0",
+      "UnusableCapacity": "0.0",
+      "ConfiguredUsableCapacityDetail": {
+        "FreeCapacity": "0.0",
+        "PoolFreeCapacity": "0.0",
+        "UsedCapacity": "0.0",
+        "UsedCapacityByType": {
+          "BlockUsedCapacity": "0.0",
+          "FileUsedCapacity": "0.0",
+          "VirtualUsedCapacity": "0.0"
+        },
+        "UsedCapacityByPurpose": {
+          "PrimaryUsedCapacity": "0.0",
+          "LocalReplicaUsedCapacity": "0.0",
+          "RemoteReplicaUsedCapacity": "0.0",
+          "SystemUsedCapacity": "0.0"
+        }
+      }
+    }
+  }
+]
+

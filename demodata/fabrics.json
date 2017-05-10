@@ -1,0 +1,21 @@
+[
+  {
+    "fabwwn": "100050EB1AA83C54",
+    "psname": "fabric1",
+    "switchs": [
+      {
+        "deviceid": "100050EB1A90B3B7",
+        "device": "Brocade_DCX4S-100050EB1A90B3B7",
+        "lsname": "BJPOC2",
+        "lswwn": "100050EB1A90B338"
+      },
+      {
+        "deviceid": "100050EB1AA83CD3",
+        "device": "Brocade_DCX4S-100050EB1AA83CD3",
+        "lsname": "BJPOC1",
+        "lswwn": "100050EB1AA83C54"
+      }
+    ]
+  }
+]
+
