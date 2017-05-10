@@ -1,3 +1,5 @@
+
 . /etc/profile
-DEBUG=authController nodemon app.js
+
+nohup node app.js > stdout.log 2> stderr.log &
 

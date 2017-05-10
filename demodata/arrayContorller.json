@@ -1,0 +1,169 @@
+[
+  {
+    "devdesc": "5977.952.892 date:02.03.2017 patch_date:02.03.2017",
+    "sstype": "Block",
+    "vendor": "EMC Corporation",
+    "name": "ConfiguredRawCapacity",
+    "model": "VMAX100K",
+    "device": "000296800706",
+    "ConfiguredRawCapacity": "92233.7",
+    "LastTS": "1493251200",
+    "HotSpareCapacity": "0.0",
+    "RawCapacity": "96355.0",
+    "UnconfiguredCapacity": "0.0078125",
+    "UnusableCapacity": "4121.48",
+    "ConfiguredUsableCapacity": "58161.6",
+    "UsedCapacity": "5136.5",
+    "TotalMemory": "444416",
+    "TotalDisk": "228",
+    "TotalLun": "1665",
+    "UsedPercent": "9",
+    "perf": [
+      {
+        "_filter": "#APG-DB:DB-group-23495",
+        "points": [
+          [
+            "1492732800",
+            "0.212197"
+          ],
+          [
+            "1492819200",
+            "0.198235"
+          ],
+          [
+            "1492905600",
+            "0.212467"
+          ],
+          [
+            "1492992000",
+            "0.246218"
+          ],
+          [
+            "1493078400",
+            "0.289692"
+          ],
+          [
+            "1493164800",
+            "0.203284"
+          ],
+          [
+            "1493251200",
+            "0.26992"
+          ],
+          [
+            "1493337600",
+            "0.203957"
+          ],
+          [
+            "1493424000",
+            "0.201327"
+          ],
+          [
+            "1493510400",
+            "0.216798"
+          ],
+          [
+            "1493596800",
+            "0.215729"
+          ],
+          [
+            "1493683200",
+            "0.205509"
+          ],
+          [
+            "1493769600",
+            "0.191085"
+          ]
+        ],
+        "properties": {
+          "name": "ReadRequests",
+          "device": "000296800706"
+        }
+      },
+      {
+        "_filter": "#APG-DB:DB-group-23501",
+        "points": [
+          [
+            "1492732800",
+            "43.7198"
+          ],
+          [
+            "1492819200",
+            "43.7383"
+          ],
+          [
+            "1492905600",
+            "42.9004"
+          ],
+          [
+            "1492992000",
+            "42.1451"
+          ],
+          [
+            "1493078400",
+            "42.6604"
+          ],
+          [
+            "1493164800",
+            "43.5655"
+          ],
+          [
+            "1493251200",
+            "43.7847"
+          ],
+          [
+            "1493337600",
+            "43.7593"
+          ],
+          [
+            "1493424000",
+            "43.5266"
+          ],
+          [
+            "1493510400",
+            "44.1001"
+          ],
+          [
+            "1493596800",
+            "43.0851"
+          ],
+          [
+            "1493683200",
+            "43.8972"
+          ],
+          [
+            "1493769600",
+            "43.7577"
+          ]
+        ],
+        "properties": {
+          "name": "WriteRequests",
+          "device": "000296800706"
+        }
+      }
+    ],
+    "event": []
+  },
+  {
+    "devdesc": "4.1.1.9138882",
+    "sstype": "Unified",
+    "vendor": "EMC Corporation",
+    "name": "ConfiguredRawCapacity",
+    "model": "UnityVSA",
+    "device": "Unity01",
+    "ConfiguredRawCapacity": "0.0",
+    "LastTS": "1493251200",
+    "ConfiguredUsableCapacity": "0.0",
+    "HotSpareCapacity": "0.0",
+    "RawCapacity": "0.0",
+    "UnconfiguredCapacity": "0.0",
+    "UnusableCapacity": "0.0",
+    "UsedCapacity": "0.0",
+    "UsedPercent": "NaN",
+    "TotalMemory": "NaN",
+    "TotalDisk": "NaN",
+    "TotalLun": "NaN",
+    "perf": [],
+    "event": []
+  }
+]

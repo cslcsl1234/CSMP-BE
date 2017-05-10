@@ -15,6 +15,7 @@
     "SERVER": {
         "PORT": 8080
     },
-    "aa": "aatest"
+    "ProductType": "demo"
+
 }
 

@@ -29,6 +29,14 @@ var GetEvents = require('../lib/GetEvents');
 var VMAX = require('../lib/Array_VMAX');
 var host = require('../lib/Host');
 
+
+// ----------------------------------------
+// ------------ For Demo Data -------------
+// ----------------------------------------
+
+var VMAXListJSON = require('../demodata/arrayContorller');
+
+
 var arrayController = function (app) {
 
     var config = configger.load();
@@ -50,13 +58,18 @@ var arrayController = function (app) {
 
    app.get('/api/arrays', function (req, res) { 
         var device; 
-        VMAX.GetArrays(device, function(ret) {
-            res.json(200,ret);
-        })
+	if ( config.ProductType == 'demo' ) {
+		res.json(200,VMAXListJSON);
+	} else {
+		VMAX.GetArrays(device, function(ret) {
+		    res.json(200,ret);
+		})
+	}
     });
 
    app.get('/api/arrays/:device', function (req, res) {
         console.log(req.params.device);
+	
 
         VMAX.GetArrays(req.params.device, function(ret) {
             res.json(200,ret);
