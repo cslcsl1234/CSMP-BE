@@ -30,6 +30,8 @@ app.use(app.router);
 require('./config/authController')(app);
 require('./controllers/demoController')(app);
 
+require('./controllers/topologyController')(app);
+
 require('./controllers/arrayController')(app);
 
 require('./controllers/switchController')(app);

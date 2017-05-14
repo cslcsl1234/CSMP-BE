@@ -1,6 +1,7 @@
 {
     "Backend": {
     	"URL" : "http://192.168.56.100:58080/APG-REST",
+        "TopoServURL" : "http://192.168.56.100:58080/BackendService",
         "USER": "admin",
         "PASSWORD": "changeme"
     },
@@ -15,7 +16,7 @@
     "SERVER": {
         "PORT": 8080
     },
-    "ProductType": "demo"
+    "ProductType": "Develop"
 
 }
 

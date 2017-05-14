@@ -13,7 +13,7 @@ var configger = require('../config/configger');
 var RecordFlat = require('../lib/RecordFlat');
 var util = require('../lib/util');
 var CallGet = require('../lib/CallGet'); 
-var getTopos = require('./topos'); 
+var getTopos = require('../lib/topos'); 
 
 var mongoose = require('mongoose');
 var SwitchObj = mongoose.model('Switch');

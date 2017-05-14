@@ -22,7 +22,7 @@ var ArrayObj = mongoose.model('Array');
 var CallGet = require('../lib/CallGet'); 
 
 var App = require('../lib/App'); 
-var getTopos = require('./topos.js');
+var getTopos = require('../lib/topos.js');
 
 
 var GetEvents = require('../lib/GetEvents');

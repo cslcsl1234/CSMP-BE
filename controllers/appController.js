@@ -21,7 +21,7 @@ var App = require('../lib/App');
 var mongoose = require('mongoose');
 var AppObj = mongoose.model('Application');
  
-var getTopos = require('./topos.js');
+var getTopos = require('../lib/topos.js');
 
 var appController = function (app) {
 
