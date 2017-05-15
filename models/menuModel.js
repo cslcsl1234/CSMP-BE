@@ -1,44 +1,63 @@
 "use strict";
 
 /**
- * Define  userSchema & authSchema, which are used for the authentication.
+ * Define  menuSchema & authSchema, which are used for the authentication.
  */
 
 var mongoose = require('mongoose')
     , uuid = require('node-uuid')
     , Schema = mongoose.Schema
     , ObjectId = mongoose.Schema.ObjectId
-    , userSchema
-    , authSchema
-    , USER_ROLES = 'user,admin'.split(',')
+    , menuSchema 
+    , roleSchema
     , DEFAULT_EXPIRE_TIME='1h';// 1 hour.
-
 /**
- * userSchema.
+ * menuSchema.
  * @type {Schema}
  */
-userSchema = new Schema({ 
-    username: {
+menuSchema = new Schema({
+    menuId: {
         type: String,
         required: true,
         unique: true
     },
-    email: {
+    parentMenuId: {
         type: String,
-        required: true,
-        unique: true
+        required: true 
     },
-    password: {
+    title: {
         type: String,
         required: true
     },
-    roleList: { 
-        type: Array ,
+    level: {
+        type: Number,
+        required: true
+    },
+    icon: {
+        type: String,
+        required: true
+    },
+    order: {
+        type: Number,
+        required: true
+    },
+    stateRef: { 
+        type: String, 
         required: true
     }
 });
 
-userSchema.pre('save', function (next) {
+roleSchema = new Schema({
+    roleName: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    menuList: [menuSchema]
+});
+
+var  User = mongoose.model('User') 
+menuSchema.pre('save', function (next) {
     var user = this;
     if (!user.isModified) {
         return next();
@@ -47,7 +66,7 @@ userSchema.pre('save', function (next) {
     return next();
 });
 
-userSchema.methods = {
+menuSchema.methods = {
     comparePassword: function (candidatePassword) {
         var user = this;
         //todo should compare encrypted password only
@@ -59,7 +78,7 @@ userSchema.methods = {
  * User static method.
  * @type {{login: Function}}
  */
-userSchema.statics = {
+menuSchema.statics = {
 
     /**
      * Login function, upon succeeded, the id logged user will be returned for future process.
@@ -115,81 +134,8 @@ userSchema.statics = {
 
 };
 
-/**
- * authSchema.
- *
- * @type {Schema}
- */
-authSchema = new Schema({
-    user: {
-        type: ObjectId,
-        ref: 'User'
-    },
-    authKey: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    effectiveDate: {type: Date,
-        default: Date.now,
-        expires: DEFAULT_EXPIRE_TIME //expiresAfterSeconds, creating a TTL index to ensure when expiry, this record will be removed by monogoDB
-    }
-});
-authSchema.methods = {
-    /**
-     * each time when a logged user accesses any api, the effective date of this authKey should be update to renew the
-     * effective date to accessing time.
-     */
-    updateEffectiveDate: function () {
-        var auth = this,
-            now = new Date();
-        //update the effectiveDate according to newer access time.
-        if (now.getTime() - auth.effectiveDate.getTime() >= 1000 * 6) {
-            auth.effectiveDate = now;
-            auth.save();
-        }
-    }
-};
-
-authSchema.statics = {
-
-    /**
-     * add a authKey to database, this authkey is a time-based UUID.
-     * @param userId
-     * @param done
-     */
-    addAuthKey: function (userId, done) {
-        var Auth = this,
-        //using time-based uuid as authKey.
-            authKey = uuid.v4(),
-            auth = new Auth({user: userId, authKey: authKey});
-        auth.save(function (err) {
-            done(err, authKey);
-        });
-    },
-    /**
-     * get the logged user by authKey
-     * @param authKey
-     * @param done {Function}  callback function,
-     *                          err: if any system error.
-     *                          user: fetched user, if found, else null will be returned.
-     */
-    getLoggedUser: function (authKey, done) {
-        var Auth = this;
-        Auth.findOne({authKey: authKey})
-            .populate('user')
-            .exec(function (err, auth) {
-                var user;
-                if (auth) {
-//                    auth.updateEffectiveDate();
-                    user = auth.user;
-                }
-                done(err, user);
-            })
-    }
-};
 
 
 //create and set two models into mongoose instance, they can be fetched anywhere mongoose object is presented.
-mongoose.model('User', userSchema);
-mongoose.model('Auth', authSchema);
+mongoose.model('Menu', menuSchema); 
+mongoose.model('Role', roleSchema); 

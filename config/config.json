@@ -16,7 +16,7 @@
     "SERVER": {
         "PORT": 8080
     },
-    "ProductType": "Develop"
+    "ProductType": "demo"
 
 }
 

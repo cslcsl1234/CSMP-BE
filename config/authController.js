@@ -2,6 +2,7 @@
 
 var mongoose = require('mongoose')
     , User = mongoose.model('User')
+    , Role = mongoose.model('Role')
     , Auth = mongoose.model('Auth');
 
 const debug = require('debug')('authController')  
@@ -133,93 +134,68 @@ var authController = function (app) {
     });
 
 /*
-*  Create a user
+*  Create and Update a user
 */
-    app.post('/api/admin/user', function (req, res) {
-        var user = {
-            username: req.body.username,
-	    email: req.body.email,
-            password: req.body.password,
-	    role: req.body.role
-        };
+    app.post('/api/user/add', function (req, res) {
+ 
+      var user = req.body;
+      User.findOne({username: user.username}, function (err, doc) {
+          //system error.
+          if (err) {
+            return   done(err);
+          }
+          if (!doc) { //user doesn't exist.
+            console.log("user is not exist.");
+            var newuser =  new User(user); 
+            newuser.save(function(err, thor) {
+              if (err) return console.error(err);
+              console.dir(thor);
+            });
+            return res.json(200, newuser);
+          }
+          else {
+          console.log("user is exist!");
+              doc.update(user, function(error, course) {
+                  if(error) return next(error);
+              });
 
-	User.findOne({username: user.username}, function (err, doc) {
+            return  res.json(200 , {status: "The user has updated!"});
+          }
+
+      });
+
+
+
+    });
+ 
+
+/*
+*  Delete a user
+*/
+    app.post('/api/user/del', function (req, res) {
+ 
+
+        var user = req.body;
+        if ( user._id === undefined ) {
+          return  res.json(500 , {status: "Must specified the user ID !"});
+        }
+        console.log(conditions);
+        var conditions = {_id: user._id};
+
+        console.log(conditions);
+        User.remove(conditions, function (err, doc) {
             //system error.
             if (err) {
                 return   done(err);
             }
-            if (!doc) { //user doesn't exist.
-		console.log("user is not exist.");
-		var newuser = new User({"username": user.username, "password": user.password, "email": user.email, "role": user.role});
-		newuser.save(function(err, thor) {
-		  if (err) return console.error(err);
-		  console.dir(thor);
-		});
-		return res.json(200, newuser);
-	    }
-	    else {
-		console.log("user is exist!");
-                return  res.json(500 , {status: "The user has exist!"});
+            else {
+                console.log("the user is remove !"); 
+                return  res.json(200 , {status: "The user has removed!"});
             }
 
         });
 
 
-
-    });
-
-/*
-*  Update a user
-*/
-    app.put('/api/admin/user/:userid', function (req, res) {
-
-          var userid = req.params.userid,
-          body = req.body;
-  
-          User.findById(userid, function(error, doc) {
-    		// Handle the error using the Express error middleware
-     		if(error) return next(error);
-    
-    		// Render not found error
-    		if(!doc ) {
-      			return res.status(404).json({
-        		message: 'User with id ' + userid + ' can not be found.'
-      			});
-    		}
-    
-    	  	// Update the course model
-    	  	doc.update(body, function(error, course) {
-      			if(error) return next(error);
-      
-      			res.json(doc);
-    	  	});
-  	  });
-	});
-
-
-/*
-*  Delete a user
-*/
-    app.delete('/api/admin/user/:userid', function (req, res) {
-
-          var userid = req.params.userid,
-          body = req.body;
-  
-          User.findById(userid, function(error, doc) {
-    		// Handle the error using the Express error middleware
-     		if(error) return next(error);
-    
-    		// Render not found error
-    		if(!doc ) {
-      			return res.status(404).json({
-        		message: 'User with id ' + userid + ' can not be found.'
-      			});
-    		}
-    
-    	  	// Update the course model
-    	  	doc.remove();
-      		res.json(doc);
-  	  });
 	});
 
 
@@ -227,25 +203,57 @@ var authController = function (app) {
 /*
 *  Get a user list
 */
-    app.get('/api/admin/user', function (req, res) {
+    app.get('/api/user/list', function (req, res) {
 
-	User.find({}, function (err, doc) {
+        var query = User.find({}).select({ "__v": 0});
+        query.exec(function (err, doc) {
             //system error.
-            if (err) {
-                return   done(err);
+            if (err) { 
+                res.json(600 , {status: err})
             }
             if (!doc) { //user doesn't exist.
-		console.log("No user is not exist.");
-		return res.json(500, {status: "No user exists!"});
-	    }
-	    else {
-		console.log("user is exist!");
-                return  res.json(200 , doc);
+                res.json(500 , []); 
+            }
+            else {
+ 
+                res.json(200 , doc);
             }
 
         });
     });
 
+
+/*
+*  modify a user password
+*/
+    app.post('/api/user/modifyPasswd', function (req, res) {
+ 
+      var user = req.body;
+      if ( user._id === undefined ) {
+        return  res.json(500 , {status: "Must specified the user ID !"});
+      }      
+      User.findOne({_id: user._id}, function (err, doc) {
+          //system error.
+          if (err) {
+            return   done(err);
+          }
+          if (!doc) { //user doesn't exist.
+            return res.json(500, {status: "The user is not exists!"});
+          }
+          else { 
+              doc.update(user, function(error, course) {
+                  if(error) return next(error);
+              });
+
+            return  res.json(200 , {status: "The user password has updated!"});
+          }
+
+      });
+
+
+
+    });
+ 
 
     /**
      * logoff function.
@@ -260,6 +268,74 @@ var authController = function (app) {
             }
         }); //end Auth.remove()
     });
+
+
+
+/*
+*  Create and Update a Role
+*/
+    app.post('/api/role/add', function (req, res) {
+ 
+      var role = req.body;
+      Role.findOne({roleName: role.roleName}, function (err, doc) {
+          //system error.
+          if (err) {
+            return   done(err);
+          }
+          if (!doc) { //role doesn't exist.
+            console.log("role is not exist.");
+            var newrole =  new Role(role); 
+            newrole.save(function(err, thor) {
+              if (err) return console.error(err);
+              console.dir(thor);
+            });
+            return res.json(200, newrole);
+          }
+          else {
+              console.log("role is exist!");
+              doc.update(role, function(error, course) {
+                  if(error) return next(error);
+              });
+
+            return  res.json(200 , {status: "The role has updated!"});
+          }
+
+      });
+
+
+
+    });
+
+
+
+
+/*
+*  Get a user list
+*/
+    app.get('/api/role/list', function (req, res) {
+
+        var query = Role.find({}).select({ "__v": 0, "menuList": 0 });
+        query.exec(function (err, doc) {
+            //system error.
+            if (err) { 
+                res.json(600 , {status: err})
+            }
+            if (!doc) { //user doesn't exist.
+                res.json(500 , []); 
+            }
+            else {
+ 
+                res.json(200 , doc);
+            }
+
+        });
+    });
+
+
+
+
+
+
 
 
 };

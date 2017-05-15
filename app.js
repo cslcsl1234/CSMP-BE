@@ -37,6 +37,7 @@ require('./controllers/arrayController')(app);
 require('./controllers/switchController')(app);
 require('./controllers/appController')(app);
 require('./controllers/hostController')(app);
+require('./controllers/menuController')(app);
 
 require('./controllers/eventController')(app);
 

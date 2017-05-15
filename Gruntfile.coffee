@@ -12,7 +12,7 @@ module.exports = (grunt)->
       username: user
       email: email
       password: pass
-      role: role
+      roleList: role
 
     done = @.async()
     user.save (err)->

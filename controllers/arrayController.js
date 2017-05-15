@@ -71,9 +71,23 @@ var arrayController = function (app) {
 
 
    app.get('/api/arrays', function (req, res) { 
-        var device; 
+    var device = req.query.device;
+
 	if ( config.ProductType == 'demo' ) {
-		res.json(200,VMAXListJSON);
+        if ( device === undefined ) {
+            res.json(200,VMAXListJSON);
+        } else {
+            var rets = [];
+            for ( var i in VMAXListJSON ) {
+                var item = VMAXListJSON[i];
+                if ( item.device ==  req.query.device  )  {
+                    rets.push(item);
+
+                }
+            }
+            res.json(200,rets);            
+        }
+
 	} else {
 		VMAX.GetArrays(device, function(ret) {
 		    res.json(200,ret);
@@ -82,20 +96,20 @@ var arrayController = function (app) {
     });
 
    app.get('/api/arrays/:device', function (req, res) {
-        console.log(req.params.device);
+        
 	
         if ( config.ProductType == 'demo' ) {
 		var rets = [];
 		for ( var i in VMAXListJSON ) {
 			var item = VMAXListJSON[i];
-			if ( item.device == req.params.device )  {
+			if ( item.device ==  req.query.device  )  {
 				rets.push(item);
 
 			}
 		}
                 res.json(200,rets);
         } else {
-		VMAX.GetArrays(req.params.device, function(ret) {
+		VMAX.GetArrays(req.query.device, function(ret) {
 		    res.json(200,ret);
 		})
 	}

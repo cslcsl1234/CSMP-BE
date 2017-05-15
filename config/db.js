@@ -24,6 +24,9 @@ require('./../models/appModel');
 
 require('./../models/hostModel');
 
+
+require('./../models/menuModel');
+
 //connect to db.
 mongoose.connect(dbUrl, function (err, res) {
     if (err) {
