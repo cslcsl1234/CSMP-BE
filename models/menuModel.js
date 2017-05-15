@@ -53,7 +53,7 @@ roleSchema = new Schema({
         required: true,
         unique: true
     },
-    menuList: [menuSchema]
+    menuList: Array
 });
 
 var  User = mongoose.model('User') 

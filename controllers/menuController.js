@@ -14,8 +14,6 @@ var unirest1 = require('unirest');
 var mongoose = require('mongoose');
 var MenuObj = mongoose.model('Menu');
  
-var roleFunc = require('../lib/Role');
-
 var menuController = function (app) {
 
     var config = configger.load();
@@ -126,15 +124,6 @@ var menuController = function (app) {
     });
 
 
-    app.get('/api/role/test/:username', function(req, res) {
-
-        console.log(req.params.username);
-        var username = req.params.username;
-        roleFunc.GetRoleListByUser(username,function(retcode, res1) {
-            console.log(res1);
-            res.json(200, res1);
-        })
-    })
 
 
 

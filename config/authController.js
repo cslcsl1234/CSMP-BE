@@ -8,6 +8,8 @@ var mongoose = require('mongoose')
 const debug = require('debug')('authController')  
 const name = 'my-app'  
 
+var roleFunc = require('../lib/Role');
+
 var authController = function (app) {
 
     app.all('*', function(req, res, next) {
@@ -79,8 +81,14 @@ var authController = function (app) {
             Auth.addAuthKey(userId, function (err, authKey) {
                 if (err) {
                     return res.json(500, err);
-                }
-                return res.json(200, {authKey: authKey, user: user });
+                } 
+
+                roleFunc.GetRoleListByUser(user.username,function(retcode, menulist) {
+                    console.log(menulist); 
+                    return res.json(200, {authKey: authKey, user: user , menuItems: menulist });
+
+                })
+
 
             });
         };
@@ -334,6 +342,36 @@ var authController = function (app) {
 
 
 
+
+
+/*
+*  Get a menu list of the role
+*/
+    app.get('/api/role/menulist', function (req, res) {
+        var rolename = req.query.rolename;
+
+
+        if (rolename === undefined) { 
+            res.json(400, 'Must be special a roleid!');
+            return;
+        }
+        roleFunc.GetMenuListByRole(rolename, function(retcode, res1) {
+            console.log(res1);
+            res.json(200, res1);
+        })
+
+    });
+
+
+    app.get('/api/role/test/:username', function(req, res) {
+
+        console.log(req.params.username);
+        var username = req.params.username;
+        roleFunc.GetRoleListByUser(username,function(retcode, res1) {
+            console.log(res1);
+            res.json(200, res1);
+        })
+    })
 
 
 
