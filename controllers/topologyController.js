@@ -43,10 +43,6 @@ var topologyController = function (app) {
             topos.getLinks(function(links)  {
 
                 var finalResult = {};
-                finalResult["entity"] = entitys;
-                finalResult["link"] = links; 
-                var links_level1 = topos.combineLinks_level1(finalResult);
-                finalResult["linkByGroup"] = links_level1; 
 
                 // add relationship object in each entities.
                 var relaResult = {} ;
@@ -77,6 +73,18 @@ var topologyController = function (app) {
                     var key = item.key;
                     item["relationship"] = relaResult[key];
                 }
+
+                // Drop entity that have not include submember.
+                entitys = topos.cleanEntityFilter(entitys);
+                // short the group that is very long
+                entitys = topos.shortGroupNameFilter(entitys);
+                // Add a "description" propertite in each entity
+                entitys = topos.addDescriptionFilter(entitys);
+
+                finalResult["entity"] = entitys;
+                finalResult["link"] = links; 
+                var links_level1 = topos.combineLinks_level1(finalResult);
+                finalResult["linkByGroup"] = links_level1; 
 
                 res.json(200,finalResult);
 
