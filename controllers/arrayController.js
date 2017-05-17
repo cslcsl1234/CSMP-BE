@@ -226,10 +226,10 @@ var arrayController = function (app) {
         var arraysn = req.query.device; 
         var finalRecord = [];
 
-	if ( config.ProductType == 'demo' ) {
-		res.json(200,demo_array_hosts);
-		return;
-	} ;
+    	if ( config.ProductType == 'demo' ) {
+    		res.json(200,demo_array_hosts);
+    		return;
+    	} ;
 
         VMAX.GetAssignedHosts(arraysn, function(result) {
 
@@ -750,22 +750,6 @@ var arrayController = function (app) {
     });
 
 
- 
-
-     app.get('/api/array/test', function ( req, res )  {
-        var param = {};
-        param['filter'] = '!acknowledged&active=\'1\'&devtype=\'Array\'';
-        GetEvents.GetEvents(param, function(result) { 
-            res.json(200,result);
-        });
-
-
-
-    } ) ;
-
-
-
-
 
 
 
@@ -875,6 +859,23 @@ var arrayController = function (app) {
 
 
     });
+
+
+
+
+ 
+
+     app.get('/api/array/test', function ( req, res )  {
+        var device = req.query.device; 
+
+        VMAX.GetAssignedHosts(device, function(result) {
+ 
+            res.json(200,result);
+        });
+
+
+
+    } ) ;
 
 
 
