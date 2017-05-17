@@ -247,17 +247,20 @@ var authController = function (app) {
       User.findOne({_id: user._id}, function (err, doc) {
           //system error.
           if (err) {
-            return   done(err);
+            return res.json(400 , err );
           }
           if (!doc) { //user doesn't exist.
             return res.json(500, {status: "The user is not exists!"});
           }
           else { 
               doc.update(user, function(error, course) {
-                  if(error) return next(error);
+                  if(error) 
+                    return res.json(400 , error );
+                  else 
+                    return  res.json(200 , {status: "The user password has updated!"});
               });
 
-            return  res.json(200 , {status: "The user password has updated!"});
+            
           }
 
       });
@@ -298,15 +301,17 @@ var authController = function (app) {
             console.log("role is not exist.");
             var newrole =  new Role(role); 
             newrole.save(function(err, thor) {
-              if (err) return console.error(err);
-              console.dir(thor);
+              if (err) 
+                return res.json(400, err); 
+              else 
+                return res.json(200, { status: "insert a role success." } );
             });
-            return res.json(200, newrole);
+            
           }
           else {
-              console.log("role is exist!");
+              console.log("role is exist! will update it");
               doc.update(role, function(error, course) {
-                  if(error) return next(error);
+                  if(error) return res.json(400 , error);
               });
 
             return  res.json(200 , {status: "The role has updated!"});
