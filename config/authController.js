@@ -124,12 +124,12 @@ var authController = function (app) {
         };
 
 
-        debug(req.body);
-        debug("username = %s, password = %s", req.body.username, req.body.password);
+        console.log(req.body);
+        console.log("username = %s, password = %s", req.body.username, req.body.password);
 
         User.login(user, function (err, userid, msg) {
 
-            debug(msg);
+            console.log(msg);
             if (err) {
                 res.json(500, err);
             }
@@ -153,16 +153,20 @@ var authController = function (app) {
             return   done(err);
           }
           if (!doc) { //user doesn't exist.
-            console.log("user is not exist.");
+            console.log("user will be insert...");
             var newuser =  new User(user); 
             newuser.save(function(err, thor) {
-              if (err) return console.error(err);
-              console.dir(thor);
+              if (err) 
+                return res.json(200, err);
+              else { 
+                return res.json(200, thor);
+              }
+              
             });
-            return res.json(200, newuser);
+            
           }
           else {
-          console.log("user is exist!");
+              console.log("user is exist! will update it.");
               doc.update(user, function(error, course) {
                   if(error) return next(error);
               });
@@ -170,8 +174,8 @@ var authController = function (app) {
             return  res.json(200 , {status: "The user has updated!"});
           }
 
-      });
 
+      });
 
 
     });
