@@ -88,7 +88,7 @@ var menuController = function (app) {
                 });
 
 
-                return  res.json(500 , {status: "The menu has exist! Update it."});
+                return  res.json(200 , {status: "The menu has exist! Update it."});
             }
 
         });
