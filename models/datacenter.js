@@ -1,109 +1,102 @@
 "use strict";
 
 /**
- * Define  userSchema & authSchema, which are used for the authentication.
+ * Define  menuSchema & authSchema, which are used for the authentication.
  */
 
 var mongoose = require('mongoose')
     , uuid = require('node-uuid')
     , Schema = mongoose.Schema
     , ObjectId = mongoose.Schema.ObjectId
-    , arraySchema 
-    , DEVICE_LEVEL = 'high,middle,low'.split(',')
-    , ARRAY_TYPE = 'Block,File,Unity,Object,ServerSAN'.split(',')
-    ;
-/**
- * userSchema.
- * @type {Schema}
- */
+    , UnitSchema 
+    , FloorSchema
+    , BuildingSchema
+    , DatacenterSchema
+    , DEFAULT_EXPIRE_TIME='1h';// 1 hour.
 
-arraySchema = new Schema({
-    basicInfo : {
 
-        device: {
-            type: String,
-            required: true,
-            unique: true
-        },
-        alias: {
-            type: String,
-            required: true 
-        },
-        UnitID: {
-            type: String 
-        },
-        area: { 
-            type: String  
-        },
-        deviceLevel :{
-            type: String,
-            required: true,
-            enum: DEVICE_LEVEL
-        },
-        arrayType: {
-             type: String,
-            required: true,
-            enum: ARRAY_TYPE
-        }
-
-    }, 
-    maintenance :{
-        vendor: {
-            type: String
-        },
-        contact: {
-            type: String
-        },
-        pubchaseDate: {
-            type: String
-        },
-        period: {
-            type: String
-        }
+UnitSchema = new Schema({
+    UnitID: {
+        type: String,
+        required: true
     },
-    assets : {
-        no: {
-            type: String
-        },
-        purpose: {
-            type: String
-        },
-        department: {
-            type: String
-        },
-        manager: {
-            type: String
-        }
-    }, 
-    ability : {
-        maxMemory : {
-            type: String
-        },
-        maxDisks : {
-            type: String
-        },
-        maxFEs : {
-            type: String
-        },
-        maxCabinets : {
-            type: String
-        }
-
+    Name: {
+        type: String,
+        required: true 
+    },    
+    Description: {
+        type: String 
+    },
+    MaxPowerLoad: {
+        type: Number ,
+        default : 0
+    },
+    MaxCabinet: {
+        type: Number,
+        default : 0
     }
-
-
 });
 
-arraySchema.pre('save', function (next) {
-    var array = this;
-    if (!array.isModified) {
+FloorSchema = new Schema({ 
+    Name: {
+        type: String,
+        required: true 
+    },    
+    Description: {
+        type: String 
+    },
+    Unit: [ UnitSchema ]
+});
+
+BuildingSchema = new Schema({ 
+    Name: {
+        type: String,
+        required: true 
+    },    
+    Description: {
+        type: String 
+    },
+    Floor: [ FloorSchema ]
+});
+
+DatacenterSchema = new Schema({ 
+    Name: {
+        type: String,
+        required: true,
+        unique: true 
+    },    
+    Description: {
+        type: String 
+    },
+    Type: {
+        type: String 
+    },
+    City: {
+        type: String 
+    },
+    Address: {
+        type: String 
+    },
+    isDefault : {
+        type : Boolean
+    },
+    Building: [ BuildingSchema ]
+});
+
+
+ 
+
+var  User = mongoose.model('User') 
+DatacenterSchema.pre('save', function (next) {
+    var user = this;
+    if (!user.isModified) {
         return next();
     }
     //todo encrypt password here.
     return next();
 });
 
-arraySchema.methods = {
+DatacenterSchema.methods = {
     comparePassword: function (candidatePassword) {
         var user = this;
         //todo should compare encrypted password only
@@ -115,7 +108,7 @@ arraySchema.methods = {
  * User static method.
  * @type {{login: Function}}
  */
-arraySchema.statics = {
+DatacenterSchema.statics = {
 
     /**
      * Login function, upon succeeded, the id logged user will be returned for future process.
@@ -174,4 +167,4 @@ arraySchema.statics = {
 
 
 //create and set two models into mongoose instance, they can be fetched anywhere mongoose object is presented.
-mongoose.model('EquipmentInfo', arraySchema); 
+mongoose.model('Datacenter', DatacenterSchema);  

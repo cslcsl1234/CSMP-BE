@@ -41,6 +41,9 @@ require('./controllers/menuController')(app);
 
 require('./controllers/eventController')(app);
 
+require('./controllers/datacenterController')(app);
+require('./controllers/DashboardController')(app);
+
 
 app.listen(config.SERVER.PORT, function () {
 	console.log('=== The Backend server listening on [' + config.Backend.URL + '] ===');

@@ -17,7 +17,7 @@ var RecordFlat = require('../lib/RecordFlat');
 var util = require('../lib/util');
 
 var mongoose = require('mongoose');
-var ArrayObj = mongoose.model('Array');
+var ArrayObj = mongoose.model('EquipmentInfo');
  
 var CallGet = require('../lib/CallGet'); 
 
@@ -818,12 +818,10 @@ var arrayController = function (app) {
 /* 
 *  Create a array record 
 */
-    app.post('/api/arrays', function (req, res) {
-        console.log(req.body);
-
+    app.post('/api/arrays', function (req, res) { 
         var array = req.body;
 
-        ArrayObj.findOne({"basicInfo.serialnb" : array.basicInfo.serialnb}, function (err, doc) {
+        ArrayObj.findOne({"basicInfo.device" : array.basicInfo.device}, function (err, doc) {
             //system error.
             if (err) {
                 return   done(err);
@@ -839,7 +837,7 @@ var arrayController = function (app) {
                     return res.json(400 , err);
                   } else 
 
-                    return res.json(200, array);
+                    return res.json(200, {status: "The Array insert is succeeds!"});
                 });
             }
             else {

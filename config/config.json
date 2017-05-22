@@ -1,7 +1,7 @@
 {
     "Backend": {
-    	"URL" : "http://192.168.56.100:58080/APG-REST",
-        "TopoServURL" : "https://192.168.56.100:48443/Backends/Topology-Service/Default/topology/repository/sparql",
+    	"URL" : "http://192.168.1.100:58080/APG-REST",
+        "TopoServURL" : "https://192.168.1.100:48443/Backends/Topology-Service/Default/topology/repository/sparql",
         "USER": "admin",
         "PASSWORD": "changeme"
     },
@@ -16,7 +16,7 @@
     "SERVER": {
         "PORT": 8080
     },
-    "ProductType": "dev"
+    "ProductType": "demo"
 
 }
 

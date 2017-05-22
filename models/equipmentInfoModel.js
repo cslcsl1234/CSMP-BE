@@ -8,16 +8,16 @@ var mongoose = require('mongoose')
     , uuid = require('node-uuid')
     , Schema = mongoose.Schema
     , ObjectId = mongoose.Schema.ObjectId
-    , arraySchema 
+    , equipmentInfoSchema 
     , DEVICE_LEVEL = 'high,middle,low'.split(',')
-    , ARRAY_TYPE = 'Block,File,Unity,Object,ServerSAN'.split(',')
+    , EQUIPMENT_TYPE = 'Array Block,Array File,Array Unity,Array Object,Array ServerSAN,Switch Core,Switch Edge'.split(',')
     ;
 /**
  * userSchema.
  * @type {Schema}
  */
 
-arraySchema = new Schema({
+equipmentInfoSchema = new Schema({
     basicInfo : {
 
         device: {
@@ -40,10 +40,10 @@ arraySchema = new Schema({
             required: true,
             enum: DEVICE_LEVEL
         },
-        arrayType: {
-             type: String,
+        equipmentType: {
+            type: String,
             required: true,
-            enum: ARRAY_TYPE
+            enum: EQUIPMENT_TYPE
         }
 
     }, 
@@ -94,7 +94,7 @@ arraySchema = new Schema({
 
 });
 
-arraySchema.pre('save', function (next) {
+equipmentInfoSchema.pre('save', function (next) {
     var array = this;
     if (!array.isModified) {
         return next();
@@ -103,7 +103,7 @@ arraySchema.pre('save', function (next) {
     return next();
 });
 
-arraySchema.methods = {
+equipmentInfoSchema.methods = {
     comparePassword: function (candidatePassword) {
         var user = this;
         //todo should compare encrypted password only
@@ -115,7 +115,7 @@ arraySchema.methods = {
  * User static method.
  * @type {{login: Function}}
  */
-arraySchema.statics = {
+equipmentInfoSchema.statics = {
 
     /**
      * Login function, upon succeeded, the id logged user will be returned for future process.
@@ -174,4 +174,4 @@ arraySchema.statics = {
 
 
 //create and set two models into mongoose instance, they can be fetched anywhere mongoose object is presented.
-mongoose.model('EquipmentInfo', arraySchema); 
+mongoose.model('EquipmentInfo', equipmentInfoSchema); 

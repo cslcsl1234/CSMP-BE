@@ -17,7 +17,7 @@ console.log(dbUrl);
  * This may use a loop to automatically load all models.
  */
 require('./../models/userModel');
-require('./../models/arrayModel');
+require('./../models/equipmentInfoModel');
 
 require('./../models/switchModel');
 require('./../models/appModel');
@@ -26,6 +26,10 @@ require('./../models/hostModel');
 
 
 require('./../models/menuModel');
+
+require('./../models/datacenter');
+require('./../models/eventModel');
+
 
 //connect to db.
 mongoose.connect(dbUrl, function (err, res) {
