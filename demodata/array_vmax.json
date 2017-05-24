@@ -1,0 +1,44 @@
+[
+  {
+    "title": "存储管理信息",
+    "detail": [
+      {
+        "name": "存储序列号",
+        "value": "888973588727"
+      },
+      {
+        "name": "厂商",
+        "value": "EMC Corporation"
+      },
+      {
+        "name": "型号",
+        "value": "VMAX40K"
+      },
+      {
+        "name": "存储类型",
+        "value": "Block"
+      },
+      {
+        "name": "微码版本",
+        "value": "5876.288.195 date:12.04.2015 patch_date:12.04.2015"
+      }
+    ]
+  },
+  {
+    "title": "存储硬件配置信息",
+    "detail": [
+      {
+        "name": "缓存大小",
+        "value": "86016"
+      },
+      {
+        "name": "磁盘数量",
+        "value": "226"
+      },
+      {
+        "name": "LUN数量",
+        "value": "5145"
+      }
+    ]
+  }
+]

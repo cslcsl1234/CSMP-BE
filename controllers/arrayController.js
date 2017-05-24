@@ -49,6 +49,9 @@ var demo_array_pools = require('../demodata/array_pools');
 var demo_array_ports = require('../demodata/array_ports');
 var demo_array_switchs = require('../demodata/array_switchs');
 
+var VMAXDISKListJSON = require('../demodata/array_vmax_disks');
+var VMAX_ListJSON = require('../demodata/array_vmax');
+
 
 
 var arrayController = function (app) {
@@ -99,21 +102,15 @@ var arrayController = function (app) {
     var device = req.query.device;
 
     if ( config.ProductType == 'demo' ) {
-        if ( device === undefined ) {
-            res.json(200,VMAXListJSON);
-        } else {
-            var rets = [];
-            for ( var i in VMAXListJSON ) {
-                var item = VMAXListJSON[i];
-                if ( item.device ==  req.query.device  )  {
-                    rets.push(item);
-
-                }
-            }
-            res.json(200,rets);            
-        }
+             res.json(200,VMAX_ListJSON);
 
     } else {
+
+        if ( device === undefined ) {
+            res.json(400, 'Must be special a device!')
+            return;
+        }
+
         VMAX.GetArrays_VMAX(device, function(ret) {
 
             var finalResult = [];
@@ -182,6 +179,140 @@ var arrayController = function (app) {
         })
     }
     });
+
+   app.get('/api/vmax/array/disks', function (req, res) { 
+    var device = req.query.device;
+
+    if ( config.ProductType == 'demo' ) { 
+            res.json(200,VMAXDISKListJSON);
+            return;
+
+    } else {
+
+            if ( device === undefined ) {
+                res.json(400, 'Must be special a device!')
+                return;
+            }
+
+            var param = {};
+            param['filter_name'] = '(name=\'Capacity\'|name=\'FreeCapacity\'|name=\'Availability\')';
+            param['keys'] = ['device','part'];
+            param['fields'] = ['disktype','partmode','sgname','diskrpm','director','partvend','partmdl','partver','partsn','disksize'];
+
+            if (typeof device !== 'undefined') { 
+                param['filter'] = 'device=\''+device+'\'&parttype=\'Disk\'';
+            } else {
+                param['filter'] = 'parttype=\'Disk\'';
+            } 
+
+            CallGet.CallGet(param, function(param) {
+                
+                var data = param.result;
+
+                var finalResult = {};
+
+                // ----- the part of chart --------------
+
+                var groupby = "disktype";
+                var groupbyField = "Capacity";
+                var chartData = [];
+                for ( var i in data ) {
+                    var item = data[i];
+
+                    var groupbyValue = item[groupby]; 
+                    var itemValue = item[groupbyField];
+
+                    var isFind = false;
+                    for ( var j in chartData ) {
+                        var charItem = chartData[j];
+                        if ( charItem.name == groupbyValue ) {
+                            charItem.value = charItem.value + parseFloat(itemValue);
+                            isFind = true;
+                        }
+                    }
+                    if ( !isFind ) {
+                        var charItem = {};
+                        charItem["name"] = groupbyValue;
+                        charItem["value"] = parseFloat(itemValue);
+                        chartData.push(charItem);
+                    }
+
+                }
+                finalResult["charType"] = "pie";
+                finalResult["chartData"] = chartData;
+
+
+                // ---------- the part of table ---------------
+                var tableHeader = [];
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "磁盘名称";
+                tableHeaderItem["value"] = "part";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "序列号";
+                tableHeaderItem["value"] = "partsn";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "用途";
+                tableHeaderItem["value"] = "partmode";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "类型";
+                tableHeaderItem["value"] = "disktype";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "转速";
+                tableHeaderItem["value"] = "diskrpm";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "型号";
+                tableHeaderItem["value"] = "partmdl";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "微码版本";
+                tableHeaderItem["value"] = "partver";
+                tableHeaderItem["sort"] = "partver";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "厂商";
+                tableHeaderItem["value"] = "partvend";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "容量(GB)";
+                tableHeaderItem["value"] = "disksize";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableBody"] = data;
+
+
+                res.json(200, finalResult);
+
+            });
+
+        }
+    });
+
 
    app.get('/api/arrays/:device', function (req, res) {
         
