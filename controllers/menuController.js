@@ -13,6 +13,9 @@ var configger = require('../config/configger');
 var unirest1 = require('unirest');  
 var mongoose = require('mongoose');
 var MenuObj = mongoose.model('Menu');
+
+var FunctionDefine_Array = require("../config/FunctionDefine_Array");
+
  
 var menuController = function (app) {
 
@@ -123,6 +126,15 @@ var menuController = function (app) {
 
     });
 
+
+
+
+
+    app.get('/api/menu/ObjectManage/Array', function (req, res) {
+
+        res.json(200,FunctionDefine_Array);
+
+    });
 
 
 

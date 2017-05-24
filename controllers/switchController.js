@@ -73,12 +73,27 @@ var switchController = function (app) {
 
         var deviceid = req.query.device;
 
-
+        console.log(config.ProductType);
         if ( config.ProductType == 'demo' ) {
-                res.json(200,demo_switchs);
+            console.log("aaaaaaaaaaa");
+            if ( deviceid === undefined ) {
+                res.json(400, 'Must be special a device!');
                 return;
-        } ;
+            } else { 
+                 console.log("ssssssssssssssssss");
+                for ( var i in demo_switchs ) {
+                    var item = demo_switchs[i];
+                    if ( item.device ==  deviceid  )  {
+                        res.json(200,item); 
+                        return;
 
+                    }
+                }
+                res.json(200,{});
+                return;           
+            }
+console.log("bbbbbbbbbbbb");
+        }  
 
 
         var param = {};
@@ -94,30 +109,30 @@ var switchController = function (app) {
 
         CallGet.CallGet(param, function(param) { 
 
-		SwitchObj.findOne({"basicInfo.device" : deviceid}, function (err, doc) {
-		    //system error.
-		    if (err) {
-			return   done(err);
-		    }
+    		SwitchObj.findOne({"basicInfo.device" : deviceid}, function (err, doc) {
+    		    //system error.
+    		    if (err) {
+    			return   done(err);
+    		    }
 
-		    if ( param.result.length > 0 ) {
-			    if (!doc) { //user doesn't exist.
-				console.log("app is not exist. insert it."); 
-				param.result[0]['info'] = {};
-			    }
-			    else {
-				console.log("App is exist!");
-				console.log(doc);
-		 
-				param.result[0]['info'] = doc;
+    		    if ( param.result.length > 0 ) {
+    			    if (!doc) { //user doesn't exist.
+    				console.log("app is not exist. insert it."); 
+    				param.result[0]['info'] = {};
+    			    }
+    			    else {
+    				console.log("App is exist!");
+    				console.log(doc);
+    		 
+    				param.result[0]['info'] = doc;
 
-			    }
-            		res.json(200, param.result[0]);
-		    }
-		    else 
-			res.json(200, {} );
+    			    }
+                		res.json(200, param.result[0]);
+    		    }
+    		    else 
+    			res.json(200, {} );
 
-		});
+    		});
         });
 
          
@@ -245,7 +260,19 @@ var switchController = function (app) {
 
          
     });
- 
+
+    app.get('/api/fabric/zone1', function (req, res) {
+  
+        var fabwwn = req.query.fabwwn;
+
+        getTopos.getZoneMemberRelation(function(result) {
+            res.json(200,result);
+        })
+         
+
+    });
+
+
     app.get('/api/fabric/zone', function (req, res) {
   
         //var fields = 'device,deviceid,vendor,model,ip,devdesc,devicesn,domainid,firmware,psname,pswwn,bootdate';

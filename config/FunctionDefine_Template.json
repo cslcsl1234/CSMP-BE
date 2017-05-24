@@ -1,0 +1,42 @@
+[
+    {
+        "hasDetail": false,
+        "tabName": "事件信息",
+        "template": 1,
+        "url": "后台接口",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": true,
+        "tabDetail": [
+            {
+                "tabName": "第一个 ",
+                "template": 2,
+                "url": "后台接口",
+                "param": [
+                    {
+                        "postName": "device",
+                        "findName": "device"
+                    }
+                ]
+            },
+            {
+                "tabName": "第二个",
+                "template": 3,
+                "url": "后台接口",
+                "param": [
+                    {
+                        "postName": "device",
+                        "findName": "device"
+                    }
+                ]
+            }
+        ],
+        "tabName": "测试tab"
+    }
+]

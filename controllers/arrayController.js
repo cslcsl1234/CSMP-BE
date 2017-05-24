@@ -95,6 +95,94 @@ var arrayController = function (app) {
 	}
     });
 
+   app.get('/api/vmax/array', function (req, res) { 
+    var device = req.query.device;
+
+    if ( config.ProductType == 'demo' ) {
+        if ( device === undefined ) {
+            res.json(200,VMAXListJSON);
+        } else {
+            var rets = [];
+            for ( var i in VMAXListJSON ) {
+                var item = VMAXListJSON[i];
+                if ( item.device ==  req.query.device  )  {
+                    rets.push(item);
+
+                }
+            }
+            res.json(200,rets);            
+        }
+
+    } else {
+        VMAX.GetArrays_VMAX(device, function(ret) {
+
+            var finalResult = [];
+            var returnData = ret[0];
+            var item = {};
+            // Combine the UI element for VMAX Basic Info page.
+
+            // -------------- Block1 ---------------------------
+            var UI_Block1 = {} ;
+            UI_Block1['title'] = "存储管理信息";
+            UI_Block1['detail'] = [];
+
+            item={};
+            item["name"] = "存储序列号"; 
+            item["value"] = returnData.device;
+            UI_Block1.detail.push(item);
+ 
+            item={};
+            item["name"] = "厂商"; 
+            item["value"] = returnData.vendor;
+            UI_Block1.detail.push(item);
+
+            item={};
+            item["name"] = "型号"; 
+            item["value"] = returnData.model;
+            UI_Block1.detail.push(item);
+
+            item={};
+            item["name"] = "存储类型"; 
+            item["value"] = returnData.sstype;
+            UI_Block1.detail.push(item);
+
+            item={};
+            item["name"] = "微码版本"; 
+            item["value"] = returnData.devdesc;
+            UI_Block1.detail.push(item);
+
+
+            // -------------- Block1 ---------------------------
+ 
+            var UI_Block2 = {} ;
+            UI_Block2['title'] = "存储硬件配置信息";
+            UI_Block2['detail'] = [];
+
+            item={};
+            item["name"] = "缓存大小"; 
+            item["value"] = returnData.TotalMemory;
+            UI_Block2.detail.push(item);
+
+            item={};
+            item["name"] = "磁盘数量"; 
+            item["value"] = returnData.TotalDisk;
+            UI_Block2.detail.push(item);
+
+            item={};
+            item["name"] = "LUN数量"; 
+            item["value"] = returnData.TotalLun;
+            UI_Block2.detail.push(item);
+
+
+            // -------------- Finally combine the final result record -----------------
+            finalResult.push(UI_Block1);
+            finalResult.push(UI_Block2);
+
+            res.json(200,finalResult);
+        })
+    }
+    });
+
    app.get('/api/arrays/:device', function (req, res) {
         
 	
@@ -684,36 +772,7 @@ var arrayController = function (app) {
             },
             function(arg1,  callback){  
                callback(null,arg1);
-//                param['filter_name'] = '(name=\'FreeCapacity\'|name=\'PoolFreeCapacity\'|name=\'UsedCapacity\')';
-  //              param['keys'] = ['device'];
-    //            param['fields'] = ['model'];
-
-/*
-                var filter = filterbase + '&()';
-                var fields = 'device,name';
-                var keys = ['device'];
-
-                //var queryString =  {"filter":filter,"fields":fields}; 
-                var queryString =  util.CombineQueryString(filter,fields); 
-                console.log(queryString);
-                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
-                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
-                        .headers({'Content-Type': 'multipart/form-data'}) 
-                        .query(queryString) 
-                        .end(function (response) { 
-                            if ( response.error ) {
-                                console.log(response.error);
-                                return response.error;
-                            } else {  
-                                var resultRecord = RecordFlat(response.body, keys);  
-                                    //var resultRecord = JSON.parse(response.body).values; 
-                                console.log(resultRecord);
-                                arg1 = arg1.concat(resultRecord);
-                                callback(null,arg1);
-                            }
-         
-                        }); 
- */
+ 
 
             }
         ], function (err, result) {

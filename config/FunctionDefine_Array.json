@@ -1,0 +1,26 @@
+[
+    {
+        "hasDetail": false,
+        "tabName": "基本信息",
+        "template": 1,
+        "url": "/vmax/array",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "serialnb"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "磁盘信息",
+        "template": 1,
+        "url": "/vmax/array/disks",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    }
+]
