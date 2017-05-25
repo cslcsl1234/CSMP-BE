@@ -132,20 +132,21 @@ var menuController = function (app) {
 
     app.get('/api/menu/ObjectManage/Array', function (req, res) {
 
-        var arraytype = req.query.arraytype;
+        var arraytype = req.query.arraytype; 
         if ( arraytype === undefined ) {
             res.json(400,"Must assign a arraytype paramater! ");
             return;
         }
 
+
         switch ( arraytype.toUpperCase() ) {
             case "VMAX" :
-            case "VMAX1" :
+            case "VMAX100K" :
                 res.json(200,FunctionDefine_Array);
                 break;
 
             default :
-                res.json(200,"default arraytype");
+                res.json(400,"尚不支持此种设备类型!");
         }
         
 
