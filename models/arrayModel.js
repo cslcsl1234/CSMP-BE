@@ -10,7 +10,7 @@ var mongoose = require('mongoose')
     , ObjectId = mongoose.Schema.ObjectId
     , arraySchema 
     , DEVICE_LEVEL = 'high,middle,low'.split(',')
-    , ARRAY_TYPE = 'Block,File,Unity,Object,ServerSAN'.split(',')
+    , ARRAY_TYPE = 'Array Block,Array File,Array Unity,Array Object,Array ServerSAN,Switch Core,Switch Edge'.split(',')
     ;
 /**
  * userSchema.

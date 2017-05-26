@@ -238,7 +238,7 @@ var arrayController = function (app) {
                     }
 
                 }
-                finalResult["charType"] = "pie";
+                finalResult["chartType"] = "pie";
                 finalResult["chartData"] = chartData;
 
 

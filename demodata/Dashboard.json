@@ -1,0 +1,165 @@
+{
+    "Datacenter": [
+        {
+            "datacenter": "undefine",
+            "FabricSwitch": 50,
+            "Host": 71,
+            "VirtualStorage": 5,
+            "Array": 28,
+            "Application" : 11,
+            "Other": 42,
+            "ResourcePool": [
+                {
+                    "Name": "高端-生产系统",
+                    "CapacityDist": {
+                        "TotalRaw": 11111,
+                        "Available": 2122,
+                        "Used": 1212
+                    },
+                    "CapacityByPurpose": {
+                        "Primary": 111,
+                        "LocalRep": 22,
+                        "LocalRemoteRep": 11,
+                        "LocalTragetClone": 22,
+                        "RemoteRep": 0
+                    },
+                    "CapacityTrend": [
+                        {
+                            "TS": "201701",
+                            "Available": 2122,
+                            "Used": 1212,
+                            "GrowthRate": 22
+                        },
+                        {
+                            "TS": "201702",
+                            "Available": 2122,
+                            "Used": 1212,
+                            "GrowthRate": 22
+                        },
+                        {
+                            "TS": "201703",
+                            "Available": 2122,
+                            "Used": 1212,
+                            "GrowthRate": 22
+                        }
+                    ]
+                },
+                {
+                    "Name": "中端-生产系统",
+                    "CapacityDist": {
+                        "TotalRaw": 11111,
+                        "Available": 2122,
+                        "Used": 1212
+                    },
+                    "CapacityByPurpose": {
+                        "Primary": 111,
+                        "LocalRep": 22,
+                        "LocalRemoteRep": 11,
+                        "LocalTragetClone": 22,
+                        "RemoteRep": 0
+                    },
+                    "CapacityTrend": [
+                        {
+                            "TS": "201701",
+                            "Available": 2122,
+                            "Used": 1212,
+                            "GrowthRate": 22
+                        },
+                        {
+                            "TS": "201702",
+                            "Available": 2122,
+                            "Used": 1212,
+                            "GrowthRate": 22
+                        },
+                        {
+                            "TS": "201703",
+                            "Available": 2122,
+                            "Used": 1212,
+                            "GrowthRate": 22
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "datacenter": "测试数据中心2",
+            "FabricSwitch": 0,
+            "Host": 0,
+            "VirtualStorage": 0,
+            "Array": 1,
+            "Other": 0,
+            "ResourcePool": [
+                {
+                    "Name": "高端-生产系统",
+                    "CapacityDist": {
+                        "TotalRaw": 11111,
+                        "Available": 2122,
+                        "Used": 1212
+                    },
+                    "CapacityByPurpose": {
+                        "Primary": 111,
+                        "LocalRep": 22,
+                        "LocalRemoteRep": 11,
+                        "LocalTragetClone": 22,
+                        "RemoteRep": 0
+                    },
+                    "CapacityTrend": [
+                        {
+                            "TS": "201701",
+                            "Available": 2122,
+                            "Used": 1212,
+                            "GrowthRate": 22
+                        },
+                        {
+                            "TS": "201702",
+                            "Available": 2122,
+                            "Used": 1212,
+                            "GrowthRate": 22
+                        },
+                        {
+                            "TS": "201703",
+                            "Available": 2122,
+                            "Used": 1212,
+                            "GrowthRate": 22
+                        }
+                    ]
+                },
+                {
+                    "Name": "中端-生产系统",
+                    "CapacityDist": {
+                        "TotalRaw": 11111,
+                        "Available": 2122,
+                        "Used": 1212
+                    },
+                    "CapacityByPurpose": {
+                        "Primary": 111,
+                        "LocalRep": 22,
+                        "LocalRemoteRep": 11,
+                        "LocalTragetClone": 22,
+                        "RemoteRep": 0
+                    },
+                    "CapacityTrend": [
+                        {
+                            "TS": "201701",
+                            "Available": 2122,
+                            "Used": 1212,
+                            "GrowthRate": 22
+                        },
+                        {
+                            "TS": "201702",
+                            "Available": 2122,
+                            "Used": 1212,
+                            "GrowthRate": 22
+                        },
+                        {
+                            "TS": "201703",
+                            "Available": 2122,
+                            "Used": 1212,
+                            "GrowthRate": 22
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

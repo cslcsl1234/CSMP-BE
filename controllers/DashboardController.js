@@ -20,6 +20,7 @@ var mongoose = require('mongoose');
 var EquipmentInfo = mongoose.model('EquipmentInfo');
 var Datacenter = mongoose.model('Datacenter');
 
+var dashboard_demo = require('../demodata/Dashboard'); 
 
 // -----------------------------------
 // For demo data
@@ -36,10 +37,10 @@ var dashboardController = function (app) {
     app.get('/api/dashboard/EquipmentSummary', function (req, res) {
  
 
-    	    //if ( config.ProductType == 'demo' ) {
-            //        res.json(200,demo_switchs);
-            //        return;
-            //} ;
+    	    if ( config.ProductType == 'demo' ) {
+                    res.json(200,dashboard_demo);
+                    return;
+            } ;
 
 
             var param = {};
@@ -49,7 +50,7 @@ var dashboardController = function (app) {
   
             param['filter'] = '!parttype'; 
             CallGet.CallGet(param, function(param) { 
-                res.json(200, param.result);
+                //res.json(200, param.result);
                 var equipmentAllList = param.result;
                 var finalResult = {}; 
                 finalResult["equipmentList"] = equipmentAllList;
@@ -68,6 +69,7 @@ var dashboardController = function (app) {
                             }
                             finalResult["datacenter"] = dcList;
                             finalResult["datacenterList"] = datacenterInfo;
+
                             callback(null,finalResult);
 
 
@@ -78,34 +80,128 @@ var dashboardController = function (app) {
                     function(arg1,  callback){  
 
                         GetEquipmentInfo(function(equipmentInfo) {
-
+ 
+                            var equipmentAllList = finalResult.equipmentList;
                             for ( var j in equipmentAllList ) {
                                 var item = equipmentAllList[j];
 
+
+                                 var isFindDevInfo = false; 
                                  for ( var i in equipmentInfo ) {
                                     var equipmentItem = equipmentInfo[i];
                                     
                                     if ( item.device == equipmentItem.basicInfo.device ) {
+                                        isFindDevInfo = true;
                                         var unitID = equipmentItem.basicInfo.UnitID;
                                         item["UnitID"] = unitID;
-                                        equipmentAllList.forEach( function ( equipment ) {
+
+                                        for ( var z in equipmentAllList ) {
+                                            var equipment = equipmentAllList[z];
                                             var aa  = SearchDatacenterByUnitID(unitID, arg1.datacenterList);
-                                            console.log(aa);
-                                        });
+                                            item["localtion"] = aa;
+                                        } 
 
                                     }
-                                }                               
-                            }
+
+                                }   
 
 
+                                if ( ! isFindDevInfo ) {
+                                    var localtion = {};
+                                    localtion["datacenter"] = 'undefine';
+                                    item["localtion"] = localtion;
 
+                                }                          
+                            } 
+ 
                             callback(null,finalResult);
                         })
 
                     },
+                    function(arg1,  callback){ 
+                        var finalResult = {};
 
-                    function(arg1,  callback){  
-                       // console.log("LEVEL2:" + arg1);
+                        var devsByDC = [];
+                        var devList = arg1.equipmentList;
+                        for ( var i in devList ) {
+                            var devItem = devList[i];
+
+                            var isFind = false;
+                            for ( var j in devsByDC ) {
+                                var devByDCItem = devsByDC[j];
+                                console.log(devItem.localtion);
+                                console.log(devItem);
+                                if ( devItem.localtion.datacenter == devByDCItem.datacenter ) {
+
+                                    isFind = true;
+                                    switch ( devItem.devtype ) {
+                                        case "FabricSwitch" :
+                                            devByDCItem.FabricSwitch = devByDCItem.FabricSwitch + 1;
+                                            break;
+
+                                        case "Host":
+                                        case "PassiveHost":
+                                            devByDCItem.Host = devByDCItem.Host + 1;
+                                            break;
+
+                                        case "VirtualStorage":
+                                            devByDCItem.VirtualStorage = devByDCItem.VirtualStorage + 1;
+                                            break;
+
+                                        case "Array":
+                                            devByDCItem.Array = devByDCItem.Array + 1;
+                                            break;
+
+                                        default :
+                                            devByDCItem.Other = devByDCItem.Other + 1;
+                                            break;
+
+
+                                    }
+                                }
+                            }
+
+                            if ( !isFind ) {
+                                var devByDCItem = {} ;
+                                devByDCItem["datacenter"] = devItem.localtion.datacenter;
+                                devByDCItem["FabricSwitch"] = 0;
+                                devByDCItem["Host"] = 0;
+                                devByDCItem["VirtualStorage"] = 0;
+                                devByDCItem["Array"] = 0;
+                                devByDCItem["Other"] = 0;
+
+                                switch ( devItem.devtype ) {
+                                    case "FabricSwitch" :
+                                        devByDCItem["FabricSwitch"] = 1;
+                                        break;
+
+                                    case "Host":
+                                    case "PassiveHost":
+                                        devByDCItem["Host"] = 1;
+                                        break;
+
+                                    case "VirtualStorage":
+                                        devByDCItem["VirtualStorage"] = 1;
+                                        break;
+
+                                    case "Array":
+                                        devByDCItem["Array"] = 1;
+                                        break;
+
+                                    default :
+                                        devByDCItem["Other"] = 1;
+                                        break;
+
+
+                                }
+                                devsByDC.push(devByDCItem);
+
+                            }
+
+                        }
+
+                       finalResult["Datacenter"] = devsByDC;
+                       callback(null,finalResult);
                     }
                 ], function (err, result) {
                    // result now equals 'done'
@@ -162,25 +258,39 @@ function GetDatacenterInfo(callback) {
 function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
     //console.log(datacenterInfo);
     var dcInfo = {};
-    datacenterInfo.forEach(function(dc){
-        dc.Building.forEach( function ( building ) {
-            building.Floor.forEach( function ( floor )  {
-                floor.Unit.forEach( function ( unit ) {
+    for ( var i in datacenterInfo ) {
+        var dc = datacenterInfo[i];
+
+        for ( var j in dc.Building ) {
+            var building = dc.Building[j];
+
+            for ( var z in building.Floor ) {
+                var floor  = building.Floor[z];
+
+                for ( var y in floor.Unit ) {
+                    var unit = floor.Unit[y];
+
                     if ( unit.UnitID == UnitID ) {
-                        dcInfo["datacenterName"] = dc.Name;
+                        dcInfo["datacenter"] = dc.Name;
                         dcInfo["building"] = building.Name;
                         dcInfo["floor"] = floor.Name;
-                        dcInfo["unit"] = unit.Name;
-                        console.log(dcInfo);
-                        console.log("=-======");
-                        return dc.Name;
+                        dcInfo["unit"] = unit.Name; 
+                        return dcInfo;
                     }
-                })
-            })
-        })
-    })
 
-    return "aa";
+                }
+
+
+            }
+
+        }
+    } 
+
+    dcInfo["datacenter"] = "";
+    dcInfo["building"] = "";
+    dcInfo["floor"] = "";
+    dcInfo["unit"] = "";
+    return dcInfo;
 
 };
 

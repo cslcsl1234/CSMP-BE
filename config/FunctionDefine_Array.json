@@ -14,7 +14,7 @@
     {
         "hasDetail": false,
         "tabName": "磁盘信息",
-        "template": 1,
+        "template": 2,
         "url": "/vmax/array/disks",
         "param": [
             {
