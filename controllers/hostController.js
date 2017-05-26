@@ -102,16 +102,13 @@ var hostController = function (app) {
                     return res.json(200, {status: "The Host has inserted."});
                 });
             }
-            else {
-                console.log("the host is exist!");
- 
-
+            else { 
                 doc.update(host, function(error, course) {
                     if(error) return next(error);
                 });
 
 
-                return  res.json(500 , {status: "The Host has exist! Update it."});
+                return  res.json(200 , {status: "The Host has exist! Update it."});
             }
 
         });

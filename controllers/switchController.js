@@ -378,15 +378,14 @@ console.log("bbbbbbbbbbbb");
                     return res.json(200, reqBody);
                 });
             }
-            else {
-                console.log("App is exist!");
+            else { 
  
                 doc.update(reqBody, function(error, course) {
                     if(error) return next(error);
                 });
 
 
-                return  res.json(500 , {status: "The App has exist! Update it."});
+                return  res.json(200 , {status: "The Switch has exist! Update it."});
             }
 
         });

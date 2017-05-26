@@ -118,16 +118,14 @@ var eventController = function (app) {
                         return res.json(200, {status: "The Event Record insert is succeeds!"});
                     });
                 }
-                else {
-                    console.log("Event is exist!");
-     
+                else { 
 
                     doc.update(item, function(error, course) {
                         if(error) return next(error);
                     });
 
 
-                    return  res.json(500 , {status: "The Event Record has exist! Update it."});
+                    return  res.json(200 , {status: "The Event Record has exist! Update it."});
                 }
 
                 });

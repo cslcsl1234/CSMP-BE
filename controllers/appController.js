@@ -100,14 +100,11 @@ var appController = function (app) {
                     return res.json(200, app);
                 });
             }
-            else {
-                console.log("App is exist!");
- 
-console.log(doc);
+            else { 
                 doc.update(app, function(error, course) {
-                    if(error) res.json(500 , {status: error});
+                    if(error) res.json(200 , {status: error});
                     else
-                    return  res.json(500 , {status: "The App has exist! Update it."});
+                    return  res.json(200 , {status: "The App has exist! Update it."});
                 });
 
 

@@ -1030,16 +1030,13 @@ var arrayController = function (app) {
                     return res.json(200, {status: "The Array insert is succeeds!"});
                 });
             }
-            else {
-                console.log("Array is exist!");
- 
-
+            else { 
                 doc.update(array, function(error, course) {
                     if(error) return next(error);
                 });
 
 
-                return  res.json(500 , {status: "The Array has exist! Update it."});
+                return  res.json(200 , {status: "The Array has exist! Update it."});
             }
 
         });
