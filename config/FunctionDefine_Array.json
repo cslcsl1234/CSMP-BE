@@ -7,7 +7,7 @@
         "param": [
             {
                 "postName": "device",
-                "findName": "serialnb"
+                "findName": "device"
             }
         ]
     },
@@ -16,6 +16,30 @@
         "tabName": "磁盘信息",
         "template": 2,
         "url": "/vmax/array/disks",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "LUN信息",
+        "template": 3,
+        "url": "/vmax/array/luns",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Pool信息",
+        "template": 3,
+        "url": "/vmax/array/pools",
         "param": [
             {
                 "postName": "device",

@@ -107,7 +107,7 @@ var arrayController = function (app) {
     } else {
 
         if ( device === undefined ) {
-            res.json(400, 'Must be special a device!')
+            res.json(401, 'Must be special a device!')
             return;
         }
 
@@ -156,7 +156,7 @@ var arrayController = function (app) {
             UI_Block2['detail'] = [];
 
             item={};
-            item["name"] = "缓存大小"; 
+            item["name"] = "缓存大小(Gb)"; 
             item["value"] = returnData.TotalMemory;
             UI_Block2.detail.push(item);
 
@@ -312,6 +312,196 @@ var arrayController = function (app) {
 
         }
     });
+
+
+   app.get('/api/vmax/array/luns', function (req, res) { 
+    var device = req.query.device;
+
+    if ( config.ProductType == 'demo' ) { 
+            res.json(200,VMAXDISKListJSON);
+            return;
+
+    } else {
+
+            if ( device === undefined ) {
+                res.json(400, 'Must be special a device!')
+                return;
+            }
+
+            var param = {};
+            param['filter'] = '(parttype=\'MetaMember\'|parttype=\'LUN\')';
+            param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'Availability\'|name=\'PoolUsedCapacity\')';
+            param['keys'] = ['device','part','parttype'];
+            param['fields'] = ['alias','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked'];
+            param['limit'] = 1000000;
+
+            if (typeof device !== 'undefined') { 
+                param['filter'] = 'device=\''+device+'\'&' + param['filter'];
+            } 
+
+
+            CallGet.CallGet(param, function(param) { 
+                
+                var data = param.result;
+
+                var finalResult = {};
+ 
+                // ---------- the part of table ---------------
+                var tableHeader = [];
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "名称";
+                tableHeaderItem["value"] = "part";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Thin?";
+                tableHeaderItem["value"] = "dgstype";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "用途";
+                tableHeaderItem["value"] = "purpose";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "类型";
+                tableHeaderItem["value"] = "config";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Pool";
+                tableHeaderItem["value"] = "poolname";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "masked?";
+                tableHeaderItem["value"] = "ismasked";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem); 
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "容量(GB)";
+                tableHeaderItem["value"] = "Capacity";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "已使用容量(GB)";
+                tableHeaderItem["value"] = "UsedCapacity";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableBody"] = data;
+
+
+                res.json(200, finalResult);
+
+            });
+
+        }
+    });
+
+
+   app.get('/api/vmax/array/pools', function (req, res) { 
+    var device = req.query.device;
+
+    if ( config.ProductType == 'demo' ) { 
+            res.json(200,VMAXDISKListJSON);
+            return;
+
+    } else {
+
+            if ( device === undefined ) {
+                res.json(400, 'Must be special a device!')
+                return;
+            }
+
+        var param = {};
+        param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\')';
+        param['keys'] = ['device','part'];
+        param['fields'] = ['dgtype','partstat','poolemul','dgraid','raidtype','iscmpenb','disktype'];
+
+        param['filter'] = 'device=\''+device+'\'&parttype=\'Storage Pool\'';
+
+
+        CallGet.CallGet(param, function(param) {
+  
+                console.log(param.result);
+                var data = param.result;
+
+                var finalResult = {};
+ 
+                // ---------- the part of table ---------------
+                var tableHeader = []; 
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "名称";
+                tableHeaderItem["value"] = "part";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "保护方式";
+                tableHeaderItem["value"] = "raidtype";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "状态";
+                tableHeaderItem["value"] = "partstat";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "RAID类型";
+                tableHeaderItem["value"] = "dgraid";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "磁盘类型";
+                tableHeaderItem["value"] = "disktype";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "可用容量(GB)";
+                tableHeaderItem["value"] = "Capacity";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem); 
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "已用容量(GB)";
+                tableHeaderItem["value"] = "UsedCapacity";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+ 
+                
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableBody"] = data;
+
+
+                res.json(200, finalResult);
+
+            });
+
+        }
+    });
+
+
 
 
    app.get('/api/arrays/:device', function (req, res) {

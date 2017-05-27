@@ -25,15 +25,9 @@ switchSchema = new Schema({
         alias: {
             type: String 
         },
-        dcname: {
+        UnitID: {
             type: String 
-        },
-        area: { 
-            type: String
-        },
-        position: {
-            type: String
-        }
+        } 
 
     }, 
     maintenance :{
@@ -43,7 +37,7 @@ switchSchema = new Schema({
         contact: {
             type: String
         },
-        pubchaseDate: {
+        purchaseDate: {
             type: String
         },
         period: {
