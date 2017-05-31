@@ -1,0 +1,87 @@
+{
+    "CapacityOverview": {
+        "Available": 1000,
+        "PhysicalFree": 650,
+        "Used": 150,
+        "Assigned": 500
+    },
+    "PoolDistributed": [
+        {
+            "PoolName": "Pool1",
+            "Available": 300,
+            "PhyFree": 200,
+            "Used": 50
+        },
+        {
+            "PoolName": "Pool2",
+            "Available": 300,
+            "PhyFree": 200,
+            "Used": 50
+        }
+    ],
+    "DatacenterDistributed": [
+        {
+            "DCName": "DC1",
+            "Available": 300,
+            "PhyFree": 200,
+            "Used": 50
+        },
+        {
+            "DCName": "DC2",
+            "Available": 300,
+            "PhyFree": 200,
+            "Used": 50
+        }
+    ],
+    "GroupByDatacenter": [
+        {
+            "DatacenterName": "DC1",
+            "NumberOfArray": 4,
+            "CapacityDist": {
+                "TotalRaw": 11111,
+                "Available": 2122,
+                "Used": 1212
+            },
+            "CapacityByPurpose": {
+                "Primary": 111,
+                "LocalRep": 22,
+                "LocalRemoteRep": 11,
+                "RemoteRep": 0
+            },
+            "CapacityTrend": [
+                {
+                    "TS": "201701",
+                    "Available": 2122,
+                    "Used": 1212,
+                    "GrowthRate": 22
+                },
+                {
+                    "TS": "201702",
+                    "Available": 2122,
+                    "Used": 1212,
+                    "GrowthRate": 22
+                },
+                {
+                    "TS": "201703",
+                    "Available": 2122,
+                    "Used": 1212,
+                    "GrowthRate": 22
+                }
+            ],
+            "PoolDistributed": [
+                {
+                    "PoolName": "Pool1",
+                    "Available": 300,
+                    "PhyFree": 200,
+                    "Used": 50
+                },
+                {
+                    "PoolName": "Pool2",
+                    "Available": 300,
+                    "PhyFree": 200,
+                    "Used": 50
+                }
+            ]
+        }
+    ]
+}

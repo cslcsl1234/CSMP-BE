@@ -43,7 +43,7 @@ var hostController = function (app) {
     app.get('/api/hosts', function (req, res) {
         var hostname = req.query.device; 
         host.GetHosts(hostname, function(code,result) {
-            res.json(500 , result);
+            res.json(200 , result);
         });
 
     });
@@ -58,7 +58,7 @@ var hostController = function (app) {
                 res.json(500 , {status: err})
             }
             if (!doc) { //user doesn't exist.
-                res.json(500 , []); 
+                res.json(200 , []); 
             }
             else {
 

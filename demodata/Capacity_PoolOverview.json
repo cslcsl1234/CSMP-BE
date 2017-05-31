@@ -1,0 +1,36 @@
+[
+{
+    "PoolOverview": {
+        "Level": "Gold",
+        "DiskType": "FC",
+        "RAIDType": "RAID10",
+        "Cost": 500
+    },
+    "CapacityOverview": {
+        "Available": 1000,
+        "PhysicalFree": 650,
+        "Used": 150,
+        "Assigned": 500
+    },
+    "CapacityTrend": [
+        {
+            "TS": "201701",
+            "Available": 2122,
+            "Used": 1212,
+            "GrowthRate": 22
+        },
+        {
+            "TS": "201702",
+            "Available": 2122,
+            "Used": 1212,
+            "GrowthRate": 22
+        },
+        {
+            "TS": "201703",
+            "Available": 2122,
+            "Used": 1212,
+            "GrowthRate": 22
+        }
+    ]
+}
+]

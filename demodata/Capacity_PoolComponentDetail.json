@@ -1,0 +1,70 @@
+{
+    "CapacityOverview": {
+        "Available": 1000,
+        "PhysicalFree": 650,
+        "Used": 150,
+        "Assigned": 500
+    },
+    "CapacityTrend": [
+        {
+            "TS": "201701",
+            "Available": 2122,
+            "Used": 1212,
+            "GrowthRate": 22
+        },
+        {
+            "TS": "201702",
+            "Available": 2122,
+            "Used": 1212,
+            "GrowthRate": 22
+        },
+        {
+            "TS": "201703",
+            "Available": 2122,
+            "Used": 1212,
+            "GrowthRate": 22
+        }
+    ],
+    "AssignTop10" : [
+        {
+            "AppName" : "APP1",
+            "Assigned" : 1000
+        },
+        {
+            "AppName" : "APP2",
+            "Assigned" : 2000
+        },
+        {
+            "AppName" : "APP3",
+            "Assigned" : 1000
+        },
+        {
+            "AppName" : "APP4",
+            "Assigned" : 2000
+        },
+        {
+            "AppName" : "APP5",
+            "Assigned" : 1000
+        },
+        {
+            "AppName" : "APP6",
+            "Assigned" : 2000
+        },
+        {
+            "AppName" : "APP7",
+            "Assigned" : 1000
+        },
+        {
+            "AppName" : "APP8",
+            "Assigned" : 2000
+        },
+        {
+            "AppName" : "APP9",
+            "Assigned" : 1000
+        },
+        {
+            "AppName" : "APP10",
+            "Assigned" : 2000
+        }
+    ] 
+}
