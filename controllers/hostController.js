@@ -166,7 +166,7 @@ var hostController = function (app) {
 
         var host = req.body;
 
-        HostObj.findOne({"name" : host.baseinfo.name}, function (err, doc) {
+        HostObj.findOne({"baseinfo.name" : host.baseinfo.name}, function (err, doc) {
             //system error.
             if (err) {
                 return   done(err);
