@@ -1,0 +1,39 @@
+[
+    {
+        "hasDetail": false,
+        "tabName": "基本信息",
+        "template": 1,
+        "url": "/host/baseinfo",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "HBA",
+        "template": 2,
+        "url": "/host/hba",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "LUN信息",
+        "template": 3,
+        "url": "/host/luns",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    }
+]
+

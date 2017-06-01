@@ -91,8 +91,7 @@ var switchController = function (app) {
                 }
                 res.json(200,{});
                 return;           
-            }
-console.log("bbbbbbbbbbbb");
+            } 
         }  
 
 
@@ -108,7 +107,7 @@ console.log("bbbbbbbbbbbb");
         } 
 
         CallGet.CallGet(param, function(param) { 
-
+            console.log(deviceid);
     		SwitchObj.findOne({"basicInfo.device" : deviceid}, function (err, doc) {
     		    //system error.
     		    if (err) {

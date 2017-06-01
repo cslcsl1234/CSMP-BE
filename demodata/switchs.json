@@ -1,15 +1,39 @@
 [
-  {
-    "devdesc": "Fibre Channel Switch",
-    "vendor": "Brocade",
-    "ip": "10.32.32.28",
-    "name": "Availability",
-    "model": "Brocade DCX 8510-4",
-    "device": "Brocade_DCX4S-100050EB1A90B3B7",
-    "devicesn": "ANN2529L004",
-    "Availability": "100.0",
-    "LastTS": "1493251200"
-  },
+{
+  "devdesc": "Fibre Channel Switch",
+  "vendor": "Brocade",
+  "ip": "10.32.32.28",
+  "name": "Availability",
+  "model": "Brocade DCX 8510-4",
+  "device": "Brocade_DCX4S-100050EB1A90B3B7",
+  "devicesn": "ANN2529L004",
+  "Availability": "100.0",
+  "LastTS": "1493251200",
+  "info": {
+    "_id": "592fd9dbb44d606c14000004",
+    "__v": 0,
+    "ability": {
+      "maxSlot": "2",
+      "maxPorts": "2"
+    },
+    "assets": {
+      "no": "cc",
+      "department": "11",
+      "purpose": "dd",
+      "manager": "dd"
+    },
+    "maintenance": {
+      "purchaseDate": "2017/06/14",
+      "contact": "aa",
+      "period": "1"
+    },
+    "basicInfo": {
+      "device": "Brocade_DCX4S-100050EB1A90B3B7",
+      "alias": "DXC1",
+      "UnitID": "222f0915-1032-465c-b6ee-943ffbbac933"
+    }
+  }
+},
   {
     "devdesc": "Fibre Channel Switch",
     "vendor": "Brocade",

@@ -125,24 +125,27 @@ var authController = function (app) {
                       })
 
                   });
-                } 
-                
-                //console.log(Date.now() );
-                //console.log(auths[0].effectiveDate.getTime() );
-                var auth = auths[0];
-                var authKey = auth.authKey; 
 
-                if ( Date.now() - auth.effectiveDate.getTime() > 1000 * 60 * 60 * 24) {
-                    console.log("the Auth key is expire. get the new one.");
-                    addAuthKey(res, userId);
+                } else {
+                    //console.log(Date.now() );
+                    //console.log(auths[0].effectiveDate.getTime() );
+                    var auth = auths[0];
+                    var authKey = auth.authKey; 
+
+                    if ( Date.now() - auth.effectiveDate.getTime() > 1000 * 60 * 60 * 24) {
+                        console.log("the Auth key is expire. get the new one.");
+                        addAuthKey(res, userId);
+                    }
+
+                    roleFunc.GetRoleListByUser(user.username,function(retcode, menulist) {
+                        //console.log(menulist); 
+
+                        return res.json(200, {authKey: authKey, user: user , menuItems: menulist });
+
+                    })                  
                 }
+                
 
-                roleFunc.GetRoleListByUser(user.username,function(retcode, menulist) {
-                    //console.log(menulist); 
-
-                    return res.json(200, {authKey: authKey, user: user , menuItems: menulist });
-
-                })
             });
 
     };

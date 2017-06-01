@@ -75,6 +75,89 @@ var hostController = function (app) {
     });
 
 
+   app.get('/api/host/baseinfo', function (req, res) { 
+    var device = req.query.device;
+
+    if ( config.ProductType == 'demo' ) {
+             res.json(200,VMAX_ListJSON);
+
+    } else {
+
+        if ( device === undefined ) {
+            res.json(401, 'Must be special a device!')
+            return;
+        } 
+        host.GetHosts(device, function(code,result) {
+            res.json(200 , result);
+
+
+            var finalResult = [];
+            var returnData = ret[0];
+            var item = {};
+            // Combine the UI element for VMAX Basic Info page.
+
+            // -------------- Block1 ---------------------------
+            var UI_Block1 = {} ;
+            UI_Block1['title'] = "存储管理信息";
+            UI_Block1['detail'] = [];
+
+            item={};
+            item["name"] = "存储序列号"; 
+            item["value"] = returnData.device;
+            UI_Block1.detail.push(item);
+ 
+            item={};
+            item["name"] = "厂商"; 
+            item["value"] = returnData.vendor;
+            UI_Block1.detail.push(item);
+
+            item={};
+            item["name"] = "型号"; 
+            item["value"] = returnData.model;
+            UI_Block1.detail.push(item);
+
+            item={};
+            item["name"] = "存储类型"; 
+            item["value"] = returnData.sstype;
+            UI_Block1.detail.push(item);
+
+            item={};
+            item["name"] = "微码版本"; 
+            item["value"] = returnData.devdesc;
+            UI_Block1.detail.push(item);
+
+
+            // -------------- Block1 ---------------------------
+ 
+            var UI_Block2 = {} ;
+            UI_Block2['title'] = "存储硬件配置信息";
+            UI_Block2['detail'] = [];
+
+            item={};
+            item["name"] = "缓存大小(Gb)"; 
+            item["value"] = returnData.TotalMemory;
+            UI_Block2.detail.push(item);
+
+            item={};
+            item["name"] = "磁盘数量"; 
+            item["value"] = returnData.TotalDisk;
+            UI_Block2.detail.push(item);
+
+            item={};
+            item["name"] = "LUN数量"; 
+            item["value"] = returnData.TotalLun;
+            UI_Block2.detail.push(item);
+
+
+            // -------------- Finally combine the final result record -----------------
+            finalResult.push(UI_Block1);
+            finalResult.push(UI_Block2);
+
+            res.json(200,finalResult);
+        })
+    }
+    });
+
 /* 
 *  Create a app record 
 */

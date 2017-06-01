@@ -15,7 +15,9 @@ var mongoose = require('mongoose');
 var MenuObj = mongoose.model('Menu');
 
 var FunctionDefine_Array = require("../config/FunctionDefine_Array");
+var FunctionDefine_Host = require("../config/FunctionDefine_Host");
 
+ 
  
 var menuController = function (app) {
 
@@ -150,6 +152,10 @@ var menuController = function (app) {
         }
         
 
+    });
+
+    app.get('/api/menu/ObjectManage/Host', function (req, res) {
+        res.json(200,FunctionDefine_Host);
     });
 
 
