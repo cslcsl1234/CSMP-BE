@@ -76,37 +76,73 @@ var authController = function (app) {
     var getAuthKey = function (res, user) {
 
         var userId = user.id;
+
+        console.log("UserID = [" + userId + "]");
         //only if there is no authKey, add one.
-        var addAuthKey = function (res, userId) { 
-            Auth.addAuthKey(userId, function (err, authKey) {
-                if (err) {
-                    return res.json(500, err);
-                } 
-
-                roleFunc.GetRoleListByUser(user.username,function(retcode, menulist) {
-                    console.log(menulist); 
-                    return res.json(200, {authKey: authKey, user: user , menuItems: menulist });
-
-                })
-
-
-            });
-        };
-
-
-        /**s
-         * try to find if the authKey for this user exits.
-         */
-        Auth.find({user: userId})
-            .exec(function (err, auths) {
-                if (err) return res.json(500, err);
-                //if the authkey for this user already exists, remove it.
-                if (auths.length > 0) {
+        var addAuthKey = function (res, userId) {  
+            Auth.find({user: userId}, function (err, auths) {
+                if (err) console.log( err);
+                console.log("TEST1:" + auths);
+                if ( auths.length > 0 ) {
                     auths.forEach(function (auth) {
                         auth.remove();
                     })
+
                 }
-                addAuthKey(res, userId);
+                Auth.addAuthKey(userId, function (err, auth) {
+
+                    if (err) {
+                        return res.json(500, err);
+                    }
+
+                });
+            } );
+        };
+
+
+        /*
+         * try to find if the authKey for this user exits.
+         */
+        Auth.find({user: userId})
+            .exec(function (err, auths) { 
+                if (err) return res.json(500, err);
+                //if the authkey for this user already exists, remove it.
+                console.log(auths);
+                if ( auths.length == 0 ) { 
+                    //addAuthKey(res, userId);
+                      console.log("Auth info is not find. apply a new one.")
+                      Auth.addAuthKey(userId, function (err, auth) {
+
+                      if (err) {
+                          return res.json(500, err);
+                      }
+
+                      roleFunc.GetRoleListByUser(user.username,function(retcode, menulist) {
+                      //console.log(menulist); 
+
+                      return res.json(200, {authKey: authKey, user: user , menuItems: menulist });
+
+                      })
+
+                  });
+                } 
+                
+                //console.log(Date.now() );
+                //console.log(auths[0].effectiveDate.getTime() );
+                var auth = auths[0];
+                var authKey = auth.authKey; 
+
+                if ( Date.now() - auth.effectiveDate.getTime() > 1000 * 60 * 60 * 24) {
+                    console.log("the Auth key is expire. get the new one.");
+                    addAuthKey(res, userId);
+                }
+
+                roleFunc.GetRoleListByUser(user.username,function(retcode, menulist) {
+                    //console.log(menulist); 
+
+                    return res.json(200, {authKey: authKey, user: user , menuItems: menulist });
+
+                })
             });
 
     };
@@ -136,6 +172,7 @@ var authController = function (app) {
             if (!userid) {
                 res.json(400, {message: msg});
             } else { 
+                console.log("Login - Get Auth key");
                 getAuthKey(res, msg);
             }
         });

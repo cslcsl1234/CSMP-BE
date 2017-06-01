@@ -501,6 +501,98 @@ var arrayController = function (app) {
         }
     });
 
+   app.get('/api/vmax/array/switchs', function (req, res) { 
+    var device = req.query.device;
+
+    if ( config.ProductType == 'demo' ) { 
+            res.json(200,VMAXDISKListJSON);
+            return;
+
+    } else {
+
+            if ( device === undefined ) {
+                res.json(400, 'Must be special a device!')
+                return;
+            }
+
+        var queryString = " PREFIX  srm: <http://ontologies.emc.com/2013/08/srm#>  ";
+        queryString = queryString + " PREFIX  filter:<http://ontologies.emc.com/2015/mnr/topology#> ";
+        queryString = queryString + " PREFIX  rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> ";
+        queryString = queryString + " SELECT distinct  ?FEPortDisplayName ?SwitchPortDisplayName ?SwitchDisplayName ?SwitchVendor ?SwitchModel  ";
+        queryString = queryString + " WHERE {  ";
+        queryString = queryString + "       ?array rdf:type srm:StorageEntity .    ";
+        queryString = queryString + "       ?array srm:displayName ?ArrayDisplayName .    ";
+        queryString = queryString + "       ?array srm:containsStorageFrontEndAdapter ?FEAdapter .    "; 
+        queryString = queryString + "      ?FEAdapter srm:containsStorageFrontEndPort ?FEPort .     "; 
+        queryString = queryString + "      ?FEPort srm:containsProtocolEndpoint ?FEPortEndpoint .     "; 
+        queryString = queryString + "      ?FEPortEndpoint srm:connectedTo ?SwitchPortEndpoint .     "; 
+        queryString = queryString + "      ?SwitchPortEndpoint srm:residesOnSwitchPort ?SwitchPort .     "; 
+
+        queryString = queryString + "      ?SwitchPort srm:displayName ?SwitchPortDisplayName .     "; 
+        queryString = queryString + "      ?FEPort srm:Identifier ?FEPortDisplayNameOrigin .     "; 
+        queryString = queryString + "      BIND(REPLACE(?FEPortDisplayNameOrigin, \"topo:srm.StorageFrontEndPort:\", \"\", \"i\") AS ?FEPortDisplayName) . ";
+        queryString = queryString + "      ?SwitchPortEndpoint srm:residesOnLogicalSwitch ?LogicalSwitch .     "; 
+        queryString = queryString + "      ?LogicalSwitch srm:residesOnPhysicalSwitch ?PhysicalSwitch .     "; 
+        queryString = queryString + "      ?LogicalSwitch srm:displayName ?SwitchDisplayName .     "; 
+        queryString = queryString + "      ?LogicalSwitch srm:vendor ?SwitchVendor .     "; 
+        queryString = queryString + "      ?PhysicalSwitch srm:model ?SwitchModel .     "; 
+         queryString = queryString + "      FILTER ( ?ArrayDisplayName = \"" + device + "\" )  . ";
+       queryString = queryString + "  } "; 
+ 
+
+        getTopos.querySparql(queryString, function(result) {  
+  
+                
+
+                var finalResult = {};
+ 
+                // ---------- the part of table ---------------
+                var tableHeader = []; 
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "前端口名称";
+                tableHeaderItem["value"] = "FEPortDisplayName";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "联接交换机端口";
+                tableHeaderItem["value"] = "SwitchPortDisplayName";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "交换机名称";
+                tableHeaderItem["value"] = "SwitchDisplayName";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "交换机厂商";
+                tableHeaderItem["value"] = "SwitchVendor";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "交换机型号";
+                tableHeaderItem["value"] = "SwitchModel";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+ 
+                
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableBody"] = result;
+
+
+                res.json(200, finalResult);
+
+            });
+
+        }
+    });
 
 
 

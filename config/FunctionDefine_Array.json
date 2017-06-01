@@ -46,5 +46,18 @@
                 "findName": "device"
             }
         ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Switch信息",
+        "template": 3,
+        "url": "/vmax/array/switchs",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
     }
 ]
+

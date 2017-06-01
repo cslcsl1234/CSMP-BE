@@ -123,12 +123,11 @@ userSchema.statics = {
 authSchema = new Schema({
     user: {
         type: ObjectId,
-        ref: 'User'
+        ref: 'User',
+        unique : true
     },
     authKey: {
-        type: String,
-        required: true,
-        unique: true
+        type: String
     },
     effectiveDate: {type: Date,
         default: Date.now,
@@ -159,12 +158,16 @@ authSchema.statics = {
      * @param done
      */
     addAuthKey: function (userId, done) {
+ 
         var Auth = this,
         //using time-based uuid as authKey.
             authKey = uuid.v4(),
-            auth = new Auth({user: userId, authKey: authKey});
+            auth = new Auth({user: userId, authKey: authKey });
+
+
         auth.save(function (err) {
-            done(err, authKey);
+            done(err, auth);
+            //done(err, authKey);
         });
     },
     /**
@@ -181,7 +184,7 @@ authSchema.statics = {
             .exec(function (err, auth) {
                 var user;
                 if (auth) {
-//                    auth.updateEffectiveDate();
+                    auth.updateEffectiveDate();
                     user = auth.user;
                 }
                 done(err, user);

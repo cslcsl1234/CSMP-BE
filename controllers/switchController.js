@@ -217,6 +217,7 @@ console.log("bbbbbbbbbbbb");
                 .query({'fields': fields , 'filter':  filter }) 
                 .end(function (response) {
 
+                    console.log(response.body);
                     var resultJson = JSON.parse(response.body).values; 
 
                     for ( var i in resultJson ) {
