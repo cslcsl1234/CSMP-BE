@@ -57,12 +57,8 @@ hostSchema = new Schema({
             type: String
         },
 	// -- the host is belong to which data center.
-        dcname: {
+        UnitID: {
              type: String
-        },
-	// -- inside a special data center that host belong to, it live in which machine room.
-        area:{
-            type: String
         },
 	// -- the description of host, can be anything.
         description:{
