@@ -118,6 +118,32 @@ var appController = function (app) {
     });
 
 
+/* 
+*  Delete a app record 
+*/
+    app.delete('/api/application', function (req, res) { 
+        var device = req.query.device; 
+
+        AppObj.findOne({"name" : device}, function (err, doc) {
+            //system error.
+            if (err) {
+                return   done(err);
+            }
+            if (!doc) {  
+                console.log("application is not exist. do nothing."); 
+                return  res.json(200 , {status: "application is not exist. do nothing."});
+            }
+            else { 
+                doc.remove(App, function(error, course) {
+                    if(error) return next(error);
+                });
+
+                return  res.json(200 , {status: "The application has deleted!"});
+            }
+
+        });
+
+    });
 
 
 

@@ -201,7 +201,35 @@ var hostController = function (app) {
     });
 
 
+/* 
+*  Delete a app record 
+*/
+    app.delete('/api/host', function (req, res) { 
+        var device = req.query.device; 
 
+        HostObj.findOne({"baseinfo.name" : device}, function (err, doc) {
+            //system error.
+            if (err) {
+                return   done(err);
+            }
+            if (!doc) { //user doesn't exist.
+                console.log("host is not exist. do nothing."); 
+                return  res.json(200 , {status: "host is not exist. do nothing."});
+            }
+            else { 
+                doc.remove(host, function(error, course) {
+                    if(error) return next(error);
+                });
+
+                return  res.json(200 , {status: "The Host has deleted!"});
+            }
+
+        });
+
+
+
+
+    });
 
 
 
