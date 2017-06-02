@@ -116,9 +116,46 @@ var switchController = function (app) {
 
     		    if ( param.result.length > 0 ) {
     			    if (!doc) { //user doesn't exist.
-    				console.log("app is not exist. insert it."); 
-    				param.result[0]['info'] = {};
-    			    }
+        				console.log("app is not exist. insert it."); 
+        				var initRecord = {
+                                "ability": {
+                                    "maxSlot": "",
+                                    "maxPorts": ""
+                                },
+                                "assets": {
+                                    "no": "",
+                                    "department": "",
+                                    "purpose": "",
+                                    "manager": ""
+                                },
+                                "maintenance": {
+                                    "purchaseDate": "",
+                                    "contact": "",
+                                    "period": "",
+                                    "vendor": ""
+                                },
+                                "basicInfo": {
+                                    "device": "",
+                                    "alias": "",
+                                    "UnitID": ""
+                                }
+                            }; 
+
+                        initRecord.basicInfo.device = deviceid;
+
+                        var newswitch = new SwitchObj(initRecord);
+                        newswitch.save(function(err, thor) {
+                          if (err)  {
+
+                            console.dir(thor);
+                            return res.json(400 , err);
+                          } else 
+                            return res.json(200, {status: "The Switch insert is succeeds!"});
+                        });                        
+
+                        param.result[0]['info'] = initRecord;
+
+                    }
     			    else {
     				console.log("App is exist!");
     				console.log(doc);
