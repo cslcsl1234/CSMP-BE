@@ -1,11 +1,11 @@
 {
     "Backend": {
-    	"URL" : "http://123.56.114.249:58080/APG-REST",
-        "TopoServURL" : "https://123.56.114.249:48443/Backends/Topology-Service/Default/topology/repository/sparql",
+    	"URL" : "http://CollectServer:58080/APG-REST",
+        "TopoServURL" : "https://CollectServer:48443/Backends/Topology-Service/Default/topology/repository/sparql",
         "USER": "admin",
         "PASSWORD": "changeme"
     },
-    "MongoDBURL" : "mongodb://123.56.114.249/csmp",
+    "MongoDBURL" : "mongodb://MongoDBServer/csmp",
     "SRM_RESTAPI" : {
         "SERIES_BEGIN_TS": "2016-04-01T18:30:00+08:00",
         "SERIES_LIMITS": "50000",

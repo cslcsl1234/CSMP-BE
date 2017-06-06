@@ -54,7 +54,7 @@ arraySchema = new Schema({
         contact: {
             type: String
         },
-        pubchaseDate: {
+        purchaseDate: {
             type: String
         },
         period: {

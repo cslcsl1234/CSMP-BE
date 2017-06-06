@@ -46,6 +46,7 @@
                 "Primary": 111,
                 "LocalRep": 22,
                 "LocalRemoteRep": 11,
+                "LocalTargetClone": 33,
                 "RemoteRep": 0
             },
             "CapacityTrend": [

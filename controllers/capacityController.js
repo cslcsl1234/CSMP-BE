@@ -62,8 +62,8 @@ var capacityController = function (app) {
     app.get('/api/capacity/overview', function (req, res) {
  
         if ( config.ProductType == 'demo' ) {
-                res.json(200,Capacity_Overview);
-                return;
+            res.json(200,Capacity_Overview);
+            return;
         } ;
 
  
