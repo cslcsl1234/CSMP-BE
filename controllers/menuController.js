@@ -154,6 +154,28 @@ var menuController = function (app) {
 
     });
 
+    app.get('/api/menu/ObjectManage/VirtualArray', function (req, res) {
+
+        var arraytype = req.query.arraytype; 
+        if ( arraytype === undefined ) {
+            res.json(400,"Must assign a arraytype paramater! ");
+            return;
+        }
+
+
+        switch ( arraytype.toUpperCase() ) {
+            case "VMAX10K" :
+            case "VMAX100K" :
+                res.json(200,FunctionDefine_Array);
+                break;
+
+            default :
+                res.json(400,"尚不支持此种设备类型!");
+        }
+        
+
+    });    
+
     app.get('/api/menu/ObjectManage/Host', function (req, res) {
         res.json(200,FunctionDefine_Host);
     });

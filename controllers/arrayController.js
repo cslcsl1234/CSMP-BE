@@ -1334,14 +1334,11 @@ var arrayController = function (app) {
  
 
      app.get('/api/array/test', function ( req, res )  {
-        var device = req.query.device; 
-
-        VMAX.GetAssignedHosts(device, function(result) {
  
-            res.json(200,result);
-        });
-
-
+        util.GetLocaltion(function(locations) {  
+            res.json(200,locations);
+                                                         
+        }); 
 
     } ) ;
 

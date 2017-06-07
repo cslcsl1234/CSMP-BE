@@ -14,6 +14,7 @@ var RecordFlat = require('../lib/RecordFlat');
 var util = require('../lib/util');
 var CallGet = require('../lib/CallGet'); 
 var getTopos = require('../lib/topos'); 
+var async = require('async'); 
 
 var mongoose = require('mongoose');
 var SwitchObj = mongoose.model('Switch');
@@ -58,8 +59,62 @@ var switchController = function (app) {
             param['filter'] = 'devtype==\'FabricSwitch\'&!parttype';
         } 
 
-        CallGet.CallGet(param, function(param) { 
-            res.json(200, param.result);
+
+        async.waterfall([
+            function(callback){ 
+
+                    CallGet.CallGet(param, function(param) { 
+                        callback(null,param);
+                    }); 
+            }, 
+            // Get All Localtion Records
+            function(param,  callback){  
+
+                util.GetLocaltion(function(locations) { 
+                    param['Locations']= locations;
+                    callback(null,param);
+                                                                 
+                }); 
+                    
+
+            },
+            // get customize info
+            function(param,  callback){ 
+
+                var locations = param.Locations;
+                GetSwitchInfo(function(result) {
+
+                   for ( var i in param.result ) {      
+                        var item = param.result[i];
+                        item['info'] = {}; 
+                        var switchsn = item.device;
+                        console.log("Begin get switch info : " + switchsn);
+                        for ( var j in result ) {
+                            var infoItem = result[j]; 
+                            if ( infoItem.basicInfo.device == switchsn ) { 
+                                var unitID = infoItem.basicInfo.UnitID; 
+                                for ( var z in locations ) { 
+                                    if ( unitID == locations[z].UnitID ) {
+                                        console.log(locations[z].Location);
+                                        item['localtion'] = locations[z].Location;
+                                        break;
+                                    }
+                                }
+                                item['info'] = infoItem; 
+                            }
+                        } 
+                    }
+
+
+                 callback(null,param);
+    
+             });
+
+            } 
+
+         ], function (err, result) {
+           // result now equals 'done'
+            res.json(200, result.result); 
         });
 
          
@@ -106,73 +161,155 @@ var switchController = function (app) {
             res.json(400, 'Must be special a device!');
         } 
 
-        CallGet.CallGet(param, function(param) { 
-            console.log(deviceid);
-    		SwitchObj.findOne({"basicInfo.device" : deviceid}, function (err, doc) {
-    		    //system error.
-    		    if (err) {
-    			return   done(err);
-    		    }
 
-    		    if ( param.result.length > 0 ) {
-    			    if (!doc) { //user doesn't exist.
-        				console.log("app is not exist. insert it."); 
-        				var initRecord = {
-                                "ability": {
-                                    "maxSlot": "",
-                                    "maxPorts": ""
-                                },
-                                "assets": {
-                                    "no": "",
-                                    "department": "",
-                                    "purpose": "",
-                                    "manager": ""
-                                },
-                                "maintenance": {
-                                    "purchaseDate": "",
-                                    "contact": "",
-                                    "period": "",
-                                    "vendor": ""
-                                },
-                                "basicInfo": {
-                                    "device": "",
-                                    "alias": "",
-                                    "UnitID": ""
+
+        async.waterfall([
+            function(callback){ 
+
+
+                    CallGet.CallGet(param, function(param) { 
+
+                        callback(null,param);
+                        /*
+                        console.log(deviceid);
+                		SwitchObj.findOne({"basicInfo.device" : deviceid}, function (err, doc) {
+                		    //system error.
+                		    if (err) {
+                			return   done(err);
+                		    }
+
+                		    if ( param.result.length > 0 ) {
+                			    if (!doc) { //user doesn't exist.
+                    				console.log("app is not exist. insert it."); 
+                    				var initRecord = {
+                                            "ability": {
+                                                "maxSlot": "",
+                                                "maxPorts": ""
+                                            },
+                                            "assets": {
+                                                "no": "",
+                                                "department": "",
+                                                "purpose": "",
+                                                "manager": ""
+                                            },
+                                            "maintenance": {
+                                                "purchaseDate": "",
+                                                "contact": "",
+                                                "period": "",
+                                                "vendor": ""
+                                            },
+                                            "basicInfo": {
+                                                "device": "",
+                                                "alias": "",
+                                                "UnitID": ""
+                                            }
+                                        }; 
+
+                                    initRecord.basicInfo.device = deviceid;
+
+                                    var newswitch = new SwitchObj(initRecord);
+                                    newswitch.save(function(err, thor) {
+                                      if (err)  {
+
+                                        console.dir(thor);
+                                        return res.json(400 , err);
+                                      } else 
+                                        return res.json(200, {status: "The Switch insert is succeeds!"});
+                                    });                        
+
+                                    param.result[0]['info'] = initRecord;
+
                                 }
-                            }; 
+                			    else {
+                				console.log("App is exist!");
+                				console.log(doc);
+                		 
+                				param.result[0]['info'] = doc;
 
-                        initRecord.basicInfo.device = deviceid;
+                			    }
+                            		res.json(200, param.result[0]);
+                		    }
+                		    else 
+                			res.json(200, {} );
 
-                        var newswitch = new SwitchObj(initRecord);
-                        newswitch.save(function(err, thor) {
-                          if (err)  {
+                		});
+                        */
+                    });
+            }, 
+            // Get All Localtion Records
+            function(param,  callback){  
 
-                            console.dir(thor);
-                            return res.json(400 , err);
-                          } else 
-                            return res.json(200, {status: "The Switch insert is succeeds!"});
-                        });                        
+                util.GetLocaltion(function(locations) { 
+                    param['Locations']= locations;
+                    callback(null,param);
+                                                                 
+                }); 
+                    
 
-                        param.result[0]['info'] = initRecord;
+            },
+            // get customize info
+            function(param,  callback){ 
 
+                var locations = param.Locations;
+                GetSwitchInfo(function(result) {
+
+                   for ( var i in param.result ) {      
+                        var item = param.result[i];
+                        item['info'] = {}; 
+                        var switchsn = item.device;
+                        console.log("Begin get switch info : " + switchsn);
+                        for ( var j in result ) {
+                            var infoItem = result[j]; 
+                            if ( infoItem.basicInfo.device == switchsn ) { 
+                                var unitID = infoItem.basicInfo.UnitID; 
+                                for ( var z in locations ) { 
+                                    if ( unitID == locations[z].UnitID ) {
+                                        console.log(locations[z].Location);
+                                        item['localtion'] = locations[z].Location;
+                                        break;
+                                    }
+                                }
+                                item['info'] = infoItem; 
+                            }
+                        } 
                     }
-    			    else {
-    				console.log("App is exist!");
-    				console.log(doc);
-    		 
-    				param.result[0]['info'] = doc;
 
-    			    }
-                		res.json(200, param.result[0]);
-    		    }
-    		    else 
-    			res.json(200, {} );
 
-    		});
+                 callback(null,param);
+    
+             });
+
+            } 
+
+         ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result.result); 
         });
 
-         
+
     });
+
+function GetSwitchInfo(callback) {
+
+        SwitchObj.find({}, { "__v": 0, "_id": 0 },  function (err, doc) {
+        //system error.
+        if (err) {
+            return   done(err);
+        }
+        if (!doc) { //user doesn't exist.
+            console.log("switch info record is not exist."); 
+
+            callback(null,[]); 
+        
+        }
+        else {
+            console.log("Switch is exist!");
+            callback(doc); 
+
+        }
+        
+    });
+}
 
 
     app.get('/api/switch/ports', function (req, res) {

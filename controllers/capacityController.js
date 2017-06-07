@@ -217,10 +217,6 @@ var capacityController = function (app) {
            // result now equals 'done'
            res.json(200, result);
         });
-
-
- 
-
          
     });
 
