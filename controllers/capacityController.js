@@ -50,6 +50,19 @@ var capacityController = function (app) {
     });
 
 
+     app.get('/api/capacity/overview', function (req, res) {
+                res.json(200,Capacity_Overview);
+
+   });
+    app.get('/api/capacity/PoolOverview', function (req, res) {
+                res.json(200,Capacity_PoolOverview);
+   });
+    app.get('/api/capacity/PoolDetail', function (req, res) {
+                res.json(200,Capacity_PoolDetail);
+   });
+    app.get('/api/capacity/PoolComponentDetail', function (req, res) {
+                res.json(200,Capacity_PoolComponentDetail);
+   });
 
 
 
@@ -59,7 +72,7 @@ var capacityController = function (app) {
 
 
 
-    app.get('/api/capacity/overview', function (req, res) {
+    app.get('/api/capacity/overview1', function (req, res) {
  
         if ( config.ProductType == 'demo' ) {
             res.json(200,Capacity_Overview);
@@ -103,7 +116,7 @@ var capacityController = function (app) {
     });
 
 
-    app.get('/api/capacity/PoolOverview', function (req, res) {
+    app.get('/api/capacity/PoolOverview1', function (req, res) {
  
         if ( config.ProductType == 'demo' ) {
                 res.json(200,Capacity_PoolOverview);
@@ -137,7 +150,7 @@ var capacityController = function (app) {
 
 
 
-    app.get('/api/capacity/PoolDetail', function (req, res) {
+    app.get('/api/capacity/PoolDetail1', function (req, res) {
  
         if ( config.ProductType == 'demo' ) {
                 res.json(200,Capacity_PoolDetail);
@@ -180,7 +193,7 @@ var capacityController = function (app) {
     });
 
 
-    app.get('/api/capacity/PoolComponentDetail', function (req, res) {
+    app.get('/api/capacity/PoolComponentDetail1', function (req, res) {
  
         if ( config.ProductType == 'demo' ) {
                 res.json(200,Capacity_PoolComponentDetail);
