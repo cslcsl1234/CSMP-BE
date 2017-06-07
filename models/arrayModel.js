@@ -40,7 +40,7 @@ arraySchema = new Schema({
             required: true,
             enum: DEVICE_LEVEL
         },
-        arrayType: {
+        equipmentType: {
              type: String,
             required: true,
             enum: ARRAY_TYPE
@@ -53,7 +53,7 @@ arraySchema = new Schema({
         },
         contact: {
             type: String
-        },
+        }, 
         purchaseDate: {
             type: String
         },
@@ -174,4 +174,4 @@ arraySchema.statics = {
 
 
 //create and set two models into mongoose instance, they can be fetched anywhere mongoose object is presented.
-mongoose.model('EquipmentInfo', arraySchema); 
+mongoose.model('Array', arraySchema); 

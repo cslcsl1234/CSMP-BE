@@ -142,7 +142,7 @@ var menuController = function (app) {
 
 
         switch ( arraytype.toUpperCase() ) {
-            case "VMAX" :
+            case "VMAX10K" :
             case "VMAX100K" :
                 res.json(200,FunctionDefine_Array);
                 break;

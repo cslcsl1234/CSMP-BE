@@ -17,7 +17,7 @@ var RecordFlat = require('../lib/RecordFlat');
 var util = require('../lib/util');
 
 var mongoose = require('mongoose');
-var ArrayObj = mongoose.model('EquipmentInfo');
+var ArrayObj = mongoose.model('Array');
  
 var CallGet = require('../lib/CallGet'); 
 
@@ -1313,6 +1313,7 @@ var arrayController = function (app) {
                 });
             }
             else { 
+                console.log(array);
                 doc.update(array, function(error, course) {
                     if(error) return next(error);
                 });

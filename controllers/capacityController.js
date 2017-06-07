@@ -14,7 +14,7 @@ var unirest1 = require('unirest');
 var async = require('async'); 
 
 var mongoose = require('mongoose');
-var ArrayObj = mongoose.model('EquipmentInfo');
+var ArrayObj = mongoose.model('Array');
  
 var CallGet = require('../lib/CallGet');  
 var getTopos = require('../lib/topos.js');

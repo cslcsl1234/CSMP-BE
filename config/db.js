@@ -17,7 +17,7 @@ console.log(dbUrl);
  * This may use a loop to automatically load all models.
  */
 require('./../models/userModel');
-require('./../models/equipmentInfoModel');
+require('./../models/arrayModel');
 
 require('./../models/switchModel');
 require('./../models/appModel');

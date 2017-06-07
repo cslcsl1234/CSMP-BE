@@ -17,7 +17,7 @@ var getTopos = require('../lib/topos');
 
 var async = require('async');
 var mongoose = require('mongoose'); 
-var EquipmentInfo = mongoose.model('EquipmentInfo');
+var EquipmentInfo = mongoose.model('Array');
 var Datacenter = mongoose.model('Datacenter');
 
 var dashboard_demo = require('../demodata/Dashboard'); 
