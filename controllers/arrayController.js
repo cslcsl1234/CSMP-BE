@@ -945,7 +945,7 @@ var arrayController = function (app) {
 
 
 
-        getTopos(function(topos) { 
+        getTopos.getTopos(function(topos) { 
 
             var conn_arrayport = topos.resultArrayDetail;
 

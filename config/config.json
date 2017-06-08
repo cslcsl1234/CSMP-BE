@@ -1,7 +1,7 @@
 {
     "Backend": {
-    	"URL" : "http://192.168.182.138:58080/APG-REST",
-        "TopoServURL" : "https://192.168.182.138:48443/Backends/Topology-Service/Default/topology/repository/sparql",
+    	"URL" : "http://192.168.182.134:58080/APG-REST",
+        "TopoServURL" : "https://192.168.182.134:48443/Backends/Topology-Service/Default/topology/repository/sparql",
         "USER": "admin",
         "PASSWORD": "changeme"
     },
