@@ -1,5 +1,6 @@
 {
     "PoolOverview": {
+        "PoolName" : "High-Performace",
         "Level": "Gold",
         "DiskType": "FC",
         "RAIDType": "RAID10",

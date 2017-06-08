@@ -114,7 +114,13 @@ var switchController = function (app) {
 
          ], function (err, result) {
            // result now equals 'done'
-            res.json(200, result.result); 
+            
+            if (typeof deviceid !== 'undefined') { 
+                res.json(200, result.result[0]); 
+            } else {
+                res.json(200, result.result); 
+            } 
+
         });
 
          
