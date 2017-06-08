@@ -15,7 +15,7 @@
         "hasDetail": false,
         "tabName": "磁盘信息",
         "template": 2,
-        "url": "/vplex/array/disks",
+        "url": "/vplex/disks",
         "param": [
             {
                 "postName": "device",
@@ -27,7 +27,7 @@
         "hasDetail": false,
         "tabName": "LUN信息",
         "template": 3,
-        "url": "/vplex/array/luns",
+        "url": "/vplex/luns",
         "param": [
             {
                 "postName": "device",
@@ -39,7 +39,7 @@
         "hasDetail": false,
         "tabName": "Pool信息",
         "template": 3,
-        "url": "/vplex/array/pools",
+        "url": "/vplex/pools",
         "param": [
             {
                 "postName": "device",
@@ -51,7 +51,7 @@
         "hasDetail": false,
         "tabName": "Switch信息",
         "template": 3,
-        "url": "/vplex/array/switchs",
+        "url": "/vplex/switchs",
         "param": [
             {
                 "postName": "device",
