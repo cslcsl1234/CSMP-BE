@@ -16,6 +16,7 @@ var MenuObj = mongoose.model('Menu');
 
 var FunctionDefine_Array = require("../config/FunctionDefine_Array");
 var FunctionDefine_Host = require("../config/FunctionDefine_Host");
+var FunctionDefine_VPLEX = require("../config/FunctionDefine_VPLEX");
 
  
  
@@ -164,9 +165,8 @@ var menuController = function (app) {
 
 
         switch ( arraytype.toUpperCase() ) {
-            case "VMAX10K" :
-            case "VMAX100K" :
-                res.json(200,FunctionDefine_Array);
+            case "VPLEX" : 
+                res.json(200,FunctionDefine_VPLEX);
                 break;
 
             default :

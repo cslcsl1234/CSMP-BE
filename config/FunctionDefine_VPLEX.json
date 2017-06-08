@@ -1,0 +1,63 @@
+[
+    {
+        "hasDetail": false,
+        "tabName": "基本信息",
+        "template": 1,
+        "url": "/vplex/array",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "磁盘信息",
+        "template": 2,
+        "url": "/vplex/array/disks",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "LUN信息",
+        "template": 3,
+        "url": "/vplex/array/luns",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Pool信息",
+        "template": 3,
+        "url": "/vplex/array/pools",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Switch信息",
+        "template": 3,
+        "url": "/vplex/array/switchs",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    }
+]
+

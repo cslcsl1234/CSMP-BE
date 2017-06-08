@@ -35,11 +35,11 @@ var virtualArrayController = function (app) {
 
 
 
-   app.get('/api/virtualarray', function (req, res) { 
+   app.get('/api/virtualarrays', function (req, res) { 
         var device = req.query.device;
 
 
-		VPLEX.GetArrays(device, function(ret) {
+		VPLEX.GetArrays1(device, function(ret) {
 		    res.json(200,ret);
 		}) 
     });

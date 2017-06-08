@@ -32,6 +32,7 @@ require('./controllers/demoController')(app);
 
 
 require('./controllers/arrayController')(app);
+require('./controllers/virtualArrayController')(app);
 
 require('./controllers/switchController')(app);
 require('./controllers/appController')(app);
