@@ -462,7 +462,7 @@ var arrayController = function (app) {
                             item['ConnectedDevice'] = vplexItem.vplexName;
                             item['ConnectedDeviceType'] = 'VPlex';
                             item['ConnectedObject'] = vplexItem.vplexVVolName;
-                            item['ConnectedObject'] = vplexItem.vplexMaskviewName;
+                            item['ConnectedHost'] = vplexItem.vplexMaskviewName;
                         }
                     }
                  }
@@ -545,13 +545,13 @@ var arrayController = function (app) {
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "分配对象名";
-                tableHeaderItem["value"] = "ConnectedVVol";
+                tableHeaderItem["value"] = "ConnectedObject";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "分配主机名称";
-                tableHeaderItem["value"] = "ConnectedMaskview";
+                tableHeaderItem["value"] = "ConnectedHost";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
