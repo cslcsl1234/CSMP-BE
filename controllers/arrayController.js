@@ -74,28 +74,22 @@ var arrayController = function (app) {
 
 
    app.get('/api/arrays', function (req, res) { 
-    var device = req.query.device;
+        var device = req.query.device;
+        var datacenter = req.query.datacenter;
 
-	if ( config.ProductType == 'demo' ) {
-        if ( device === undefined ) {
-            res.json(200,VMAXListJSON);
+        if ( datacenter !== undefined) {
+            VMAX.GetArraysByDatacenter(device, function(ret) {
+                res.json(200,ret);
+            })
+
         } else {
-            var rets = [];
-            for ( var i in VMAXListJSON ) {
-                var item = VMAXListJSON[i];
-                if ( item.device ==  req.query.device  )  {
-                    rets.push(item);
-
-                }
-            }
-            res.json(200,rets);            
+                        
+            VMAX.GetArrays(device, function(ret) {
+                res.json(200,ret);
+            })        
         }
 
-	} else {
-		VMAX.GetArrays(device, function(ret) {
-		    res.json(200,ret);
-		})
-	}
+
     });
 
    app.get('/api/vmax/array', function (req, res) { 

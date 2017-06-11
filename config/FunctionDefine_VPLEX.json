@@ -13,7 +13,7 @@
     },
     {
         "hasDetail": false,
-        "tabName": "磁盘信息",
+        "tabName": "逻辑磁盘",
         "template": 2,
         "url": "/vplex/disks",
         "param": [
@@ -25,9 +25,9 @@
     },
     {
         "hasDetail": false,
-        "tabName": "LUN信息",
+        "tabName": "虚拟卷",
         "template": 3,
-        "url": "/vplex/luns",
+        "url": "/vplex/vvol",
         "param": [
             {
                 "postName": "device",
@@ -37,9 +37,9 @@
     },
     {
         "hasDetail": false,
-        "tabName": "Pool信息",
-        "template": 3,
-        "url": "/vplex/pools",
+        "tabName": "StorageView",
+        "template": 2,
+        "url": "/vplex/storageview",
         "param": [
             {
                 "postName": "device",
@@ -49,9 +49,9 @@
     },
     {
         "hasDetail": false,
-        "tabName": "Switch信息",
+        "tabName": "前端口",
         "template": 3,
-        "url": "/vplex/switchs",
+        "url": "/vplex/feport",
         "param": [
             {
                 "postName": "device",
