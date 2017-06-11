@@ -11,7 +11,7 @@ var mongoose = require('mongoose')
     , hostSchema 
     , DEVICE_LEVEL = 'high,middle,low'.split(',')
     , HOST_TYPE= 'Physical,Virtual'.split(',')
-    , HOST_STATUS= 'Prod,Test'.split(',')
+    , HOST_STATUS= 'Product,Test,Development'.split(',')
     ;
 /**
  * userSchema.

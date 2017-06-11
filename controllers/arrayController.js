@@ -872,9 +872,110 @@ var arrayController = function (app) {
  
 
     });
+    
 
 
-     app.get('/api/array/hosts', function (req, res) {
+    app.get('/api/array/hosts', function (req, res) {
+
+ 
+        var device = req.query.device; 
+        var finalRecord = [];
+        async.waterfall(
+
+        [
+
+            function(callback){ 
+                VMAX.GetDevices(device,function(result) { 
+
+                    callback(null,result);
+                                      
+                }); 
+
+            }, 
+            // Restruct to devices to by host .
+            function(param,  callback){  
+
+                var hosts = [];
+                for ( var i in param ) {
+                    var item = param[i];
+                    if ( item.ismasked == "0" )  continue;
+
+                    item.Availability = ( Math.random() * 100 );
+
+                    for ( var j in item.hostinfo ) {
+                        var hostItem = item.hostinfo[j];
+
+                        var newhostItem = {};
+
+                        if ( hostItem.hostname == 'unknow' ) {
+                            var hostname = hostItem.hbawwn;  
+                        }
+                        else {
+                            var hostname = hostItem.hostname;
+                        }
+                        
+                        var isFind = false;
+                        for ( var z in hosts ) {
+                            var newhost = hosts[z];
+                            if ( newhost.host_name == hostname ) {
+                                newhost.Devices.push(item);
+                                isFind = true;
+                                break;
+                            }
+                        }
+                        if ( !isFind ) {
+                            if ( hostItem.hostname == 'unknow' ) {
+                                var hostname = hostItem.hbawwn;                            
+                                newhostItem["app_name"] = '';
+                                newhostItem["host_name"] = hostItem.hbawwn;
+                                newhostItem["host_type"] = '';
+                                newhostItem["host_status"] = '';
+                                newhostItem["host_ip"] = '';
+                                newhostItem["host_os"] = '';
+                                newhostItem["host_osversion"] = '';
+                                newhostItem["Devices"] = [];
+                            } else {
+                                var hostname = hostItem.hostname;
+                                newhostItem["app_name"] = hostItem.app_name;
+                                newhostItem["host_name"] = hostItem.hostname;
+                                newhostItem["host_type"] = hostItem.host_type;
+                                newhostItem["host_status"] = hostItem.status;
+                                newhostItem["host_ip"] = hostItem.ip;
+                                newhostItem["host_os"] = hostItem.OS;
+                                newhostItem["host_osversion"] = hostItem.OSVersion;
+                                newhostItem["Devices"] = [];
+                            }     
+
+
+                            newhostItem.Devices.push(item); 
+                            hosts.push(newhostItem);                      
+                        }  
+
+                    }
+ 
+                    callback(null,hosts);
+                }
+
+            },
+
+            function(param,  callback){  
+
+                  callback(null,param);
+
+            }
+
+        ], function (err, result) {
+
+              // result now equals 'done'
+
+              res.json(200,result);
+
+        });
+    });
+
+
+
+     app.get('/api/array/hosts1', function (req, res) {
 
  
         var arraysn = req.query.device; 
@@ -1030,10 +1131,6 @@ var arrayController = function (app) {
 
         var arraysn = req.query.device; 
 
-        if ( config.ProductType == 'demo' ) {
-                res.json(200,demo_array_luns);
-                return;
-        } ;
 
         VMAX.GetDevices(arraysn, function(result) {
             res.json(200,result);
@@ -1488,7 +1585,12 @@ var arrayController = function (app) {
 
      app.get('/api/array/test', function ( req, res )  {
  var device = req.query.device; 
-        VMAX.GetAssignedVPlexByDevices(device,function(locations) {  
+        //VMAX.GetAssignedVPlexByDevices(device,function(locations) {  
+        //VMAX.GetAssignedHosts(device,function(locations) {
+       //VMAX.GetMaskViews(device,function(locations) {
+        //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
+        VMAX.GetDevices(device,function(locations) { 
+
             res.json(200,locations);
                                                          
         }); 
