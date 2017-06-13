@@ -20,6 +20,7 @@ var host = require('../lib/Host');
 var mongoose = require('mongoose');
 var HostObj = mongoose.model('Host');
  
+var HBALIST = require('../demodata/host_hba_list');
 
 var hostController = function (app) {
 
@@ -74,6 +75,11 @@ var hostController = function (app) {
 
     });
 
+    app.get('/api/hba/nohostname', function (req, res) {
+
+        res.json(200,HBALIST);
+
+    });
 
    app.get('/api/host/baseinfo', function (req, res) { 
     var device = req.query.device;
@@ -196,8 +202,6 @@ var hostController = function (app) {
 
         });
 
-
-
     });
 
 
@@ -232,7 +236,13 @@ var hostController = function (app) {
     });
 
 
+    // Save the hba with hostname records
+    app.post('/api/hba', function (req, res) {
 
+        var hbalist = req.body;
+        console.log(hbalist);
+
+    });
 
 
 
