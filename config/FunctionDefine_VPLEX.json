@@ -35,11 +35,11 @@
             }
         ]
     },
-    {
+    { 
         "hasDetail": false,
         "tabName": "StorageView",
-        "template": 2,
-        "url": "/vplex/storageview",
+        "template": 8,
+        "url": "/vplex/storageview_detail",
         "param": [
             {
                 "postName": "device",

@@ -241,7 +241,7 @@ var hostController = function (app) {
 
         var hbalist = req.body;
         console.log(hbalist);
-
+        return  res.json(200 , {status: "the records has updated."});
     });
 
 

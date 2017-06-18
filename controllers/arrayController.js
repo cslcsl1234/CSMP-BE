@@ -1589,7 +1589,7 @@ var arrayController = function (app) {
         //VMAX.GetAssignedHosts(device,function(locations) {
        //VMAX.GetMaskViews(device,function(locations) {
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
-        VMAX.GetDevices(device,function(locations) { 
+        VMAX.GetAssignedHostsByDevices(device,function(locations) { 
 
             res.json(200,locations);
                                                          
