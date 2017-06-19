@@ -18,7 +18,7 @@ var async = require('async');
 
 var mongoose = require('mongoose');
 var SwitchObj = mongoose.model('Switch');
-
+var SWITCH = require('../lib/Switch');
 // -----------------------------------
 // For demo data
 // ----------------------------------
@@ -318,38 +318,6 @@ function GetSwitchInfo(callback) {
 }
 
 
-    app.get('/api/switch/ports', function (req, res) {
-  
-
-
-        var deviceid = req.query.device;
-        
-	
-        if ( config.ProductType == 'demo' ) {
-                res.json(200,demo_switch_ports);
-                return;
-        } ;
-
-
-
-        if ( typeof deviceid === 'undefined' ) {
-            res.json(400, 'Must be special a deviceid!');
-            return;
-        }  
-
-        var param = {};
-        param['filter_name'] = '(name=\'InCrcs\'|name=\'LinkFailures\'|name=\'SigLosses\'|name=\'SyncLosses\'|name=\'CreditLost\'|name=\'Availability\'|name=\'ifInOctets\'|name=\'ifOutOctets\')';
-        param['keys'] = ['device','partwwn'];
-        param['fields'] = ['partid','slotnum','part','porttype','partwwn','ifname','portwwn','maxspeed','partstat','partphys','gbicstat'];
-        param['filter'] = 'device=\''+deviceid+'\'&parttype=\'Port\'&!iftype=\'Ethernet\'&!discrim=\'FCoE\'';
-
-
-        CallGet.CallGet(param, function(param) { 
-            res.json(200, param.result);
-        });
-
-         
-    });
 
  
     app.get('/api/topos', function (req, res) {
@@ -691,54 +659,56 @@ function GetSwitchInfo(callback) {
             UI_Block2['title'] = "资产信息";
             UI_Block2['detail'] = [];
 
-            if ( returnData.info !== undefined ) {
+            if ( returnData.info !== undefined  ) {
+ 
+                if ( returnData.info.asset !== undefined ) {
+ 
+                    item={};
+                    item["name"] = "资产编号"; 
+                    item["value"] = returnData.info.assets.no;
+                    UI_Block2.detail.push(item);
+
+                    item={};
+                    item["name"] = "用途"; 
+                    item["value"] = returnData.info.assets.purpose;
+                    UI_Block2.detail.push(item);
+
+                    item={};
+                    item["name"] = "管理员"; 
+                    item["value"] = returnData.info.assets.manager;
+                    UI_Block2.detail.push(item);
 
 
-                item={};
-                item["name"] = "资产编号"; 
-                item["value"] = returnData.info.assets.no;
-                UI_Block2.detail.push(item);
+                    // -------------- Block3 ---------------------------
+         
+                    var UI_Block3 = {} ;
+                    UI_Block3['title'] = "维保信息";
+                    UI_Block3['detail'] = [];
 
-                item={};
-                item["name"] = "用途"; 
-                item["value"] = returnData.info.assets.purpose;
-                UI_Block2.detail.push(item);
+                    item={};
+                    item["name"] = "上线时间"; 
+                    item["value"] = returnData.info.maintenance.purchaseDate;
+                    UI_Block3.detail.push(item);
 
-                item={};
-                item["name"] = "管理员"; 
-                item["value"] = returnData.info.assets.manager;
-                UI_Block2.detail.push(item);
+                    item={};
+                    item["name"] = "维保厂商"; 
+                    item["value"] = returnData.info.maintenance.vendor;
+                    UI_Block3.detail.push(item);
 
+                    item={};
+                    item["name"] = "维保年限"; 
+                    item["value"] = returnData.info.maintenance.period;
+                    UI_Block3.detail.push(item);
 
-                // -------------- Block3 ---------------------------
-     
-                var UI_Block3 = {} ;
-                UI_Block3['title'] = "维保信息";
-                UI_Block3['detail'] = [];
+                    item={};
+                    item["name"] = "维保联系人"; 
+                    item["value"] = returnData.info.maintenance.contact;
+                    UI_Block3.detail.push(item);
 
-                item={};
-                item["name"] = "上线时间"; 
-                item["value"] = returnData.info.maintenance.purchaseDate;
-                UI_Block3.detail.push(item);
-
-                item={};
-                item["name"] = "维保厂商"; 
-                item["value"] = returnData.info.maintenance.vendor;
-                UI_Block3.detail.push(item);
-
-                item={};
-                item["name"] = "维保年限"; 
-                item["value"] = returnData.info.maintenance.period;
-                UI_Block3.detail.push(item);
-
-                item={};
-                item["name"] = "维保联系人"; 
-                item["value"] = returnData.info.maintenance.contact;
-                UI_Block3.detail.push(item);
-
-                // -------------- Finally combine the final result record -----------------
-                finalResult.push(UI_Block2);
-                finalResult.push(UI_Block3);
+                    // -------------- Finally combine the final result record -----------------
+                    finalResult.push(UI_Block2);
+                    finalResult.push(UI_Block3);
+                }
             }
 
 
@@ -747,6 +717,33 @@ function GetSwitchInfo(callback) {
             res.json(200,finalResult);
         }) 
     });
+
+    app.get('/api/switch/ports', function (req, res) {
+  
+
+
+        var deviceid = req.query.device;
+        
+    
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_switch_ports);
+                return;
+        } ;
+
+
+
+        if ( typeof deviceid === 'undefined' ) {
+            res.json(400, 'Must be special a deviceid!');
+            return;
+        }  
+ 
+        SWITCH.GetSwitchPorts(deviceid, function(result) { 
+            res.json( 200 , result );
+        });
+
+         
+    });
+
 
 
 };
