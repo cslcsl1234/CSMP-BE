@@ -1,0 +1,63 @@
+[
+    {
+        "hasDetail": false,
+        "tabName": "基本信息",
+        "template": 1,
+        "url": "/switchinfo",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "逻辑磁盘",
+        "template": 2,
+        "url": "/vplex/disks",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "虚拟卷",
+        "template": 3,
+        "url": "/vplex/vvol",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    { 
+        "hasDetail": false,
+        "tabName": "StorageView",
+        "template": 8,
+        "url": "/vplex/storageview_detail",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "前端口",
+        "template": 3,
+        "url": "/vplex/feport",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    }
+]
+

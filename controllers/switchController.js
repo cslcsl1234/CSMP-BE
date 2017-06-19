@@ -575,7 +575,178 @@ function GetSwitchInfo(callback) {
     });
 
 
+   app.get('/api/switchinfo', function (req, res) { 
+    var device = req.query.device;
+ 
+        if ( device === undefined ) {
+            res.json(401, 'Must be special a device!')
+            return;
+        }
 
+        var param = {};
+        param['filter_name'] = 'name=\'Availability\'';
+        param['keys'] = ['device'];
+        param['fields'] = ['devicesn','vendor','model','ip','devdesc']; 
+        param['filter'] = 'device=\''+device+'\'&devtype==\'FabricSwitch\'&!(parttype==\'Fabric\'|parttype=\'Zone%\')&!datagrp=\'%ZONE%\'';
+
+
+
+        async.waterfall([
+            function(callback){ 
+                CallGet.CallGet(param, function(param) { 
+
+                    callback(null,param);
+                  
+                });
+            }, 
+            // Get All Localtion Records
+            function(param,  callback){  
+
+                util.GetLocaltion(function(locations) { 
+                    param['Locations']= locations;
+                    callback(null,param);
+                                                                 
+                }); 
+                    
+
+            },
+            // get customize info
+            function(param,  callback){ 
+
+                var locations = param.Locations;
+                GetSwitchInfo(function(result) {
+
+                   for ( var i in param.result ) {      
+                        var item = param.result[i];
+                        item['info'] = {}; 
+                        var switchsn = item.device;
+                        console.log("Begin get switch info : " + switchsn);
+                        for ( var j in result ) {
+                            var infoItem = result[j]; 
+                            if ( infoItem.basicInfo.device == switchsn ) { 
+                                var unitID = infoItem.basicInfo.UnitID; 
+                                for ( var z in locations ) { 
+                                    if ( unitID == locations[z].UnitID ) {
+                                        console.log(locations[z].Location);
+                                        item['localtion'] = locations[z].Location;
+                                        break;
+                                    }
+                                }
+                                item['info'] = infoItem; 
+                            }
+                        } 
+                    }
+
+
+                 callback(null,param);
+    
+             });
+
+            } 
+
+         ], function (err, result) {
+           // result now equals 'done'
+           //res.json(200, result.result); 
+            var returnData = result.result[0] ;
+            console.log(returnData);
+            var finalResult = []; 
+            var item = {};
+            // Combine the UI element for VMAX Basic Info page.
+
+            // -------------- Block1 ---------------------------
+            var UI_Block1 = {} ;
+            UI_Block1['title'] = "交换机管理信息";
+            UI_Block1['detail'] = [];
+
+            item={};
+            item["name"] = "交换机名称"; 
+            item["value"] = returnData.device;
+            UI_Block1.detail.push(item);
+
+            item={};
+            item["name"] = "交换机序列号"; 
+            item["value"] = returnData.devicesn;
+            UI_Block1.detail.push(item);
+ 
+            item={};
+            item["name"] = "厂商"; 
+            item["value"] = returnData.vendor;
+            UI_Block1.detail.push(item);
+
+            item={};
+            item["name"] = "型号"; 
+            item["value"] = returnData.model;
+            UI_Block1.detail.push(item);
+
+            item={};
+            item["name"] = "管理IP"; 
+            item["value"] = returnData.ip;
+            UI_Block1.detail.push(item);
+
+
+
+            // -------------- Block1 ---------------------------
+ 
+            var UI_Block2 = {} ;
+            UI_Block2['title'] = "资产信息";
+            UI_Block2['detail'] = [];
+
+            if ( returnData.info !== undefined ) {
+
+
+                item={};
+                item["name"] = "资产编号"; 
+                item["value"] = returnData.info.assets.no;
+                UI_Block2.detail.push(item);
+
+                item={};
+                item["name"] = "用途"; 
+                item["value"] = returnData.info.assets.purpose;
+                UI_Block2.detail.push(item);
+
+                item={};
+                item["name"] = "管理员"; 
+                item["value"] = returnData.info.assets.manager;
+                UI_Block2.detail.push(item);
+
+
+                // -------------- Block3 ---------------------------
+     
+                var UI_Block3 = {} ;
+                UI_Block3['title'] = "维保信息";
+                UI_Block3['detail'] = [];
+
+                item={};
+                item["name"] = "上线时间"; 
+                item["value"] = returnData.info.maintenance.purchaseDate;
+                UI_Block3.detail.push(item);
+
+                item={};
+                item["name"] = "维保厂商"; 
+                item["value"] = returnData.info.maintenance.vendor;
+                UI_Block3.detail.push(item);
+
+                item={};
+                item["name"] = "维保年限"; 
+                item["value"] = returnData.info.maintenance.period;
+                UI_Block3.detail.push(item);
+
+                item={};
+                item["name"] = "维保联系人"; 
+                item["value"] = returnData.info.maintenance.contact;
+                UI_Block3.detail.push(item);
+
+                // -------------- Finally combine the final result record -----------------
+                finalResult.push(UI_Block2);
+                finalResult.push(UI_Block3);
+            }
+
+
+            finalResult.push(UI_Block1);
+
+            res.json(200,finalResult);
+        }) 
+    });
 
 
 };

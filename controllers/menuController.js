@@ -17,7 +17,9 @@ var MenuObj = mongoose.model('Menu');
 var FunctionDefine_Array = require("../config/FunctionDefine_Array");
 var FunctionDefine_Host = require("../config/FunctionDefine_Host");
 var FunctionDefine_VPLEX = require("../config/FunctionDefine_VPLEX");
+var FunctionDefine_Switch = require("../config/FunctionDefine_Switch");
 
+ 
  
  
 var menuController = function (app) {
@@ -180,6 +182,9 @@ var menuController = function (app) {
         res.json(200,FunctionDefine_Host);
     });
 
+    app.get('/api/menu/ObjectManage/Switch', function (req, res) {
+        res.json(200,FunctionDefine_Switch);
+    });
 
 
 
