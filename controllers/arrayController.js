@@ -1589,8 +1589,8 @@ var arrayController = function (app) {
         //VMAX.GetAssignedHosts(device,function(locations) {
        //VMAX.GetMaskViews(device,function(locations) {
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
-        VMAX.GetAssignedHostsByDevices(device,function(locations) { 
-
+        //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
+            VMAX.getArrayLunPerformanceByOne(device,'06AA',function(locations) {
             res.json(200,locations);
                                                          
         }); 

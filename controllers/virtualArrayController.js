@@ -17,6 +17,7 @@ var util = require('../lib/util');
 var async = require('async'); 
 var cache = require('memory-cache');
 
+var VMAX = require('../lib/Array_VMAX');
 
 
 var virtualArrayController = function (app) {
@@ -419,24 +420,48 @@ var virtualArrayController = function (app) {
 
         async.waterfall([
             function(callback){ 
+                VPLEX.getVplexStorageViews(device, function(ret) {  
+                    callback(null,ret);
+                });
+            }, 
+            function(arg1, callback){ 
+                VPLEX.GetVirtualVolumeRelationByDevices(device,function(result) {
 
-            VPLEX.getVplexStorageViews(device, function(ret) {  
-                 
-                callback(null,ret);
+                    for ( var z in arg1 ) {
+                        var itemView = arg1[z];
+                        var vvols = itemView.vvol;
 
-            });
+                        for ( var i in vvols ) {
+                            var item = vvols[i];
+                            item['ProviderByDevice'] = '';
+                            item['ProviderByDeviceType'] = '';
+                            item['ProviderFromObject'] = '';
+                            item['ConnectedHost'] = '';
 
+                            for ( var j in result ) {
+                                var vplexItem = result[j];
+                                if ( item.part == vplexItem.VPlexVirtualVolumeName ) { 
+                                    item['ProviderByDevice'] = vplexItem.storageName; 
+                                    item['ProviderByDeviceType'] = vplexItem.storageModel;
+                                    item['ProviderFromObject'] = vplexItem.storageVolumeName ;
+                                    item['ConnectedHost'] = item.view ;
+                                }
+                            } 
+                            if (item['ProviderByDevice'] == ''  ) {
+                                item['ProviderByDevice'] = item.array;
+                                item['ProviderFromObject'] = '';
+                            }
+                         }
+                     }
 
-        }, 
-        function(arg1,  callback){  
+                    callback(null,arg1);
 
-
+                })
+            }, 
+            function(arg1,  callback){  
                 var data = arg1;
-
-
                 var finalResult = {};
-
-                       // ----- the part of chart --------------
+                // ----- the part of chart --------------
 
                 var groupby = "part";
                 var groupbyField = "Capacity";
@@ -548,6 +573,41 @@ var virtualArrayController = function (app) {
 
 
         }, 
+
+            function(arg1, callback){ 
+                VPLEX.GetVirtualVolumeRelationByDevices(device,function(result) {
+
+                    for ( var z in arg1 ) {
+                        var itemView = arg1[z];
+                        var vvols = itemView.vvol;
+
+                        for ( var i in vvols ) {
+                            var item = vvols[i];
+                            item['ProviderByDevice'] = '';
+                            item['ProviderByDeviceType'] = '';
+                            item['ProviderFromObject'] = '';
+                            item['ConnectedHost'] = '';
+
+                            for ( var j in result ) {
+                                var vplexItem = result[j];
+                                if ( item.part == vplexItem.VPlexVirtualVolumeName ) { 
+                                    item['ProviderByDevice'] = vplexItem.storageName; 
+                                    item['ProviderByDeviceType'] = vplexItem.storageModel;
+                                    item['ProviderFromObject'] = vplexItem.storageVolumeName ;
+                                    item['ConnectedHost'] = item.view ;
+                                }
+                            } 
+                            if (item['ProviderByDevice'] == ''  ) {
+                                item['ProviderByDevice'] = item.array;
+                                item['ProviderFromObject'] = '';
+                            }
+                         }
+                     }
+
+                    callback(null,arg1);
+
+                })
+            },         
         function(arg1,  callback){  
 
 
@@ -693,75 +753,118 @@ var virtualArrayController = function (app) {
             }
         }
 
+        async.waterfall([
+            function(callback){ 
+                var vvols = viewItem.vvol;
+                var vvolList = [];
+                var deviceArray;
+                for ( var i in vvols ) {
+                    var item = vvols[i];
+                    deviceArray = item.ProviderByDevice;
+                    vvolList.push(item.ProviderFromObject);
+                }
+                VMAX.getArrayLunPerformanceByOne(deviceArray,vvolList,function(perfresult) { 
+                    callback(null,perfresult);
+                })
 
-        var finalResult = {};
+                
+            },
+            function(arg1,callback){ 
 
-        // ----- the part of perf datetime --------------
-        finalResult["startDate"] = util.getPerfStartTime();
-        finalResult["endDate"] = util.getPerfEndTime();          
+                var chartData = {};
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+                    var matrics = item.matrics[0];
+                    chartData["category"] = 'ReadRequests';
+                    var charDataDetail = [];
+                    for ( var j in matrics.ReadRequests ) {
+                        var perfItem = matrics.ReadRequests[j];
 
+                        var charDataDetailItem = {};
+                        charDataDetailItem["name"] = perfItem[0];
+                        charDataDetailItem[item.part] = perfItem[1];
+                        charDataDetail.push(charDataDetailItem);
+                    }
+                    chartData["charData"] = charDataDetail;
+                    
+                }
 
-        // ---------- the part of table ---------------
-        var tableHeader = [];
-        var tableHeaderItem = {};
-        tableHeaderItem["name"] = "虚拟卷名称";
-        tableHeaderItem["value"] = "part";
-        tableHeaderItem["sort"] = "true";
-        tableHeader.push(tableHeaderItem);
+                console.log(chartData);
+                callback(null,chartData);
+            }
+            ], function (err, result) {
+                 var finalResult = {};
 
-        var tableHeaderItem = {};
-        tableHeaderItem["name"] = "来源物理存储";
-        tableHeaderItem["value"] = "array";
-        tableHeaderItem["sort"] = "true";
-        tableHeader.push(tableHeaderItem);
+                // ----- the part of perf datetime --------------
+                finalResult["startDate"] = util.getPerfStartTime();
+                finalResult["endDate"] = util.getPerfEndTime();          
 
-        var tableHeaderItem = {};
-        tableHeaderItem["name"] = "Raid类型";
-        tableHeaderItem["value"] = "dgraid";
-        tableHeaderItem["sort"] = "true";
-        tableHeader.push(tableHeaderItem);
+                finalResult["charts"] = [];
+                finalResult.charts.push(result);
 
+                // ---------- the part of table ---------------
+                var tableHeader = [];
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "虚拟卷名称";
+                tableHeaderItem["value"] = "part";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
 
-        var tableHeaderItem = {};
-        tableHeaderItem["name"] = "磁盘名称";
-        tableHeaderItem["value"] = "vdisk";
-        tableHeaderItem["sort"] = "true";
-        tableHeader.push(tableHeaderItem);
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "来源物理存储";
+                tableHeaderItem["value"] = "array";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
 
-        var tableHeaderItem = {};
-        tableHeaderItem["name"] = "容量(GB)";
-        tableHeaderItem["value"] = "Capacity";
-        tableHeaderItem["sort"] = "true";
-        tableHeader.push(tableHeaderItem);
-
-
-
-        // ---------- the part of table event ---------------
-        var tableEvent = {}; 
-        var tableEventParam = [];
-        var tableEventParamItem = {};
-        tableEventParamItem["findName"] = 'part';
-        tableEventParamItem["postName"] = 'vvolname';
-        tableEventParam.push(tableEventParamItem);
-
-        var tableEventParamItem = {};
-        tableEventParamItem["findName"] = 'device';
-        tableEventParamItem["postName"] = 'device';
-        tableEventParam.push(tableEventParamItem);
-
-        tableEvent["event"] = "updateChart";
-        tableEvent["param"] = tableEventParam;
-        tableEvent["rowSelect"] = "multy"; 
-        tableEvent["url"] = "/vplex/storageview_detail/lunperf";  
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Raid类型";
+                tableHeaderItem["value"] = "dgraid";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
 
 
-        finalResult["tableHead"] = tableHeader;
-        finalResult["tableEvent"] = tableEvent;
-        finalResult["tableBody"] = viewItem.vvol;
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "磁盘名称";
+                tableHeaderItem["value"] = "vdisk";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
 
-        //callback(null,finalResult); 
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "容量(GB)";
+                tableHeaderItem["value"] = "Capacity";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
 
-        res.json(200, finalResult);
+
+
+                // ---------- the part of table event ---------------
+                var tableEvent = {}; 
+                var tableEventParam = [];
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'part';
+                tableEventParamItem["postName"] = 'vvolname';
+                tableEventParam.push(tableEventParamItem);
+
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'device';
+                tableEventParamItem["postName"] = 'device';
+                tableEventParam.push(tableEventParamItem);
+
+                tableEvent["event"] = "updateChart";
+                tableEvent["param"] = tableEventParam;
+                tableEvent["rowSelect"] = "multy"; 
+                tableEvent["url"] = "/vplex/storageview_detail/lunperf";  
+
+
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableEvent"] = tableEvent;
+                finalResult["tableBody"] = viewItem.vvol;
+
+                //callback(null,finalResult); 
+
+                res.json(200, finalResult);
+            });
+
  
     });
 
