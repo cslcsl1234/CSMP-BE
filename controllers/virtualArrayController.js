@@ -763,7 +763,7 @@ var virtualArrayController = function (app) {
                     deviceArray = item.ProviderByDevice;
                     vvolList.push(item.ProviderFromObject);
                 }
-                VMAX.getArrayLunPerformanceByOne(deviceArray,vvolList,function(perfresult) { 
+                VMAX.getArrayLunPerformanceByList(deviceArray,vvolList,function(perfresult) { 
                     callback(null,perfresult);
                 })
 
@@ -785,7 +785,7 @@ var virtualArrayController = function (app) {
                         charDataDetailItem[item.part] = perfItem[1];
                         charDataDetail.push(charDataDetailItem);
                     }
-                    chartData["charData"] = charDataDetail;
+                    chartData["chartData"] = charDataDetail;
                     
                 }
 

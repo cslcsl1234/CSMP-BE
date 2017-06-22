@@ -1590,8 +1590,12 @@ var arrayController = function (app) {
        //VMAX.GetMaskViews(device,function(locations) {
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
-            VMAX.getArrayLunPerformanceByOne(device,'06AA',function(locations) {
-            res.json(200,locations);
+            var luns = '06AA,06A6,06AE';
+            //var luns = '06AA';
+            VMAX.getArrayLunPerformanceByList(device,luns,function(locations) {
+
+            var result = VMAX.convertPerformanceStruct(locations);
+            res.json(200,result);
                                                          
         }); 
 

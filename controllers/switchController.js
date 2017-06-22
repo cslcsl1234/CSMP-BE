@@ -723,14 +723,7 @@ function GetSwitchInfo(callback) {
 
 
         var deviceid = req.query.device;
-        
-    
-        if ( config.ProductType == 'demo' ) {
-                res.json(200,demo_switch_ports);
-                return;
-        } ;
-
-
+         
 
         if ( typeof deviceid === 'undefined' ) {
             res.json(400, 'Must be special a deviceid!');
