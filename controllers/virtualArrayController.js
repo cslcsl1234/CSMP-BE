@@ -753,6 +753,7 @@ var virtualArrayController = function (app) {
             }
         }
 
+
         async.waterfall([
             function(callback){ 
                 var vvols = viewItem.vvol;
@@ -763,6 +764,9 @@ var virtualArrayController = function (app) {
                     deviceArray = item.ProviderByDevice;
                     vvolList.push(item.ProviderFromObject);
                 }
+
+                console.log("getArrayLunPerformanceByList="+ deviceArray + "|" + vvolList + "|");
+
                 VMAX.getArrayLunPerformanceByList(deviceArray,vvolList,function(perfresult) { 
                     callback(null,perfresult);
                 })
@@ -771,26 +775,92 @@ var virtualArrayController = function (app) {
             },
             function(arg1,callback){ 
 
-                var chartData = {};
-                for ( var i in arg1 ) {
-                    var item = arg1[i];
-                    var matrics = item.matrics[0];
-                    chartData["category"] = 'ReadRequests';
-                    var charDataDetail = [];
-                    for ( var j in matrics.ReadRequests ) {
-                        var perfItem = matrics.ReadRequests[j];
+                console.log(arg1)
+                console.log("---------------------------------");
+                
+                var perfdata = VMAX.convertPerformanceStruct(arg1);
 
-                        var charDataDetailItem = {};
-                        charDataDetailItem["name"] = perfItem[0];
-                        charDataDetailItem[item.part] = perfItem[1];
-                        charDataDetail.push(charDataDetailItem);
-                    }
-                    chartData["chartData"] = charDataDetail;
+
+                var charts = [];
+
+                for ( var i in perfdata ) {
+                    var item = perfdata[i];
+
+                    for ( var matricsi in item.matrics ) {
+
+                        var matrics = item.matrics[matricsi];
+                        console.log("--------matrics begin ------------");
+                        console.log(matrics);
+                        console.log("--------matrics end------------");
+                        var keys = Object.keys(matrics);
+                        var lunname = item.part;                //lunname;
+                        var arrayname  = item.device;           //array
+
+                        for ( var keyi in keys ) {
+                            var keyname = keys[keyi];
+
+                            if ( keyname == 'timestamp' ) {
+                                var timestamp = matrics[keyname];   //ts
+                                continue;
+                            } else {
+                                var categoryname = keyname;         //perf-matrics-name
+                                var value = matrics[keyname];       //perf-matrics-value
+                            }
+                            console.log("array="+arrayname);
+                            console.log("lunname="+lunname);
+                            console.log("ts="+timestamp);
+                            console.log("categoryname="+categoryname);
+                            console.log("value="+value);
+                            console.log("---------");
+
+                            // Search in result struct 
+                            var isFind_chart = false;
+                            for ( var charti in charts ) {
+                                var chartItem = charts[charti];
+                                if ( chartItem.category == categoryname ) {
+                                    isFind_chart = true;
+
+                                    var isFind_chartData = false;
+                                    for ( var chartDatai in chartItem.chartData ) {
+                                        var chartDataItem = chartItem.chartData[chartDatai] ;
+                                        if ( chartDataItem.name == timestamp ) {
+                                            isFind_chartData = true;
+                                            chartDataItem[lunname] = value;
+                                        }
+
+                                    } // for 
+
+                                    if ( !isFind_chartData ) {
+                                        var chartDataItem = {};
+                                        chartDataItem['name'] = timestamp;
+                                        chartDataItem[lunname] = value;
+                                        chartItem.chartData.push(chartDataItem);
+                                    }
+
+                                }
+                            } // for ( charts ) 
+
+                            if ( !isFind_chart ) {
+                                var chartItem = {};
+                                chartItem['category'] = categoryname;
+                                chartItem['chartData'] = [];
+
+                                var chartDataItem = {};
+                                chartDataItem['name'] = timestamp;
+                                chartDataItem[lunname] = value;
+                                chartItem.chartData.push(chartDataItem);
+
+                                charts.push(chartItem);
+                            }
+
+
+                        } // for ( keys )
+                    } // for ( matrics )
                     
-                }
+                } // for ( arg1 )
 
-                console.log(chartData);
-                callback(null,chartData);
+
+                callback(null,charts);
             }
             ], function (err, result) {
                  var finalResult = {};
@@ -799,8 +869,7 @@ var virtualArrayController = function (app) {
                 finalResult["startDate"] = util.getPerfStartTime();
                 finalResult["endDate"] = util.getPerfEndTime();          
 
-                finalResult["charts"] = [];
-                finalResult.charts.push(result);
+                finalResult["charts"] = result;
 
                 // ---------- the part of table ---------------
                 var tableHeader = [];

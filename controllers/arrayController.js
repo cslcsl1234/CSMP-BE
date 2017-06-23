@@ -29,6 +29,8 @@ var GetEvents = require('../lib/GetEvents');
 var VMAX = require('../lib/Array_VMAX');
 var host = require('../lib/Host');
 
+var testjson = require('../demodata/test');
+
 
 // ----------------------------------------
 // ------------ For Demo Data -------------
@@ -1585,22 +1587,114 @@ var arrayController = function (app) {
 
      app.get('/api/array/test', function ( req, res )  {
  var device = req.query.device; 
+
         //VMAX.GetAssignedVPlexByDevices(device,function(locations) {  
         //VMAX.GetAssignedHosts(device,function(locations) {
        //VMAX.GetMaskViews(device,function(locations) {
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
-            var luns = '06AA,06A6,06AE';
+            var luns = '041B,07E2';
             //var luns = '06AA';
+            
             VMAX.getArrayLunPerformanceByList(device,luns,function(locations) {
 
             var result = VMAX.convertPerformanceStruct(locations);
             res.json(200,result);
                                                          
         }); 
+        
 
     } ) ;
 
+
+
+     app.get('/api/array/test1', function ( req, res )  {
+        
+
+        var arg1 = testjson;
+
+                console.log(arg1);
+                var charts = [];
+
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+
+                    for ( var matricsi in item.matrics ) {
+
+                        var matrics = item.matrics[matricsi];
+                        console.log("--------matrics begin ------------");
+                        console.log(matrics);
+                        console.log("--------matrics end------------");
+                        var keys = Object.keys(matrics);
+                        var lunname = item.part;                //lunname;
+                        var arrayname  = item.device;           //array
+
+                        for ( var keyi in keys ) {
+                            var keyname = keys[keyi];
+
+                            if ( keyname == 'timestamp' ) {
+                                var timestamp = matrics[keyname];   //ts
+                                continue;
+                            } else {
+                                var categoryname = keyname;         //perf-matrics-name
+                                var value = matrics[keyname];       //perf-matrics-value
+                            }
+                            console.log("array="+arrayname);
+                            console.log("lunname="+lunname);
+                            console.log("ts="+timestamp);
+                            console.log("categoryname="+categoryname);
+                            console.log("value="+value);
+                            console.log("---------");
+
+                            // Search in result struct 
+                            var isFind_chart = false;
+                            for ( var charti in charts ) {
+                                var chartItem = charts[charti];
+                                if ( chartItem.category == categoryname ) {
+                                    isFind_chart = true;
+
+                                    var isFind_chartData = false;
+                                    for ( var chartDatai in chartItem.chartData ) {
+                                        var chartDataItem = chartItem.chartData[chartDatai] ;
+                                        if ( chartDataItem.name == timestamp ) {
+                                            isFind_chartData = true;
+                                            chartDataItem[lunname] = value;
+                                        }
+
+                                    } // for 
+
+                                    if ( !isFind_chartData ) {
+                                        var chartDataItem = {};
+                                        chartDataItem['name'] = timestamp;
+                                        chartDataItem[lunname] = value;
+                                        chartItem.chartData.push(chartDataItem);
+                                    }
+
+                                }
+                            } // for ( charts ) 
+
+                            if ( !isFind_chart ) {
+                                var chartItem = {};
+                                chartItem['category'] = categoryname;
+                                chartItem['chartData'] = [];
+
+                                var chartDataItem = {};
+                                chartDataItem['name'] = timestamp;
+                                chartDataItem[lunname] = value;
+                                chartItem.chartData.push(chartDataItem);
+
+                                charts.push(chartItem);
+                            }
+
+
+                        } // for ( keys )
+                    } // for ( matrics )
+                    
+                } // for ( arg1 )
+        res.json(200,charts);
+        
+
+    } ) ;
 
 
 

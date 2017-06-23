@@ -1,0 +1,287 @@
+[
+    {
+        "part": "041B",
+        "parttype": "LUN",
+        "device": "000298700703",
+        "matrics": [
+            {
+                "timestamp": "1496620800",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1496707200",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1496793600",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1496880000",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1496966400",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1497052800",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1497139200",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1497225600",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1497312000",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1497398400",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1497484800",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1497571200",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1497657600",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1497744000",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            },
+            {
+                "timestamp": "1497830400",
+                "ReadRequests": "0.0",
+                "WriteRequests": "0.0",
+                "ReadThroughput": "0.0",
+                "WriteThroughput": "0.0",
+                "ReadResponseTime": "0.0",
+                "WriteResponseTime": "0.0"
+            }
+        ]
+    },
+    {
+        "part": "07E2",
+        "parttype": "LUN",
+        "device": "000298700703",
+        "matrics": [
+            {
+                "timestamp": "1496620800",
+                "ReadRequests": "0.203724",
+                "WriteRequests": "0.244695",
+                "ReadThroughput": "0.0333377",
+                "WriteThroughput": "0.0010125",
+                "ReadResponseTime": "4.92961",
+                "WriteResponseTime": "2.80402"
+            },
+            {
+                "timestamp": "1496707200",
+                "ReadRequests": "0.203817",
+                "WriteRequests": "0.289654",
+                "ReadThroughput": "0.0338739",
+                "WriteThroughput": "0.00150884",
+                "ReadResponseTime": "3.96202",
+                "WriteResponseTime": "3.26052"
+            },
+            {
+                "timestamp": "1496793600",
+                "ReadRequests": "0.203484",
+                "WriteRequests": "0.244383",
+                "ReadThroughput": "0.0340073",
+                "WriteThroughput": "0.0010473",
+                "ReadResponseTime": "3.43184",
+                "WriteResponseTime": "2.14824"
+            },
+            {
+                "timestamp": "1496880000",
+                "ReadRequests": "0.203666",
+                "WriteRequests": "0.25345",
+                "ReadThroughput": "0.0340368",
+                "WriteThroughput": "0.00106007",
+                "ReadResponseTime": "3.85631",
+                "WriteResponseTime": "2.29653"
+            },
+            {
+                "timestamp": "1496966400",
+                "ReadRequests": "0.206061",
+                "WriteRequests": "0.299585",
+                "ReadThroughput": "0.034476",
+                "WriteThroughput": "0.00129027",
+                "ReadResponseTime": "4.08289",
+                "WriteResponseTime": "2.96445"
+            },
+            {
+                "timestamp": "1497052800",
+                "ReadRequests": "0.209786",
+                "WriteRequests": "0.314299",
+                "ReadThroughput": "0.0340117",
+                "WriteThroughput": "0.00137308",
+                "ReadResponseTime": "3.80452",
+                "WriteResponseTime": "2.62217"
+            },
+            {
+                "timestamp": "1497139200",
+                "ReadRequests": "0.205503",
+                "WriteRequests": "0.291451",
+                "ReadThroughput": "0.0338164",
+                "WriteThroughput": "0.00125694",
+                "ReadResponseTime": "3.9701",
+                "WriteResponseTime": "2.61219"
+            },
+            {
+                "timestamp": "1497225600",
+                "ReadRequests": "0.207107",
+                "WriteRequests": "0.302412",
+                "ReadThroughput": "0.034087",
+                "WriteThroughput": "0.0013581",
+                "ReadResponseTime": "4.10475",
+                "WriteResponseTime": "2.76328"
+            },
+            {
+                "timestamp": "1497312000",
+                "ReadRequests": "0.204457",
+                "WriteRequests": "0.289833",
+                "ReadThroughput": "0.0341215",
+                "WriteThroughput": "0.00122852",
+                "ReadResponseTime": "3.66457",
+                "WriteResponseTime": "2.2657"
+            },
+            {
+                "timestamp": "1497398400",
+                "ReadRequests": "0.208376",
+                "WriteRequests": "0.303746",
+                "ReadThroughput": "0.03385",
+                "WriteThroughput": "0.00132347",
+                "ReadResponseTime": "3.57494",
+                "WriteResponseTime": "2.74973"
+            },
+            {
+                "timestamp": "1497484800",
+                "ReadRequests": "0.204414",
+                "WriteRequests": "0.294336",
+                "ReadThroughput": "0.0343124",
+                "WriteThroughput": "0.0012507",
+                "ReadResponseTime": "3.61947",
+                "WriteResponseTime": "2.61182"
+            },
+            {
+                "timestamp": "1497571200",
+                "ReadRequests": "0.20353",
+                "WriteRequests": "0.301555",
+                "ReadThroughput": "0.0340876",
+                "WriteThroughput": "0.00127822",
+                "ReadResponseTime": "3.74789",
+                "WriteResponseTime": "2.60337"
+            },
+            {
+                "timestamp": "1497657600",
+                "ReadRequests": "0.203969",
+                "WriteRequests": "0.302518",
+                "ReadThroughput": "0.0341286",
+                "WriteThroughput": "0.00133282",
+                "ReadResponseTime": "3.84171",
+                "WriteResponseTime": "2.6594"
+            },
+            {
+                "timestamp": "1497744000",
+                "ReadRequests": "0.202841",
+                "WriteRequests": "0.289589",
+                "ReadThroughput": "0.0339137",
+                "WriteThroughput": "0.00121627",
+                "ReadResponseTime": "3.15393",
+                "WriteResponseTime": "1.70068"
+            },
+            {
+                "timestamp": "1497830400",
+                "ReadRequests": "0.197197",
+                "WriteRequests": "0.295721",
+                "ReadThroughput": "0.0328089",
+                "WriteThroughput": "0.00123246",
+                "ReadResponseTime": "3.78288",
+                "WriteResponseTime": "3.13088"
+            }
+        ]
+    }
+]
+
