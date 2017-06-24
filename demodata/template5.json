@@ -1,0 +1,42 @@
+{
+    "left": {
+        "chartType": "pie",
+        "chartData": [
+            {
+                "color": "#80B3E8",
+                "name": "总容量（GB）",
+                "value": 100
+            },
+            {
+                "color": "#444348",
+                "name": "未建立Raid（GB）",
+                "value": 200
+            },
+            {
+                "color": "#91EC7E",
+                "name": "已建立Raid（GB）",
+                "value": 300
+            }
+        ]
+    },
+    "right": {
+        "chartType": "pie",
+        "chartData": [
+            {
+                "color": "#80B3E8",
+                "name": "总容量（GB）",
+                "value": 100
+            },
+            {
+                "color": "#444348",
+                "name": "未建立Raid（GB）",
+                "value": 200
+            },
+            {
+                "color": "#91EC7E",
+                "name": "已建立Raid（GB）",
+                "value": 300
+            }
+        ]
+    }
+}

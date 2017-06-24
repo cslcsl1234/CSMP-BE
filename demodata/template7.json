@@ -1,0 +1,47 @@
+{
+    "tableEvent": {
+        "event": "appendTable",
+        "param": [
+            {
+                "findName": "device",
+                "postName": "device"
+            },
+            {
+                "findName": "po",
+                "postName": "po1"
+            }
+        ],
+        "url": "/array"
+    },
+    "tableData": [
+        {
+            "tableHead": [
+                {
+                    "name": "编号",
+                    "sort": "true",
+                    "value": "number"
+                },
+                {
+                    "name": "类型",
+                    "sort": "false",
+                    "value": "type"
+                }
+            ],
+            "tableBody": [
+                {
+                    "number": "000296800706",
+                    "type": "block"
+                },
+                {
+                    "number": "000296800707",
+                    "type": "vmax"
+                },
+                {
+                    "number": "000296800711",
+                    "type": "vmax"
+                }
+            ]
+
+        }
+    ]
+}

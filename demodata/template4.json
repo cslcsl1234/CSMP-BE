@@ -1,0 +1,64 @@
+{
+    "left": {
+        "chartData": [
+            {
+                "color": "#80B3E8",
+                "name": "总容量（GB）",
+                "value": 100
+            },
+            {
+                "color": "#444348",
+                "name": "未建立Raid（GB）",
+                "value": 200
+            },
+            {
+                "color": "#91EC7E",
+                "name": "已建立Raid（GB）",
+                "value": 300
+            }
+        ],
+        "chartType": "pie",
+        "detail": [
+            {
+                "name": "存储序列号",
+                "value": "000296800706"
+            },
+            {
+                "name": "存储类型",
+                "value": "block"
+            }
+        ],
+        "title": "存储管理信息"
+    },
+    "right": {
+        "chartData": [
+            {
+                "color": "#80B3E8",
+                "name": "总容量（GB）",
+                "value": 100
+            },
+            {
+                "color": "#444348",
+                "name": "未建立Raid（GB）",
+                "value": 200
+            },
+            {
+                "color": "#91EC7E",
+                "name": "已建立Raid（GB）",
+                "value": 300
+            }
+        ],
+        "chartType": "pie",
+        "detail": [
+            {
+                "name": "存储序列号",
+                "value": "000296800706"
+            },
+            {
+                "name": "存储类型",
+                "value": "block"
+            }
+        ],
+        "title": "存储管理信息"
+    }
+}

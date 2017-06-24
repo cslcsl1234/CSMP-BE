@@ -30,6 +30,11 @@ var VMAX = require('../lib/Array_VMAX');
 var host = require('../lib/Host');
 
 var testjson = require('../demodata/test');
+var template4 = require('../demodata/template4');
+var template5 = require('../demodata/template5');
+var template6 = require('../demodata/template6');
+var template7 = require('../demodata/template7');
+var template9 = require('../demodata/template9');
 
 
 // ----------------------------------------
@@ -565,6 +570,78 @@ var arrayController = function (app) {
  
     });
 
+    /*
+    *  Add mata lun display
+    */
+   app.get('/api/vmax/array/lundetail', function (req, res) { 
+        var device = req.query.device;
+        var volname = req.query.volname;
+        var metaconf  = req.query.metaconf;
+
+            var param = {};
+            param['filter'] = 'device=\''+device+'\'&parttype=\'MetaMember\'&headname=\''+volname + '\'';
+            param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'Availability\'|name=\'PoolUsedCapacity\')';
+            param['keys'] = ['device','part'];
+            param['fields'] = ['alias','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked'];
+
+
+            CallGet.CallGet(param, function(param) { 
+
+                var data = param.result;
+
+                var finalResult = {};
+
+                // ---------- the part of table ---------------
+                var tableHeader = [];
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "名称";
+                tableHeaderItem["value"] = "part";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Thin?";
+                tableHeaderItem["value"] = "dgstype";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "用途";
+                tableHeaderItem["value"] = "purpose";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "类型";
+                tableHeaderItem["value"] = "config";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Pool";
+                tableHeaderItem["value"] = "poolname";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+ 
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "容量(GB)";
+                tableHeaderItem["value"] = "Capacity";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+ 
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableBody"] = data; 
+                res.json(200,finalResult);
+
+
+
+
+            });
+    });
 
     /*
     *  Add mata lun display
@@ -581,7 +658,7 @@ var arrayController = function (app) {
             }
 
             var param = {};
-            param['filter'] = '(parttype=\'MetaMember\'|parttype=\'LUN\')';
+            param['filter'] = '(parttype=\'LUN\')&(part=\'06B2\'|part=\'055B\'|part=\'09DA\')';
             param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'Availability\'|name=\'PoolUsedCapacity\')';
             param['keys'] = ['device','part','parttype'];
             param['fields'] = ['alias','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked','metadesc','metaconf'];
@@ -682,14 +759,7 @@ var arrayController = function (app) {
                 tableHeaderItem["value"] = "metaconf";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem); 
-
-                var tableHeaderItem = {};
-                tableHeaderItem["name"] = "metadesc";
-                tableHeaderItem["value"] = "metadesc";
-                tableHeaderItem["sort"] = "true";
-                tableHeader.push(tableHeaderItem); 
-
-
+   
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "容量(GB)";
                 tableHeaderItem["value"] = "Capacity";
@@ -730,27 +800,37 @@ var arrayController = function (app) {
                 // ---------- the part of table event ---------------
                 var tableEvent = {}; 
                 var tableEventParam = [];
-                var tableEventParamItem = {};
-                tableEventParamItem["findName"] = 'part';
-                tableEventParamItem["postName"] = 'volname';
-                tableEventParam.push(tableEventParamItem);
 
                 var tableEventParamItem = {};
                 tableEventParamItem["findName"] = 'device';
                 tableEventParamItem["postName"] = 'device';
                 tableEventParam.push(tableEventParamItem);
 
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'part';
+                tableEventParamItem["postName"] = 'volname';
+                tableEventParam.push(tableEventParamItem);
+
+
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'metaconf';
+                tableEventParamItem["postName"] = 'metaconf';
+                tableEventParam.push(tableEventParamItem);
+
                 tableEvent["event"] = "appendTable";
                 tableEvent["param"] = tableEventParam; 
-                tableEvent["url"] = "/vmax/array/metalun";  
+                tableEvent["url"] = "/vmax/array/lundetail";  
 
 
 
 
                 finalResult["tableEvent"] = tableEvent;
+                var tabledata = {};
+                tabledata["tableHead"] = tableHeader;
+                tabledata["tableBody"] = data;
 
-                finalResult["tableHead"] = tableHeader;
-                finalResult["tableBody"] = data;
+                finalResult["tableData"] = [];
+                finalResult.tableData.push(tabledata);
 
                 callback(null,finalResult); 
 
@@ -1783,25 +1863,51 @@ var arrayController = function (app) {
  
 
      app.get('/api/array/test', function ( req, res )  {
- var device = req.query.device; 
+        var device = req.query.device; 
 
         //VMAX.GetAssignedVPlexByDevices(device,function(locations) {  
         //VMAX.GetAssignedHosts(device,function(locations) {
        //VMAX.GetMaskViews(device,function(locations) {
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
-            var luns = '041B,07E2';
-            //var luns = '06AA';
-         var start = '2017-05-30T17:19:00';
-        var end = util.getPerfEndTime();  
-           
-            VMAX.getArrayLunPerformanceByList(device,luns,  function(locations) {
- 
-            res.json(200,locations);
-                                                         
-        }); 
+        
+            var templateret = template7;
+            res.json(200,templateret);
+          
         
 
+    } ) ;
+
+
+     app.get('/api/array/template4test', function ( req, res )  {
+            var device = req.query.device; 
+            var templateret = template4;
+            res.json(200,templateret);
+    } ) ;
+
+     app.get('/api/array/template5test', function ( req, res )  {
+            var device = req.query.device; 
+            var templateret = template5;
+            res.json(200,templateret);
+    } ) ;
+
+     app.get('/api/array/template6test', function ( req, res )  {
+            var device = req.query.device; 
+            var templateret = template6;
+            res.json(200,templateret);
+    } ) ;
+
+     app.get('/api/array/template9test', function ( req, res )  {
+            var device = req.query.device; 
+            var templateret = template9;
+            res.json(200,templateret);
+    } ) ;
+
+
+     app.get('/api/array/template7test', function ( req, res )  {
+            var device = req.query.device; 
+            var templateret = template7;
+            res.json(200,templateret);
     } ) ;
 
 
