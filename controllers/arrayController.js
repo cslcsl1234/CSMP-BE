@@ -566,6 +566,203 @@ var arrayController = function (app) {
     });
 
 
+    /*
+    *  Add mata lun display
+    */
+   app.get('/api/vmax/array/lunsV2', function (req, res) { 
+        var device = req.query.device;
+
+        async.waterfall([
+            function(callback){ 
+
+            if ( device === undefined ) {
+                res.json(400, 'Must be special a device!')
+                return;
+            }
+
+            var param = {};
+            param['filter'] = '(parttype=\'MetaMember\'|parttype=\'LUN\')';
+            param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'Availability\'|name=\'PoolUsedCapacity\')';
+            param['keys'] = ['device','part','parttype'];
+            param['fields'] = ['alias','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked','metadesc','metaconf'];
+            param['limit'] = 1000000;
+
+            if (typeof device !== 'undefined') { 
+                param['filter'] = 'device=\''+device+'\'&' + param['filter'];
+            } 
+
+
+            CallGet.CallGet(param, function(param) { 
+                
+                var data = param.result;
+                callback(null,data);
+
+            });
+
+        },
+        // -------------------------------------------------
+        // Relation with VPLEX Virutal Volume and Maskview
+        // -------------------------------------------------
+        function(arg1,  callback) {  
+
+            VMAX.GetAssignedVPlexByDevices(device,function(result) {
+
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+                    item['ConnectedDevice'] = '';
+                    item['ConnectedDeviceType'] = '';
+                    item['ConnectedObject'] = '';
+                    item['ConnectedHost'] = '';
+
+                    for ( var j in result ) {
+                        var vplexItem = result[j];
+                        if ( item.partsn == vplexItem.deviceWWN ) {
+                            item['ConnectedDevice'] = vplexItem.vplexName;
+                            item['ConnectedDeviceType'] = 'VPlex';
+                            item['ConnectedObject'] = vplexItem.vplexVVolName;
+                            item['ConnectedHost'] = vplexItem.vplexMaskviewName;
+                        }
+                    }
+                 }
+                callback(null,arg1);
+
+            })
+           
+        },
+        function(arg1,  callback){  
+
+
+                var data = arg1;
+
+
+                var finalResult = {};
+
+                // ---------- the part of table ---------------
+                var tableHeader = [];
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "名称";
+                tableHeaderItem["value"] = "part";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Thin?";
+                tableHeaderItem["value"] = "dgstype";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "用途";
+                tableHeaderItem["value"] = "purpose";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "类型";
+                tableHeaderItem["value"] = "config";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Pool";
+                tableHeaderItem["value"] = "poolname";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "masked?";
+                tableHeaderItem["value"] = "ismasked";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem); 
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "metaed?";
+                tableHeaderItem["value"] = "metaconf";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem); 
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "metadesc";
+                tableHeaderItem["value"] = "metadesc";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem); 
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "容量(GB)";
+                tableHeaderItem["value"] = "Capacity";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "已使用容量(GB)";
+                tableHeaderItem["value"] = "UsedCapacity";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "分配设备名称";
+                tableHeaderItem["value"] = "ConnectedDevice";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "分配设备类型";
+                tableHeaderItem["value"] = "ConnectedDeviceType";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "分配对象名";
+                tableHeaderItem["value"] = "ConnectedObject";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "分配主机名称";
+                tableHeaderItem["value"] = "ConnectedHost";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                
+                // ---------- the part of table event ---------------
+                var tableEvent = {}; 
+                var tableEventParam = [];
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'part';
+                tableEventParamItem["postName"] = 'volname';
+                tableEventParam.push(tableEventParamItem);
+
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'device';
+                tableEventParamItem["postName"] = 'device';
+                tableEventParam.push(tableEventParamItem);
+
+                tableEvent["event"] = "appendTable";
+                tableEvent["param"] = tableEventParam; 
+                tableEvent["url"] = "/vmax/array/metalun";  
+
+
+
+
+                finalResult["tableEvent"] = tableEvent;
+
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableBody"] = data;
+
+                callback(null,finalResult); 
+
+            }
+            ], function (err, result) {
+                   // result now equals 'done' 
+                   res.json(200, result);
+            });
+ 
+    });
+
+
 
    app.get('/api/vmax/array/pools', function (req, res) { 
     var device = req.query.device;

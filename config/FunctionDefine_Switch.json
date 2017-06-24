@@ -13,9 +13,9 @@
     },
     {
         "hasDetail": false,
-        "tabName": "逻辑磁盘",
+        "tabName": "端口信息",
         "template": 2,
-        "url": "/vplex/disks",
+        "url": "/switch/disks",
         "param": [
             {
                 "postName": "device",

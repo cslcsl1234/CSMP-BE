@@ -26,8 +26,8 @@
     {
         "hasDetail": false,
         "tabName": "LUN信息",
-        "template": 3,
-        "url": "/vmax/array/luns",
+        "template": 7,
+        "url": "/vmax/array/lunsV2",
         "param": [
             {
                 "postName": "device",

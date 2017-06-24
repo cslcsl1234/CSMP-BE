@@ -855,7 +855,14 @@ var virtualArrayController = function (app) {
         var device = req.query.device;
         var perfStartDate = req.query.startDate;
         var perfEndDate = req.query.endDate;
-        var vvolname = req.query.vvolname;
+        var vvol = req.query.vvolname.toString();
+
+        if ( vvol.indexOf(",") > -1 ) {
+            var vvolname = vvol.split(',');
+        } else {
+             var vvolname = [];
+             vvolname.push(vvol);
+        }
 
         // Cached the results.
         var viewresult = cache.get('vplex_storageview_result_'+viewname);
