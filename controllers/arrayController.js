@@ -1595,11 +1595,12 @@ var arrayController = function (app) {
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
             var luns = '041B,07E2';
             //var luns = '06AA';
-            
-            VMAX.getArrayLunPerformanceByList(device,luns,function(locations) {
-
-            var result = VMAX.convertPerformanceStruct(locations);
-            res.json(200,result);
+         var start = '2017-05-30T17:19:00';
+        var end = util.getPerfEndTime();  
+           
+            VMAX.getArrayLunPerformanceByList(device,luns,  function(locations) {
+ 
+            res.json(200,locations);
                                                          
         }); 
         
@@ -1622,9 +1623,9 @@ var arrayController = function (app) {
                     for ( var matricsi in item.matrics ) {
 
                         var matrics = item.matrics[matricsi];
-                        console.log("--------matrics begin ------------");
-                        console.log(matrics);
-                        console.log("--------matrics end------------");
+                        //console.log("--------matrics begin ------------");
+                        //console.log(matrics);
+                        //console.log("--------matrics end------------");
                         var keys = Object.keys(matrics);
                         var lunname = item.part;                //lunname;
                         var arrayname  = item.device;           //array
@@ -1639,12 +1640,12 @@ var arrayController = function (app) {
                                 var categoryname = keyname;         //perf-matrics-name
                                 var value = matrics[keyname];       //perf-matrics-value
                             }
-                            console.log("array="+arrayname);
-                            console.log("lunname="+lunname);
-                            console.log("ts="+timestamp);
-                            console.log("categoryname="+categoryname);
-                            console.log("value="+value);
-                            console.log("---------");
+                            //console.log("array="+arrayname);
+                            //console.log("lunname="+lunname);
+                            //console.log("ts="+timestamp);
+                            //console.log("categoryname="+categoryname);
+                            //console.log("value="+value);
+                            //console.log("---------");
 
                             // Search in result struct 
                             var isFind_chart = false;

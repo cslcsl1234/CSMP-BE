@@ -18,6 +18,8 @@ var async = require('async');
 var cache = require('memory-cache');
 
 var VMAX = require('../lib/Array_VMAX');
+var testjson = require('../demodata/test');
+
 
 
 var virtualArrayController = function (app) {
@@ -742,6 +744,15 @@ var virtualArrayController = function (app) {
             res.json(400, 'Must be special a viewname!')
             return;
         }
+
+        // Cached the results.
+        var viewresult = cache.get('vplex_storageview_result_'+viewname);
+ 
+        if ( viewresult !== undefined && viewresult != null && viewresult != 'null' ) {
+            res.json(200, viewresult);
+            return;
+        }
+
         var result = cache.get('vplex_storageview_result'); 
         var viewDetailData = result.tableBody;
         var viewItem = {};
@@ -753,123 +764,22 @@ var virtualArrayController = function (app) {
             }
         }
 
-
-        async.waterfall([
-            function(callback){ 
-                var vvols = viewItem.vvol;
-                var vvolList = [];
-                var deviceArray;
-                for ( var i in vvols ) {
-                    var item = vvols[i];
-                    deviceArray = item.ProviderByDevice;
-                    vvolList.push(item.ProviderFromObject);
-                }
-
-                console.log("getArrayLunPerformanceByList="+ deviceArray + "|" + vvolList + "|");
-
-                VMAX.getArrayLunPerformanceByList(deviceArray,vvolList,function(perfresult) { 
-                    callback(null,perfresult);
-                })
-
-                
-            },
-            function(arg1,callback){ 
-
-                console.log(arg1)
-                console.log("---------------------------------");
-                
-                var perfdata = VMAX.convertPerformanceStruct(arg1);
+        // get all of luns
+        var vvols = viewItem.vvol;
+        var vvolList = [];
+        var deviceArray;
+        for ( var i in vvols ) {
+            var item = vvols[i];
+            deviceArray = item.ProviderByDevice;
+            vvolList.push(item.ProviderFromObject); 
+        } 
 
 
-                var charts = [];
+        var start = util.getPerfStartTime();
+        var end = util.getPerfEndTime();  
 
-                for ( var i in perfdata ) {
-                    var item = perfdata[i];
-
-                    for ( var matricsi in item.matrics ) {
-
-                        var matrics = item.matrics[matricsi];
-                        console.log("--------matrics begin ------------");
-                        console.log(matrics);
-                        console.log("--------matrics end------------");
-                        var keys = Object.keys(matrics);
-                        var lunname = item.part;                //lunname;
-                        var arrayname  = item.device;           //array
-
-                        for ( var keyi in keys ) {
-                            var keyname = keys[keyi];
-
-                            if ( keyname == 'timestamp' ) {
-                                var timestamp = matrics[keyname];   //ts
-                                continue;
-                            } else {
-                                var categoryname = keyname;         //perf-matrics-name
-                                var value = matrics[keyname];       //perf-matrics-value
-                            }
-                            console.log("array="+arrayname);
-                            console.log("lunname="+lunname);
-                            console.log("ts="+timestamp);
-                            console.log("categoryname="+categoryname);
-                            console.log("value="+value);
-                            console.log("---------");
-
-                            // Search in result struct 
-                            var isFind_chart = false;
-                            for ( var charti in charts ) {
-                                var chartItem = charts[charti];
-                                if ( chartItem.category == categoryname ) {
-                                    isFind_chart = true;
-
-                                    var isFind_chartData = false;
-                                    for ( var chartDatai in chartItem.chartData ) {
-                                        var chartDataItem = chartItem.chartData[chartDatai] ;
-                                        if ( chartDataItem.name == timestamp ) {
-                                            isFind_chartData = true;
-                                            chartDataItem[lunname] = value;
-                                        }
-
-                                    } // for 
-
-                                    if ( !isFind_chartData ) {
-                                        var chartDataItem = {};
-                                        chartDataItem['name'] = timestamp;
-                                        chartDataItem[lunname] = value;
-                                        chartItem.chartData.push(chartDataItem);
-                                    }
-
-                                }
-                            } // for ( charts ) 
-
-                            if ( !isFind_chart ) {
-                                var chartItem = {};
-                                chartItem['category'] = categoryname;
-                                chartItem['chartData'] = [];
-
-                                var chartDataItem = {};
-                                chartDataItem['name'] = timestamp;
-                                chartDataItem[lunname] = value;
-                                chartItem.chartData.push(chartDataItem);
-
-                                charts.push(chartItem);
-                            }
-
-
-                        } // for ( keys )
-                    } // for ( matrics )
-                    
-                } // for ( arg1 )
-
-
-                callback(null,charts);
-            }
-            ], function (err, result) {
-                 var finalResult = {};
-
-                // ----- the part of perf datetime --------------
-                finalResult["startDate"] = util.getPerfStartTime();
-                finalResult["endDate"] = util.getPerfEndTime();          
-
-                finalResult["charts"] = result;
+ 
+        VMAX.getArrayLunGroupPerformance(deviceArray, vvolList , start, end , function(finalResult) {
 
                 // ---------- the part of table ---------------
                 var tableHeader = [];
@@ -931,13 +841,61 @@ var virtualArrayController = function (app) {
 
                 //callback(null,finalResult); 
 
+                cache.put('vplex_storageview_result_'+viewname,finalResult);
                 res.json(200, finalResult);
             });
 
  
+ 
     });
 
 
+   app.get('/api/vplex/storageview_detail/lunperf', function (req, res) { 
+        var viewname = req.query.viewname;
+        var device = req.query.device;
+        var perfStartDate = req.query.startDate;
+        var perfEndDate = req.query.endDate;
+        var vvolname = req.query.vvolname;
+
+        // Cached the results.
+        var viewresult = cache.get('vplex_storageview_result_'+viewname);
+        //var viewresult = testjson;
+
+        if ( viewresult === undefined || viewresult == null || viewresult == 'null' ) {
+            res.json(400, viewname + ' has not cached. Please retry ...');
+            return;
+        }
+ 
+        var vvolDataList = viewresult.tableBody;
+
+        var vvolList = [];
+        var deviceArray;
+        for ( var i=0; i<vvolname.length; i++ ) {
+ 
+            for ( var vvoli in vvolDataList ) {
+                var item = vvolDataList[vvoli];
+                console.log(vvolname[i]+"\t" + item.part);
+                if ( vvolname[i] == item.part ) {
+                    deviceArray = item.ProviderByDevice;
+                    vvolList.push(item.ProviderFromObject); 
+                }
+            }
+
+        }
+
+        console.log(deviceArray+"|" + vvolList);
+
+        VMAX.getArrayLunGroupPerformance(deviceArray, vvolList , perfStartDate, perfEndDate , function(finalResult) {
+
+            res.json(200, finalResult);
+        }); 
+
+        
+
+
+
+        
+    });
 
     app.get('/api/vplex/feport', function (req, res) { 
         var device = req.query.device;
