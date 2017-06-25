@@ -19,6 +19,9 @@ var async = require('async');
 var mongoose = require('mongoose');
 var SwitchObj = mongoose.model('Switch');
 var SWITCH = require('../lib/Switch');
+var VMAX=require('../lib/Array_VMAX');
+
+
 // -----------------------------------
 // For demo data
 // ----------------------------------
@@ -736,6 +739,156 @@ function GetSwitchInfo(callback) {
 
          
     });
+
+   app.get('/api/switch/port_detail', function (req, res) { 
+        var device = req.query.device;
+
+        if ( device === undefined ) {
+            res.json(400, 'Must be special a device!')
+            return;
+        }
+
+        async.waterfall([
+            function(callback){ 
+
+            SWITCH.GetSwitchPorts(device, function(result) { 
+                callback(null,result);
+            }); 
+
+
+        }, 
+
+        function(arg1, callback){ 
+
+                callback(null,arg1); 
+        },         
+        function(arg1,  callback){  
+
+
+                var data = arg1;
+
+
+                var finalResult = {};
+
+                // ----- the part of perf datetime --------------
+                finalResult["startDate"] = util.getPerfStartTime();
+                finalResult["endDate"] = util.getPerfEndTime();          
+
+
+
+                
+
+                // ----- the part of chart --------------
+
+                var groupby = "partstat"; 
+                var chartData = [];
+                for ( var i in data ) {
+                    var item = data[i];
+
+                    var groupbyValue = item[groupby];  
+
+                    var isFind = false;
+                    for ( var j in chartData ) {
+                        var charItem = chartData[j];
+                        if ( charItem.name == groupbyValue ) {
+                            charItem.value = charItem.value + 1;
+                            isFind = true;
+                        }
+                    }
+                    if ( !isFind ) {
+                        var charItem = {};
+                        charItem["name"] = groupbyValue;
+                        charItem["value"] = 1;
+                        chartData.push(charItem);
+                    }
+
+                }
+                finalResult["chartType"] = "pie";
+                finalResult["chartData"] = chartData;          
+
+                // ---------- the part of table ---------------
+                var tableHeader = [];
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "端口序号";
+                tableHeaderItem["value"] = "partid";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "端口名称";
+                tableHeaderItem["value"] = "part";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "类型";
+                tableHeaderItem["value"] = "porttype";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "最大速度";
+                tableHeaderItem["value"] = "maxspeed";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+ 
+
+
+
+ 
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "状态";
+                tableHeaderItem["value"] = "partstat";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+  
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "连接WWN";
+                tableHeaderItem["value"] = "connectedToWWN";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                // ---------- the part of table event ---------------
+                var tableEvent = {}; 
+                var tableEventParam = [];
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'partwwn';
+                tableEventParamItem["postName"] = 'portwwn';
+                tableEventParam.push(tableEventParamItem);
+                tableEvent["event"] = "appendArea";
+                tableEvent["param"] = tableEventParam;
+                tableEvent["url"] = "/switch/port_detail/perf";  
+
+
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableEvent"] = tableEvent;
+                finalResult["tableBody"] = data;
+
+                callback(null,finalResult); 
+
+            }
+            ], function (err, result) {
+                   // result now equals 'done'  
+                  res.json(200, result);
+            });
+ 
+    });
+
+
+     app.get('/api/switch/test', function ( req, res )  {
+        var device = req.query.device; 
+
+        SWITCH.getSwitchPortPerformance(device,function(result) {   
+         
+            var result1 = VMAX.convertPerformanceStruct(result);
+            res.json(200,result1);
+          });
+        
+
+    } ) ;
+
 
 
 

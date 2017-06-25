@@ -30,6 +30,7 @@ require('./../models/menuModel');
 require('./../models/datacenter');
 require('./../models/eventModel');
 
+require('./../models/reportingModel');
 
 //connect to db.
 mongoose.connect(dbUrl, function (err, res) {

@@ -632,13 +632,16 @@ var arrayController = function (app) {
                 tableHeader.push(tableHeaderItem);
 
 
- 
-                finalResult["tableHead"] = tableHeader;
-                finalResult["tableBody"] = data; 
+  
+                var tabledata = {};
+                tabledata["tableHead"] = tableHeader;
+                tabledata["tableBody"] = data;
+
+                finalResult["tableData"] = [];
+                finalResult.tableData.push(tabledata);
+
                 res.json(200,finalResult);
-
-
-
+ 
 
             });
     });
@@ -658,7 +661,8 @@ var arrayController = function (app) {
             }
 
             var param = {};
-            param['filter'] = '(parttype=\'LUN\')&(part=\'06B2\'|part=\'055B\'|part=\'09DA\')';
+            //param['filter'] = '(parttype=\'LUN\')&(part=\'06B2\'|part=\'055B\'|part=\'09DA\')';
+            param['filter'] = '(parttype=\'LUN\')';
             param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'Availability\'|name=\'PoolUsedCapacity\')';
             param['keys'] = ['device','part','parttype'];
             param['fields'] = ['alias','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked','metadesc','metaconf'];

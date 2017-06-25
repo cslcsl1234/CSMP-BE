@@ -47,6 +47,7 @@ require('./controllers/DashboardController')(app);
 require('./controllers/topologyController')(app);
 require('./controllers/capacityController')(app);
 
+require('./controllers/reportingController')(app);
 
 
 app.listen(config.SERVER.PORT, function () {
