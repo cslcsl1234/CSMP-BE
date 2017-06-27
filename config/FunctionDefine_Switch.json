@@ -14,7 +14,7 @@
     {
         "hasDetail": false,
         "tabName": "端口信息",
-        "template": 8,
+        "template": 10,
         "url": "/switch/port_detail",
         "param": [
             {

@@ -137,26 +137,6 @@ var switchController = function (app) {
 
         var deviceid = req.query.device;
 
-        console.log(config.ProductType);
-        if ( config.ProductType == 'demo' ) {
-            console.log("aaaaaaaaaaa");
-            if ( deviceid === undefined ) {
-                res.json(400, 'Must be special a device!');
-                return;
-            } else { 
-                 console.log("ssssssssssssssssss");
-                for ( var i in demo_switchs ) {
-                    var item = demo_switchs[i];
-                    if ( item.device ==  deviceid  )  {
-                        res.json(200,item); 
-                        return;
-
-                    }
-                }
-                res.json(200,{});
-                return;           
-            } 
-        }  
 
 
         var param = {};
@@ -266,14 +246,14 @@ var switchController = function (app) {
                         var item = param.result[i];
                         item['info'] = {}; 
                         var switchsn = item.device;
-                        console.log("Begin get switch info : " + switchsn);
+                        //console.log("Begin get switch info : " + switchsn);
                         for ( var j in result ) {
                             var infoItem = result[j]; 
                             if ( infoItem.basicInfo.device == switchsn ) { 
                                 var unitID = infoItem.basicInfo.UnitID; 
                                 for ( var z in locations ) { 
                                     if ( unitID == locations[z].UnitID ) {
-                                        console.log(locations[z].Location);
+                                        //console.log(locations[z].Location);
                                         item['localtion'] = locations[z].Location;
                                         break;
                                     }
@@ -803,6 +783,8 @@ function GetSwitchInfo(callback) {
                     }
 
                 }
+
+
                 finalResult["chartType"] = "pie";
                 finalResult["chartData"] = chartData;          
 
@@ -857,6 +839,14 @@ function GetSwitchInfo(callback) {
                 tableEventParamItem["findName"] = 'partwwn';
                 tableEventParamItem["postName"] = 'portwwn';
                 tableEventParam.push(tableEventParamItem);
+
+
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'device';
+                tableEventParamItem["postName"] = 'device';
+                tableEventParam.push(tableEventParamItem);
+
+
                 tableEvent["event"] = "appendArea";
                 tableEvent["param"] = tableEventParam;
                 tableEvent["url"] = "/switch/port_detail/perf";  
@@ -876,14 +866,28 @@ function GetSwitchInfo(callback) {
  
     });
 
+     app.get('/api/switch/port_detail/perf', function ( req, res )  {
+        var device = req.query.device;  
+        var portwwn = req.query.portwwn;  
+        var start = req.query.startDate;
+        var end = req.query.endDate;
+        SWITCH.getSwitchPortPerformance1(device,portwwn,start, end , function(result) {   
+         
+            //var result1 = VMAX.convertPerformanceStruct(result);
+            res.json(200,result);
+          });
+        
+
+    } ) ;
+
 
      app.get('/api/switch/test', function ( req, res )  {
         var device = req.query.device; 
-
-        SWITCH.getSwitchPortPerformance(device,function(result) {   
+        var portwwn = '20D60027F871F600';
+        SWITCH.getSwitchPortPerformance1(device,portwwn,function(result) {   
          
-            var result1 = VMAX.convertPerformanceStruct(result);
-            res.json(200,result1);
+            //var result1 = VMAX.convertPerformanceStruct(result);
+            res.json(200,result);
           });
         
 

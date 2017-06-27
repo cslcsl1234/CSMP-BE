@@ -1874,10 +1874,11 @@ var arrayController = function (app) {
        //VMAX.GetMaskViews(device,function(locations) {
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
-        
-            var templateret = template7;
-            res.json(200,templateret);
+    
           
+        VMAX.getArrayLunPerformance(device,function(result) {
+            res.json(200,result);
+        })
         
 
     } ) ;
