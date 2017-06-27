@@ -347,7 +347,7 @@ function GetSwitchInfo(callback) {
                 .query({'fields': fields , 'filter':  filter }) 
                 .end(function (response) {
 
-                    console.log(response.body);
+                    //console.log(response.body);
                     var resultJson = JSON.parse(response.body).values; 
 
                     for ( var i in resultJson ) {
@@ -410,13 +410,6 @@ function GetSwitchInfo(callback) {
  
         var fabwwn = req.query.fabwwn;
 
-	
-        if ( config.ProductType == 'demo' ) {
-                res.json(200,demo_fabric_zone);
-                return;
-        } ;
-
-
         
         if ( typeof fabwwn === 'undefined' ) {
             res.json(200, 'Must be special fabwwn!');
@@ -426,55 +419,87 @@ function GetSwitchInfo(callback) {
             var filter = 'pswwn=\''+fabwwn+'\'&parttype=\'ZoneMember\'';
 
         }
-   
-
-        var zoneResult = [];
-        unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
-                .auth(config.Backend.USER, config.Backend.PASSWORD, true)
-                .headers({'Content-Type': 'multipart/form-data'}) 
-                .query({'fields': fields , 'filter':  filter }) 
-                .end(function (response) {
-
-                    var resultJson = JSON.parse(response.body).values;
-                    for ( var i in resultJson ) {
-                        var item = resultJson[i];
-                        var zoneItem = {};
-                        var zoneMemberItem = {};
-                        zoneMemberItem['zmemid'] = item.zmemid;
-                        zoneMemberItem['zmemtype'] = item.zmemtype; 
 
 
-                        zoneItem['device'] = item.device;
-                        zoneItem['zsetname'] = item.zsetname;
-                        zoneItem['zname'] = item.zname;
-                        zoneItem['zonemembers'] = [];
-                        zoneItem.zonemembers.push(zoneMemberItem);
-
-                        if ( zoneResult.length == 0 ) {
-                            zoneResult.push(zoneItem);
-                        } else {
-                            var isFind = false;
-                            for ( var j in zoneResult) {
-                                var item1 = zoneResult[j];
-                                if ( item1.device == item.device &&  
-                                    item1.zsetname == item.zsetname && 
-                                    item1.zname == item.zname 
-                                    ) {
-                                    item1.zonemembers.push(zoneMemberItem);
-                                    isFind = true;
-                                }
-                            }
-                            if ( ! isFind ) {
-                                zoneResult.push(zoneItem);
-                            }
-                        }
-
-                    }
-
-                    console.log('The number of Zones = ' + zoneResult.length);
-                    res.json(200, zoneResult);
-                
+        async.waterfall(
+        [
+            function(callback){
+                var deviceid;
+                SWITCH.GetSwitchPorts(deviceid, function(result) { 
+                    callback(null,result); 
                 });
+                  
+            },
+            // Get All Localtion Records
+            function(param,  callback){ 
+
+                var zoneResult = [];
+                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
+                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+                        .headers({'Content-Type': 'multipart/form-data'}) 
+                        .query({'fields': fields , 'filter':  filter }) 
+                        .end(function (response) {
+
+                            var resultJson = JSON.parse(response.body).values;
+                            for ( var i in resultJson ) {
+                                var item = resultJson[i];
+                                var zoneItem = {};
+                                var zoneMemberItem = {};
+                                zoneMemberItem['zmemid'] = item.zmemid;
+                                zoneMemberItem['zmemtype'] = item.zmemtype; 
+
+                                // Search connected to the switch and switch port 
+                                for ( var j in param ) {
+                                    var swport = param[j];
+                                    //console.log(swport.connectedToWWN +'\t' + item.zmemid);
+                                    if ( swport.connectedToWWN == item.zmemid ) {
+                                        zoneMemberItem['switch'] = swport.device;
+                                        zoneMemberItem['switchport'] = swport.part; 
+                                        break;  
+                                    }
+                                }
+
+
+                                zoneItem['device'] = item.device;
+                                zoneItem['zsetname'] = item.zsetname;
+                                zoneItem['zname'] = item.zname;
+                                zoneItem['zonemembers'] = [];
+                                zoneItem.zonemembers.push(zoneMemberItem);
+
+                                if ( zoneResult.length == 0 ) {
+                                    zoneResult.push(zoneItem);
+                                } else {
+                                    var isFind = false;
+                                    for ( var j in zoneResult) {
+                                        var item1 = zoneResult[j];
+                                        if ( item1.device == item.device &&  
+                                            item1.zsetname == item.zsetname && 
+                                            item1.zname == item.zname 
+                                            ) {
+                                            item1.zonemembers.push(zoneMemberItem);
+                                            isFind = true;
+                                        }
+                                    }
+                                    if ( ! isFind ) {
+                                        zoneResult.push(zoneItem);
+                                    }
+                                }
+
+                            }
+
+                           console.log('The number of Zones = ' + zoneResult.length);
+                           callback(null,zoneResult);
+                        
+                        });
+
+            },
+            function(param,  callback){ 
+                  callback(null,param);
+            }
+        ], function (err, result) {
+              // result now equals 'done'
+              res.json(200, result);
+        });
 
 
          
