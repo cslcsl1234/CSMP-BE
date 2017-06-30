@@ -32,21 +32,27 @@ var eventController = function (app) {
 
     app.get('/api/events', function (req, res) {
  
-        if ( config.ProductType == 'demo' ) {
-            res.json(200,demo_events);
-            return;
-        } ;
-
         var device = req.query.device; 
         var state = req.query.state; 
-        console.log(device+"/"+state);
+
+        var startdt = req.query.startdt;
+        var enddt = req.query.enddt;
+
+        console.log("device=" + device+"\n"+"state=" + state+"\n"+"startdt=" + startdt+"\n"+"enddt=" + enddt);
         var eventParam = {};
         if (typeof device !== 'undefined') { 
             eventParam['filter'] = 'device=\''+device + '\'&!acknowledged&active=\'1\'';
-            var filterbase = 'device=\''+device+'\'&!parttype';
+            var filter = 'device=\''+device + '\'&!acknowledged&active=\'1\'';
         } else {
             eventParam['filter'] = '!acknowledged&active=\'1\'';
         } 
+
+        if ( startdt !== undefined ) {
+
+        }
+
+
+        eventParam['filter'] = filter;
 
         //console.log(eventParam);
         GetEvents.GetEvents(eventParam, function(result) {   

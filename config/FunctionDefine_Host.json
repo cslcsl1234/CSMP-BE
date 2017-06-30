@@ -14,7 +14,7 @@
     {
         "hasDetail": false,
         "tabName": "HBA",
-        "template": 2,
+        "template": 3,
         "url": "/host/hba",
         "param": [
             {

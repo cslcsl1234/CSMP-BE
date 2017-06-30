@@ -94,74 +94,204 @@ var hostController = function (app) {
             return;
         } 
         host.GetHosts(device, function(code,result) {
-            res.json(200 , result);
-
 
             var finalResult = [];
-            var returnData = ret[0];
+            var returnData = result;
             var item = {};
             // Combine the UI element for VMAX Basic Info page.
 
             // -------------- Block1 ---------------------------
             var UI_Block1 = {} ;
-            UI_Block1['title'] = "存储管理信息";
+            UI_Block1['title'] = "基本信息";
             UI_Block1['detail'] = [];
 
             item={};
-            item["name"] = "存储序列号"; 
-            item["value"] = returnData.device;
+            item["name"] = "主机名称"; 
+            item["value"] = returnData.baseinfo.name;
             UI_Block1.detail.push(item);
  
             item={};
-            item["name"] = "厂商"; 
-            item["value"] = returnData.vendor;
+            item["name"] = "状态"; 
+            item["value"] = returnData.baseinfo.name;
             UI_Block1.detail.push(item);
 
             item={};
-            item["name"] = "型号"; 
-            item["value"] = returnData.model;
+            item["name"] = "类型"; 
+            item["value"] = returnData.baseinfo.type;
             UI_Block1.detail.push(item);
 
             item={};
-            item["name"] = "存储类型"; 
-            item["value"] = returnData.sstype;
+            item["name"] = "管理IP"; 
+            item["value"] = returnData.baseinfo.management_ip;
             UI_Block1.detail.push(item);
 
             item={};
-            item["name"] = "微码版本"; 
-            item["value"] = returnData.devdesc;
+            item["name"] = "分类"; 
+            item["value"] = returnData.baseinfo.catalog;
+            UI_Block1.detail.push(item);
+
+            item={};
+            item["name"] = "服务IP"; 
+            item["value"] = returnData.baseinfo.service_ip;
+            UI_Block1.detail.push(item);
+
+            item={};
+            item["name"] = "描述"; 
+            item["value"] = returnData.baseinfo.description;
+            UI_Block1.detail.push(item);
+
+            item={};
+            item["name"] = "关联应用"; 
+            item["value"] = returnData.APPs;
             UI_Block1.detail.push(item);
 
 
-            // -------------- Block1 ---------------------------
+            // -------------- Block2 ---------------------------
  
             var UI_Block2 = {} ;
-            UI_Block2['title'] = "存储硬件配置信息";
+            UI_Block2['title'] = "配置信息";
             UI_Block2['detail'] = [];
 
             item={};
-            item["name"] = "缓存大小(Gb)"; 
-            item["value"] = returnData.TotalMemory;
+            item["name"] = "操作系统"; 
+            item["value"] = returnData.configuration.OS;
             UI_Block2.detail.push(item);
 
             item={};
-            item["name"] = "磁盘数量"; 
-            item["value"] = returnData.TotalDisk;
+            item["name"] = "操作系统版本"; 
+            item["value"] = returnData.configuration.OSVersion;
             UI_Block2.detail.push(item);
 
             item={};
-            item["name"] = "LUN数量"; 
-            item["value"] = returnData.TotalLun;
+            item["name"] = "内存(GB)"; 
+            item["value"] = returnData.configuration.memory;
             UI_Block2.detail.push(item);
+
+
+            // -------------- Block3 ---------------------------
+ 
+            var UI_Block3 = {} ;
+            UI_Block3['title'] = "资产信息";
+            UI_Block3['detail'] = [];
+
+            item={};
+            item["name"] = "资产编号"; 
+            item["value"] = returnData.assets.no;
+            UI_Block3.detail.push(item);
+
+
+            item={};
+            item["name"] = "用途"; 
+            item["value"] = returnData.assets.purpose;
+            UI_Block3.detail.push(item);
+
+
+            item={};
+            item["name"] = "所属部门"; 
+            item["value"] = returnData.assets.department;
+            UI_Block3.detail.push(item);
+            item={};
+            item["name"] = "资产管理员"; 
+            item["value"] = returnData.assets.manager;
+            UI_Block3.detail.push(item);
+
+
+           // -------------- Block4 ---------------------------
+ 
+            var UI_Block4 = {} ;
+            UI_Block4['title'] = "维保信息";
+            UI_Block4['detail'] = [];
+
+            item={};
+            item["name"] = "维保厂商"; 
+            item["value"] = returnData.maintenance.vendor;
+            UI_Block4.detail.push(item);
+
+            item={};
+            item["name"] = "运维部门"; 
+            item["value"] = returnData.maintenance.maintenance_department;
+            UI_Block4.detail.push(item);
+
+            item={};
+            item["name"] = "维保联系人"; 
+            item["value"] = returnData.maintenance.maintenance_owner;
+            UI_Block4.detail.push(item);
+
+            item={};
+            item["name"] = "联系方式"; 
+            item["value"] = returnData.maintenance.contact;
+            UI_Block4.detail.push(item);
 
 
             // -------------- Finally combine the final result record -----------------
             finalResult.push(UI_Block1);
             finalResult.push(UI_Block2);
+            finalResult.push(UI_Block3);
+            finalResult.push(UI_Block4);
 
             res.json(200,finalResult);
         })
     }
+    });
+
+
+   app.get('/api/host/hba', function (req, res) { 
+        var device = req.query.device;
+
+        if ( device === undefined ) {
+            res.json(401, 'Must be special a device!')
+            return;
+        } 
+        host.GetHosts(device, function(code,result) {
+
+            var finalResult = []; 
+            var item = {};
+               var data = result.HBAs;
+
+
+                var finalResult = {};
+ 
+                // ---------- the part of table ---------------
+                var tableHeader = []; 
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "别名";
+                tableHeaderItem["value"] = "alias";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "WWN";
+                tableHeaderItem["value"] = "wwn";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "名称";
+                tableHeaderItem["value"] = "name";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "A/B";
+                tableHeaderItem["value"] = "AB";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+             
+                
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableBody"] = data;
+
+
+                res.json(200, finalResult);
+ 
+        }) 
+
+
     });
 
 /* 
