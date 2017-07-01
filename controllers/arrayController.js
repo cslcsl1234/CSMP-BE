@@ -1877,7 +1877,13 @@ var arrayController = function (app) {
     
           
         //VMAX.getArrayLunPerformance(device,function(result) {
-        VMAX.GetDevices(device,function(result) {
+        var inits = [];
+        var init="5000144290592910";
+        inits.push(init);
+        var init="500014428059CB11";
+        inits.push(init);
+        
+        VMAX.GetAssignedLUNByInitiator(inits,function(result) {
              res.json(200,result);
         })
         

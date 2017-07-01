@@ -21,6 +21,7 @@ var mongoose = require('mongoose');
 var HostObj = mongoose.model('Host');
  
 var HBALIST = require('../demodata/host_hba_list');
+var VMAX = require('../lib/Array_VMAX');
 
 var hostController = function (app) {
 
@@ -293,6 +294,52 @@ var hostController = function (app) {
 
 
     });
+
+
+
+   app.get('/api/host/luns', function (req, res) { 
+        var device = req.query.device;
+
+        if ( device === undefined ) {
+            res.json(401, 'Must be special a device!')
+            return;
+        } 
+
+
+        async.waterfall(
+        [
+            function(callback){
+                host.GetHosts(device, function(code,result) {
+                    var data = result.HBAs;
+                    var hbawwns = [];
+                    for ( var i in data ) {
+                        var item = data[i];
+                        if ( item.wwn != null )
+                            hbawwns.push(item.wwn);
+                    }
+                    callback(null,hbawwns);
+              });
+            },
+            // Get All Localtion Records
+            function(inits,  callback){ 
+                 VMAX.GetAssignedLUNByInitiator(inits,function(result) {
+                     callback(null,result);
+                })
+                       
+                    
+            },
+            function(param,  callback){ 
+                  callback(null,param);
+            }
+        ], function (err, result) {
+              res.json(200, result);
+        }
+        );
+
+
+
+    });
+
 
 /* 
 *  Create a app record 
