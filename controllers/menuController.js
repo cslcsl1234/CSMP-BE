@@ -18,7 +18,7 @@ var FunctionDefine_Array = require("../config/FunctionDefine_Array");
 var FunctionDefine_Host = require("../config/FunctionDefine_Host");
 var FunctionDefine_VPLEX = require("../config/FunctionDefine_VPLEX");
 var FunctionDefine_Switch = require("../config/FunctionDefine_Switch");
-
+var FunctionDefine_DEMOS = require("../config/FunctionDefine_DEMOS");
  
  
  
@@ -186,6 +186,9 @@ var menuController = function (app) {
         res.json(200,FunctionDefine_Switch);
     });
 
+    app.get('/api/menu/ObjectManage/demos', function (req, res) {
+        res.json(200,FunctionDefine_DEMOS);
+    });
 
 
 };

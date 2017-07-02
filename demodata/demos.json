@@ -1,0 +1,25 @@
+[
+  {
+    "app_name": "",
+    "host_name": "hostname1",
+    "host_type": "",
+    "host_status": "",
+    "host_ip": "",
+    "host_os": "",
+    "host_osversion": "",
+    "DeviceCount": 7,
+    "Capacity": 105.81842629999998
+  },
+  {
+    "app_name": "",
+    "host_name": "hostname2",
+    "host_type": "",
+    "host_status": "",
+    "host_ip": "",
+    "host_os": "",
+    "host_osversion": "",
+    "DeviceCount": 7,
+    "Capacity": 105.81842629999998
+  }
+]
+

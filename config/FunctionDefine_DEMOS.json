@@ -1,0 +1,151 @@
+[
+    {
+        "hasDetail": false,
+        "tabName": "基本信息",
+        "template": 1,
+        "url": "/vmax/array",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "磁盘信息",
+        "template": 2,
+        "url": "/vmax/array/disks",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "LUN信息",
+        "template": 7,
+        "url": "/vmax/array/lunsV2",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Pool信息",
+        "template": 3,
+        "url": "/vmax/array/pools",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Switch信息",
+        "template": 3,
+        "url": "/vmax/array/switchs",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "template7test",
+        "template": 7,
+        "url": "/array/test",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "template4test",
+        "template": 4,
+        "url": "/array/template4test",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "template5test",
+        "template": 5,
+        "url": "/array/template5test",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "template6test",
+        "template": 6,
+        "url": "/array/template6test",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "template9test",
+        "template": 9,
+        "url": "/array/template9test",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    } ,
+    {
+        "hasDetail": true,
+        "tabDetail": [
+            {
+                "tabName": "第一个 ",
+                "template": 2,
+                "url": "后台接口",
+                "param": [
+                    {
+                        "postName": "device",
+                        "findName": "device"
+                    }
+                ]
+            },
+            {
+                "tabName": "第二个",
+                "template": 3,
+                "url": "后台接口",
+                "param": [
+                    {
+                        "postName": "device",
+                        "findName": "device"
+                    }
+                ]
+            }
+        ],
+        "tabName": "测试tab"
+    }
+]
+

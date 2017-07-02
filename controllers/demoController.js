@@ -6,6 +6,7 @@
  * This is AOP.
  * @param app
  */
+var DEMOS = require('../demodata/demos');
 
 var demoController = function (app) {
     /**
@@ -19,6 +20,10 @@ var demoController = function (app) {
      */
     app.get('/api/admin/time', function (req, res) {
         res.json(200, {'message': 'This is Admin time API!'});
+    });
+
+    app.get('/api/demos', function (req, res) {
+        res.json(200, DEMOS);
     });
 
 
