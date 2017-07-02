@@ -21,6 +21,7 @@ var mongoose = require('mongoose')
 var hbaSchema = new Schema({
     name: String,
     wwn: String,
+    alias: String,
     AB: String
 },{ _id : false });
 

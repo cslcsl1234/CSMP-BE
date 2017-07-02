@@ -423,9 +423,10 @@ function GetSwitchInfo(callback) {
 
         async.waterfall(
         [
+    
             function(callback){
                 var deviceid;
-                SWITCH.GetSwitchPorts(deviceid, function(result) { 
+                SWITCH.GetSwitchPorts(deviceid, function(result) {  
                     callback(null,result); 
                 });
                   
@@ -493,8 +494,60 @@ function GetSwitchInfo(callback) {
                         });
 
             },
-            function(param,  callback){ 
-                  callback(null,param);
+            function(zoneResult, callback){
+                var fields = 'part,psname';
+                var filter = 'pswwn=\''+fabwwn+'\'&parttype==\'Fabric\'|parttype==\'VSAN\'';
+                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
+                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+                        .headers({'Content-Type': 'multipart/form-data'}) 
+                        .query({'fields': fields , 'filter':  filter }) 
+                        .end(function (response) {
+
+                            var resultJson = JSON.parse(response.body).values; 
+                            //callback(null,resultJson[0].psname);
+                            for ( var i in zoneResult ) {
+                                var item = zoneResult[i];
+                                item["fabricname"] = resultJson[0].psname;
+                            }
+                            callback(null,zoneResult);
+                        });
+                  
+            },    
+            function(arg1,  callback){ 
+
+                var param = {}; 
+                param['filter'] = 'parttype==\'ZoneAlias\'';
+                param['fields'] = ['pswwn','alias','zmemid'];
+                param['keys'] = ['pswwn','alias','zmemid'];
+
+                CallGet.CallGet(param, function(param) { 
+                    for ( var i in arg1 ) {
+                        var zoneitem = arg1[i];
+                        
+
+                        for ( var z in zoneitem.zonemembers ) {
+                            var item = zoneitem.zonemembers[z];
+                            item['alias'] = '';
+                            if ( item.zmemid != '' ) {
+
+                                for ( var j in param.result ) {
+                                    var aliasItem = param.result[j];
+
+                                    if ( item.zmemid == aliasItem.zmemid ) {
+                                        if ( item.alias == '' )
+                                            item['alias'] = aliasItem.alias;
+                                        else 
+                                            item['alias'] = item.alias + ',' + aliasItem.alias;
+                                    }
+                                }
+
+                            }
+                        }
+
+
+                    }
+                    callback(null,arg1);
+                });                 
             }
         ], function (err, result) {
               // result now equals 'done'
@@ -909,8 +962,9 @@ function GetSwitchInfo(callback) {
      app.get('/api/switch/test', function ( req, res )  {
         var device = req.query.device; 
         var portwwn = '20D60027F871F600';
-        SWITCH.getSwitchPortPerformance1(device,portwwn,function(result) {   
-         
+        //SWITCH.getSwitchPortPerformance1(device,portwwn,function(result) {   
+        SWITCH.getAlias(function(result) {   
+        //SWITCH.GetSwitchPorts(device,function(result) {
             //var result1 = VMAX.convertPerformanceStruct(result);
             res.json(200,result);
           });

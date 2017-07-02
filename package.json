@@ -11,7 +11,9 @@
     "nconf": "*",
     "node-uuid": "*",
     "synchronize": "*",
-    "unirest": "*"
+    "unirest": "*",
+    "tempfile": "*",
+    "officegen": "*"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

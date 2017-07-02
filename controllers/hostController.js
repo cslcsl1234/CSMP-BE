@@ -22,6 +22,7 @@ var HostObj = mongoose.model('Host');
  
 var HBALIST = require('../demodata/host_hba_list');
 var VMAX = require('../lib/Array_VMAX');
+var SWITCH = require('../lib/Switch');
 
 var hostController = function (app) {
 
@@ -77,8 +78,90 @@ var hostController = function (app) {
     });
 
     app.get('/api/hba/nohostname', function (req, res) {
+ 
 
-        res.json(200,HBALIST);
+         async.waterfall(
+        [
+            function(callback){
+                
+                var wwnlist1 ;       
+                SWITCH.getAlias(wwnlist1,function(result) {
+
+                    var wwnlist = []; 
+                    for ( var i in result ) {
+                        var item = result[i];
+
+                        var isfind = false;
+                        for ( var j in wwnlist ) {
+                            var wwnitem = wwnlist[j];
+
+                            if ( item.zmemid == wwnitem.HBAWWN ) {
+                                isfind = true;
+                                wwnitem['ALIAS'] = wwnitem.ALIAS + ',' + item.alias;
+                            }
+                        }
+
+                        if ( !isfind ) {
+                            var wwnitem = {};
+                            wwnitem['HBAWWN'] = item.zmemid;
+                            wwnitem['ALIAS'] = item.alias;
+                            wwnlist.push(wwnitem);
+                        }
+                    }
+                    callback(null,wwnlist);
+                });
+
+
+            },
+            // Get All Localtion Records
+            function(wwnlist,  callback){ 
+                 var hostlist ;
+                 host.GetHosts(hostlist,function(errcode,result) {
+                     
+                     var hosthbas = [];
+                     for ( var i in result ) {
+                        var hostItem = result[i];
+                        var hosthba = hostItem.HBAs; 
+                        for ( var j in hosthba ) {
+                            var hosthbaItem = hosthba[j]; 
+                             
+                            if ( hosthbaItem.wwn !== undefined )
+                                hosthbas.push(hosthbaItem.wwn);
+                        }
+                     }
+ 
+                    var finalwwnlist = [];
+                    for ( var j in wwnlist ) {
+                        var wwnitem = wwnlist[j];
+
+                        var isfind = false;
+                         for ( var i in hosthbas ) {
+                            var hbawwn = hosthbas[i];
+                            //console.log(hbawwn+'\t' + wwnitem.HBAWWN);
+                            if ( wwnitem.HBAWWN == hbawwn ) {
+                                 
+                                isfind = true;
+                                break;
+                            }
+                         }
+                        if ( !isfind )   
+                            finalwwnlist.push(wwnitem);                   
+
+                    }
+
+
+                     callback(null,finalwwnlist);
+                })
+                       
+                    
+            },
+            function(param,  callback){ 
+                  callback(null,param);
+            }
+        ], function (err, result) {
+              res.json(200, result);
+        }
+        );
 
     });
 
@@ -345,39 +428,86 @@ var hostController = function (app) {
 *  Create a app record 
 */
     app.post('/api/host', function (req, res) {
-        console.log(req.body);
 
         var host = req.body;
 
-        HostObj.findOne({"baseinfo.name" : host.baseinfo.name}, function (err, doc) {
-            //system error.
-            if (err) {
-                return   done(err);
-            }
-            if (!doc) { //user doesn't exist.
-                console.log("host is not exist. insert it."); 
 
-                var newhost = new HostObj(host);
-                console.log('Test1');
-                newhost.save(function(err, thor) {
-                 console.log('Test2');
-                 if (err)  {
-                    console.dir(thor);
-                    return res.json(400 , err);
-                  } else 
-                    return res.json(200, {status: "The Host has inserted."});
+        async.waterfall(
+        [
+            function(callback){
+
+                var hbalist = host.HBAs;
+                var wwnlist = [];
+                for ( var i in hbalist ) {
+                    var item = hbalist[i];
+                    wwnlist.push(item.wwn);
+                }
+ 
+                SWITCH.getAlias(wwnlist, function(result) { 
+                    console.log(result);
+                    for ( var i in hbalist ) {
+                        var item = hbalist[i];
+                        item['alias'] = '';
+                        for (var j in result ) {
+                            var aliasItem = result[j];
+                            console.log(aliasItem.toString() );
+                            if ( aliasItem.zmemid == item.wwn ) {
+                                item.alias = aliasItem.alias;
+                            }
+                        }
+                    }
+
+
+                    callback(null,host);
+              });
+            },
+ 
+            function(host,  callback){ 
+
+                console.log(host);
+                HostObj.findOne({"baseinfo.name" : host.baseinfo.name}, function (err, doc) {
+                    //system error.
+                    if (err) {
+                        return   done(err);
+                    }
+                    if (!doc) { //user doesn't exist.
+                        console.log("host is not exist. insert it."); 
+
+                        var newhost = new HostObj(host);
+                        console.log('Test1');
+                        newhost.save(function(err, thor) {
+                         console.log('Test2');
+                         if (err)  { 
+                            return res.json(400 , err);
+                          } else 
+                            callback(null,{status: "The Host has inserted."})
+                            //return res.json(200, );
+                        });
+                    }
+                    else { 
+                        doc.update(host, function(error, course) {
+                            if(error) return next(error);
+                        });
+
+                        callback(null,{status: "The Host has exist! Update it."}) ;
+
+                    }
+
                 });
+                       
+                    
+            },
+            function(param,  callback){ 
+                  callback(null,param);
             }
-            else { 
-                doc.update(host, function(error, course) {
-                    if(error) return next(error);
-                });
+        ], function (err, result) {
+              res.json(200, result);
+        }
+        );
 
 
-                return  res.json(200 , {status: "The Host has exist! Update it."});
-            }
 
-        });
+
 
     });
 
@@ -417,8 +547,91 @@ var hostController = function (app) {
     app.post('/api/hba', function (req, res) {
 
         var hbalist = req.body;
-        console.log(hbalist);
-        return  res.json(200 , {status: "the records has updated."});
+
+        var hostlist = [];
+        for ( var i in hbalist ) {
+            var hbaItem = hbalist[i];
+            var hosthbaItem = {};
+            hosthbaItem['name'] = '';
+            hosthbaItem['wwn'] = hbaItem.HBAWWN;
+            hosthbaItem['alias'] = hbaItem.ALIAS;
+            hosthbaItem['AB'] = 'A';
+
+            var hostname = hbaItem.HOSTNAME; 
+            var isfind = false;
+            for ( var j in hostlist ) {
+                var hostItem = hostlist[j];
+                if ( hostItem.baseinfo.name == hostname ) {
+                    isfind = true;
+                    hostItem.HBAs.push(hosthbaItem);
+                    break;
+                }
+            }
+            if ( !isfind ) {
+                var hostItem = {};
+                var baseinfo = {};
+                baseinfo['name'] = hostname;
+                hostItem['baseinfo'] = baseinfo;
+                hostItem['HBAs'] = [];
+                hostItem.HBAs.push(hosthbaItem);
+
+                hostlist.push(hostItem);
+            }
+
+
+            
+        }
+        console.log(hostlist);
+
+        async.forEach(hostlist, function(host) {
+            console.log("doing the host :" + host.baseinfo.name);
+
+                HostObj.findOne({"baseinfo.name" : host.baseinfo.name}, function (err, doc) {
+                    //system error.
+                    if (err) {
+                        return   done(err);
+                    }
+                    if (!doc) { //user doesn't exist.
+                        console.log("host ["+host.baseinfo.name + "] is not exist. insert it."); 
+
+                        var newhost = new HostObj(host); 
+                        newhost.save(function(err, thor) { 
+                         if (err)  { 
+                            return res.json(400 , err);
+                          } else 
+                            res.json(200,{status: "The Host ["+host.baseinfo.name + "] has inserted."})
+                            //return res.json(200, );
+                        });
+                    }
+                    else { 
+
+                        // Append the hba list 
+                        // 
+                        console.log(doc);
+                        var HBAList = Array.prototype.slice.call(doc.HBAs);
+
+                        var newhbalist = HBAList.concat(host.HBAs);
+                        host.HBAs=newhbalist; 
+ 
+                         console.log(host.HBAs);
+                        doc.update(host, function(error, course) {
+                            if(error) return next(error);
+                        });
+
+                        res.json(200,{status: "The Host ["+host.baseinfo.name + "] has exist! Update it."}) ;
+
+                    }
+
+                });
+
+
+        })
+
+
+
+
+        return res.json(200,hostlist);
+        //return  res.json(200 , {status: "the records has updated."});
     });
 
 
