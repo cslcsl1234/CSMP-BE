@@ -126,7 +126,7 @@ var switchController = function (app) {
                             var resultJson = JSON.parse(response.body).values; 
                             for ( var i in param.result ) {
                                 var swItem = param.result[i];
-                                console.log(swItem);
+                                //console.log(swItem);
                                 var isfind = false;
                                 for ( var j in resultJson ) {
                                     var item = resultJson[j];
@@ -692,14 +692,14 @@ function GetSwitchInfo(callback) {
                         var item = param.result[i];
                         item['info'] = {}; 
                         var switchsn = item.device;
-                        console.log("Begin get switch info : " + switchsn);
+                        //console.log("Begin get switch info : " + switchsn);
                         for ( var j in result ) {
                             var infoItem = result[j]; 
                             if ( infoItem.basicInfo.device == switchsn ) { 
                                 var unitID = infoItem.basicInfo.UnitID; 
                                 for ( var z in locations ) { 
                                     if ( unitID == locations[z].UnitID ) {
-                                        console.log(locations[z].Location);
+                                        //console.log(locations[z].Location);
                                         item['localtion'] = locations[z].Location;
                                         break;
                                     }
@@ -720,7 +720,7 @@ function GetSwitchInfo(callback) {
            // result now equals 'done'
            //res.json(200, result.result); 
             var returnData = result.result[0] ;
-            console.log(returnData);
+            //console.log(returnData);
             var finalResult = []; 
             var item = {};
             // Combine the UI element for VMAX Basic Info page.
