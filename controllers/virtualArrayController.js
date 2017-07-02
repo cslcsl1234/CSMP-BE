@@ -43,10 +43,20 @@ var virtualArrayController = function (app) {
 
    app.get('/api/virtualarrays', function (req, res) { 
         var device = req.query.device;
-
+        var datacenter = req.query.datacenter;
 
 		VPLEX.GetArrays(device, function(ret) {
-		    res.json(200,ret);
+            var result = [];
+            if ( datacenter !== undefined ) {
+                for ( var i in ret ) {
+                    var item = ret[i];
+                    if ( item.datacenter == datacenter ) {
+                        result.push(item);
+                    }
+                }
+            } else 
+                result = ret;
+		    res.json(200,result);
 		}) 
     });
 

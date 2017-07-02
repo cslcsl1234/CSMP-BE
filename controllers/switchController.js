@@ -39,18 +39,9 @@ var switchController = function (app) {
  
     app.get('/api/switchs', function (req, res) {
   
-
-
+        var datacenter = req.query.datacenter;
         var deviceid = req.query.device;
-
-
-
-	if ( config.ProductType == 'demo' ) {
-                res.json(200,demo_switchs);
-                return;
-        } ;
-
-
+ 
         var param = {};
         param['filter_name'] = 'name=\'Availability\'';
         param['keys'] = ['device'];
@@ -90,16 +81,19 @@ var switchController = function (app) {
                    for ( var i in param.result ) {      
                         var item = param.result[i];
                         item['info'] = {}; 
+                        item['localtion'] = "";
+                        item['datacenter'] = "undefine";                        
                         var switchsn = item.device;
-                        console.log("Begin get switch info : " + switchsn);
+                        //console.log("Begin get switch info : " + switchsn);
                         for ( var j in result ) {
                             var infoItem = result[j]; 
                             if ( infoItem.basicInfo.device == switchsn ) { 
                                 var unitID = infoItem.basicInfo.UnitID; 
                                 for ( var z in locations ) { 
                                     if ( unitID == locations[z].UnitID ) {
-                                        console.log(locations[z].Location);
+                                        //console.log(locations[z].Location);
                                         item['localtion'] = locations[z].Location;
+                                        item['datacenter'] = locations[z].datacenter;
                                         break;
                                     }
                                 }
@@ -113,7 +107,45 @@ var switchController = function (app) {
     
              });
 
-            } 
+            } ,
+
+            // get customize info
+            function(param,  callback){ 
+
+                var fields = 'part,psname,pswwn,device,deviceid,fabwwn,lswwn,lsname';
+                var filter = 'parttype==\'Fabric\'|parttype==\'VSAN\'';
+
+                var fabricResult = [];
+                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
+                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+                        .headers({'Content-Type': 'multipart/form-data'}) 
+                        .query({'fields': fields , 'filter':  filter }) 
+                        .end(function (response) {
+
+                            //console.log(response.body);
+                            var resultJson = JSON.parse(response.body).values; 
+                            for ( var i in param.result ) {
+                                var swItem = param.result[i];
+                                console.log(swItem);
+                                var isfind = false;
+                                for ( var j in resultJson ) {
+                                    var item = resultJson[j];
+                                    if ( swItem.device == item.device ) {
+                                        swItem['lsname'] = item.lsname;
+                                        isfind = true;
+                                    }
+                                }
+                                if ( !isfind ) {
+                                    swItem['lsname'] = swItem.device;
+                                }
+                            }
+
+                            callback(null,param);
+
+                        });
+
+
+            }              
 
          ], function (err, result) {
            // result now equals 'done'
@@ -121,7 +153,18 @@ var switchController = function (app) {
             if (typeof deviceid !== 'undefined') { 
                 res.json(200, result.result[0]); 
             } else {
-                res.json(200, result.result); 
+                var ret = [];
+                if ( datacenter !== undefined ) {
+                    for ( var i in result.result) {
+                        var item = result.result[i];
+                        if ( item.datacenter == datacenter ) {
+                            ret.push(item);
+                        }
+                    }
+                } else {
+                    ret = result.result;
+                }
+                res.json(200, ret ); 
             } 
 
         });

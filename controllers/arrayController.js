@@ -85,7 +85,7 @@ var arrayController = function (app) {
         var datacenter = req.query.datacenter;
 
         if ( datacenter !== undefined) {
-            VMAX.GetArraysByDatacenter(device, function(ret) {
+            VMAX.GetArraysByDatacenter(datacenter, function(ret) {
                 res.json(200,ret);
             })
 

@@ -18,6 +18,7 @@ var getTopos = require('../lib/topos');
 var async = require('async');
 var mongoose = require('mongoose'); 
 var EquipmentInfo = mongoose.model('Array');
+var SwitchObj = mongoose.model('Switch');
 var Datacenter = mongoose.model('Datacenter');
 
 var dashboard_demo = require('../demodata/Dashboard'); 
@@ -36,13 +37,6 @@ var dashboardController = function (app) {
  
     app.get('/api/dashboard/EquipmentSummary', function (req, res) {
  
-
-    	    if ( config.ProductType == 'demo' ) {
-                    res.json(200,dashboard_demo);
-                    return;
-            } ;
-
-
             var param = {};
             //param['filter_name'] = 'name=\'Availability\'';
             param['keys'] = ['device'];
@@ -77,11 +71,13 @@ var dashboardController = function (app) {
 
                     },
 
-                    function(arg1,  callback){  
-
+                    function(arg1,  callback){   
                         GetEquipmentInfo(function(equipmentInfo) {
  
                             var equipmentAllList = finalResult.equipmentList;
+
+                            console.log(equipmentInfo);
+
                             for ( var j in equipmentAllList ) {
                                 var item = equipmentAllList[j];
 
@@ -119,6 +115,7 @@ var dashboardController = function (app) {
 
                     },
                     function(arg1,  callback){ 
+
                         var finalResult = {};
 
                         var devsByDC = [];
@@ -128,9 +125,7 @@ var dashboardController = function (app) {
 
                             var isFind = false;
                             for ( var j in devsByDC ) {
-                                var devByDCItem = devsByDC[j];
-                                console.log(devItem.localtion);
-                                console.log(devItem);
+                                var devByDCItem = devsByDC[j]; 
                                 if ( devItem.localtion.datacenter == devByDCItem.datacenter ) {
 
                                     isFind = true;
@@ -217,20 +212,46 @@ var dashboardController = function (app) {
 
 function GetEquipmentInfo(callback) {
 
-        EquipmentInfo.find({}, {"_id":0, "__v":0},function (err, doc) {
-            //system error.
-            if (err) {
-                return   done(err);
-            }
-            if (!doc) { //user doesn't exist.
-                callback([]);
-            }
-            else { 
-                callback(doc); 
-            }
+    var result = [];
+    async.waterfall([
+            function(callback){ 
 
-        });
+                EquipmentInfo.find({}, {"_id":0, "__v":0},function (err, doc) {
+                    //system error.
+                    if (err) {
+                        return   done(err);
+                    }
+                    if (!doc) { //user doesn't exist.
+                        callback(null,[]);
+                    }
+                    else { 
+                        result = result.concat(doc);
+                        callback(null,result); 
+                    }
 
+                });
+            },
+             function(arg1, callback){  
+                SwitchObj.find({}, {"_id":0, "__v":0},function (err, doc) {
+                    //system error.
+                    if (err) {
+                        return   done(err);
+                    }
+                    if (!doc) { //user doesn't exist.
+                        callback(null,[]);
+                    }
+                    else { 
+                        result = result.concat(doc);
+                        callback(null,result); 
+                    }
+
+                });  
+             }
+         ], function (err, result) {
+               // result now equals 'done'
+               console.log(result);
+               callback(result);
+         });
 
 };
 
