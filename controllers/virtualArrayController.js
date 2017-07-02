@@ -788,8 +788,8 @@ var virtualArrayController = function (app) {
         var start = util.getPerfStartTime();
         var end = util.getPerfEndTime();  
 
- 
-        VMAX.getArrayLunGroupPerformance(deviceArray, vvolList , start, end , function(finalResult) {
+        var interval = 'days';
+        VMAX.getArrayLunGroupPerformance(deviceArray, vvolList , start, end , interval, function(finalResult) {
 
                 // ---------- the part of table ---------------
                 var tableHeader = [];
@@ -901,8 +901,8 @@ var virtualArrayController = function (app) {
         }
 
         console.log(deviceArray+"|" + vvolList);
-
-        VMAX.getArrayLunGroupPerformance(deviceArray, vvolList , perfStartDate, perfEndDate , function(finalResult) {
+        var interval = 'hours';
+        VMAX.getArrayLunGroupPerformance(deviceArray, vvolList , perfStartDate, perfEndDate , interval, function(finalResult) {
 
             res.json(200, finalResult);
         }); 
@@ -1005,7 +1005,7 @@ var virtualArrayController = function (app) {
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "最大速率(Gbits/s)";
-                tableHeaderItem["value"] = "maxspeed";
+                tableHeaderItem["value"] = "ifspeed";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 

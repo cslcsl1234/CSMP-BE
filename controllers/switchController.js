@@ -472,6 +472,7 @@ function GetSwitchInfo(callback) {
                 });
                   
             },
+
             // Get All Localtion Records
             function(param,  callback){ 
 
@@ -536,7 +537,7 @@ function GetSwitchInfo(callback) {
 
             },
             function(zoneResult, callback){
-                var fields = 'part,psname';
+                var fields = 'part,psname,device,lsname';
                 var filter = 'pswwn=\''+fabwwn+'\'&parttype==\'Fabric\'|parttype==\'VSAN\'';
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
                         .auth(config.Backend.USER, config.Backend.PASSWORD, true)
@@ -549,11 +550,31 @@ function GetSwitchInfo(callback) {
                             for ( var i in zoneResult ) {
                                 var item = zoneResult[i];
                                 item["fabricname"] = resultJson[0].psname;
+
+                                var zonemembers = item.zonemembers;
+                                for ( var j in zonemembers ) {
+                                    var zoneitem = zonemembers[j];
+                                    for ( var z in resultJson ) {
+                                        var switem = resultJson[z];
+                                        if ( zoneitem.switch == switem.device ) {
+                                            var switchid = zoneitem.switch;
+                                            zoneitem["switch"] = switem.lsname;
+                                            zoneitem["switch_oriname"] = switchid;
+                                        }
+                                    }
+                                    
+                                }
+
                             }
+
+
+                            
+
+
                             callback(null,zoneResult);
                         });
                   
-            },    
+            },               
             function(arg1,  callback){ 
 
                 var param = {}; 

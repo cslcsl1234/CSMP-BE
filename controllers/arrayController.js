@@ -763,7 +763,13 @@ var arrayController = function (app) {
                 tableHeaderItem["value"] = "metaconf";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem); 
-   
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "StorageGroup";
+                tableHeaderItem["value"] = "sgname";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem); 
+      
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "容量(GB)";
                 tableHeaderItem["value"] = "Capacity";
@@ -863,7 +869,7 @@ var arrayController = function (app) {
             }
 
         var param = {};
-        param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\')';
+        param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'SubscribedCapacity\')';
         param['keys'] = ['device','part'];
         param['fields'] = ['dgtype','partstat','poolemul','dgraid','raidtype','iscmpenb','disktype'];
 
@@ -920,7 +926,14 @@ var arrayController = function (app) {
                 tableHeader.push(tableHeaderItem); 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "已用容量(GB)";
+                tableHeaderItem["name"] = "已分配容量(GB)";
+                tableHeaderItem["value"] = "SubscribedCapacity";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+ 
+                
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "已使用容量(GB)";
                 tableHeaderItem["value"] = "UsedCapacity";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -1156,9 +1169,98 @@ var arrayController = function (app) {
 
     });
     
-
-
     app.get('/api/array/hosts', function (req, res) {
+
+ 
+        var device = req.query.device; 
+        var finalRecord = [];
+        async.waterfall(
+
+        [
+
+            function(callback){ 
+                VMAX.GetDevices(device,function(result) { 
+
+                    callback(null,result);
+                                      
+                }); 
+
+            }, 
+            // Restruct to devices to by host .
+            function(param,  callback){  
+ 
+                var storagegroups=[];
+                for ( var i in param ) {
+                    var item = param[i];
+                    if ( item.ismasked == "0" )  continue;
+
+                    //item.Availability = ( Math.random() * 100 );
+                    var ResponseTime = 0; 
+                    for ( var z in item.perf ) {
+                        var perfitem = item.perf[z]; 
+                        if ( perfitem.ReadResponseTime !== undefined ) {
+                            ResponseTime = ResponseTime + Math.floor(perfitem.max);
+                        } else  if ( perfitem.WriteResponseTime !== undefined ) {
+                            ResponseTime = ResponseTime + Math.floor(perfitem.max);
+                        }
+                    }
+
+                    //console.log(item.part + "--------------------------"+ResponseTime);
+                    if ( ResponseTime > 100 ) {
+                        item.Availability = 100;
+                    } else {
+                        item.Availability = ResponseTime;
+                    }
+
+                    var isFind = false;
+                    for ( var j in storagegroups ) {
+                        var sgitem = storagegroups[j];
+                        if ( sgitem.host_name == item.sgname ) {
+                            sgitem.Devices.push(item);
+                            isFind = true;
+                            break;                        
+                        }
+                    }
+                    if ( !isFind ) {
+                        var newhostItem = {};
+                        newhostItem["app_name"] = '';
+                        newhostItem["host_name"] = item.sgname;
+                        newhostItem["host_type"] = '';
+                        newhostItem["host_status"] = '';
+                        newhostItem["host_ip"] = '';
+                        newhostItem["host_os"] = '';
+                        newhostItem["host_osversion"] = '';
+                        newhostItem["Devices"] = [];  
+                        newhostItem.Devices.push(item);    
+                        storagegroups.push(newhostItem);                        
+                    }
+
+
+
+                    
+ 
+                    callback(null,storagegroups);
+                }
+
+            },
+
+            function(param,  callback){  
+
+                  callback(null,param);
+
+            }
+
+        ], function (err, result) {
+
+              // result now equals 'done'
+
+              res.json(200,result);
+
+        });
+    });
+
+
+    app.get('/api/array/hosts_old', function (req, res) {
 
  
         var device = req.query.device; 
@@ -1183,7 +1285,23 @@ var arrayController = function (app) {
                     var item = param[i];
                     if ( item.ismasked == "0" )  continue;
 
-                    item.Availability = ( Math.random() * 100 );
+                    //item.Availability = ( Math.random() * 100 );
+                    var ResponseTime = 0; 
+                    for ( var z in item.perf ) {
+                        var perfitem = item.perf[z]; 
+                        if ( perfitem.ReadResponseTime !== undefined ) {
+                            ResponseTime = ResponseTime + Math.floor(perfitem.max);
+                        } else  if ( perfitem.WriteResponseTime !== undefined ) {
+                            ResponseTime = ResponseTime + Math.floor(perfitem.max);
+                        }
+                    }
+
+                    //console.log(item.part + "--------------------------"+ResponseTime);
+                    if ( ResponseTime > 100 ) {
+                        item.Availability = 100;
+                    } else {
+                        item.Availability = ResponseTime;
+                    }
 
                     for ( var j in item.hostinfo ) {
                         var hostItem = item.hostinfo[j];
@@ -1875,8 +1993,16 @@ var arrayController = function (app) {
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
     
-          
+                VMAX.GetDevices(device,function(result) { 
+
+                    res.json(200,result);
+                                      
+                }); 
+
         //VMAX.getArrayLunPerformance(device,function(result) {
+        //
+        //
+        /*
         var inits = [];
         var init="5000144290592910";
         inits.push(init);
@@ -1886,7 +2012,7 @@ var arrayController = function (app) {
         VMAX.GetAssignedLUNByInitiator(inits,function(result) {
              res.json(200,result);
         })
-        
+        */
 
     } ) ;
 
