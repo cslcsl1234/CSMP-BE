@@ -9,8 +9,7 @@
 const debug = require('debug')('switchController')  
 const name = 'switch'  
 var unirest = require('unirest');
-var configger = require('../config/configger');
-var RecordFlat = require('../lib/RecordFlat');
+var configger = require('../config/configger'); 
 var util = require('../lib/util');
 var CallGet = require('../lib/CallGet'); 
 var getTopos = require('../lib/topos'); 
@@ -55,15 +54,14 @@ var switchController = function (app) {
 
 
         async.waterfall([
-            function(callback){ 
-
+            function(callback){  
                     CallGet.CallGet(param, function(param) { 
                         callback(null,param);
                     }); 
             }, 
             // Get All Localtion Records
             function(param,  callback){  
-
+ 
                 util.GetLocaltion(function(locations) { 
                     param['Locations']= locations;
                     callback(null,param);
