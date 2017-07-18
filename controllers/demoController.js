@@ -7,6 +7,7 @@
  * @param app
  */
 var DEMOS = require('../demodata/demos');
+var DEMOS_TEMPLATE = require('../config/FunctionDefine_DEMOS');
 
 var demoController = function (app) {
     /**
@@ -23,6 +24,11 @@ var demoController = function (app) {
     });
 
     app.get('/api/demos', function (req, res) {
+        res.json(200, DEMOS);
+    });
+
+    app.get('/api/demos/host', function (req, res) {
+
         res.json(200, DEMOS);
     });
 

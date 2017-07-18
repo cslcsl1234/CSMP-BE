@@ -1048,14 +1048,138 @@ var virtualArrayController = function (app) {
 
  });
 
+
+    app.get('/api/vplex/directors', function (req, res) { 
+        var device = req.query.device;
+
+        if ( device === undefined ) {
+            res.json(400, 'Must be special a device!')
+            return;
+        }
+
+
+        async.waterfall(
+        [
+            function(callback){
+                VPLEX.getVplexDirectors(device, function(ret) {  
+                    callback(null,ret);
+                });
+                  
+            },
+            // Get Relation 
+            function(param,  callback){ 
+
+                callback(null,param);
+
+            },
+            function(param,  callback){ 
+
+               var data = param;
+
+                var finalResult = {};
+
+                // ----- the part of perf datetime --------------
+                finalResult["startDate"] = util.getPerfStartTime();
+                finalResult["endDate"] = util.getPerfEndTime();          
+
+
+
+                // ---------- the part of table ---------------
+                var tableHeader = []; 
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Director名称";
+                tableHeaderItem["value"] = "part";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Director Model";
+                tableHeaderItem["value"] = "dirmodel";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Engine ID";
+                tableHeaderItem["value"] = "engineid";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "状态";
+                tableHeaderItem["value"] = "health";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+
+                // ---------- the part of table event ---------------
+                var tableEvent = {}; 
+                var tableEventParam = [];
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'part';
+                tableEventParamItem["postName"] = 'part';
+                tableEventParam.push(tableEventParamItem);
+
+
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'device';
+                tableEventParamItem["postName"] = 'device';
+                tableEventParam.push(tableEventParamItem);
+
+
+                tableEvent["event"] = "appendArea";
+                tableEvent["param"] = tableEventParam;
+                tableEvent["url"] = "/vplex/director_detail/perf";  
+
+
+
+
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableEvent"] = tableEvent;
+                finalResult["tableBody"] = data;
+
+                callback(null,finalResult);
+                  
+            }
+        ], function (err, result) {
+              // result now equals 'done'
+               res.json(200, result);
+        });
+
+ });
+
+
+     app.get('/api/vplex/director_detail/perf', function ( req, res )  {
+        var device = req.query.device;  
+        var part = req.query.part;  
+        var start = req.query.startDate;
+        var end = req.query.endDate;
+        VPLEX.getDirectorPerformance(device,part,start, end , function(result) {   
+         
+            //var result1 = VMAX.convertPerformanceStruct(result);
+            res.json(200,result);
+          });
+        
+
+    } ) ;
+
+
+
 // -------------------------------------- END ------------------------------------
 
 
  
 
      app.get('/api/vplex/test', function ( req, res )  {
-        var device = req.query.device; 
-        VPLEX.getVplexFEPort(device,function(locations) {  
+        var device = 'CKM00133904692'; 
+        var endDate = '2017-07-18T09:20:03+08:00';
+        var part = 'director-1-1-B';
+        var startDate = '2017-06-18T09:20:03+08:00';
+ 
+        VPLEX.getDirectorPerformance(device, part, startDate, endDate ,function(locations) {  
             res.json(200,locations);
                                                          
         }); 

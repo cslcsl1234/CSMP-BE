@@ -49,9 +49,9 @@
     },
     {
         "hasDetail": false,
-        "tabName": "前端口",
-        "template": 3,
-        "url": "/vplex/feport",
+        "tabName": "Director",
+        "template": 10,
+        "url": "/vplex/directors",
         "param": [
             {
                 "postName": "device",
