@@ -18,3 +18,4 @@
 { "_id" : { "$oid" : "5958f5a2bc8350a21600000d" }, "menuId" : "userManagement.report", "parentMenuId" : "userManagement", "title" : "报表管理", "level" : 1, "order" : 5, "icon" : "ion-android-home", "stateRef" : "dashboard.sysManage.report", "__v" : 0 }
 { "_id" : { "$oid" : "5958f5e6bc8350a21600000e" }, "menuId" : "reportManage", "parentMenuId" : "#", "title" : "报表", "level" : 0, "order" : 7, "icon" : "ion-grid", "stateRef" : "dashboard.reportManage", "__v" : 0 }
 { "_id" : { "$oid" : "5958f606bc8350a21600000f" }, "menuId" : "reportManage.page", "parentMenuId" : "reportManage", "title" : "报表列表", "level" : 1, "order" : 1, "icon" : "ion-grid", "stateRef" : "dashboard.reportManage.page", "__v" : 0 }
+{ "_id" : { "$oid" : "596c32c07217b15e16000006" }, "menuId" : "测试功能", "parentMenuId" : "#", "title" : "demos", "level" : 0, "order" : 101, "icon" : "ion-android-home", "stateRef" : "dashboard.demos", "__v" : 0 }
