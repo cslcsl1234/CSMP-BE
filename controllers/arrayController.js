@@ -29,12 +29,7 @@ var GetEvents = require('../lib/GetEvents');
 var VMAX = require('../lib/Array_VMAX');
 var host = require('../lib/Host');
 
-var testjson = require('../demodata/test');
-var template4 = require('../demodata/template4');
-var template5 = require('../demodata/template5');
-var template6 = require('../demodata/template6');
-var template7 = require('../demodata/template7');
-var template9 = require('../demodata/template9');
+var testjson = require('../demodata/test');  
 
 
 // ----------------------------------------
@@ -2016,38 +2011,7 @@ var arrayController = function (app) {
 
     } ) ;
 
-
-     app.get('/api/array/template4test', function ( req, res )  {
-            var device = req.query.device; 
-            var templateret = template4;
-            res.json(200,templateret);
-    } ) ;
-
-     app.get('/api/array/template5test', function ( req, res )  {
-            var device = req.query.device; 
-            var templateret = template5;
-            res.json(200,templateret);
-    } ) ;
-
-     app.get('/api/array/template6test', function ( req, res )  {
-            var device = req.query.device; 
-            var templateret = template6;
-            res.json(200,templateret);
-    } ) ;
-
-     app.get('/api/array/template9test', function ( req, res )  {
-            var device = req.query.device; 
-            var templateret = template9;
-            res.json(200,templateret);
-    } ) ;
-
-
-     app.get('/api/array/template7test', function ( req, res )  {
-            var device = req.query.device; 
-            var templateret = template7;
-            res.json(200,templateret);
-    } ) ;
-
+ 
 
 
      app.get('/api/array/test1', function ( req, res )  {

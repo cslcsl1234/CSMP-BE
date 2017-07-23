@@ -1,0 +1,35 @@
+{
+    "chartType":"pie",
+    "chartData": [
+        {
+            "name": "a1",    
+            "value": 505.9
+        },
+        {
+            "name": "a2",
+            "value": 200
+        }
+    ],
+    "tableBody": [
+        {
+            "number": "000296800706",
+            "type": "block"
+        },
+        {
+            "number": "000296800707",
+            "type": "vmax"
+        }
+    ],
+    "tableHead": [
+        {
+            "name": "编号",
+            "value": "number",
+            "sort": "true"
+        },
+        {
+            "name": "类型",
+            "value": "type",
+            "sort": "false"
+        }
+    ]
+}

@@ -36,6 +36,37 @@
             ]
         }
     ],
-    "endDate": "2017-01-01T01:01:01+08:00",
-    "startDate": "2017-01-01T01:01:01+08:00"
+    "tableBody": [
+        {
+            "number": "000296800706",
+            "type": "block"
+        },
+        {
+            "number": "000296800707",
+            "type": "vmax"
+        }
+    ],
+    "tableEvent": {
+        "event": "updateChart",
+        "param": [
+            {
+                "findName": "device", 
+                "postName": "device"
+            }
+        ],
+        "rowSelect": "multy",
+        "url": "/arrays"
+    },
+    "tableHead": [
+        {
+            "name": "编号",
+            "sort": "true",
+            "value": "number"
+        },
+        {
+            "name": "类型",
+            "sort": "false",
+            "value": "type"
+        }
+    ]
 }

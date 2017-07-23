@@ -1,0 +1,39 @@
+{
+    "charts": [
+        {
+            "category": "name",
+            "chartData": [
+                {
+                    "expenses": 21.1,
+                    "income": 23.5,
+                    "name": 2009
+                },
+                {
+                    "expenses": 30.5,
+                    "income": 26.2,
+                    "name": 2010
+                }
+            ]
+        },
+        {
+            "category": "name",
+            "chartData": [
+                {
+                    "expenses": 31.1,
+                    "income": 29.5,
+                    "name": 2012
+                },
+                {
+                    "expenses": 28.2,
+                    "income": 30.6,
+                    "name": 2013
+                },
+                {
+                    "expenses": 28.2,
+                    "income": 30.6,
+                    "name": 2015
+                }
+            ]
+        }
+    ]
+}

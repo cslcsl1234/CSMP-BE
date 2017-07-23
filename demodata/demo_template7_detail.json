@@ -1,0 +1,108 @@
+{
+  "tableData": [
+    {
+      "tableHead": [
+        {
+          "name": "名称",
+          "value": "part",
+          "sort": "true"
+        },
+        {
+          "name": "Thin?",
+          "value": "dgstype",
+          "sort": "true"
+        },
+        {
+          "name": "用途",
+          "value": "purpose",
+          "sort": "true"
+        },
+        {
+          "name": "类型",
+          "value": "config",
+          "sort": "true"
+        },
+        {
+          "name": "Pool",
+          "value": "poolname",
+          "sort": "true"
+        },
+        {
+          "name": "容量(GB)",
+          "value": "Capacity",
+          "sort": "true"
+        }
+      ],
+      "tableBody": [
+        {
+          "ismasked": "1",
+          "poolname": "VP_SSD_R57_2",
+          "sgname": "SG_VM_TEST_OA|SG_VPLEX_2_Cascaded",
+          "purpose": "Primary",
+          "partsn": "60000970000298700703533030453032",
+          "part": "0E03",
+          "dgstype": "Thin",
+          "name": "Availability",
+          "poolemul": "FBA",
+          "device": "000298700703",
+          "config": "TDEV",
+          "Availability": "100.0",
+          "LastTS": "1499904000",
+          "Capacity": "167.5",
+          "ConsumedCapacity": "77.3865"
+        },
+        {
+          "ismasked": "1",
+          "poolname": "VP_SSD_R57_2",
+          "sgname": "SG_VM_TEST_OA|SG_VPLEX_2_Cascaded",
+          "purpose": "Primary",
+          "partsn": "60000970000298700703533030453032",
+          "part": "0E04",
+          "dgstype": "Thin",
+          "name": "Availability",
+          "poolemul": "FBA",
+          "device": "000298700703",
+          "config": "TDEV",
+          "Availability": "100.0",
+          "LastTS": "1499904000",
+          "Capacity": "167.5",
+          "ConsumedCapacity": "77.2969"
+        },
+        {
+          "ismasked": "1",
+          "poolname": "VP_SSD_R57_2",
+          "sgname": "SG_VM_TEST_OA|SG_VPLEX_2_Cascaded",
+          "purpose": "Primary",
+          "partsn": "60000970000298700703533030453032",
+          "part": "0E05",
+          "dgstype": "Thin",
+          "name": "Availability",
+          "poolemul": "FBA",
+          "device": "000298700703",
+          "config": "TDEV",
+          "Availability": "100.0",
+          "LastTS": "1499904000",
+          "Capacity": "167.5",
+          "ConsumedCapacity": "77.1811"
+        },
+        {
+          "ismasked": "1",
+          "poolname": "VP_SSD_R57_2",
+          "sgname": "SG_VM_TEST_OA|SG_VPLEX_2_Cascaded",
+          "purpose": "Primary",
+          "partsn": "60000970000298700703533030453032",
+          "part": "0E02",
+          "dgstype": "Thin",
+          "name": "Availability",
+          "poolemul": "FBA",
+          "device": "000298700703",
+          "config": "TDEV",
+          "Availability": "100.0",
+          "LastTS": "1499904000",
+          "Capacity": "167.5",
+          "ConsumedCapacity": "308.922"
+        }
+      ]
+    }
+  ]
+}

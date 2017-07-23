@@ -1,0 +1,47 @@
+{
+    "startDate":"2017-01-01T01:01:01+08:00",
+    "endDate":"2018-01-01T01:01:01+08:00",
+    "chartData": [
+        {
+            "name": "a",
+            "value": 505.9
+        },
+        {
+            "name": "T",
+            "value": 50
+        }
+    ],
+    "chartType": "pie",
+    "tableBody": [
+        {
+            "number": "000296800706",
+            "type": "block"
+        },
+        {
+            "number": "000296800707",
+            "type": "vmax"
+        }
+    ],
+    "tableEvent": {
+        "event": "appendArea",
+        "param": [
+            {
+                "findName": "device",
+                "postName": "device"
+            }
+        ],
+        "url": "/demos/template10_detail"
+    },
+    "tableHead": [
+        {
+            "name": "编号",
+            "sort": "true",
+            "value": "number"
+        },
+        {
+            "name": "类型",
+            "sort": "false",
+            "value": "type"
+        }
+    ]
+}

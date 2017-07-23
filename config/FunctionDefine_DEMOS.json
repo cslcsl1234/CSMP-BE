@@ -1,146 +1,243 @@
 [
     {
         "hasDetail": false,
-        "tabName": "基本信息",
+        "tabName": "Template1",
         "template": 1,
-        "url": "/vmax/array",
+        "url": "/demos/template1",
         "param": [
             {
-                "postName": "device",
-                "findName": "device"
+                "postName": "host_name_param",
+                "findName": "host_name"
             }
         ]
     },
     {
         "hasDetail": false,
-        "tabName": "磁盘信息",
+        "tabName": "Template2",
         "template": 2,
-        "url": "/vmax/array/disks",
+        "url": "/demos/template2",
         "param": [
             {
-                "postName": "device",
-                "findName": "device"
+                "postName": "host_name_param",
+                "findName": "host_name"
             }
         ]
     },
     {
         "hasDetail": false,
-        "tabName": "LUN信息",
-        "template": 7,
-        "url": "/vmax/array/lunsV2",
-        "param": [
-            {
-                "postName": "device",
-                "findName": "device"
-            }
-        ]
-    },
-    {
-        "hasDetail": false,
-        "tabName": "Pool信息",
+        "tabName": "Template3",
         "template": 3,
-        "url": "/vmax/array/pools",
+        "url": "/demos/template3",
         "param": [
             {
-                "postName": "device",
-                "findName": "device"
+                "postName": "host_name_param",
+                "findName": "host_name"
             }
         ]
     },
     {
         "hasDetail": false,
-        "tabName": "Switch信息",
-        "template": 3,
-        "url": "/vmax/array/switchs",
-        "param": [
-            {
-                "postName": "device",
-                "findName": "device"
-            }
-        ]
-    },
-    {
-        "hasDetail": false,
-        "tabName": "template7test",
-        "template": 7,
-        "url": "/array/test",
-        "param": [
-            {
-                "postName": "device",
-                "findName": "device"
-            }
-        ]
-    },
-    {
-        "hasDetail": false,
-        "tabName": "template4test",
+        "tabName": "Template4",
         "template": 4,
-        "url": "/array/template4test",
+        "url": "/demos/template4",
         "param": [
             {
-                "postName": "device",
-                "findName": "device"
+                "postName": "host_name_param",
+                "findName": "host_name"
             }
         ]
     },
     {
         "hasDetail": false,
-        "tabName": "template5test",
+        "tabName": "Template5",
         "template": 5,
-        "url": "/array/template5test",
+        "url": "/demos/template5",
         "param": [
             {
-                "postName": "device",
-                "findName": "device"
+                "postName": "host_name_param",
+                "findName": "host_name"
             }
         ]
     },
     {
         "hasDetail": false,
-        "tabName": "template6test",
+        "tabName": "Template6",
         "template": 6,
-        "url": "/array/template6test",
+        "url": "/demos/template6",
         "param": [
             {
-                "postName": "device",
-                "findName": "device"
+                "postName": "host_name_param",
+                "findName": "host_name"
             }
         ]
     },
     {
         "hasDetail": false,
-        "tabName": "template9test",
-        "template": 9,
-        "url": "/array/template9test",
+        "tabName": "Template7",
+        "template": 7,
+        "url": "/demos/template7",
         "param": [
             {
-                "postName": "device",
-                "findName": "device"
+                "postName": "host_name_param",
+                "findName": "host_name"
             }
         ]
-    } ,
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Template8",
+        "template": 8,
+        "url": "/demos/template8",
+        "param": [
+            {
+                "postName": "host_name_param",
+                "findName": "host_name"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Template9",
+        "template": 9,
+        "url": "/demos/template9",
+        "param": [
+            {
+                "postName": "host_name_param",
+                "findName": "host_name"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Template10",
+        "template": 10,
+        "url": "/demos/template10",
+        "param": [
+            {
+                "postName": "host_name_param",
+                "findName": "host_name"
+            }
+        ]
+    },
     {
         "hasDetail": true,
         "tabDetail": [
-            {
-                "tabName": "第一个 ",
+            
+            { 
+                "tabName": "Template2",
                 "template": 2,
-                "url": "后台接口",
+                "url": "/demos/template2",
                 "param": [
                     {
-                        "postName": "device",
-                        "findName": "device"
+                        "postName": "host_name_param",
+                        "findName": "host_name"
+                    }
+                ]
+            },
+            { 
+                "tabName": "Template1",
+                "template": 1,
+                "url": "/demos/template1",
+                "param": [
+                    {
+                        "postName": "host_name_param",
+                        "findName": "host_name"
                     }
                 ]
             },
             {
-                "tabName": "第二个",
+                "hasDetail": false,
+                "tabName": "Template3",
                 "template": 3,
-                "url": "后台接口",
+                "url": "/demos/template3",
                 "param": [
                     {
-                        "postName": "device",
-                        "findName": "device"
+                        "postName": "host_name_param",
+                        "findName": "host_name"
+                    }
+                ]
+            },
+            {
+                "hasDetail": false,
+                "tabName": "Template4",
+                "template": 4,
+                "url": "/demos/template4",
+                "param": [
+                    {
+                        "postName": "host_name_param",
+                        "findName": "host_name"
+                    }
+                ]
+            },
+            {
+                "hasDetail": false,
+                "tabName": "Template5",
+                "template": 5,
+                "url": "/demos/template5",
+                "param": [
+                    {
+                        "postName": "host_name_param",
+                        "findName": "host_name"
+                    }
+                ]
+            },
+            {
+                "hasDetail": false,
+                "tabName": "Template6",
+                "template": 6,
+                "url": "/demos/template6",
+                "param": [
+                    {
+                        "postName": "host_name_param",
+                        "findName": "host_name"
+                    }
+                ]
+            },
+            {
+                "hasDetail": false,
+                "tabName": "Template7",
+                "template": 7,
+                "url": "/demos/template7",
+                "param": [
+                    {
+                        "postName": "host_name_param",
+                        "findName": "host_name"
+                    }
+                ]
+            },
+            {
+                "hasDetail": false,
+                "tabName": "Template8",
+                "template": 8,
+                "url": "/demos/template8",
+                "param": [
+                    {
+                        "postName": "host_name_param",
+                        "findName": "host_name"
+                    }
+                ]
+            },
+            {
+                "hasDetail": false,
+                "tabName": "Template9",
+                "template": 9,
+                "url": "/demos/template9",
+                "param": [
+                    {
+                        "postName": "host_name_param",
+                        "findName": "host_name"
+                    }
+                ]
+            },
+            {
+                "hasDetail": false,
+                "tabName": "Template10",
+                "template": 10,
+                "url": "/demos/template10",
+                "param": [
+                    {
+                        "postName": "host_name_param",
+                        "findName": "host_name"
                     }
                 ]
             }

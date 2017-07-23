@@ -3,15 +3,15 @@
         "event": "appendTable",
         "param": [
             {
-                "findName": "device",
-                "postName": "device"
+                "findName": "number",
+                "postName": "number"
             },
             {
-                "findName": "po",
-                "postName": "po1"
+                "findName": "type",
+                "postName": "type"
             }
         ],
-        "url": "/array"
+        "url": "/demos/template7_detail"
     },
     "tableData": [
         {

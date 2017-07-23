@@ -1,6 +1,6 @@
 [
   {
-    "app_name": "",
+    "应用名称": "",
     "host_name": "hostname1",
     "host_type": "",
     "host_status": "",
@@ -11,7 +11,7 @@
     "Capacity": 105.81842629999998
   },
   {
-    "app_name": "",
+    "应用名称": "",
     "host_name": "hostname2",
     "host_type": "",
     "host_status": "",

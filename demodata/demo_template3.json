@@ -1,0 +1,37 @@
+{
+    "tableBody": [
+        {
+            "number": "000296800706",
+            "type": "block"
+        },
+        {
+            "number": "000296800707",
+            "type": "vmax"
+        }
+    ],
+    "tableHead": [
+        { 
+            "cellType": "bar",
+            "name": "编号",
+            "sort": "true",
+            "style": {
+                "color": "red",
+                "param": [
+                    {
+                        "findName": "device",
+                        "postName": "device"
+                    }
+                ],
+                "size": "20",
+                "type": "a",
+                "url": "dashboard.objectManage.tabs.detail"
+            },
+            "value": "number" 
+        },
+        {
+            "name": "类型",
+            "value": "type",
+            "sort": "false"
+        }
+    ]
+}

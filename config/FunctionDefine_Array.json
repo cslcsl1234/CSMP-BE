@@ -60,66 +60,6 @@
         ]
     },
     {
-        "hasDetail": false,
-        "tabName": "template7test",
-        "template": 7,
-        "url": "/array/test",
-        "param": [
-            {
-                "postName": "device",
-                "findName": "device"
-            }
-        ]
-    },
-    {
-        "hasDetail": false,
-        "tabName": "template4test",
-        "template": 4,
-        "url": "/array/template4test",
-        "param": [
-            {
-                "postName": "device",
-                "findName": "device"
-            }
-        ]
-    },
-    {
-        "hasDetail": false,
-        "tabName": "template5test",
-        "template": 5,
-        "url": "/array/template5test",
-        "param": [
-            {
-                "postName": "device",
-                "findName": "device"
-            }
-        ]
-    },
-    {
-        "hasDetail": false,
-        "tabName": "template6test",
-        "template": 6,
-        "url": "/array/template6test",
-        "param": [
-            {
-                "postName": "device",
-                "findName": "device"
-            }
-        ]
-    },
-    {
-        "hasDetail": false,
-        "tabName": "template9test",
-        "template": 9,
-        "url": "/array/template9test",
-        "param": [
-            {
-                "postName": "device",
-                "findName": "device"
-            }
-        ]
-    } ,
-    {
         "hasDetail": true,
         "tabDetail": [
             {
