@@ -388,6 +388,32 @@ var reportingController = function (app) {
     } ) ;
 
 
+     app.post('/api/report/report01_listapi', function ( req, res )  { 
+
+        var list = [];
+ 
+        var item1 = {"Display" :"parm1","value": "parm1_value"};
+        var item2 = {"Display" :"parm2","value": "parm2_value"};
+        var item3 = {"Display" :"parm3","value": "parm3_value"};
+
+        list.push(item1);
+        list.push(item2);
+        list.push(item3);
+        
+        
+            res.json(200,list);
+ 
+    } ) ;
+
+     app.post('/api/report/reporttest01_api', function ( req, res )  { 
+
+        console.log(req.body);
+        
+        res.json(200,"OK");
+ 
+    } ) ;
+
+
 };
 
 module.exports = reportingController;
