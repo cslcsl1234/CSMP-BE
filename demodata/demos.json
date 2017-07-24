@@ -1,25 +1,87 @@
-[
-  {
-    "应用名称": "",
-    "host_name": "hostname1",
-    "host_type": "",
-    "host_status": "",
-    "host_ip": "",
-    "host_os": "",
-    "host_osversion": "",
-    "DeviceCount": 7,
-    "Capacity": 105.81842629999998
-  },
-  {
-    "应用名称": "",
-    "host_name": "hostname2",
-    "host_type": "",
-    "host_status": "",
-    "host_ip": "",
-    "host_os": "",
-    "host_osversion": "",
-    "DeviceCount": 7,
-    "Capacity": 105.81842629999998
-  }
-]
+{
+    "tableHead": [
+        {
+            "name": "应用名称",
+            "sort": "true",
+            "value": "app_name"
+        },
+        {
+            "name": "主机名称",
+            "sort": "false",
+            "value": "host_name"
+        },
+        {
+            "name": "主机类型",
+            "sort": "false",
+            "value": "host_type"
+        },
+        {
+            "name": "主机状态",
+            "sort": "false",
+            "value": "host_status"
+        },
+        {
+            "name": "主机IP",
+            "sort": "false",
+            "value": "host_ip"
+        },
+        {
+            "name": "操作系统",
+            "sort": "false",
+            "value": "host_os"
+        },
+        {
+            "name": "操作系统版本",
+            "sort": "false",
+            "value": "host_osversion"
+        },
+        {
+            "name": "分配设备数量",
+            "sort": "false",
+            "value": "DeviceCount"
+        },
+        {
+            "name": "分配容量(GB)",
+            "sort": "false",
+            "value": "Capacity"
+        }
+    ],
+    "tableBody": [
+        {
+            "app_name": "11111",
+            "host_name": "hostname1",
+            "host_type": "",
+            "host_status": "",
+            "host_ip": "",
+            "host_os": "",
+            "host_osversion": "",
+            "DeviceCount": 7,
+            "Capacity": 105.81842629999998 
+        },
+        {
+            "app_name": "22222",
+            "host_name": "hostname2",
+            "host_type": "",
+            "host_status": "",
+            "host_ip": "",
+            "host_os": "",
+            "host_osversion": "",
+            "DeviceCount": 7,
+            "Capacity": 105.81842629999998 
+        },
+        {
+            "app_name": "3333",
+            "host_name": "hostname3",
+            "host_type": "",
+            "host_status": "",
+            "host_ip": "",
+            "host_os": "",
+            "host_osversion": "",
+            "DeviceCount": 7,
+            "Capacity": 105.81842629999998 
+        }
+    ]
 
+}
+
+ 

@@ -18,13 +18,13 @@
                 "color": "red",
                 "param": [
                     {
-                        "findName": "device",
+                        "findName": "host_name",
                         "postName": "device"
                     }
                 ],
                 "size": "20",
                 "type": "a",
-                "url": "dashboard.objectManage.tabs.detail"
+                "url": "/menu/ObjectManage/demos"
             },
             "value": "number" 
         },
