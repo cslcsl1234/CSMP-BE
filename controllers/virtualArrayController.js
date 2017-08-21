@@ -805,6 +805,14 @@ var virtualArrayController = function (app) {
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "VPDID";
+                tableHeaderItem["value"] = "partsn";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "Raid类型";
                 tableHeaderItem["value"] = "dgraid";
