@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 /**
  * This controller is to demo the common APIs a project provides.
@@ -759,9 +759,11 @@ var virtualArrayController = function (app) {
         var viewresult = cache.get('vplex_storageview_result_'+viewname);
  
         if ( viewresult !== undefined && viewresult != null && viewresult != 'null' ) {
+ 
             res.json(200, viewresult);
             return;
         }
+
 
         var result = cache.get('vplex_storageview_result'); 
         var viewDetailData = result.tableBody;
@@ -772,7 +774,8 @@ var virtualArrayController = function (app) {
                 viewItem = item;
                 break;
             }
-        }
+        } 
+
 
         // get all of luns
         var vvols = viewItem.vvol;
@@ -795,7 +798,7 @@ var virtualArrayController = function (app) {
                 var tableHeader = [];
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "虚拟卷名称";
-                tableHeaderItem["value"] = "part";
+                tableHeaderItem["value"] = "part";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
@@ -811,6 +814,7 @@ var virtualArrayController = function (app) {
                 tableHeaderItem["value"] = "partsn";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
+
 
 
                 var tableHeaderItem = {};

@@ -12,13 +12,10 @@ var unirest = require('unirest');
 var configger = require('../config/configger');
 var unirest1 = require('unirest');
 var async = require('async');
- 
 var RecordFlat = require('../lib/RecordFlat');
 var util = require('../lib/util');
-
 var mongoose = require('mongoose');  
 var EventObj = mongoose.model('Event');
- 
 var CallGet = require('../lib/CallGet'); 
  
 var demo_events = require('../demodata/events');
@@ -47,21 +44,38 @@ var eventController = function (app) {
             eventParam['filter'] = '!acknowledged&active=\'1\'';
         } 
 
-        if ( startdt !== undefined ) {
-
-        }
 
 
         eventParam['filter'] = filter;
 
         //console.log(eventParam);
-        GetEvents.GetEvents(eventParam, function(result) {   
+        GetEvents.GetEvents(eventParam, function(result1) {   
 
+            var result = [];
+
+            // Filter event records for between start and end.
+            for ( var i in result1 ) {
+                var eventitem = result1[i];
+                if ( ( startdt !== undefined ) && ( enddt !== undefined )) {
+                    if ( eventitem.timestamp >= startdt && eventitem.timestamp <= enddt ) {
+ 
+                        result.push(eventitem);
+                    }
+                    else { 
+                        continue;
+                    }
+                } else {
+                    result.push(eventitem);
+                }
+            }
+ 
 
                  EventObj.find({}, function (err, doc) {
 
                     for ( var i in result ) {
                         var eventitem = result[i];
+
+                        
                         eventitem["customerSeverity"] = -1;
                         eventitem["state"] = '未处理';
                         eventitem["ProcessMethod"] = '';
