@@ -100,8 +100,6 @@ var topologyController = function (app) {
 
 
 
-
-
 };
 
 module.exports = topologyController;

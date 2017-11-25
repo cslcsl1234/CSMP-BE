@@ -27,6 +27,7 @@ var getTopos = require('../lib/topos.js');
 
 var GetEvents = require('../lib/GetEvents');
 var VMAX = require('../lib/Array_VMAX');
+var VNX = require('../lib/Array_VNX');
 var host = require('../lib/Host');
 
 var testjson = require('../demodata/test');  
@@ -78,18 +79,60 @@ var arrayController = function (app) {
    app.get('/api/arrays', function (req, res) { 
         var device = req.query.device;
         var datacenter = req.query.datacenter;
+ 
+        async.waterfall(
+        [
+            //
+            // Get VMAX Arrays List.
+            // 
+            function(callback){
+                var finalResult = [];
+                if ( datacenter !== undefined) {
+                    VMAX.GetArraysByDatacenter(datacenter, function(ret) {
+                        finalResult = finalResult.concat(ret);
+                        callback(null,finalResult);
 
-        if ( datacenter !== undefined) {
-            VMAX.GetArraysByDatacenter(datacenter, function(ret) {
-                res.json(200,ret);
-            })
+                    })
 
-        } else {
-                        
-            VMAX.GetArrays(device, function(ret) {
-                res.json(200,ret);
-            })        
-        }
+                } else {
+                                
+                    VMAX.GetArrays(device, function(ret) {
+                         finalResult = finalResult.concat(ret);
+                        callback(null,finalResult);
+                    })        
+                }
+
+                  
+            },
+            // Get VNX Arrays List.
+            function(finalResult,  callback){  
+                if ( datacenter !== undefined) {
+                    VNX.GetArraysByDatacenter(datacenter, function(ret) {
+
+                        finalResult = finalResult.concat(ret);
+                        callback(null,finalResult);
+                    })
+
+                } else {
+                                
+                    VNX.GetArrays(device, function(ret) {
+ 
+                        finalResult = finalResult.concat(ret);
+                        callback(null,finalResult);
+                   })        
+                }
+
+            },
+            function(param,  callback){ 
+                  callback(null,param);
+            }
+        ], function (err, ret) {
+              // result now equals 'done'
+              res.json(200,ret);
+        });
+
+
+
 
 
     });
@@ -109,8 +152,10 @@ var arrayController = function (app) {
 
         VMAX.GetArrays_VMAX(device, function(ret) {
 
+            console.log(ret);
             var finalResult = [];
             var returnData = ret[0];
+
             var item = {};
             // Combine the UI element for VMAX Basic Info page.
 
@@ -1975,9 +2020,18 @@ var arrayController = function (app) {
     });
 
 
+/*
+       VNX Array API
+ */
+     app.get('/api/vnx/array', function ( req, res )  {
+        var device = req.query.device; 
 
-
+        VNX.GetArrays(device, function(ret) {
  
+            res.json(200,ret);
+        })    
+    });
+
 
      app.get('/api/array/test', function ( req, res )  {
         var device = req.query.device; 
@@ -1988,7 +2042,7 @@ var arrayController = function (app) {
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
     
-                VMAX.GetDevices(device,function(result) { 
+                VMAX.GetArrays_VMAX (device,function(result) { 
 
                     res.json(200,result);
                                       

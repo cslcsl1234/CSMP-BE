@@ -15,6 +15,7 @@ var mongoose = require('mongoose');
 var MenuObj = mongoose.model('Menu');
 
 var FunctionDefine_Array = require("../config/FunctionDefine_Array");
+var FunctionDefine_VNX = require("../config/FunctionDefine_VNX");
 var FunctionDefine_Host = require("../config/FunctionDefine_Host");
 var FunctionDefine_VPLEX = require("../config/FunctionDefine_VPLEX");
 var FunctionDefine_Switch = require("../config/FunctionDefine_Switch");
@@ -146,10 +147,16 @@ var menuController = function (app) {
 
         switch ( arraytype.toUpperCase() ) {
             case "VMAX10K" :
+            case "VMAX40K" :
             case "VMAX100K" :
+            case "DMX4-6" :
+
                 res.json(200,FunctionDefine_Array);
                 break;
+            case "VNX5600" :
 
+                res.json(200,FunctionDefine_VNX);
+                break;
             default :
                 res.json(400,"尚不支持此种设备类型!");
         }

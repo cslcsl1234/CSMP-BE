@@ -1,0 +1,608 @@
+{
+	"variables": [],
+	"info": {
+		"name": "CSM-RESTAPI",
+		"_postman_id": "2b9db75a-cdbe-e09b-228b-abd07e79b978",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "LOGIN",
+			"request": {
+				"url": "http://csmpserver:8080/api/login",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "password",
+							"value": "password",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "POST User",
+			"request": {
+				"url": "http://192.168.56.20:8080/api/admin/user",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "authKey",
+						"value": "1b592a98-de6a-4dbe-94a9-a45d76f4897e",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"username\":\"gzb3\", \"password\":\"password\", \"email\":\"email3@e.com\", \"role\":\"user\" }"
+				},
+				"description": "Create a User ( need a admin role )"
+			},
+			"response": []
+		},
+		{
+			"name": "POST User copy",
+			"request": {
+				"url": "http://192.168.1.15:8080/api/pools",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "b6c55800-5b22-4be4-a34b-78db09c03015",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": "Create a User ( need a admin role )"
+			},
+			"response": []
+		},
+		{
+			"name": "List User",
+			"request": {
+				"url": "http://192.168.56.20:8080/api/admin/user",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "authKey",
+						"value": "1b592a98-de6a-4dbe-94a9-a45d76f4897e",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"username\":\"gzb3\", \"password\":\"password\", \"email\":\"email3@e.com\", \"role\":\"user\" }"
+				},
+				"description": "List all of users."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Switch Ports",
+			"request": {
+				"url": "http://192.168.1.15:8080/api/switch/ports?deviceid=10000005337A22AD",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "8749f4e1-2aa1-4d9f-b334-9562e9b0fe13",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"basicInfo\":{\n        \"serialnb\":\"01234567893\",\n        \"alias\":\"arraytest3\",\n        \"dcname\": \"BJDC2\",\n        \"area\":\"1Level-A\",\n        \"deviceLevel\":\"high\",\n        \"arrayType\":\"Block\"\n    },\n    \"maintenance\":{\n        \"vendor\":\"EMC\",\n        \"contact\":\"az@emc.com\",\n        \"purchaseDate\" : \"2010/1/1\",\n        \"period\": \"3\"\n    },\n    \"assets\": {\n      \"no\": \"asset0001\",\n      \"purpose\": \"SAP System\",\n      \"department\": \"Marketing\",\n      \"manager\": \"zhangsan\"\n    },\n    \"ability\" : {\n      \"maxMemory\": \"256\",\n      \"maxDisks\": \"1000\",\n      \"maxFEs\": \"24\",\n      \"maxCabinets\": \"10\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Update a user",
+			"request": {
+				"url": "http://192.168.56.20:8080/api/admin/user/58d51667f3b5550c10000002",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "authKey",
+						"value": "552c5b08-18fe-42cf-92fb-2c58dc434510",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"password\":\"password444\" , \"email\": \"aaa@com.cn\"}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "POST Array",
+			"request": {
+				"url": "http://192.168.8.1:8080/api/arrays",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "643055cd-7f36-40ee-ba4f-56c1734740e0",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"basicInfo\":{\"device\":\"1111111\",\"alias\":\"VMAX0703\",\"UnitID\":\"unit56cb826f-4f33-cb1e-8f61-1908dc7d3e9c\",\"deviceLevel\":\"high\",\"equipmentType\":\"Array Block\"},\"maintenance\":{\"vendor\":\"EMC\",\"contact\":\"13900001111\",\"purchaseDate\":\"2017/06/28\",\"period\":\"4\"},\"assets\":{\"no\":\"Asset-Storage-1\",\"purpose\":\"生产存储\",\"department\":\"IT运维部\",\"manager\":\"John\"},\"ability\":{\"maxMemory\":\"1024\",\"maxDisks\":\"200\",\"maxFEs\":\"20\",\"maxCabinets\":\"4\"}}"
+				},
+				"description": "Create a Array"
+			},
+			"response": []
+		},
+		{
+			"name": "get Switchs",
+			"request": {
+				"url": "http://localhost:8080/api/demos/host",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "2949dc8d-1ad8-4d61-899c-8ae4fcfbe82e",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"ReportInfoID\":\"ReportTest01\",\"Name\":\"test\",\"GenerateTime\":\"2017-07-24T00:06:38+08:00\",\"ReportParamater\":[{\"Name\":\"param01\",\"Value\":\"11\"},{\"Name\":\"param02\"},{\"Name\":\"param03\",\"Value\":\"22\"},{\"Name\":\"param04\",\"Value\":\"2017-07-28T00:00:00+08:00\"}]}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get Fabrics",
+			"request": {
+				"url": "http://192.168.1.15:8080/api/fabrics",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "515c55fe-e92d-4aed-b152-b07214d8f352",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"basicInfo\":{\n        \"serialnb\":\"01234567893\",\n        \"alias\":\"arraytest3\",\n        \"dcname\": \"BJDC2\",\n        \"area\":\"1Level-A\",\n        \"deviceLevel\":\"high\",\n        \"arrayType\":\"Block\"\n    },\n    \"maintenance\":{\n        \"vendor\":\"EMC\",\n        \"contact\":\"az@emc.com\",\n        \"purchaseDate\" : \"2010/1/1\",\n        \"period\": \"3\"\n    },\n    \"assets\": {\n      \"no\": \"asset0001\",\n      \"purpose\": \"SAP System\",\n      \"department\": \"Marketing\",\n      \"manager\": \"zhangsan\"\n    },\n    \"ability\" : {\n      \"maxMemory\": \"256\",\n      \"maxDisks\": \"1000\",\n      \"maxFEs\": \"24\",\n      \"maxCabinets\": \"10\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get Array Ports",
+			"request": {
+				"url": "http://192.168.1.15:8080/api/array/ports?arraysn=888973588710",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "dc4aa4a3-e52d-459c-8740-2fd0a68f7e04",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"basicInfo\":{\n        \"serialnb\":\"01234567893\",\n        \"alias\":\"arraytest3\",\n        \"dcname\": \"BJDC2\",\n        \"area\":\"1Level-A\",\n        \"deviceLevel\":\"high\",\n        \"arrayType\":\"Block\"\n    },\n    \"maintenance\":{\n        \"vendor\":\"EMC\",\n        \"contact\":\"az@emc.com\",\n        \"purchaseDate\" : \"2010/1/1\",\n        \"period\": \"3\"\n    },\n    \"assets\": {\n      \"no\": \"asset0001\",\n      \"purpose\": \"SAP System\",\n      \"department\": \"Marketing\",\n      \"manager\": \"zhangsan\"\n    },\n    \"ability\" : {\n      \"maxMemory\": \"256\",\n      \"maxDisks\": \"1000\",\n      \"maxFEs\": \"24\",\n      \"maxCabinets\": \"10\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Add a Host",
+			"request": {
+				"url": "http://192.168.56.130:8080/api/host",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "ad8f8fe9-ffba-42a2-a1c3-10045da1c507",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"baseinfo\":{\r\n        \"name\":\"lglad018\",\r\n        \"type\":\"Physical\",\r\n        \"catalog\": \"R&D\",\r\n        \"status\": \"Test\",\r\n        \"management_ip\": \"192.168.1.1\",\r\n        \"service_ip\": \"10.1.1.1,11.2.2.2,12.3.3.3\",\r\n        \"dcname\": \"BJDC2\",\r\n        \"area\":\"1Level-A\",\r\n        \"description\":\"this is a description about lglad018.\"\r\n    },\r\n    \"maintenance\":{\r\n        \"vendor\":\"Dell\",\r\n        \"contact\":\"az@emc.com\",\r\n        \"maintenance_department\" : \"Marketing\",\r\n        \"maintenance_owner\": \"John\"\r\n    },\r\n    \"assets\": {\r\n      \"no\": \"BC1-121212\",\r\n      \"purpose\": \"SAP System\",\r\n      \"department\": \"Marketing\",\r\n      \"manager\": \"zhangsan\"\r\n    },\r\n    \"configuration\" : {\r\n      \"OS\": \"AIX\",\r\n      \"OSVersion\": \"RHEL6.8\",\r\n      \"memory\": \"32\",\r\n      \"other\": \"about configuration other things.\"\r\n},\r\n    \"HBAs\": [\r\n      { \"name\" : \"fcs0\", \"wwn\":\"50060168476014EC\"  , \"AB\": \"A\" },\r\n      { \"name\" : \"fcs1\", \"wwn\":\"50060169476014EC\"  , \"AB\": \"B\" },\r\n      { \"name\" : \"fcs2\", \"wwn\":\"50060160476014EC\"  , \"AB\": \"A\" },\r\n      { \"name\" : \"fcs3\", \"wwn\":\"50060161476014EC\"  , \"AB\": \"B\" }\r\n    ],\r\n    \"APPs\": [ \"SAP\",\"NetBank\" ]\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Add a Application",
+			"request": {
+				"url": "http://192.168.56.130:8080/api/application",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "ca59e7d0-a24e-486e-8871-484db8c61d14",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"NetBank\",\r\n  \"alias\": \"网银系统\",\r\n  \"status\": \"Product\",\r\n  \"busi-type\": \"busitype\",\r\n  \"product_type\": \"producttype\",\r\n  \"oper_depart\": \"operDepartment\",\r\n  \"oper_owner\": \"operOwner\",\r\n  \"app_depart\": \"appDepartment\",\r\n  \"app_level\": \"appLevel\",\r\n  \"description\": \"This is a description1111 测试\"\r\n}\r\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "RDF-Sparql",
+			"request": {
+				"url": "http://192.168.56.100:58080/BackendService/sparql/query",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "PREFIX  srm: <http://ontologies.emc.com/2013/08/srm#> \nPREFIX  filter:<http://ontologies.emc.com/2015/mnr/topology#>\nPREFIX  rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n\nSELECT distinct ?from ?to\nWHERE { \n  ?from rdf:type srm:PhysicalSwitch . \n  ?from srm:containsLogicalSwitch ?logicalSwitch .\n  ?logicalSwitch srm:containsProtocolEndpoint ?swep .\n  ?swep srm:connectedTo ?swConnected .\n  ?swConnected srm:residesOnStorageFrontEndPort ?arrayFEPort .\n  ?arrayFEPort srm:residesOnStorageFrontEndAdapter ?arrayFEAdapter .\n  ?arrayFEAdapter srm:residesOnStorageEntity ?to . \n}\n\n\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Add a Menu Item",
+			"request": {
+				"url": "http://123.56.114.249:8080/api/menu/add",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "e1dfff8e-2908-4597-9ff5-6abd1d7b4ab8",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"menuId\": \"EquipmentManagement.Array\",\n    \"parentMenuId\": \"EquipmentManagement\",\n    \"title\": \"存储\",\n    \"level\": 1,\n    \"icon\": \"ion-android-home\",\n    \"order\": 111,\n    \"stateRef\": \"dashboard.EquipmentManagement.Array\"\n  }\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Delete a menu item",
+			"request": {
+				"url": "http://192.168.56.1:8080/api/menu/del",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "b82e89f5-89bc-4440-80c0-da5c49fd6e18",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"menuId\": \"userManagement.user\"\n  }"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Add a User",
+			"request": {
+				"url": "http://192.168.56.1:8080/api/user/add",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "85709135-beb2-491a-a941-1919e3a91af1",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"user1\",\n  \"email\": \"user@example.com\",\n  \"password\": \"secret\",\n  \"roleList\": [ \n      {\n        \"roleName\": \"系统管理员\"\n      },\n      {\n        \"roleName\": \"测试角色2\"\n      } \n  ]\n}\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "modify a user password",
+			"request": {
+				"url": "http://123.56.114.249:8080/api/events",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "07bb1b9e-e469-4f7b-9078-35ef50f5810f",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "  {\n       \"_id\": \"59197f14137e72850c000009\",\n    \"password\": \"secret123\"\n   }\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Add a Role",
+			"request": {
+				"url": "http://192.168.56.1:8080/api/role/add",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "12687414-74d8-45ca-8d0d-09def28740e0",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"roleName\": \"测试角色1\",\n  \"menuList\": [ \"userManagement\",\"EquipmentManagement\" ]\n}\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Add a Datacenter",
+			"request": {
+				"url": "http://192.168.56.1:8080/api/matadata/datacenter",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "e9647a5f-f2ae-4a7c-addc-8fca16f41822",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"isDefault\": true,\n    \"Name\": \"测试数据中心2\",\n    \"Type\": \"生产数据中心2\",\n    \"City\": \"北京\",\n    \"Address\": \"海淀区数据中心\",\n    \"Building\": [\n        {\n            \"Name\": \"楼栋201\",\n            \"Description\": \"楼栋201的说明\",\n            \"Floor\": [\n                {\n                    \"Name\": \"楼层1\",\n                    \"Description\": \"楼层1的说明\",\n                    \"Unit\": [\n                        {\n                            \"Name\": \"机房1\",\n                            \"UnitID\": \"111f0915-1032-465c-b6ee-913ffbbac913\",\n                            \"Description\": \"机房1的说明\",\n                            \"MaxPowerLoad\": 100,\n                            \"MaxCabinet\": 150\n                        },\n                                                {\n                            \"Name\": \"机房2\",\n                            \"UnitID\": \"222f0915-1032-465c-b6ee-943ffbbac933\",\n                            \"Description\": \"机房2的说明\",\n                            \"MaxPowerLoad\": 200,\n                            \"MaxCabinet\": 250\n                        }\n                    ]\n                },\n                {\n                    \"Name\": \"楼层2\",\n                    \"Description\": \"楼层2的说明\",\n                    \"Unit\": [\n                        {\n                            \"Name\": \"机房1\",\n                            \"UnitID\": \"333f0915-1032-465c-b6ee-943ffbbac567\",\n                            \"Description\": \"机房1的说明\",\n                            \"MaxPowerLoad\": 100,\n                            \"MaxCabinet\": 150\n                        },\n                                                {\n                            \"Name\": \"机房2\",\n                            \"UnitID\": \"444f0915-1032-465c-b6ee-94345bbac9c1\",\n                            \"Description\": \"机房2的说明\",\n                            \"MaxPowerLoad\": 200,\n                            \"MaxCabinet\": 250\n                        }\n                    ]\n                }\n\n            ]\n        }\n    ]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "POST Add a hbalist",
+			"request": {
+				"url": "http://192.168.8.1:8080/api/hba",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "225a07b9-5b39-4a4e-b395-16202a962a9c",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"HBAWWN\": \"0000000000000\",\n        \"ALIAS\": \"aaaa\",\n        \"HOSTNAME\" : \"hostname1\"\n    },\n    {\n        \"HBAWWN\": \"0000000000001\",\n        \"ALIAS\": \"bbbb\",\n        \"HOSTNAME\" : \"hostname2\"\n    }\n]"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Add a Report Info record",
+			"request": {
+				"url": "http://192.168.182.1:8080/api/reporting/info",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "1b87b990-166a-4022-a1e4-2041f0acf66c",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ID\"  : \"xxxx\",\r\n  \"Name\": \"xxxx report\",\r\n  \"Type\": \"Performance\",\r\n  \"Format\" : \"docx\",\r\n  \"TypeIcon\" : \"../image/performance.ico\",\r\n  \"TemplatePath\": \"../report/template/xxxx\",\r\n    \"Generate\" : \"enable\",\r\n  \"GenerateURL\" : \"/reporting/xxxxGenFunc\",\r\n  \"GenerateOutputPath\" : \"../report/out\",\r\n  \"GenerateSchedule\" : \"45 4 1,10,22 * *\",  \r\n  \"Description\": \"xxxx is a report about ....\",\r\n  \"ReportParamater\" : [\r\n      {\r\n        \"Name\" : \"device\",\r\n        \"DisplayName\" : \"设备名称\",\r\n        \"Description\" : \"device description\",\r\n        \"Type\" : \"List\",\r\n        \"Data\" : \"/apiname\"\r\n      },\r\n      {\r\n        \"Name\" : \"Begin\",\r\n        \"DisplayName\" : \"开始时间\",\r\n        \"Description\" : \"Begin description\",\r\n        \"Type\" : \"TimeStamp\"\r\n      },\r\n      {\r\n        \"Name\" : \"Count\",\r\n        \"DisplayName\" : \"数量\",\r\n        \"Description\" : \"Count description\",\r\n        \"Type\" : \"Number\"\r\n      },\r\n      {\r\n        \"Name\" : \"typename\",\r\n        \"DisplayName\" : \"类型\",\r\n        \"Description\" : \"typename description\",\r\n        \"Type\" : \"String\"\r\n      }\r\n  ]            \r\n}\r\n\r\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get array lun",
+			"request": {
+				"url": "http://localhost:8080/api/vplex/test111111",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "e6dddca3-c2ca-453e-8709-96ce7e3f660b",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"basicInfo\":{\n        \"serialnb\":\"01234567893\",\n        \"alias\":\"arraytest3\",\n        \"dcname\": \"BJDC2\",\n        \"area\":\"1Level-A\",\n        \"deviceLevel\":\"high\",\n        \"arrayType\":\"Block\"\n    },\n    \"maintenance\":{\n        \"vendor\":\"EMC\",\n        \"contact\":\"az@emc.com\",\n        \"purchaseDate\" : \"2010/1/1\",\n        \"period\": \"3\"\n    },\n    \"assets\": {\n      \"no\": \"asset0001\",\n      \"purpose\": \"SAP System\",\n      \"department\": \"Marketing\",\n      \"manager\": \"zhangsan\"\n    },\n    \"ability\" : {\n      \"maxMemory\": \"256\",\n      \"maxDisks\": \"1000\",\n      \"maxFEs\": \"24\",\n      \"maxCabinets\": \"10\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get vplex vvol",
+			"request": {
+				"url": "http://192.168.1.15:8080/api/external/vvol",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "746f69d8-d63f-4009-8317-9736b17e9ee2",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"basicInfo\":{\n        \"serialnb\":\"01234567893\",\n        \"alias\":\"arraytest3\",\n        \"dcname\": \"BJDC2\",\n        \"area\":\"1Level-A\",\n        \"deviceLevel\":\"high\",\n        \"arrayType\":\"Block\"\n    },\n    \"maintenance\":{\n        \"vendor\":\"EMC\",\n        \"contact\":\"az@emc.com\",\n        \"purchaseDate\" : \"2010/1/1\",\n        \"period\": \"3\"\n    },\n    \"assets\": {\n      \"no\": \"asset0001\",\n      \"purpose\": \"SAP System\",\n      \"department\": \"Marketing\",\n      \"manager\": \"zhangsan\"\n    },\n    \"ability\" : {\n      \"maxMemory\": \"256\",\n      \"maxDisks\": \"1000\",\n      \"maxFEs\": \"24\",\n      \"maxCabinets\": \"10\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get topo for cmdb",
+			"request": {
+				"url": "http://192.168.1.15:8080/api/external/cmdb",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "746f69d8-d63f-4009-8317-9736b17e9ee2",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"basicInfo\":{\n        \"serialnb\":\"01234567893\",\n        \"alias\":\"arraytest3\",\n        \"dcname\": \"BJDC2\",\n        \"area\":\"1Level-A\",\n        \"deviceLevel\":\"high\",\n        \"arrayType\":\"Block\"\n    },\n    \"maintenance\":{\n        \"vendor\":\"EMC\",\n        \"contact\":\"az@emc.com\",\n        \"purchaseDate\" : \"2010/1/1\",\n        \"period\": \"3\"\n    },\n    \"assets\": {\n      \"no\": \"asset0001\",\n      \"purpose\": \"SAP System\",\n      \"department\": \"Marketing\",\n      \"manager\": \"zhangsan\"\n    },\n    \"ability\" : {\n      \"maxMemory\": \"256\",\n      \"maxDisks\": \"1000\",\n      \"maxFEs\": \"24\",\n      \"maxCabinets\": \"10\"\n    }\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,425 @@
+{
+	"variables": [],
+	"info": {
+		"name": "ViPR-SRM-RESTful",
+		"_postman_id": "91ff839e-f585-d43c-fcb6-d296f3615029",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get properties",
+			"request": {
+				"url": "http://csmpcollecter:58080/APG-REST/metrics/properties/values?fields=device,sstype,model,name&filter=datatype=='Block'%26device='000495700228'%26!parttype",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46Y2hhbmdlbWU=",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": "Get Propertices of 'devtype = FabricSwitch'"
+			},
+			"response": []
+		},
+		{
+			"name": "Metrics-TS",
+			"request": {
+				"url": "http://csmpcollecter:58080/APG-REST/metrics/series/values?properties=device,model,vendor,ip,firmware,devicesn,name&filter=devtype%3D%27FabricSwitch%27",
+				"method": "GET",
+				"header": [
+					{
+						"key": "//Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": "",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46Y2hhbmdlbWU=",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "metrics properties values",
+			"request": {
+				"url": "http://192.168.1.100:58080/APG-REST/metrics/properties/values?fields=device,model,ip,devdesc&filter=devtype%3D%27FabricSwitch%27",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46Y2hhbmdlbWU=",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Events",
+			"request": {
+				"url": "http://10.62.36.96:58080/APG-REST/events/occurrences/values?filter=%21acknowledged%26active%3D%271%27&properties=id,category,severity,sourceip,device,devtype,part,eventname,eventstate,eventtype,severity,timestamp,active,fullmsg,eventdisplayname,parttype",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46Y2hhbmdlbWU=",
+						"description": ""
+					},
+					{
+						"key": "//Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": "",
+						"disabled": true
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "SRM-SPARQL-QUERY",
+			"request": {
+				"url": "https://192.168.56.100:48443/Backends/Topology-Service/Default/topology/repository/sparql",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46Y2hhbmdlbWU=",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/sparql-results+json, application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "query",
+							"value": "         PREFIX  srm: <http://ontologies.emc.com/2013/08/srm#>  \n         PREFIX  filter:<http://ontologies.emc.com/2015/mnr/topology#> \n         PREFIX  rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n         SELECT distinct ?from ?to \n         WHERE {  \n             ?from rdf:type srm:PhysicalSwitch .   \n             ?from srm:containsLogicalSwitch ?logicalSwitch .  \n             ?logicalSwitch srm:containsProtocolEndpoint ?swep . \n             ?swep srm:connectedTo ?swConnected . \n             ?swConnected srm:residesOnStorageFrontEndPort ?arrayFEPort .  \n             ?arrayFEPort srm:residesOnStorageFrontEndAdapter ?arrayFEAdapter .  \n             ?arrayFEAdapter srm:residesOnStorageEntity ?to .  \n          } ",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "SRM-SPARQL-QUERY",
+			"request": {
+				"url": "https://10.62.36.96:48443/Backends/Topology-Service/Default/topology/repository/sparql",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46Y2hhbmdlbWU=",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/sparql-results+json,application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "query",
+							"value": "SELECT * { ?s ?p ?o } LIMIT 2",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get ZoneAlias",
+			"request": {
+				"url": "http://10.62.36.96:58080/APG-REST/metrics/properties/values?fields=device,pswwn,alias,zmemid&filter=parttype='ZoneAlias'",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46Y2hhbmdlbWU=",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": " "
+			},
+			"response": []
+		},
+		{
+			"name": "add a device in SRM",
+			"request": {
+				"url": "http://192.168.1.16:58080/centralized-management/discocenter/devicemgmt/device",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "brocade-fc-switch-4.0.2",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "block",
+							"value": "brocade-fc-switch-collect",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "version",
+							"value": "4.0.2",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "instance",
+							"value": "brocade-fc-switch",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "server",
+							"value": "sb8332793",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "spId",
+							"value": "brocade-fc-switch-4.0.2",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "spbId",
+							"value": "brocade-fc-switch-collect",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "exportId",
+							"value": "smiprovider",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "spbVersion",
+							"value": "4.0.2",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "testValidation",
+							"value": "true",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "jsonAnswers",
+							"value": "{\"host\":\"192.168.1.2\",\"username\":\"admin\",\"password\":\"changeme\",\"usesecure\":true,\"port\":\"5908\"}",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "jsonRows",
+							"value": "",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "save a brocade switch in SRM",
+			"request": {
+				"url": "http://192.168.1.16:58080/centralized-management/discocenter/devicemgmt/save",
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "spId",
+							"value": "brocade-fc-switch-4.0.2",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "spbId",
+							"value": "brocade-fc-switch-collect",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "spbVersion",
+							"value": "4.0.2",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "exportId",
+							"value": "smiprovider",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "jsonRows",
+							"value": "[{\"instance\":\"brocade-fc-switch\",\"server\":\"sb8332793\",\"isDeleted\":false,\"isModified\":true,\"jsonAnswers\":\"{\\\"host\\\":\\\"192.168.1.1\\\",\\\"username\\\":\\\"admin\\\",\\\"password\\\":\\\"changeme\\\",\\\"usesecure\\\":\\\"true\\\",\\\"port\\\":\\\"5908\\\"}\"}]",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "test a device in SRM",
+			"request": {
+				"url": "http://192.168.1.16:58080/centralized-management/discocenter/devicemgmt/test",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "brocade-fc-switch-4.0.2",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "block",
+							"value": "brocade-fc-switch-collect",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "version",
+							"value": "4.0.2",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "spId",
+							"value": "brocade-fc-switch-4.0.2",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "spbId",
+							"value": "brocade-fc-switch-collect",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "exportId",
+							"value": "smiprovider",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "spbVersion",
+							"value": "4.0.2",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "jsonAnswers",
+							"value": "[{\"instance\":\"brocade-fc-switch\",\"server\":\"sb8332793\",\"isDeleted\":false,\"isModified\":false,\"jsonAnswers\":\"{\\\"host\\\":\\\"192.168.1.2\\\",\\\"username\\\":\\\"admin\\\",\\\"password\\\":\\\"{3700A80B6CE201AEDA97F06E00E99546A913E41AEB55A7742C4B699D8587E1BB517BC627F009AF5DE720843C510CE5A9}\\\",\\\"usesecure\\\":\\\"true\\\",\\\"port\\\":\\\"5908\\\"}\"}]",
+							"description": "",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "log in to SRM centrol",
+			"request": {
+				"url": "http://192.168.1.16:58080/centralized-management/j_security_check?j_username=admin&j_password=changeme",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json;charset=UTF-8",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

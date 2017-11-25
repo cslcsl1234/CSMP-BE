@@ -40,7 +40,6 @@ require('./controllers/hostController')(app);
 require('./controllers/menuController')(app);
 
 require('./controllers/eventController')(app);
-
 require('./controllers/datacenterController')(app);
 require('./controllers/DashboardController')(app);
 
@@ -48,7 +47,10 @@ require('./controllers/topologyController')(app);
 require('./controllers/capacityController')(app);
 
 require('./controllers/reportingController')(app);
+ 
+require('./controllers/externalController')(app);
 
+require('./controllers/BackendMgmtController')(app);
 
 app.listen(config.SERVER.PORT, function () {
 	console.log('=== The Backend server listening on [' + config.Backend.URL + '] ===');

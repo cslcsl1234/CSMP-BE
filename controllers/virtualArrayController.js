@@ -346,6 +346,36 @@ var virtualArrayController = function (app) {
             })
            
         },
+        // -------------------------------------------------
+        // Get Physical Device Propertices
+        // -------------------------------------------------
+        function(arg1,  callback) {  
+
+            var physicalArray ;
+            VMAX.GetDevices(physicalArray,function(result) {
+
+                for ( var j in result ) {
+                    var deviceItem = result[j];
+
+                    for ( var i in arg1 ) {
+                        var item = arg1[i];
+                        
+                        if ( deviceItem.device == item.ProviderByDevice && deviceItem.part == item.ProviderFromObject ) {
+                            //console.log(deviceItem.device +'|' + item.ProviderByDevice +'|' + deviceItem.part +'|' +item.ProviderFromObject);
+                            item['disktype'] = deviceItem.disktype; 
+                            item['PyhsicalCapacity'] = deviceItem.Capacity; 
+                            item['PyhsicalUsedCapacity'] = deviceItem.UsedCapacity; 
+                            break;
+                        }
+
+                    }
+                }
+ 
+                callback(null,arg1);
+
+            })
+           
+        },
         function(arg1,  callback){  
 
 
@@ -400,7 +430,20 @@ var virtualArrayController = function (app) {
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
-  
+                  var tableHeaderItem = {};
+                tableHeaderItem["name"] = "物理磁盘类型";
+                tableHeaderItem["value"] = "disktype";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+ 
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "物理磁盘使用容量";
+                tableHeaderItem["value"] = "PyhsicalUsedCapacity";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+   
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "分配主机名称";
                 tableHeaderItem["value"] = "ConnectedHost";
@@ -798,7 +841,8 @@ var virtualArrayController = function (app) {
                 var tableHeader = [];
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "虚拟卷名称";
-                tableHeaderItem["value"] = "part";
+                tableHeaderItem["value"] = "part";
+
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
@@ -1182,7 +1226,15 @@ var virtualArrayController = function (app) {
 
 // -------------------------------------- END ------------------------------------
 
+     app.get('/api/vplex/test1', function ( req, res )  { 
+        var device = 'CKM00133904692';
+        VPLEX.getVplexVirtualVolume(device, function(ret) {  
+                 
+                res.json(200,ret);
 
+            }); 
+
+    } ) ;
  
 
      app.get('/api/vplex/test', function ( req, res )  {
