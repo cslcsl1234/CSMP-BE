@@ -2,11 +2,13 @@
     "tableBody": [
         {
             "number": "000296800706",
-            "type": "block"
+            "type": "block",
+            "type1": "block11"
         },
         {
             "number": "000296800707",
-            "type": "vmax"
+            "type": "vmax",
+            "type1": "block22"
         }
     ],
     "tableHead": [
@@ -31,6 +33,11 @@
         {
             "name": "类型",
             "value": "type",
+            "sort": "false"
+        },
+        {
+            "name": "类型1",
+            "value": "type1",
             "sort": "false"
         }
     ]

@@ -44,7 +44,9 @@ var menuController = function (app) {
 
     app.get('/api/menu/list', function (req, res) {
 
-        var query = MenuObj.find({}).select({ "__v": 0, "_id": 0});
+        var menuorder = { parentMenuId: 1, level: 1, order: 1};
+
+        var query = MenuObj.find({}).sort(menuorder).select({ "__v": 0, "_id": 0});
         query.exec(function (err, doc) {
             //system error.
             if (err) { 
