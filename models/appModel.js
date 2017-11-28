@@ -19,7 +19,11 @@ var mongoose = require('mongoose')
 
 
 appSchema = new Schema({
-
+        id: {
+            type: String,
+            required: true,
+            unique: true
+        },
         name: {
             type: String,
             required: true,
@@ -48,6 +52,9 @@ appSchema = new Schema({
              type: String
         },
         app_level:{
+            type: String
+        }, 
+        others:{
             type: String
         },
         description:{

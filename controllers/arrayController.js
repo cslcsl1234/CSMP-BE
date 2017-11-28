@@ -152,7 +152,6 @@ var arrayController = function (app) {
 
         VMAX.GetArrays_VMAX(device, function(ret) {
 
-            console.log(ret);
             var finalResult = [];
             var returnData = ret[0];
 
@@ -2027,14 +2026,485 @@ var arrayController = function (app) {
         var device = req.query.device; 
 
         VNX.GetArrays(device, function(ret) {
- 
-            res.json(200,ret);
+            var finalResult = {};
+            var returnData = ret[0];
+
+            console.log(returnData);
+            var item = {}; 
+
+            // -------------- Left Chart ---------------------------
+            var leftChart = {} ;
+            leftChart['title'] = "存储容量分布"; 
+            leftChart['chartType'] = 'pie';
+
+            var chartData = [];
+            item={};
+            item["color"] =  "#80B3E8",
+            item["name"] =  "已分配容量(GB)",
+            item["value"] =  returnData.NASFSPresentedCapacity;
+            chartData.push(item);
+
+            item={};
+            item["color"] =  "#444348",
+            item["name"] =  "剩余容量(GB)",
+            item["value"] =  returnData.NASPoolFreeCapacity;
+            chartData.push(item);
+
+            item={};
+            item["color"] =  "#91EC7E",
+            item["name"] =  "Overhead(GB)",
+            item["value"] =  returnData.NASFSOverheadCapacity;
+            chartData.push(item);
+
+            item={};
+            item["color"] =  "#80B3E8",
+            item["name"] =  "Snapshot(GB)",
+            item["value"] =  returnData.NASSnapshotCapacity;
+            chartData.push(item);
+            leftChart["chartData"] = chartData;
+
+            // -------------- Right Chart ---------------------------
+            var RightChart = {} ;
+            RightChart['title'] = "FS使用容量分布"; 
+            RightChart['chartType'] = 'pie';
+
+            var chartData = [];
+            item={};
+            item["color"] =  "#80B3E8",
+            item["name"] =  "FS已使用(GB)",
+            item["value"] =  returnData.NASFSUsedCapacity;
+            chartData.push(item);
+
+            item={};
+            item["color"] =  "#444348",
+            item["name"] =  "FS剩余容量(GB)",
+            item["value"] =  returnData.NASFSFreeCapacity;
+            chartData.push(item);
+            RightChart["chartData"] = chartData;
+
+            // -------------- Finally combine the final result record -----------------
+            finalResult["left"] = leftChart;
+            finalResult["right"] = RightChart;
+
+            res.json(200,finalResult);
         })    
     });
 
+/*
+    Get VNX FileSystem Info
+ */
+     app.get('/api/vnx/replication', function ( req, res )  {
+        var device = req.query.device;  
+        var finalResult = {}; 
+
+         async.waterfall([
+            function(callback){ 
+                VNX.GetVNX_Replication(device,function(result) { 
+                    finalResult['tableBody'] = result;
+                    callback(null,finalResult);
+                                      
+                });  
+            }, 
+            function( arg1, callback ) {
+                   var tableHead = [];
+                    var item = {};
+                    item['name'] = '名称';
+                    item['sort'] = false;
+                    item['value'] = 'part';
+                    tableHead.push(item);
+
+                    var item = {};
+                    item['name'] = 'ID';
+                    item['sort'] = false;
+                    item['value'] = 'partid';
+                    tableHead.push(item);
+
+                    var item = {};
+                    item['name'] = 'Resource';
+                    item['sort'] = false;
+                    item['value'] = 'srcintfc';
+                    tableHead.push(item);
+
+                     var item = {};
+                    item['name'] = 'Target';
+                    item['sort'] = true;
+                    item['value'] = 'dstintfc';
+                    tableHead.push(item);
+  
+                     var item = {};
+                    item['name'] = 'Throughput';
+                    item['sort'] = false;
+                    item['value'] = 'Throughput';
+                    tableHead.push(item);
+
+                     var item = {};
+                    item['name'] = 'LastSyncTime';
+                    item['sort'] = true;
+                    item['value'] = 'LastSyncTime';
+                    tableHead.push(item);
+  
+                     var item = {};
+                    item['name'] = 'SyncLag(s)';
+                    item['sort'] = true;
+                    item['value'] = 'SyncLag';
+                    tableHead.push(item);
+  
+
+
+                     arg1['tableHead'] = tableHead;
+
+
+                    // -------------- Table Event -------------------
+                    var tableevent = {};
+                    tableevent["event"] = "appendArea";
+                    tableevent["url"] = "/vnx/replication_perf";
+                    var param=[];
+                    var paramItem = {};
+                    paramItem["findName"] = "device";
+                    paramItem["postName"] = "device";
+                    param.push(paramItem);
+                    var paramItem = {};
+                    paramItem["findName"] = "part";
+                    paramItem["postName"] = "part";
+                    param.push(paramItem);
+
+                    tableevent["param"] = param;
+
+
+                    arg1["tableEvent"] = tableevent;
+
+                    arg1["startDate"] = "2017-01-01T01:01:01+08:00";
+                    arg1["endDate"] = "2019-01-01T01:01:01+08:00"
+
+
+                callback(null,arg1);
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+       
+
+
+    });
+
+
+app.get('/api/vnx/replication_perf', function ( req, res )  {
+        var device = req.query.device;
+        var part = req.query.part;
+        var start = req.query.startDate;
+        var end = req.query.endDate;
+
+        if ( device === undefined ) {
+            res.json(401, 'Must be special a device!')
+            return;
+        }
+
+        if ( part === undefined ) {
+            res.json(401, 'Must be special a part!')
+            return;
+        }
+
+        var finalResult = {}; 
+           async.waterfall([
+            function(callback){ 
+
+                VNX.getReplicationPerformance(device, part, start, end,function(result) { 
+ 
+                    finalResult["charts"] = result.charts;
+
+                    callback(null,finalResult);
+                                      
+                }); 
+
+         },
+
+            function(arg1,  callback){  
+
+                callback(null, arg1);
+
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+
+
+    });
+
+/*
+    Get VNX FileSystem Info
+ */
+     app.get('/api/vnx/filesystem', function ( req, res )  {
+        var device = req.query.device;  
+        var finalResult = {}; 
+
+         async.waterfall([
+            function(callback){ 
+                VNX.GetVNX_FileSystem(device,function(result) { 
+                    finalResult['tableBody'] = result;
+                    callback(null,finalResult);
+                                      
+                });  
+            }, 
+            function( arg1, callback ) {
+ 
+
+                // Set Zero for not find export
+                var chart = [];
+                for ( var j in arg1.tableBody ) {
+                    var fsItem = arg1.tableBody[j]; 
+
+                    // Convert String to Number;
+                    fsItem.PresentedCapacity = parseFloat(fsItem.PresentedCapacity);
+                    fsItem.FreeCapacity = parseFloat(fsItem.FreeCapacity);
+                    fsItem.CurrentUtilization = parseFloat(fsItem.CurrentUtilization);
+
+                    // Statistic Chat Data by Privilege  
+                    var isFind = false;    
+                    var catalog = fsItem.protocol;
+                    if ( catalog === undefined )     
+                        catalog = "N/A";
+
+                    for ( var i in chart ) {
+                        var chartItem = chart[i];
+                        if ( chartItem.name == catalog ) {
+                            isFind = true;
+                            chartItem.value = chartItem.value + 1;
+                            break;
+                        } 
+                    }
+                    if ( isFind == false ) {
+                        var chartItem = {};
+
+                        chartItem["name"] = catalog;
+                        chartItem["value"] = 1;
+                        chart.push(chartItem);
+                    }
+                }
+
+                arg1["chartData"] = chart;
+                arg1["chartType"] = "pie";
+
+                callback(null,arg1);
+                              
+
+            },
+            function(arg1,  callback){  
+
+                    var tableHead = [];
+                    var item = {};
+                    item['name'] = 'FS名称';
+                    item['sort'] = false;
+                    item['value'] = 'fsname';
+                    tableHead.push(item);
+
+                    var item = {};
+                    item['name'] = 'Mount Point';
+                    item['sort'] = false;
+                    item['value'] = 'mtpath';
+                    tableHead.push(item);
+
+                    var item = {};
+                    item['name'] = 'CIFS Serv';
+                    item['sort'] = false;
+                    item['value'] = 'cifsserv';
+                    tableHead.push(item);
+
+                    var item = {};
+                    item['name'] = '#Exports';
+                    item['sort'] = true;
+                    item['value'] = 'NumberOfExport';
+                    tableHead.push(item);
+                    
+
+                    var item = {};
+                    item['name'] = '共享类型';
+                    item['sort'] = false;
+                    item['value'] = 'protocol';
+                    tableHead.push(item);
+                    
+                    var item = {};
+                    item['name'] = '权限';
+                    item['sort'] = false;
+                    item['value'] = 'mtperm';
+                    tableHead.push(item);
+                    
+
+                    var item = {};
+                    item['name'] = 'MoverName';
+                    item['sort'] = false;
+                    item['value'] = 'movernam';
+                    tableHead.push(item);
+
+                    var item = {};
+                    item['name'] = '容量(GB)';
+                    item['sort'] = true;
+                    item['value'] = 'PresentedCapacity';
+                    tableHead.push(item);
+                    
+                    var item = {};
+                    item['name'] = '剩余容量(GB)';
+                    item['sort'] = true;
+                    item['value'] = 'FreeCapacity';
+                    tableHead.push(item);
+                    
+
+                    var item = {};
+                    item['name'] = '使用率(%)';
+                    item['sort'] = true;
+                    item['value'] = 'CurrentUtilization';
+                    tableHead.push(item);
+
+                    var item = {};
+                    item['name'] = 'IOPS';
+                    item['sort'] = true;
+                    item['value'] = 'Throughput';
+                    tableHead.push(item);
+ 
+                     var item = {};
+                    item['name'] = 'MBPS';
+                    item['sort'] = true;
+                    item['value'] = 'Bandwidth';
+                    tableHead.push(item);
+  
+                    arg1['tableHead'] = tableHead;
+
+                    // -------------- Table Event -------------------
+                    var tableevent = {};
+                    tableevent["event"] = "appendArea";
+                    tableevent["url"] = "/vnx/nfsexport";
+                    var param=[];
+                    var paramItem = {};
+                    paramItem["findName"] = "device";
+                    paramItem["postName"] = "device";
+                    param.push(paramItem);
+                    var paramItem = {};
+                    paramItem["findName"] = "fsid";
+                    paramItem["postName"] = "fsid";
+                    param.push(paramItem);
+                    var paramItem = {};
+                    paramItem["findName"] = "vols";
+                    paramItem["postName"] = "vols";
+                    param.push(paramItem);
+                    tableevent["param"] = param;
+
+
+                    arg1["tableEvent"] = tableevent;
+
+                    arg1["startDate"] = "2017-01-01T01:01:01+08:00";
+                    arg1["endDate"] = "2019-01-01T01:01:01+08:00"
+               callback(null,arg1);
+ 
+
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+       
+
+
+    });
+
+
+     app.get('/api/vnx/nfsexport', function ( req, res )  {
+        var device = req.query.device;
+        var fsid = req.query.fsid;
+        var vols = req.query.vols;
+        var start = req.query.startDate;
+        var end = req.query.endDate;
+
+        if ( device === undefined ) {
+            res.json(401, 'Must be special a device!')
+            return;
+        }
+
+        if ( fsid === undefined ) {
+            res.json(401, 'Must be special a fsid!')
+            return;
+        }
+
+        var finalResult = {}; 
+           async.waterfall([
+            function(callback){ 
+
+                VNX.GetVNX_NFSExport(device,function(result) { 
+
+                    var isfind = false;
+                    for ( var i in result) {
+                        var item = result[i];
+                        //console.log(device+'='+item.device+'\t'+fsid + '=' + item.fsid);
+                        
+                        if ( device ==  item.device && fsid == item.fsid ) {
+                            
+                            isfind = true;
+                            callback(null,item);
+                        }
+                    }
+                    if ( isfind == false ) callback(null,"noclient");                                      
+                });  
+         },
+            function(arg1,  callback){  
+                    console.log(arg1);
+                    var findalResult = {};
+                    // ---------------------- Table Header --------------------
+                    var tableHead = [];
+                    var item = {};
+                    item['name'] = '客户端IP地址';
+                    item['sort'] = 'true';
+                    item['value'] = 'clientip';
+                    tableHead.push(item);
+
+
+                    // ---------------------  Table Body ---------------------------
+                    if ( arg1 == "noclient" ) {
+                        findalResult["tableBody"] = [];
+                    } else {
+                        var ips = []; 
+                        var clients = arg1.clients.split(",");
+                        for ( var i in clients ) {
+                            var ip = clients[i];
+                            var item = {};
+                            item["clientip"] = ip;
+                            ips.push(item);
+                        }
+                        findalResult["tableBody"] = ips;                    
+
+                    }
+    
+                    findalResult['tableHead'] = tableHead;
+
+
+
+               callback(null,findalResult);
+ 
+
+            },
+            function(arg1,  callback){  
+
+                VNX.getNFSPerformance(device, vols, start, end,function(result) { 
+ 
+                    arg1["charts"] = result.charts;
+
+                    callback(null,arg1);
+                                      
+                }); 
+
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+
+
+    });
 
      app.get('/api/array/test', function ( req, res )  {
         var device = req.query.device; 
+        var part = req.query.fsid; 
+        var start = req.query.startDate; 
+        var end = req.query.endDate; 
 
         //VMAX.GetAssignedVPlexByDevices(device,function(locations) {  
         //VMAX.GetAssignedHosts(device,function(locations) {
@@ -2042,7 +2512,7 @@ var arrayController = function (app) {
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
     
-                VMAX.GetArrays_VMAX (device,function(result) { 
+                VNX.getReplicationPerformance(device, part, start, end, function(result) { 
 
                     res.json(200,result);
                                       
@@ -2065,7 +2535,7 @@ var arrayController = function (app) {
 
     } ) ;
 
- 
+
 
 
      app.get('/api/array/test1', function ( req, res )  {

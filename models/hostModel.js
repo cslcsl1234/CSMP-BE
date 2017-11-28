@@ -21,6 +21,7 @@ var mongoose = require('mongoose')
 var hbaSchema = new Schema({
     name: String,
     wwn: String,
+    nodewwn: String,
     alias: String,
     AB: String
 },{ _id : false });
@@ -103,7 +104,16 @@ hostSchema = new Schema({
     }, 
     configuration : {
 	// -- the OperatorSystem of host, like 'Windows, AIX, Linux" etc.
-        OS: {
+        sn: {
+            type: String
+        } ,
+         model: {
+            type: String
+        } ,
+        HA: {
+            type: String
+        } ,
+         OS: {
             type: String
         },
         OSVersion: {
@@ -113,6 +123,9 @@ hostSchema = new Schema({
             type: String
         },
 	// -- Could be any thing about configuration.
+        envtype: {
+            type: String
+        } ,
         other: {
             type: String
         }
@@ -133,4 +146,5 @@ hostSchema.pre('save', function (next) {
 });
 
 mongoose.model('Host', hostSchema); 
+mongoose.model('HBA', hbaSchema); 
 

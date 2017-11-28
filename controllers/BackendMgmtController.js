@@ -11,7 +11,7 @@ const name = 'my-app'
 var unirest = require('unirest');
 var configger = require('../config/configger'); 
 var mongoose = require('mongoose'); 
-var backendMgmt = require('../lib/backendMgmt');
+var backendMgmt = require('../lib/BackendMgmt');
  
 var BackendMgmtController = function (app) {
 

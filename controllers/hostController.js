@@ -19,7 +19,8 @@ var host = require('../lib/Host');
 
 var mongoose = require('mongoose');
 var HostObj = mongoose.model('Host');
- 
+var HBAObj = mongoose.model('HBA');
+  
 var HBALIST = require('../demodata/host_hba_list');
 var VMAX = require('../lib/Array_VMAX');
 var SWITCH = require('../lib/Switch');
@@ -427,7 +428,109 @@ var hostController = function (app) {
 /* 
 *  Create a app record 
 */
+
     app.post('/api/host', function (req, res) {
+        var host = req.body;
+
+        for ( var i in host ) {
+ 
+            var newhost = new HostObj(host);
+
+            var lineString = host[i];
+            var fields = lineString.split(",");
+            if ( fields.length < 2 ) continue;
+            // get all of fields to newhost structure;
+            var j=0;
+            newhost.configuration.model           = fields[j]; j++; 
+            newhost.configuration.sn              = fields[j]; j++;
+            newhost.configuration.HA              = fields[j]; j++;
+            newhost.baseinfo.type                 = fields[j]; j++;
+            newhost.baseinfo.catalog              = fields[j]; j++;
+            newhost.baseinfo.name                 = fields[j]; j++;
+            newhost.baseinfo.status               = fields[j]; j++;
+            newhost.baseinfo.management_ip        = fields[j]; j++;
+            newhost.baseinfo.service_ip           = fields[j]; j++;
+             j++;  //其他生产IP
+             j++;  //数据中心
+             j++;  //机房
+            newhost.maintenance.vendor            = fields[j]; j++;
+            newhost.maintenance.maintenance_owner = fields[j]; j++;
+            newhost.configuration.OS              = fields[j]; j++;
+            newhost.configuration.OSVersion       = fields[j]; j++;
+            newhost.configuration.CPU             = fields[j]; j++;
+            newhost.configuration.memory          = fields[j]; j++;
+            newhost.configuration.envtype         = fields[j]; j++;
+            newhost.configuration.other           = fields[j]; j++;
+            newhost.baseinfo.description          = fields[j]; j++; 
+
+            var hbaStr = fields[j];  j++; 
+            var appStr = fields[j]; 
+
+            // Parse HBA data
+            // 
+            if ( hbaStr !== undefined ) {
+                var hbaRecords = hbaStr.split("#");
+                for ( var hba_i in hbaRecords) {
+                    var hbaRecord = hbaRecords[hba_i];
+                    var portwwn = hbaRecord.split("@")[0];
+                    var nodewwn = hbaRecord.split("@")[1];
+
+                    var hba = new HBAObj();
+                    if ( portwwn !== undefined ) hba.wwn = portwwn.trim();
+                    if ( nodewwn !== undefined ) hba.nodewwn = nodewwn.trim();
+
+                    newhost.HBAs.push(hba);
+
+                }
+
+            }
+            
+            // Parse Application Data
+            // 
+            if ( appStr !== undefined ) {
+                var appRecords = appStr.split("@");
+                newhost.APPs = appRecords;
+            }
+
+            console.log("==================  " + i + '\t' + fields.length + '\t' + hbaStr + '\t' + appStr);
+            console.log(newhost);
+
+            //
+            // Insert a new host record into MongoDB
+            // 
+             HostObj.findOne({"baseinfo.name" : newhost.baseinfo.name}, function (err, doc) {
+                //system error.
+                if (err) {
+                    return   done(err);
+                }
+                if (!doc) { //user doesn't exist.
+                    console.log("host is not exist. insert it."); 
+  
+                    newhost.save(function(err, thor) { 
+                     if (err)  {  
+                        return res.json(null,{status: err})
+                      } else 
+                        return res.json(null,{status: "The Host has inserted."})
+                        //return res.json(200, );
+                    });
+                }
+                else { 
+                    doc.update(newhost, function(error, course) {
+                        if(error) return next(error);
+                    });
+
+                    return res.json(null,{status: "The Host has exist! Update it."}) ;
+
+                }
+
+            });           
+
+        }
+
+        res.json(200, "OK");
+
+    });
+    app.post('/api/host1', function (req, res) {
 
         var host = req.body;
 
