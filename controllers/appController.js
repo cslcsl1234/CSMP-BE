@@ -90,7 +90,7 @@ var appController = function (app) {
                 console.log("app is not exist. insert it."); 
 
                 var newapp = new AppObj(app);
-                console.log('Test1');
+                console.log(app);
                 newapp.save(function(err, thor) {
                  console.log('Test2');
                  if (err)  {
@@ -117,6 +117,78 @@ var appController = function (app) {
 
     });
 
+
+/*
+    Load a batch records for applications
+ */
+
+    app.post('/api/applications', function (req, res) {
+        var apps = req.body;
+        var appArray = [];
+        for ( var i in apps ) {
+ 
+            var newapp = {};
+
+            var lineString = apps[i];
+            var fields = lineString.split(",");
+            if ( fields.length < 2 ) continue;
+            // get all of fields to newhost structure;
+            var j=0;
+            newapp["id"]           = fields[0]; j++;
+            newapp["name"]         = fields[1]; j++;
+            newapp["alias"] = '';
+            newapp["status"]       = fields[2]; j++;
+            newapp["busi_type"]    = fields[4]; j++;
+            newapp["product_type"] = fields[3]; j++;
+            newapp["oper_depart"]  = fields[5]; j++;
+            newapp["oper_owner"]   = fields[6]; j++;
+            newapp["app_depart"]   = fields[7]; j++;
+            newapp["app_level"]    = fields[9]; j++;
+            newapp["others"]       = fields[8]; j++;
+            newapp["description"]  = fields[10]; j++;
+
+            appArray.push(newapp); 
+
+        }
+            //
+            // Insert a new host record into MongoDB
+            //  
+        async.eachSeries(appArray, function(newapp, asyncdone) {
+
+            console.log(newapp.name);
+
+           AppObj.findOne({"id" : newapp.id}, function (err, doc) {
+                //system error.
+                if (err) {
+                    return   done(err);
+                }
+                if (!doc) { //user doesn't exist.
+                    console.log("app is not exist. insert it."); 
+ 
+                    var newappR = new AppObj(newapp);
+                    console.log(newappR);
+                    newappR.save(asyncdone);
+                }
+                else { 
+                    doc.update(newapp, function(error, course) {
+                        if(error) res.json(200 , {status: error});
+                        console.log("The App has exist! Update it.");
+                        asyncdone();
+                    });
+
+                }
+
+            });  
+
+ 
+        }, function(err) {
+            if ( err ) return console.log(err);
+        });
+
+
+        res.json(200, "OK");
+
+    });
 
 /* 
 *  Delete a app record 

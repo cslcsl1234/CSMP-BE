@@ -426,48 +426,56 @@ var hostController = function (app) {
 
 
 /* 
-*  Create a app record 
+*  insert into muti host records
 */
-
-    app.post('/api/host', function (req, res) {
-        var host = req.body;
-
-        for ( var i in host ) {
+    app.post('/api/hosts', function (req, res) {
+        var hosts = req.body;
+        var hostArray = [];
+        for ( var i in hosts ) {
  
-            var newhost = new HostObj(host);
 
-            var lineString = host[i];
+            var newhost = {};
+
+            var lineString = hosts[i];
             var fields = lineString.split(",");
             if ( fields.length < 2 ) continue;
             // get all of fields to newhost structure;
             var j=0;
-            newhost.configuration.model           = fields[j]; j++; 
-            newhost.configuration.sn              = fields[j]; j++;
-            newhost.configuration.HA              = fields[j]; j++;
-            newhost.baseinfo.type                 = fields[j]; j++;
-            newhost.baseinfo.catalog              = fields[j]; j++;
-            newhost.baseinfo.name                 = fields[j]; j++;
-            newhost.baseinfo.status               = fields[j]; j++;
-            newhost.baseinfo.management_ip        = fields[j]; j++;
-            newhost.baseinfo.service_ip           = fields[j]; j++;
+            var configuration = {};
+            var baseinfo = {};
+            var maintenance = {};
+            configuration["model"]           = fields[j]; j++; 
+            configuration["sn"]              = fields[j]; j++;
+            configuration["HA"]              = fields[j]; j++;
+            baseinfo["type"]                 = fields[j]; j++;
+            baseinfo["catalog"]              = fields[j]; j++;
+            baseinfo["name"]                 = fields[j]; j++;
+            baseinfo["status"]               = fields[j]; j++;
+            baseinfo["management_ip"]        = fields[j]; j++;
+            baseinfo["service_ip"]           = fields[j]; j++;
              j++;  //其他生产IP
              j++;  //数据中心
              j++;  //机房
-            newhost.maintenance.vendor            = fields[j]; j++;
-            newhost.maintenance.maintenance_owner = fields[j]; j++;
-            newhost.configuration.OS              = fields[j]; j++;
-            newhost.configuration.OSVersion       = fields[j]; j++;
-            newhost.configuration.CPU             = fields[j]; j++;
-            newhost.configuration.memory          = fields[j]; j++;
-            newhost.configuration.envtype         = fields[j]; j++;
-            newhost.configuration.other           = fields[j]; j++;
-            newhost.baseinfo.description          = fields[j]; j++; 
+            maintenance["vendor"]            = fields[j]; j++;
+            maintenance["maintenance_owner"] = fields[j]; j++;
+            configuration["OS"]              = fields[j]; j++;
+            configuration["OSVersion"]       = fields[j]; j++;
+            configuration["CPU"]             = fields[j]; j++;
+            configuration["memory"]          = fields[j]; j++;
+            configuration["envtype"]         = fields[j]; j++;
+            configuration["other"]           = fields[j]; j++;
+            baseinfo["description"]          = fields[j]; j++; 
+            newhost["baseinfo"] = baseinfo;
+            newhost["maintenance"] = maintenance;
+            newhost["configuration"] = configuration;
+
 
             var hbaStr = fields[j];  j++; 
             var appStr = fields[j]; 
 
             // Parse HBA data
             // 
+            newhost["HBAs"] = [];
             if ( hbaStr !== undefined ) {
                 var hbaRecords = hbaStr.split("#");
                 for ( var hba_i in hbaRecords) {
@@ -487,10 +495,68 @@ var hostController = function (app) {
             
             // Parse Application Data
             // 
+            newhost["APPs"] = [];
             if ( appStr !== undefined ) {
                 var appRecords = appStr.split("@");
                 newhost.APPs = appRecords;
             }
+
+            hostArray.push(newhost); 
+
+        }
+            //
+            // Insert a new host record into MongoDB
+            //  
+        async.eachSeries(hostArray, function(newhost, asyncdone) {
+
+            console.log(newhost.baseinfo.name);
+
+           HostObj.findOne({"baseinfo.name" : newhost.baseinfo.name}, function (err, doc) {
+                //system error.
+                if (err) {
+                    return   done(err);
+                }
+                if (!doc) { //user doesn't exist.
+                    console.log("host is not exist. insert it."); 
+ 
+                    var newappR = new HostObj(newhost);
+                    console.log(newappR);
+                    newappR.save(asyncdone);
+                }
+                else { 
+                    doc.update(newhost, function(error, course) {
+                        if(error) res.json(200 , {status: error});
+                        console.log("The host has exist! Update it.");
+                        asyncdone();
+                    });
+
+                }
+
+            });  
+
+ 
+        }, function(err) {
+            if ( err ) return console.log(err);
+        });
+
+
+        res.json(200, "OK");
+
+    });
+
+    app.post('/api/hosts1', function (req, res) {
+        var host = req.body;
+
+        for ( var i in host ) {
+ 
+            var newhost = new HostObj();
+
+            var lineString = host[i];
+            var fields = lineString.split(",");
+            if ( fields.length < 2 ) continue;
+            // get all of fields to newhost structure;
+
+
 
             console.log("==================  " + i + '\t' + fields.length + '\t' + hbaStr + '\t' + appStr);
             console.log(newhost);

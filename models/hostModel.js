@@ -38,8 +38,8 @@ hostSchema = new Schema({
         },
 	// --- the type of host, the vaild values is : Physical, Virtual, etc.
         type: {
-            type: String, 
-            enum: HOST_TYPE
+            type: String 
+            //enum: HOST_TYPE
         },
 	// --- the catalog of host, like by business or department etc.
         catalog: {
@@ -47,8 +47,8 @@ hostSchema = new Schema({
         },
 	// --- the current status of host, the vaild values is : Prod, Test
         status: { 
-            type: String, 
-            enum: HOST_STATUS
+            type: String 
+            //enum: HOST_STATUS
         },
 	// -- the management ip address of host
         management_ip:{
