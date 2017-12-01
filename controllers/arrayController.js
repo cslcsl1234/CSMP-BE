@@ -353,6 +353,133 @@ var arrayController = function (app) {
         }
     });
 
+  app.get('/api/dmx/array/disks', function (req, res) { 
+    var device = req.query.device;
+
+    if ( config.ProductType == 'demo' ) { 
+            res.json(200,VMAXDISKListJSON);
+            return;
+
+    } else {
+
+            if ( device === undefined ) {
+                res.json(400, 'Must be special a device!')
+                return;
+            }
+
+            var param = {};
+            param['filter_name'] = '(name=\'Capacity\'|name=\'FreeCapacity\'|name=\'Availability\')';
+            param['keys'] = ['device','part'];
+            param['fields'] = ['disktype','partmode','sgname','diskrpm','director','partvend','partmdl','partver','partsn','disksize'];
+
+            if (typeof device !== 'undefined') { 
+                param['filter'] = 'device=\''+device+'\'&parttype=\'Disk\'';
+            } else {
+                param['filter'] = 'parttype=\'Disk\'';
+            } 
+
+            CallGet.CallGet(param, function(param) {
+                
+                var data = param.result;
+
+                var finalResult = {};
+
+                // ----- the part of chart --------------
+
+                var groupby = "Capacity";
+                var groupbyField = "Capacity";
+                var chartData = [];
+                for ( var i in data ) {
+                    var item = data[i];
+
+                    var groupbyValue = item[groupby]; 
+                    var itemValue = item[groupbyField];
+
+                    var isFind = false;
+                    for ( var j in chartData ) {
+                        var charItem = chartData[j];
+                        if ( charItem.name == groupbyValue ) {
+                            charItem.value = charItem.value + parseFloat(itemValue);
+                            isFind = true;
+                        }
+                    }
+                    if ( !isFind ) {
+                        var charItem = {};
+                        charItem["name"] = groupbyValue;
+                        charItem["value"] = parseFloat(itemValue);
+                        chartData.push(charItem);
+                    }
+
+                }
+                finalResult["chartType"] = "pie";
+                finalResult["chartData"] = chartData;
+
+
+                // ---------- the part of table ---------------
+                var tableHeader = [];
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "磁盘名称";
+                tableHeaderItem["value"] = "part";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "序列号";
+                tableHeaderItem["value"] = "partsn";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "用途";
+                tableHeaderItem["value"] = "partmode";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+ 
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "转速";
+                tableHeaderItem["value"] = "diskrpm";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "型号";
+                tableHeaderItem["value"] = "partmdl";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "微码版本";
+                tableHeaderItem["value"] = "partver";
+                tableHeaderItem["sort"] = "partver";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "厂商";
+                tableHeaderItem["value"] = "partvend";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "容量(GB)";
+                tableHeaderItem["value"] = "disksize";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableBody"] = data;
+
+
+                res.json(200, finalResult);
+
+            });
+
+        }
+    });
+
 
    app.get('/api/vmax/array/luns1', function (req, res) { 
     var device = req.query.device;
@@ -505,12 +632,71 @@ var arrayController = function (app) {
                             item['ConnectedHost'] = vplexItem.vplexMaskviewName;
                         }
                     }
+
+
+
+
                  }
                 callback(null,arg1);
 
             })
            
         },
+        // -------------------------------------------------
+        // Relation with  Maskview and Initiator/Host
+        // -------------------------------------------------
+        function(arg1,  callback) {  
+
+            VMAX.GetAssignedInitiatorByDevices(device,function(result) {
+
+                var hostv ;
+                host.GetHBAFlatRecord(hostv,function(hbaresult) {
+
+                    for ( var i in arg1 ) {
+                        var item = arg1[i];  
+                        item["hosts"] = [];
+                        item["ConnectedHostCount"] = 0;
+                        item['ConnectedInitiators']  = [];
+
+                        for ( var j in result ) {
+                            var deviceItem = result[j];
+                            if ( item.partsn == deviceItem.deviceWWN ) { 
+                                    
+
+                                item.ConnectedInitiators.push(deviceItem.initEndPoint);
+
+                                // Search belong to which host
+                                for ( var k in hbaresult ) {
+                                    var hbaItem = hbaresult[k];
+                                    if ( hbaItem.hba_wwn == deviceItem.initEndPoint ) {
+
+                                        var isfind = false ;
+                                        for ( var h in item.hosts ) {
+                                            if ( hbaItem.hostname == item.hosts[h].hostname ) {
+                                                isfind = true;
+                                                break;
+                                            }    
+                                        }
+                                        if ( isfind == false ) {
+                                            item.hosts.push(hbaItem);
+                                            item.ConnectedHostCount++;
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                     }
+                    callback(null,arg1); 
+
+                });
+
+
+
+
+            })
+           
+        },        
         function(arg1,  callback){  
 
 
@@ -518,86 +704,140 @@ var arrayController = function (app) {
 
 
                 var finalResult = {};
+                // ----- the part of perf datetime --------------
+                var start = util.getPerfStartTime();
+                var end = util.getPerfEndTime();
+                finalResult["startDate"] = start;
+                finalResult["endDate"] = end;          
+
+                // ----- statistic for luns 
+                var chartData = [];
+
+                for ( var i in data ) {
+                    var item = data[i]; 
+                    if ( item.ismasked == 0 ) {
+                        item.ismasked = "未分配";
+                    } else {
+                        item.ismasked = "已分配";
+                    }
+
+
+                    var isfind = false;
+                    for ( var j in chartData ) {
+                        var chartItem = chartData[j];
+                        if ( chartItem.name == item.purpose ) {
+                            chartItem.value = chartItem.value  + Math.round(item.Capacity);
+                            isfind = true;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var chartItem = {};
+                        chartItem["name"] = item.purpose ;
+                        chartItem["value"] = Math.round(item.Capacity);
+                        chartData.push(chartItem);
+                    }
+
+
+                    if ( item.ConnectedHostCount == 0 && 
+                         (item.ConnectedInitiators !== undefined && item.ConnectedInitiators.length > 0 )
+                        ) {
+                        item.ConnectedHostCount = 'N/A';
+                    } 
+
+                }
+                finalResult["chartData"] = chartData;
+                finalResult["chartType"] = "pie";
+
+
 
                 // ---------- the part of table ---------------
                 var tableHeader = [];
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "名称";
                 tableHeaderItem["value"] = "part";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "Thin?";
                 tableHeaderItem["value"] = "dgstype";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "用途";
                 tableHeaderItem["value"] = "purpose";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "类型";
                 tableHeaderItem["value"] = "config";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "Pool";
                 tableHeaderItem["value"] = "poolname";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "masked?";
                 tableHeaderItem["value"] = "ismasked";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem); 
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "容量(GB)";
                 tableHeaderItem["value"] = "Capacity";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "已使用容量(GB)";
                 tableHeaderItem["value"] = "UsedCapacity";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
+
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "分配设备名称";
-                tableHeaderItem["value"] = "ConnectedDevice";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["name"] = "#分配主机";
+                tableHeaderItem["value"] = "ConnectedHostCount";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
-                var tableHeaderItem = {};
-                tableHeaderItem["name"] = "分配设备类型";
-                tableHeaderItem["value"] = "ConnectedDeviceType";
-                tableHeaderItem["sort"] = "true";
-                tableHeader.push(tableHeaderItem);
-
-                var tableHeaderItem = {};
-                tableHeaderItem["name"] = "分配对象名";
-                tableHeaderItem["value"] = "ConnectedObject";
-                tableHeaderItem["sort"] = "true";
-                tableHeader.push(tableHeaderItem);
-
-                var tableHeaderItem = {};
-                tableHeaderItem["name"] = "分配主机名称";
-                tableHeaderItem["value"] = "ConnectedHost";
-                tableHeaderItem["sort"] = "true";
-                tableHeader.push(tableHeaderItem);
-
-                
+                var tableData = {};
+                tableData["tableHead"] = tableHeader;
+                tableData["tableBody"] = data;
                 finalResult["tableHead"] = tableHeader;
                 finalResult["tableBody"] = data;
+
+
+                // ---------- the part of table event ---------------
+                var tableEvent = {}; 
+                var tableEventParam = [];
+
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'hosts';
+                tableEventParamItem["postName"] = 'hosts';
+                tableEventParam.push(tableEventParamItem);
+
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'ConnectedInitiators';
+                tableEventParamItem["postName"] = 'ConnectedInitiators';
+                tableEventParam.push(tableEventParamItem);
+
+                tableEvent["event"] = "appendTable";
+                tableEvent["param"] = tableEventParam; 
+                tableEvent["url"] = "/vmax/array/lun/assignedhosts";  
+
+                finalResult["tableEvent"] = tableEvent;
+
+
 
                 callback(null,finalResult); 
 
@@ -608,6 +848,103 @@ var arrayController = function (app) {
             });
  
     });
+
+   app.get('/api/vmax/array/lun/assignedhosts', function (req, res) { 
+        var hosts = req.query.hosts;
+        var ConnectedInitiators = req.query.ConnectedInitiators;
+
+        var tableHeader = [];
+        var tableBody = [];
+        var finalResult = {}; 
+        async.waterfall([
+ 
+            function( callback){  
+
+                if ( hosts === undefined || ( hosts !== undefined && hosts.length == 0 ) ) {
+                    // ---------- the part of table ---------------
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "HBAWWN";
+                    tableHeaderItem["value"] = "hbawwn";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    for ( var i in ConnectedInitiators ) {
+                        var bodyItem = {};
+                        bodyItem["hbawwn"] = ConnectedInitiators[i]
+                        tableBody.push(bodyItem);
+                    }
+
+
+                } else {
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "主机名称";
+                    tableHeaderItem["value"] = "hostname";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "IP";
+                    tableHeaderItem["value"] = "management_ip";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "主机类型";
+                    tableHeaderItem["value"] = "hosttype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "状态";
+                    tableHeaderItem["value"] = "status";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "操作系统";
+                    tableHeaderItem["value"] = "OS";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "操作系统版本";
+                    tableHeaderItem["value"] = "OSVersion";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    for ( var i in hosts ) {
+                        var bodyItem = {};
+                        var hostItem = JSON.parse(hosts[i]);
+ 
+                        bodyItem["hostname"] = hostItem.hostname;
+                        bodyItem["management_ip"] = hostItem.ip;
+                        bodyItem["hosttype"] = hostItem.host_type;
+                        bodyItem["status"] = hostItem.host_status;
+                        bodyItem["OS"] = hostItem.OS;
+                        bodyItem["OSVersion"] = hostItem.OSVersion;
+                        
+                        tableBody.push(bodyItem);
+                    }
+ 
+
+                }
+ 
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableBody"] = tableBody;
+
+     
+                callback(null,finalResult); 
+
+             }
+            ], function (err, result) {
+                   // result now equals 'done' 
+                   res.json(200, result);
+            });
+ 
+    });
+
+
 
     /*
     *  Add mata lun display
@@ -880,6 +1217,202 @@ var arrayController = function (app) {
 
                 finalResult["tableData"] = [];
                 finalResult.tableData.push(tabledata);
+
+                callback(null,finalResult); 
+
+            }
+            ], function (err, result) {
+                   // result now equals 'done' 
+                   res.json(200, result);
+            });
+ 
+    });
+
+    /*
+    *  Get All of luns in DMX array;
+    */
+   app.get('/api/dmx/array/luns', function (req, res) { 
+        var device = req.query.device;
+
+        async.waterfall([
+            function(callback){ 
+
+            if ( device === undefined ) {
+                res.json(400, 'Must be special a device!')
+                return;
+            }
+
+            var param = {};
+            //param['filter'] = '(parttype=\'LUN\')&(part=\'06B2\'|part=\'055B\'|part=\'09DA\')';
+            param['filter'] = '(parttype=\'LUN\')';
+            param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'Availability\'|name=\'PoolUsedCapacity\')';
+            param['keys'] = ['device','part','parttype'];
+            param['fields'] = ['alias','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked','metadesc','metaconf'];
+            param['limit'] = 1000000;
+
+            if (typeof device !== 'undefined') { 
+                param['filter'] = 'device=\''+device+'\'&' + param['filter'];
+            } 
+
+
+            CallGet.CallGet(param, function(param) { 
+                
+                var data = param.result;
+                callback(null,data);
+
+            });
+
+        },
+        // -------------------------------------------------
+        // Relation with VPLEX Virutal Volume and Maskview
+        // -------------------------------------------------
+        function(arg1,  callback) {  
+
+            VMAX.GetDMXMasking(device,function(result) {
+
+                for ( var i in arg1 ) {
+                    var item = arg1[i];  
+
+                    for ( var j in result ) {
+                        var maskingItem = result[j];
+                        if ( item.partsn == maskingItem.partsn ) {
+                            if ( item.MaskingFA === undefined ) {
+                                item["MaskingFA"] = maskingItem.director + ':' + maskingItem.port;
+                            } else {
+                                if ( item.MaskingFA.indexOf(maskingItem.director + ':' + maskingItem.port) < 0 )
+                                    item["MaskingFA"] = item.MaskingFA + ',' + maskingItem.director + ':' + maskingItem.port;
+                            }
+                            if ( item.hostname === undefined ) {
+                                if ( maskingItem.host !== undefined )
+                                    item["hostname"] = maskingItem.host.hostname ;
+                            } else {
+                                 if ( maskingItem.host !== undefined ) {
+                                    if ( item.hostname.indexOf(maskingItem.host.hostname) < 0 )
+                                        item["hostname"] = item.hostname + ',' + maskingItem.host.hostname ;
+                                 }
+                                    
+                            } 
+                        }
+                    }
+                 }
+                callback(null,arg1);
+
+            })
+           
+        },
+        function(arg1,  callback){  
+
+
+                var data = arg1;
+
+
+                var finalResult = {};
+
+                // ---------- the part of table ---------------
+                var tableHeader = [];
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "名称";
+                tableHeaderItem["value"] = "part";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Thin?";
+                tableHeaderItem["value"] = "dgstype";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "用途";
+                tableHeaderItem["value"] = "purpose";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "类型";
+                tableHeaderItem["value"] = "config";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Pool";
+                tableHeaderItem["value"] = "poolname";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "masked?";
+                tableHeaderItem["value"] = "ismasked";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem); 
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "metaed?";
+                tableHeaderItem["value"] = "metaconf";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem); 
+ 
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "容量(GB)";
+                tableHeaderItem["value"] = "Capacity";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "已使用容量(GB)";
+                tableHeaderItem["value"] = "UsedCapacity";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Masking前端口";
+                tableHeaderItem["value"] = "MaskingFA";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem); 
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "分配主机名称";
+                tableHeaderItem["value"] = "hostname";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                
+                // ---------- the part of table event ---------------
+                var tableEvent = {}; 
+                var tableEventParam = [];
+
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'device';
+                tableEventParamItem["postName"] = 'device';
+                tableEventParam.push(tableEventParamItem);
+
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'part';
+                tableEventParamItem["postName"] = 'volname';
+                tableEventParam.push(tableEventParamItem);
+
+
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'metaconf';
+                tableEventParamItem["postName"] = 'metaconf';
+                tableEventParam.push(tableEventParamItem);
+
+                tableEvent["event"] = "appendTable";
+                tableEvent["param"] = tableEventParam; 
+                tableEvent["url"] = "/vmax/array/lundetail";  
+
+
+
+
+                finalResult["tableEvent"] = tableEvent;
+                var tabledata = {};
+                tabledata["tableHead"] = tableHeader;
+                tabledata["tableBody"] = data;
+
+                finalResult["tableData"] = tabledata;
+ 
 
                 callback(null,finalResult); 
 
@@ -1618,11 +2151,152 @@ var arrayController = function (app) {
 
 
         VMAX.GetFEPorts(arraysn, function(result) {
-            res.json(200,result);
+ 
+           var finalResult = {}; 
+           var finalResult1 = {}; 
+  
+
+            // -------------- Left Chart ---------------------------
+            var chartData = [] ;
+            for ( var i in result ) {
+                var item = result[i];
+                var chartItem = {};
+
+                chartItem["catalog"] = item.feport;
+                chartItem["rightvalue"] = item.Throughput;
+                chartItem["leftvalue"] = 0-item.MappingVolCount;
+
+                chartData.push(chartItem);
+
+            }
+
+            // Chart Header
+            var chartHeader = {} ;
+            chartHeader["leftTitle"] = "映射逻辑磁盘数量";
+            chartHeader["rightTitle"] = "Throughput (MB/s)";
+
+            finalResult1["chartHeader"] = chartHeader;
+            finalResult1["chartData"] = chartData;
+
+            finalResult["stackedbar"] = finalResult1;
+
+            // ---------------- Table data -----------------------
+            var tableHead = [];
+            var tableHeadItem = {};
+            tableHeadItem["name"] = "前端口名称";
+            tableHeadItem["sort"] = true;
+            tableHeadItem["value"] = "feport";
+            tableHead.push(tableHeadItem);
+
+            var tableHeadItem = {};
+            tableHeadItem["name"] = "WWN";
+            tableHeadItem["sort"] = true;
+            tableHeadItem["value"] = "portwwn";
+            tableHead.push(tableHeadItem);
+
+            var tableHeadItem = {};
+            tableHeadItem["name"] = "端口速率(GB/s)";
+            tableHeadItem["sort"] = true;
+            tableHeadItem["value"] = "maxspeed";
+            tableHead.push(tableHeadItem);
+                       
+            var tableHeadItem = {};
+            tableHeadItem["name"] = "连接速率(GB/s)";
+            tableHeadItem["sort"] = true;
+            tableHeadItem["value"] = "negspeed";
+            tableHead.push(tableHeadItem);
+
+
+             var tableHeadItem = {};
+            tableHeadItem["name"] = "映射设备数";
+            tableHeadItem["sort"] = true;
+            tableHeadItem["value"] = "MappingVolCount";
+            tableHead.push(tableHeadItem);
+
+            var tableHeadItem = {};
+            tableHeadItem["name"] = "IOPS";
+            tableHeadItem["sort"] = true;
+            tableHeadItem["value"] = "IORate";
+            tableHead.push(tableHeadItem);
+
+             var tableHeadItem = {};
+            tableHeadItem["name"] = "MBPS";
+            tableHeadItem["sort"] = true;
+            tableHeadItem["value"] = "Throughput";
+            tableHead.push(tableHeadItem);
+
+            var tableHeadItem = {};
+            tableHeadItem["name"] = "连接交换机端口";
+            tableHeadItem["sort"] = true;
+            tableHeadItem["value"] = "ConnectedToPort";
+            tableHead.push(tableHeadItem);
+
+             var tableHeadItem = {};
+            tableHeadItem["name"] = "连接交换机";
+            tableHeadItem["sort"] = true;
+            tableHeadItem["value"] = "ConnectedToSwitch";
+            tableHead.push(tableHeadItem);
+            
+            // -------------- Table Event -------------------
+            var tableevent = {};
+            tableevent["event"] = "appendArea";
+            tableevent["url"] = "/array/port_perf";
+            var param=[];
+            var paramItem = {};
+            paramItem["findName"] = "device";
+            paramItem["postName"] = "device";
+            param.push(paramItem);
+            var paramItem = {};
+            paramItem["findName"] = "feport";
+            paramItem["postName"] = "feport";
+            param.push(paramItem);
+
+            tableevent["param"] = param;
+
+
+            var tabledata = {};
+            tabledata["tableHead"] = tableHead;
+            tabledata["tableBody"] = result;
+
+
+            finalResult["tableData"] = tabledata;
+            finalResult["tableEvent"] = tableevent;
+            // ----- the part of perf datetime --------------
+            var start = util.getPerfStartTime();
+            var end = util.getPerfEndTime();
+            finalResult["startDate"] = start;
+            finalResult["endDate"] = end;          
+
+            res.json(200,finalResult);
+
         });
 
      } ) ;
 
+    app.get('/api/array/port_perf', function ( req, res )  {
+
+        var arraysn = req.query.device; 
+        var feport = req.query.feport;
+        var start = req.query.startDate;
+        var end = req.query.endDate;
+
+
+        if ( typeof arraysn === 'undefined' ) {
+            res.json(400, 'Must be have arraysn paramater!')
+            return;
+        }
+
+        if ( typeof feport === 'undefined' ) {
+            res.json(400, 'Must be have feport paramater!')
+            return;
+        }
+ 
+        VMAX.GetFEPortPerf(arraysn, feport, start, end, function(result) {
+ 
+            res.json(200,result);
+        });
+
+     } ) ;
 
      app.get('/api/array/switchs', function ( req, res )  {
 
@@ -1803,10 +2477,6 @@ var arrayController = function (app) {
                 var filter = filterbase + '&(name==\'PrimaryUsedCapacity\'|name==\'LocalReplicaUsedCapacity\'|name==\'RemoteReplicaUsedCapacity\'|name==\'SystemUsedCapacity\'|name=\'BlockUsedCapacity\'|name=\'FileUsedCapacity\'|name=\'VirtualUsedCapacity\'|name=\'HDFSUsedCapacity\'|name=\'ObjectUsedCapacity\'|name=\'FreeCapacity\'|name=\'PoolFreeCapacity\'|name=\'UsedCapacity\'|name=\'ConfiguredUsableCapacity\'|name=\'HotSpareCapacity\'|name=\'RAIDOverheadCapacity\'|name=\'UnconfiguredCapacity\'|name=\'ConfiguredRawCapacity\'|name=\'UnusableCapacity\')';
                 var fields = 'device,name';
                 var keys = ['device'];
-
-
-
-
 
                 //var queryString =  {"filter":filter,"fields":fields}; 
                 var queryString =  util.CombineQueryString(filter,fields); 
@@ -2447,37 +3117,63 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
          },
             function(arg1,  callback){  
                     console.log(arg1);
+
                     var findalResult = {};
                     // ---------------------- Table Header --------------------
                     var tableHead = [];
                     var item = {};
                     item['name'] = '客户端IP地址';
-                    item['sort'] = 'true';
+                    item['sort'] = true;
                     item['value'] = 'clientip';
                     tableHead.push(item);
 
+                    var item = {};
+                    item['name'] = '主机名称';
+                    item['sort'] = true;
+                    item['value'] = 'hostname';
+                    tableHead.push(item);
 
-                    // ---------------------  Table Body ---------------------------
-                    if ( arg1 == "noclient" ) {
-                        findalResult["tableBody"] = [];
-                    } else {
-                        var ips = []; 
-                        var clients = arg1.clients.split(",");
-                        for ( var i in clients ) {
-                            var ip = clients[i];
-                            var item = {};
-                            item["clientip"] = ip;
-                            ips.push(item);
-                        }
-                        findalResult["tableBody"] = ips;                    
-
-                    }
-    
                     findalResult['tableHead'] = tableHead;
 
+                    if ( arg1 == "noclient" ) {
+                        findalResult["tableBody"] = [];
+                        callback(null,findalResult);
+                    } else {
+                        var hostname;
+                        host.GetHosts(hostname, function(code,hostresult) {
+ 
 
 
-               callback(null,findalResult);
+                            // ---------------------  Table Body ---------------------------
+
+                            var ips = []; 
+                            var clients = arg1.clients.split(",");
+                            for ( var i in clients ) {
+                                var ip = clients[i];
+                                var item = {};
+                                item["clientip"] = ip;
+
+                                for ( var j in hostresult ) {
+                                    var hostItem = hostresult[j];
+                                    if ( hostItem.baseinfo.service_ip.indexOf(ip) >=0 || 
+                                         hostItem.baseinfo.management_ip.indexOf(ip) >= 0 
+                                        ) {
+                                        item["host"] = hostItem;
+                                        item["hostname"] = hostItem.baseinfo.name;
+                                    }
+
+                                }
+
+                                ips.push(item);
+                            }
+                            findalResult["tableBody"] = ips;                    
+
+                            callback(null,findalResult);
+
+                        });
+
+                    }
+
  
 
             },
@@ -2505,6 +3201,8 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
         var part = req.query.fsid; 
         var start = req.query.startDate; 
         var end = req.query.endDate; 
+        var feport = req.query.feport;
+        var lun = req.query.lun;
 
         //VMAX.GetAssignedVPlexByDevices(device,function(locations) {  
         //VMAX.GetAssignedHosts(device,function(locations) {
@@ -2512,11 +3210,14 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
     
-                VNX.getReplicationPerformance(device, part, start, end, function(result) { 
+                //VMAX.GetDMXMasking(device, function(result) { 
+                //VMAX.GetMaskViews(device, function(result) { 
+               // VMAX.GetFEPorts(device, function(result) {                     
+        //VMAX.GetFEPortPerf(device, feport, function(result) {
+             VMAX.getArrayLunPerformance(device,lun,function(result) {
 
-                    res.json(200,result);
-                                      
-                }); 
+            res.json(200,result);
+        });
 
         //VMAX.getArrayLunPerformance(device,function(result) {
         //

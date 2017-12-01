@@ -14,7 +14,8 @@ var unirest1 = require('unirest');
 var mongoose = require('mongoose');
 var MenuObj = mongoose.model('Menu');
 
-var FunctionDefine_Array = require("../config/FunctionDefine_Array");
+var FunctionDefine_Array_VMAX = require("../config/FunctionDefine_Array_VMAX");
+var FunctionDefine_Array_DMX = require("../config/FunctionDefine_Array_DMX");
 var FunctionDefine_VNX = require("../config/FunctionDefine_VNX");
 var FunctionDefine_Host = require("../config/FunctionDefine_Host");
 var FunctionDefine_VPLEX = require("../config/FunctionDefine_VPLEX");
@@ -151,10 +152,14 @@ var menuController = function (app) {
             case "VMAX10K" :
             case "VMAX40K" :
             case "VMAX100K" :
+                res.json(200,FunctionDefine_Array_VMAX);
+                break;
+
             case "DMX4-6" :
 
-                res.json(200,FunctionDefine_Array);
+                res.json(200,FunctionDefine_Array_DMX);
                 break;
+
             case "VNX5600" :
 
                 res.json(200,FunctionDefine_VNX);

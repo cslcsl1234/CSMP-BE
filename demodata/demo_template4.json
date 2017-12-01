@@ -60,5 +60,192 @@
             }
         ],
         "title": "存储管理信息"
+    },
+
+  "stackedbar": {
+    "chartHeader": {
+      "leftTitle": "映射逻辑磁盘数量",
+      "rightTitle": "Throughput (MB/s)"
+    },
+    "chartData": [
+      {
+        "catalog": "FA-10E:0",
+        "rightvalue": 444.016,
+        "leftvalue": -56
+      },
+      {
+        "catalog": "FA-10F:0",
+        "rightvalue": 123.489,
+        "leftvalue": -179
+      },
+      {
+        "catalog": "FA-10G:0",
+        "rightvalue": 226.526,
+        "leftvalue": -140
+      },
+      {
+        "catalog": "FA-7E:0",
+        "rightvalue": 449.965,
+        "leftvalue": -56
+      },
+      {
+        "catalog": "FA-7F:0",
+        "rightvalue": 121.917,
+        "leftvalue": -179
+      },
+      {
+        "catalog": "FA-7G:0",
+        "rightvalue": 99.7528,
+        "leftvalue": -140
+      },
+      {
+        "catalog": "FA-8E:0",
+        "rightvalue": 439.882,
+        "leftvalue": -56
+      },
+      {
+        "catalog": "FA-8F:0",
+        "rightvalue": 122.711,
+        "leftvalue": -179
+      },
+      {
+        "catalog": "FA-8G:0",
+        "rightvalue": 226.366,
+        "leftvalue": -140
+      },
+      {
+        "catalog": "FA-8H:0",
+        "rightvalue": 0,
+        "leftvalue": -1
+      },
+      {
+        "catalog": "FA-9E:0",
+        "rightvalue": 439.322,
+        "leftvalue": -56
+      },
+      {
+        "catalog": "FA-9F:0",
+        "rightvalue": 121.739,
+        "leftvalue": -179
+      },
+      {
+        "catalog": "FA-9G:0",
+        "rightvalue": 99.8465,
+        "leftvalue": -140
+      },
+      {
+        "catalog": "FA-9H:0",
+        "rightvalue": 0,
+        "leftvalue": -1
+      },
+      {
+        "catalog": "FA-10E:1",
+        "rightvalue": 40.9952,
+        "leftvalue": -45
+      },
+      {
+        "catalog": "FA-10F:1",
+        "rightvalue": 7.02162,
+        "leftvalue": -22
+      },
+      {
+        "catalog": "FA-10G:1",
+        "rightvalue": 64.0575,
+        "leftvalue": -219
+      },
+      {
+        "catalog": "FA-7E:1",
+        "rightvalue": 41.358,
+        "leftvalue": -45
+      },
+      {
+        "catalog": "FA-7F:1",
+        "rightvalue": 6.97961,
+        "leftvalue": -22
+      },
+      {
+        "catalog": "FA-7G:1",
+        "rightvalue": 63.5661,
+        "leftvalue": -203
+      },
+      {
+        "catalog": "FA-8E:1",
+        "rightvalue": 40.9824,
+        "leftvalue": -45
+      },
+      {
+        "catalog": "FA-8F:1",
+        "rightvalue": 6.99493,
+        "leftvalue": -22
+      },
+      {
+        "catalog": "FA-8G:1",
+        "rightvalue": 63.7164,
+        "leftvalue": -219
+      },
+      {
+        "catalog": "FA-8H:1",
+        "rightvalue": 0.338522,
+        "leftvalue": -1
+      },
+      {
+        "catalog": "FA-9E:1",
+        "rightvalue": 40.8752,
+        "leftvalue": -45
+      },
+      {
+        "catalog": "FA-9F:1",
+        "rightvalue": 6.95215,
+        "leftvalue": -22
+      },
+      {
+        "catalog": "FA-9G:1",
+        "rightvalue": 63.739,
+        "leftvalue": -203
+      },
+      {
+        "catalog": "FA-9H:1",
+        "rightvalue": 0.326661,
+        "leftvalue": -1
+      }
+    ]
+  },
+  "tableEvent": {
+      "event": "appendArea",
+      "param": [
+          {
+              "findName": "device",
+              "postName": "device"
+          }
+      ],
+      "url": "/demos/template10_detail"
+  },
+  "tableData": {
+      "tableHead": [
+        {
+          "name": "编号",
+          "sort": "true",
+          "value": "number"
+        },
+        {
+          "name": "类型",
+          "sort": "false",
+          "value": "type"
+        }
+      ],
+      "tableBody": [
+        {
+          "number": "000296800706",
+          "type": "block"
+        },
+        {
+          "number": "000296800707",
+          "type": "vmax"
+        },
+        {
+          "number": "000296800711",
+          "type": "vmax"
+        }
+      ]
     }
 }

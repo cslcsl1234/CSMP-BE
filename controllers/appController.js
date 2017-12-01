@@ -123,6 +123,7 @@ var appController = function (app) {
  */
 
     app.post('/api/applications', function (req, res) {
+ 
         var apps = req.body;
         var appArray = [];
         for ( var i in apps ) {

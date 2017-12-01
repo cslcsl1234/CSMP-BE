@@ -25,9 +25,9 @@
     },
     {
         "hasDetail": false,
-        "tabName": "LUN",
-        "template": 7,
-        "url": "/dmx/array/luns",
+        "tabName": "逻辑磁盘",
+        "template": 8,
+        "url": "/vmax/array/luns",
         "param": [
             {
                 "postName": "device",
@@ -37,7 +37,7 @@
     },
     {
         "hasDetail": false,
-        "tabName": "Pool",
+        "tabName": "Pools",
         "template": 3,
         "url": "/vmax/array/pools",
         "param": [
@@ -50,8 +50,8 @@
     {
         "hasDetail": false,
         "tabName": "前端口",
-        "template": 3,
-        "url": "/vmax/array/switchs",
+        "template": 4,
+        "url": "/array/ports",
         "param": [
             {
                 "postName": "device",

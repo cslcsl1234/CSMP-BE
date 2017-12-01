@@ -13,7 +13,7 @@
         ],
         "url": "/demos/template7_detail"
     },
-    "tableData": [
+    "tableData": 
         {
             "tableHead": [
                 {
@@ -43,5 +43,5 @@
             ]
 
         }
-    ]
+    
 }

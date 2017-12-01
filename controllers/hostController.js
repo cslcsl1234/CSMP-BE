@@ -596,7 +596,9 @@ var hostController = function (app) {
         res.json(200, "OK");
 
     });
-    app.post('/api/host1', function (req, res) {
+
+    
+    app.post('/api/host', function (req, res) {
 
         var host = req.body;
 

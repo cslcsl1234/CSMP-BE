@@ -15,7 +15,7 @@
         "hasDetail": false,
         "tabName": "物理磁盘",
         "template": 2,
-        "url": "/vmax/array/disks",
+        "url": "/dmx/array/disks",
         "param": [
             {
                 "postName": "device",
@@ -25,7 +25,7 @@
     },
     {
         "hasDetail": false,
-        "tabName": "LUN",
+        "tabName": "逻辑磁盘",
         "template": 7,
         "url": "/dmx/array/luns",
         "param": [
@@ -58,6 +58,6 @@
                 "findName": "device"
             }
         ]
-    }
+    } 
 ]
 
