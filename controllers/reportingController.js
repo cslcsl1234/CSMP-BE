@@ -26,7 +26,8 @@ var officegen = require('officegen');
 var docx = officegen('docx');
 var path = require('path');
 var fs = require('fs');
-  
+var http = require('http'); 
+
 
 var reportingController = function (app) {
 
@@ -55,163 +56,238 @@ var reportingController = function (app) {
         docx.generate(res);
     });
 
-    app.get('/api/reporting/test2', function(req, res){ 
-        docx.on ( 'finalize', function ( written ) {
-                    console.log ( 'Finish to create Word file.\nTotal bytes created: ' + written + '\n' );
+    app.post('/api/reporting/test2', function(req, res){ 
+
+        var reportInstInfo = req.body;
+        var reportInfo;
+        var reportStatus = {};
+
+        async.waterfall(
+        [
+            function(callback){
+
+                console.log(reportInstInfo);
+                Reporting.GetReportingInfoList(function(result) {  
+          
+                    for ( var i in result ) {
+                        var reportInfoItem = result[i];
+                        if ( reportInfoItem.ID == reportInstInfo.ReportInfoID ) {
+                            reportInfo = reportInfoItem;
+                            break;
+                        }
+                    }
+
+                    reportInfo["reportInstance"] = reportInstInfo;
+
+                    callback(null,reportInfo);
+                  
                 });
 
-        docx.on ( 'error', function ( err ) {
-                    console.log ( err );
+
+            },
+            // Get All report status Records
+            function(param,  callback){  
+                console.log(param); 
+
+                reportStatus["ID"] = param.ID + "-" + param.reportInstance.Name;
+                reportStatus["ReportInfoID"] =  param.ID;
+                reportStatus["Name"] = param.reportInstance.Name;
+                reportStatus["GenerateTime"] = param.reportInstance.GenerateTime;
+                reportStatus["Status"] = "running";
+                reportStatus["StatusTime"] = new Date();
+                reportStatus["ReportFile"] = param.GenerateOutputPath+'/'+param.reportInstance.Name+'.'+param.Format;
+                reportStatus["ReportFileURL"] =  '/' + reportStatus.ReportFile;
+                reportStatus["ReportParamater"] = param.reportInstance.ReportParamater;
+ 
+
+                Reporting.generateReportStatus(reportStatus, function(result) {  
+                    console.log(result);
+                    callback(null,param);                  
                 });
 
+            },
+            // Get All report status Records
+            function(param,  callback){  
 
-        var table = [
-            [{
-                val: "No.",
-                opts: {
-                    cellColWidth: 4261,
-                    b:true,
-                    sz: '48',
-                    shd: {
-                        fill: "7F7F7F",
-                        themeFill: "text1",
-                        "themeFillTint": "80"
-                    },
-                    fontFamily: "Avenir Book"
-                }
-            },{
-                val: "Title1",
-                opts: {
-                    b:true,
-                    color: "A00000",
-                    align: "right",
-                    shd: {
-                        fill: "92CDDC",
-                        themeFill: "text1",
-                        "themeFillTint": "80"
+                    console.log(reportInfo);
+
+                   docx.on ( 'finalize', function ( written ) {
+                                console.log ( 'Finish to create Word file.\nTotal bytes created: ' + written + '\n' );
+                            });
+
+                    docx.on ( 'error', function ( err ) {
+                                console.log ( err );
+                            });
+
+
+                    var table = [
+                        [{
+                            val: "No.",
+                            opts: {
+                                cellColWidth: 4261,
+                                b:true,
+                                sz: '48',
+                                shd: {
+                                    fill: "7F7F7F",
+                                    themeFill: "text1",
+                                    "themeFillTint": "80"
+                                },
+                                fontFamily: "Avenir Book"
+                            }
+                        },{
+                            val: "Title1",
+                            opts: {
+                                b:true,
+                                color: "A00000",
+                                align: "right",
+                                shd: {
+                                    fill: "92CDDC",
+                                    themeFill: "text1",
+                                    "themeFillTint": "80"
+                                }
+                            }
+                        },{
+                            val: "Title2",
+                            opts: {
+                                align: "center",
+                                cellColWidth: 42,
+                                b:true,
+                                sz: '48',
+                                shd: {
+                                    fill: "92CDDC",
+                                    themeFill: "text1",
+                                    "themeFillTint": "80"
+                                }
+                            }
+                        }],
+                        [1,'All grown-ups were once children',''],
+                        [2,'there is no harm in putting off a piece of work until another day.',''],
+                        [3,'But when it is a matter of baobabs, that always means a catastrophe.',''],
+                        [4,'watch out for the baobabs!','END'],
+                    ]
+
+                    var tableStyle = {
+                        tableColWidth: 4261,
+                        tableSize: 24,
+                        tableColor: "ada",
+                        tableAlign: "left",
+                        tableFontFamily: "Comic Sans MS"
                     }
-                }
-            },{
-                val: "Title2",
-                opts: {
-                    align: "center",
-                    cellColWidth: 42,
-                    b:true,
-                    sz: '48',
-                    shd: {
-                        fill: "92CDDC",
-                        themeFill: "text1",
-                        "themeFillTint": "80"
-                    }
-                }
-            }],
-            [1,'All grown-ups were once children',''],
-            [2,'there is no harm in putting off a piece of work until another day.',''],
-            [3,'But when it is a matter of baobabs, that always means a catastrophe.',''],
-            [4,'watch out for the baobabs!','END'],
-        ]
 
-        var tableStyle = {
-            tableColWidth: 4261,
-            tableSize: 24,
-            tableColor: "ada",
-            tableAlign: "left",
-            tableFontFamily: "Comic Sans MS"
-        }
+                    var data = [[{ align: 'right' }, {
+                            type: "text",
+                            val: "Simple"
+                        }, {
+                            type: "text",
+                            val: " with color",
+                            opt: { color: '000088' }
+                        }, {
+                            type: "text",
+                            val: "  and back color.",
+                            opt: { color: '00ffff', back: '000088' }
+                        }, {
+                            type: "linebreak"
+                        }, {
+                            type: "text",
+                            val: "Bold + underline",
+                            opt: { bold: true, underline: true }
+                        }], {
+                            type: "horizontalline"
+                        }, [{ backline: 'EDEDED' }, {
+                            type: "text",
+                            val: "  backline text1.",
+                            opt: { bold: true }
+                        }, {
+                            type: "text",
+                            val: "  backline text2.",
+                            opt: { color: '000088' }
+                        }], {
+                            type: "text",
+                            val: "Left this text.",
+                            lopt: { align: 'left' }
+                        }, {
+                            type: "text",
+                            val: "Center this text.",
+                            lopt: { align: 'center' }
+                        }, {
+                            type: "text",
+                            val: "Right this text.",
+                            lopt: { align: 'right' }
+                        }, {
+                            type: "text",
+                            val: "Fonts face only.",
+                            opt: { font_face: 'Arial' }
+                        }, {
+                            type: "text",
+                            val: "Fonts face and size.",
+                            opt: { font_face: 'Arial', font_size: 40 }
+                        }, {
+                            type: "table",
+                            val: table,
+                            opt: tableStyle
+                        }, [{}, {
+                            type: "image",
+                            path: path.resolve(__dirname, '../1.PNG')
+                        },{
+                            type: "image",
+                            path: path.resolve(__dirname, '../1.PNG')
+                        }], {
+                            type: "pagebreak"
+                        }, [{}, {
+                            type: "numlist"
+                        }, {
+                            type: "text",
+                            text: "numList1.",
+                        }, {
+                            type: "numlist"
+                        }, {
+                            type: "text",
+                            text: "numList2.",
+                        }], [{}, {
+                            type: "dotlist"
+                        }, {
+                            type: "text",
+                            text: "dotlist1.",
+                        }, {
+                            type: "dotlist"
+                        }, {
+                            type: "text",
+                            text: "dotlist2.",
+                        }], {
+                            type: "pagebreak"
+                        }
+                    ]
 
-        var data = [[{ align: 'right' }, {
-                type: "text",
-                val: "Simple"
-            }, {
-                type: "text",
-                val: " with color",
-                opt: { color: '000088' }
-            }, {
-                type: "text",
-                val: "  and back color.",
-                opt: { color: '00ffff', back: '000088' }
-            }, {
-                type: "linebreak"
-            }, {
-                type: "text",
-                val: "Bold + underline",
-                opt: { bold: true, underline: true }
-            }], {
-                type: "horizontalline"
-            }, [{ backline: 'EDEDED' }, {
-                type: "text",
-                val: "  backline text1.",
-                opt: { bold: true }
-            }, {
-                type: "text",
-                val: "  backline text2.",
-                opt: { color: '000088' }
-            }], {
-                type: "text",
-                val: "Left this text.",
-                lopt: { align: 'left' }
-            }, {
-                type: "text",
-                val: "Center this text.",
-                lopt: { align: 'center' }
-            }, {
-                type: "text",
-                val: "Right this text.",
-                lopt: { align: 'right' }
-            }, {
-                type: "text",
-                val: "Fonts face only.",
-                opt: { font_face: 'Arial' }
-            }, {
-                type: "text",
-                val: "Fonts face and size.",
-                opt: { font_face: 'Arial', font_size: 40 }
-            }, {
-                type: "table",
-                val: table,
-                opt: tableStyle
-            }, [{}, {
-                type: "image",
-                path: path.resolve(__dirname, '../1.PNG')
-            },{
-                type: "image",
-                path: path.resolve(__dirname, '../1.PNG')
-            }], {
-                type: "pagebreak"
-            }, [{}, {
-                type: "numlist"
-            }, {
-                type: "text",
-                text: "numList1.",
-            }, {
-                type: "numlist"
-            }, {
-                type: "text",
-                text: "numList2.",
-            }], [{}, {
-                type: "dotlist"
-            }, {
-                type: "text",
-                text: "dotlist1.",
-            }, {
-                type: "dotlist"
-            }, {
-                type: "text",
-                text: "dotlist2.",
-            }], {
-                type: "pagebreak"
+                    var pObj = docx.createByJson(data); 
+
+                    var out = fs.createWriteStream ( param.GenerateOutputPath+'/'+param.reportInstance.Name+'.'+param.Format );
+
+                    out.on ( 'error', function ( err ) {
+                        console.log ( err );
+                    });
+
+                    docx.generate ( out );
+                    callback(null,param);
+
+            },
+            // Get All report status Records
+            function(param,  callback){   
+                reportStatus["Status"] = "complete";
+                reportStatus["StatusTime"] = new Date();
+                Reporting.generateReportStatus(reportStatus, function(result) {  
+                    console.log(result);
+                    callback(null,param);                  
+                });
+
             }
-        ]
-
-        var pObj = docx.createByJson(data);
-
-        var out = fs.createWriteStream ( 'tmp/out_json.docx' );
-
-        out.on ( 'error', function ( err ) {
-            console.log ( err );
+        ], function (err, result) {
+              // result now equals 'done'
+              res.json(200,result);
         });
 
-        docx.generate ( res );
+
+ 
+
 
     });
 
@@ -275,7 +351,26 @@ var reportingController = function (app) {
         });
 
     } ) ;
+ 
 
+     app.get('/api/reporting/downloadfiles', function ( req, res )  { 
+        var reportInstance = req.query.reportInstance; 
+        var aa = JSON.parse(reportInstance);
+       console.log(aa);
+        if ( reportInstance === undefined ) {
+            res.json(400, 'Must be special a reportInstance !')
+            return;
+        } 
+
+        var FileURL = aa.ReportFile;
+        console.log(FileURL);
+        var file =  __dirname + path.normalize("/") +".."+ path.normalize( FileURL);
+        console.log(file);
+        res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        res.download("report\\test\\newreport-003.docx");
+
+
+    } ) ;
 
     app.get('/api/reporting/info', function (req, res) {
 

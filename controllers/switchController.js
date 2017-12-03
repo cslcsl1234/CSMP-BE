@@ -19,7 +19,7 @@ var mongoose = require('mongoose');
 var SwitchObj = mongoose.model('Switch');
 var SWITCH = require('../lib/Switch');
 var VMAX=require('../lib/Array_VMAX');
-
+var HOST=require('../lib/Host');
 
 // -----------------------------------
 // For demo data
@@ -842,21 +842,44 @@ function GetSwitchInfo(callback) {
     });
 
     app.get('/api/switch/ports', function (req, res) {
-  
+        var device;
+        async.waterfall([
+            function(callback){ 
+
+            SWITCH.GetSwitchPorts(device, function(result) { 
+                callback(null,result);
+            }); 
 
 
-        var deviceid = req.query.device;
-         
+        }, 
 
-        if ( typeof deviceid === 'undefined' ) {
-            res.json(400, 'Must be special a deviceid!');
-            return;
-        }  
+        function(arg1, callback){ 
+            var host;
+            HOST.GetHBAFlatRecord(host, function(hosts) {
+                for ( var i in arg1 ) {
+                    var portItem = arg1[i];
+                    portItem["hostname"] = portItem.connectedToAlias;  // default equal the port alias name;
+
+                    for ( var j in hosts ) {
+                        var hostItem = hosts[j];
+                        if ( portItem.portwwn == hostItem.hba_wwn ) {
+                            portItem["hostname"] = hostItem.hostname;
+                            break;
+                        }
+                    }
+
+                }
+
+                callback(null,arg1); 
+            })
+
+                
+        }
+            ], function (err, result) {
+                   // result now equals 'done'  
+                  res.json(200, result);
+            });
  
-        SWITCH.GetSwitchPorts(deviceid, function(result) { 
-            res.json( 200 , result );
-        });
-
          
     });
 
@@ -879,8 +902,26 @@ function GetSwitchInfo(callback) {
         }, 
 
         function(arg1, callback){ 
+            var host;
+            HOST.GetHBAFlatRecord(host, function(hosts) {
+                for ( var i in arg1 ) {
+                    var portItem = arg1[i];
+                    portItem["hostname"] = portItem.connectedToAlias;  // default equal the port alias name;
+
+                    for ( var j in hosts ) {
+                        var hostItem = hosts[j];
+                        if ( portItem.portwwn == hostItem.hba_wwn ) {
+                            portItem["hostname"] = hostItem.hostname;
+                            break;
+                        }
+                    }
+
+                }
 
                 callback(null,arg1); 
+            })
+
+                
         },         
         function(arg1,  callback){  
 
@@ -922,6 +963,8 @@ function GetSwitchInfo(callback) {
                         chartData.push(charItem);
                     }
 
+
+
                 }
 
 
@@ -933,44 +976,48 @@ function GetSwitchInfo(callback) {
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "端口序号";
                 tableHeaderItem["value"] = "partid";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "端口名称";
                 tableHeaderItem["value"] = "part";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "类型";
                 tableHeaderItem["value"] = "porttype";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "最大速度";
                 tableHeaderItem["value"] = "maxspeed";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
-
- 
-
-
-
  
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "状态";
                 tableHeaderItem["value"] = "partstat";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
   
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "连接WWN";
                 tableHeaderItem["value"] = "connectedToWWN";
-                tableHeaderItem["sort"] = "true";
+                tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
+
+  
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "连接设备名称";
+                tableHeaderItem["value"] = "hostname";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+                
 
                 // ---------- the part of table event ---------------
                 var tableEvent = {}; 
@@ -1005,6 +1052,10 @@ function GetSwitchInfo(callback) {
             });
  
     });
+
+
+
+ 
 
      app.get('/api/switch/port_detail/perf', function ( req, res )  {
         var device = req.query.device;  

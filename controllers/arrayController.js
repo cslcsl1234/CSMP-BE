@@ -1946,6 +1946,255 @@ var arrayController = function (app) {
         });
     });
 
+    /*
+    *  Get SRDF Group of VMAX.
+    */
+   app.get('/api/array/srdf', function (req, res) { 
+        var device = req.query.device;
+        if ( device === undefined ) {
+            res.json(400, 'Must be special a device!')
+            return;
+        }
+
+
+        async.waterfall([
+            function(callback){ 
+
+
+            VMAX.GetSRDFGroups(device,function(result) {
+                    callback(null,result);
+            });
+
+        },
+        // -------------------------------------------------
+        // Relation with SRDF Group and luns
+        // -------------------------------------------------
+        function(arg1,  callback) {  
+
+            VMAX.GetSRDFLunToReplica(device,function(result) {
+
+                for ( var i in arg1 ) {
+                    var item = arg1[i];  
+                    item["NumOfDevices"] = 0;
+                    item["srdfmode"] = "";
+                    item["pairstate"] = "";
+                    item["AssociatedDevices"] = [];
+
+
+                    for ( var j in result ) {
+                        var lunItem = result[j];
+                        if ( item.device == lunItem.device && lunItem.srdfgrpn == item.part ) {
+                            item.AssociatedDevices.push(lunItem);
+                            item.NumOfDevices = item.NumOfDevices + 1;
+                            item.srdfmode = lunItem.srdfmode;
+                            if ( item.pairstate.indexOf(lunItem.replstat) < 0 )
+                                if ( item.pairstate.length == 0 ) 
+                                    item.pairstate = lunItem.replstat;
+                                else 
+                                    item.pairstate = item.pairstate + ',' + lunItem.replstat;
+                        }
+                    }
+                 }
+                callback(null,arg1);
+
+            })
+           
+        },
+        function(arg1,  callback){  
+
+
+                var data = arg1;
+
+
+                var finalResult = {};
+
+                // ---------- the part of table ---------------
+                var tableHeader = [];
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "SRDF Group";
+                tableHeaderItem["value"] = "part";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "SRDF Group名称";
+                tableHeaderItem["value"] = "srdfgpnm";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "SRDF Group类型";
+                tableHeaderItem["value"] = "srdfgpty";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+ 
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "同步模式";
+                tableHeaderItem["value"] = "srdfmode";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+ 
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "复制设备数量";
+                tableHeaderItem["value"] = "NumOfDevices";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+ 
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Pair状态";
+                tableHeaderItem["value"] = "pairstate";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "远端存储";
+                tableHeaderItem["value"] = "remarray";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                
+                // ---------- the part of table event ---------------
+                var tableEvent = {}; 
+                var tableEventParam = [];
+
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'device';
+                tableEventParamItem["postName"] = 'device';
+                tableEventParam.push(tableEventParamItem); 
+
+                var tableEventParamItem = {};
+                tableEventParamItem["findName"] = 'part';
+                tableEventParamItem["postName"] = 'SRDFGrpID';
+                tableEventParam.push(tableEventParamItem); 
+ 
+
+                tableEvent["event"] = "appendTable";
+                tableEvent["param"] = tableEventParam; 
+                tableEvent["url"] = "/array/srdf/group";  
+ 
+                finalResult["tableEvent"] = tableEvent;
+                var tabledata = {};
+                tabledata["tableHead"] = tableHeader;
+                tabledata["tableBody"] = data;
+
+                finalResult["tableData"] = tabledata;
+ 
+
+                callback(null,finalResult); 
+
+            }
+            ], function (err, result) {
+                   // result now equals 'done' 
+                   res.json(200, result);
+            });
+ 
+    });
+
+
+    /*
+    *  Get SRDF Group of VMAX.
+    */
+   app.get('/api/array/srdf/group', function (req, res) { 
+        var device = req.query.device; 
+        var SRDFGrpID = req.query.SRDFGrpID; 
+
+        var luns = [];
+       async.waterfall([
+            function(callback){ 
+
+
+            VMAX.GetSRDFLunToReplica(device,function(result) {
+ 
+                for ( var j in result ) {
+                    var lunItem = result[j];
+                    if ( device == lunItem.device && lunItem.srdfgrpn == SRDFGrpID ) { 
+                        var dateTime = new Date(parseInt(lunItem.linkstct)*1000);
+                        lunItem.linkstct = dateTime.toISOString();
+
+                        luns.push(lunItem);
+                    }
+                } 
+                callback(null,luns);
+
+            })
+               
+            },
+            function(arg1,  callback){  
+
+
+                var finalResult = {};
+
+                // ---------- the part of table ---------------
+                var tableHeader = [];
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "逻辑设备名称";
+                tableHeaderItem["value"] = "part";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "远端存储名称";
+                tableHeaderItem["value"] = "remarray";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "远端逻辑设备";
+                tableHeaderItem["value"] = "remlun";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "远端逻辑设备状态";
+                tableHeaderItem["value"] = "tgtstate";
+                tableHeaderItem["sort"] = "true";
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Pair状态";
+                tableHeaderItem["value"] = "replstat";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "SRDF模式";
+                tableHeaderItem["value"] = "srdfmode";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Link状态";
+                tableHeaderItem["value"] = "linkstat";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "Link状态变更时间";
+                tableHeaderItem["value"] = "linkstct";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+                var tabledata = {};
+                tabledata["tableHead"] = tableHeader;
+                tabledata["tableBody"] = arg1;
+
+                finalResult["tableData"] = tabledata;
+
+                    callback(null,finalResult); 
+
+            }
+            ], function (err, result) {
+                   // result now equals 'done' 
+                   res.json(200, result);
+            });
+    });
 
 
      app.get('/api/array/hosts1', function (req, res) {
@@ -3214,8 +3463,8 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
                 //VMAX.GetMaskViews(device, function(result) { 
                // VMAX.GetFEPorts(device, function(result) {                     
         //VMAX.GetFEPortPerf(device, feport, function(result) {
-             VMAX.getArrayLunPerformance(device,lun,function(result) {
-
+        VMAX.GetSRDFGroups(device,function(result) {
+        //VMAX.GetSRDFLunToReplica(device,function(result) {
             res.json(200,result);
         });
 

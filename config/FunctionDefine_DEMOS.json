@@ -120,6 +120,18 @@
         ]
     },
     {
+        "hasDetail": false,
+        "tabName": "Template11",
+        "template": 11,
+        "url": "/demos/template11",
+        "param": [
+            {
+                "postName": "host_name_param",
+                "findName": "host_name"
+            }
+        ]
+    },
+    {
         "hasDetail": true,
         "tabDetail": [
             

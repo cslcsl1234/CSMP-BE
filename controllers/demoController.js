@@ -155,6 +155,13 @@ var demoController = function (app) {
         res.json(200, DEMOS_TEMPLATE10_DETAIL);
     });
 
+    app.get('/api/demos/template11', function (req, res) {
+        var param = req.query.host_name_param;
+        console.log('API: template11 : ' + param);
+
+        res.json(200, DEMOS_TEMPLATE10);
+    });
+
 
 
 };
