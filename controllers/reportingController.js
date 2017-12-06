@@ -364,10 +364,11 @@ var reportingController = function (app) {
 
         var FileURL = aa.ReportFile;
         console.log(FileURL);
-        var file =  __dirname + path.normalize("/") +".."+ path.normalize( FileURL);
-        console.log(file);
+        var file =  __dirname + path.normalize("/") +".."+ path.normalize("/") + path.normalize( FileURL);
+        var file1 =  "." + path.normalize("/") +path.normalize( FileURL);
+        console.log(file1);
         res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-        res.download("report\\test\\newreport-003.docx");
+        res.download(file1);
 
 
     } ) ;
