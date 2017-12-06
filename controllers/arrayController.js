@@ -353,6 +353,56 @@ var arrayController = function (app) {
         }
     });
 
+   app.get('/api/vmax/performance/disk', function (req, res) { 
+    var device = req.query.device;
+
+    if ( config.ProductType == 'demo' ) { 
+            res.json(200,VMAXDISKListJSON);
+            return;
+
+    } else {
+
+            if ( device === undefined ) {
+                res.json(400, 'Must be special a device!')
+                return;
+            }
+
+            var param = {};
+            //param['filter_name'] = '(name=\'Capacity\'|name=\'FreeCapacity\'|name=\'Availability\')';
+            param['keys'] = ['device','partsn'];
+            param['fields'] = ['partid','director'];
+
+            if (typeof device !== 'undefined') { 
+                param['filter'] = 'device=\''+device+'\'&source=\'VMAX-Collector\'&parttype=\'Disk\'';
+            } else {
+                param['filter'] = 'source=\'VMAX-Collector\'&parttype=\'Disk\'';
+            } 
+
+            CallGet.CallGet(param, function(param) {
+                
+                var data = param.result;
+
+                var finalResult = [];
+
+                // ----- the part of chart --------------
+                for ( var i in data ) {
+                    var item = data[i];
+                    var resultItem = {};
+
+                    resultItem["container"] = item.device;
+                    resultItem["ident"] = item.director;
+                    resultItem["spindleId"] = item.partid;
+                    finalResult.push(resultItem);
+                }
+
+
+                res.json(200, finalResult);
+
+            });
+
+        }
+    });
+
   app.get('/api/dmx/array/disks', function (req, res) { 
     var device = req.query.device;
 
@@ -2547,6 +2597,44 @@ var arrayController = function (app) {
 
      } ) ;
 
+
+     app.get('/api/vmax/performance/director', function ( req, res )  {
+
+        var arraysn = req.query.device; 
+
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_array_ports);
+                return;
+        } ;
+
+
+        VMAX.GetPorts(arraysn, function(result) {
+ 
+           var finalResult = [];  
+  
+ 
+            for ( var i in result ) {
+                var item = result[i];
+                var resultItem = {};
+
+                resultItem["container"] = item.device;
+                resultItem["directorType"] = item.porttype;
+                resultItem["cache"] = item.porttype + "-CACHE";
+                resultItem["slot"] = item.dirslot;
+                resultItem["id"] = item.director;
+                resultItem["port"] = item.part;
+
+                finalResult.push(resultItem);
+
+            }
+
+            res.json(200,finalResult);
+
+        });
+
+     } ) ;
+
+
      app.get('/api/array/switchs', function ( req, res )  {
 
         var arraysn = req.query.device; 
@@ -3463,8 +3551,9 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
                 //VMAX.GetMaskViews(device, function(result) { 
                // VMAX.GetFEPorts(device, function(result) {                     
         //VMAX.GetFEPortPerf(device, feport, function(result) {
-        VMAX.GetSRDFGroups(device,function(result) {
+        //VMAX.GetSRDFGroups(device,function(result) {
         //VMAX.GetSRDFLunToReplica(device,function(result) {
+        VMAX.GetPorts(device,function(result) {
             res.json(200,result);
         });
 
