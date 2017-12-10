@@ -58,6 +58,18 @@
                 "findName": "device"
             }
         ]
-    } 
+    } ,
+    {
+        "hasDetail": false,
+        "tabName": "SRDF",
+        "template": 7,
+        "url": "/array/srdf",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    }
 ]
 

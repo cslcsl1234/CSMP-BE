@@ -906,6 +906,7 @@ var arrayController = function (app) {
         var tableHeader = [];
         var tableBody = [];
         var finalResult = {}; 
+ 
         async.waterfall([
  
             function( callback){  
@@ -963,18 +964,32 @@ var arrayController = function (app) {
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
-                    for ( var i in hosts ) {
-                        var bodyItem = {};
-                        var hostItem = JSON.parse(hosts[i]);
- 
-                        bodyItem["hostname"] = hostItem.hostname;
-                        bodyItem["management_ip"] = hostItem.ip;
-                        bodyItem["hosttype"] = hostItem.host_type;
-                        bodyItem["status"] = hostItem.host_status;
-                        bodyItem["OS"] = hostItem.OS;
-                        bodyItem["OSVersion"] = hostItem.OSVersion;
-                        
-                        tableBody.push(bodyItem);
+                    if ( Array.isArray(hosts) ) 
+                        for ( var i in hosts ) {
+                            var bodyItem = {}; 
+                            var hostItem = JSON.parse(hosts[i]);
+     
+                            bodyItem["hostname"] = hostItem.hostname;
+                            bodyItem["management_ip"] = hostItem.ip;
+                            bodyItem["hosttype"] = hostItem.host_type;
+                            bodyItem["status"] = hostItem.host_status;
+                            bodyItem["OS"] = hostItem.OS;
+                            bodyItem["OSVersion"] = hostItem.OSVersion;
+                            
+                            tableBody.push(bodyItem);
+                        }
+                    else {
+                            var bodyItem = {}; 
+                            var hostItem = JSON.parse(hosts);
+     
+                            bodyItem["hostname"] = hostItem.hostname;
+                            bodyItem["management_ip"] = hostItem.ip;
+                            bodyItem["hosttype"] = hostItem.host_type;
+                            bodyItem["status"] = hostItem.host_status;
+                            bodyItem["OS"] = hostItem.OS;
+                            bodyItem["OSVersion"] = hostItem.OSVersion;
+                            
+                            tableBody.push(bodyItem);                        
                     }
  
 
@@ -2442,12 +2457,9 @@ var arrayController = function (app) {
      app.get('/api/array/ports', function ( req, res )  {
 
         var arraysn = req.query.device; 
+        var rule17= req.query.rule17;
 
-        if ( config.ProductType == 'demo' ) {
-                res.json(200,demo_array_ports);
-                return;
-        } ;
-
+console.log("RULE17="+rule17);
 
         VMAX.GetFEPorts(arraysn, function(result) {
  
@@ -2457,15 +2469,65 @@ var arrayController = function (app) {
 
             // -------------- Left Chart ---------------------------
             var chartData = [] ;
+            var tmpArray = [];
             for ( var i in result ) {
+                //console.log(" ................................... ");
                 var item = result[i];
                 var chartItem = {};
 
-                chartItem["catalog"] = item.feport;
-                chartItem["rightvalue"] = item.Throughput;
-                chartItem["leftvalue"] = 0-item.MappingVolCount;
 
-                chartData.push(chartItem);
+                if ( rule17 == 'false'  ) {
+                    chartItem["catalog"] = item.feport;
+                    chartItem["rightvalue"] = item.Throughput;
+                    chartItem["leftvalue"] = 0-item.MappingVolCount;
+
+                    chartData.push(chartItem);                   
+                } else {
+                    var FEDir = item.feport.split(':')[0].replace('FA-','');
+                    var FEPort = item.feport.split(':')[1];
+                    var FEDirNum = parseInt(FEDir.substring(0,FEDir.length - 1));
+                    var FEDirABC = FEDir.substring(FEDir.length - 1);
+                    //console.log(item.feport + "\t" + FEDir + "\t" + FEDirNum + "\t" + FEDirABC);
+
+                    for ( var j in result ) {
+                        if ( i != j ) {
+                            var subItem = result[j];
+                            var isDone = false ;
+                            for ( var z in tmpArray) {
+                                var item1 = tmpArray[z];
+                                if ( item1.feport == item.feport ) {
+                                    isDone = true;
+                                    break;
+                                }
+                            }
+                            if ( isDone == true ) continue;
+
+                            var subFEPort = subItem.feport.split(':')[1];
+                            var subFEDir = subItem.feport.split(':')[0].replace('FA-','');
+                            var subFEDirNum = parseInt(subFEDir.substring(0,subFEDir.length - 1));
+                            var subFEDirABC = subFEDir.substring(subFEDir.length - 1);
+
+                            if ( FEDirABC == subFEDirABC && FEPort == subFEPort ) {
+                                if ( FEDirNum + subFEDirNum == 17 ) {
+                                    //console.log("=====partFE is find ==== : " + subItem.feport + "\t" + subFEDir);
+                                    tmpArray.push(subItem);
+
+                                    chartItem["catalog"] = item.feport + ', ' + subItem.feport;
+                                    chartItem["rightvalue"] = item.Throughput + subItem.Throughput;
+                                    chartItem["leftvalue"] = 0-item.MappingVolCount;
+
+                                    chartData.push(chartItem);   
+
+
+                                }
+                            }
+
+
+                        }
+                    }
+
+                }
+
 
             }
 
@@ -2571,6 +2633,27 @@ var arrayController = function (app) {
         });
 
      } ) ;
+
+
+     app.get('/api/array/ports_17principle', function ( req, res )  {
+
+        var arraysn = req.query.device; 
+
+
+        VMAX.GetFEPorts(arraysn, function(result) {
+ 
+           var finalResult = {}; 
+           var finalResult1 = {}; 
+  
+      
+
+            res.json(200,result);
+
+        });
+
+     } ) ;
+
+
 
     app.get('/api/array/port_perf', function ( req, res )  {
 
@@ -3553,24 +3636,35 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
         //VMAX.GetFEPortPerf(device, feport, function(result) {
         //VMAX.GetSRDFGroups(device,function(result) {
         //VMAX.GetSRDFLunToReplica(device,function(result) {
-        VMAX.GetPorts(device,function(result) {
-            res.json(200,result);
-        });
-
+ 
         //VMAX.getArrayLunPerformance(device,function(result) {
         //
         //
-        /*
-        var inits = [];
-        var init="5000144290592910";
-        inits.push(init);
-        var init="500014428059CB11";
-        inits.push(init);
         
-        VMAX.GetAssignedLUNByInitiator(inits,function(result) {
+        var inits = [];
+ 
+        var init='10000090FA70C91A';
+        inits.push(init);
+        var init=  '10000090FA70C91B';
+        inits.push(init);
+        var init=  '10000090FA51418E';
+        inits.push(init);
+        var init=  '10000090FA51418F';
+        inits.push(init);
+        inits.push(init);
+        var init=  '10000090FA646624';
+        inits.push(init);
+        var init=  '0000090FA646625';
+        inits.push(init);
+         var init= '10000090FA9002CE';
+        inits.push(init);
+        var init=  '10000090FA9002CF';
+        inits.push(init);
+
+        host.GetAssignedLUNByInitiator(inits,function(result) {
              res.json(200,result);
         })
-        */
+        
 
     } ) ;
 

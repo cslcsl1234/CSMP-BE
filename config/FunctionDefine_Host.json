@@ -25,7 +25,7 @@
     },
     {
         "hasDetail": false,
-        "tabName": "LUN信息",
+        "tabName": "分配存储",
         "template": 3,
         "url": "/host/luns",
         "param": [

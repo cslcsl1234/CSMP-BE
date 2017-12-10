@@ -14,6 +14,7 @@ var unirest1 = require('unirest');
 var async = require('async');
   
 var util = require('../lib/util');
+var CallGet = require('../lib/CallGet'); 
 
 var host = require('../lib/Host');
 
@@ -406,14 +407,129 @@ var hostController = function (app) {
             },
             // Get All Localtion Records
             function(inits,  callback){ 
-                 VMAX.GetAssignedLUNByInitiator(inits,function(result) {
+                console.log(inits);
+                 host.GetAssignedLUNByInitiator(inits,function(result) {
                      callback(null,result);
                 })
                        
                     
             },
+            // Get All Array devices Records
+            function(luns,  callback){ 
+                var param = {}; 
+                param['filter'] = '(parttype=\'LUN\')';
+                param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'Availability\'|name=\'PoolUsedCapacity\')';
+                param['keys'] = ['device','part','parttype'];
+                param['fields'] = ['model','alias','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked','disktype'];
+                param['limit'] = 1000000;
+ 
+                CallGet.CallGet(param, function(param) { 
+                    var result = param.result;
+         
+                    for ( var i in luns ) {
+                        var lunItem = luns[i];
+
+                        for ( var j in result ) {
+                            var lunDetailItem = result[j];
+                            if ( lunItem.volumeWWN == lunDetailItem.partsn ) {
+                                lunItem["model"] = lunDetailItem.model;
+                                lunItem["sgname"] = lunDetailItem.sgname;
+                                lunItem["disktype"] = lunDetailItem.disktype;
+                                 lunItem["dgstype"] = lunDetailItem.dgstype;
+                                 lunItem["Capacity"] = lunDetailItem.Capacity;
+                                 lunItem["UsedCapacity"] = lunDetailItem.UsedCapacity; 
+                                 break;
+                            }
+                        }
+                    }
+                    callback(null, luns ); 
+                });
+                    
+            },
+
+
+
+
             function(param,  callback){ 
-                  callback(null,param);
+
+                var finalResult = {};
+ 
+                // ---------- the part of table ---------------
+                var tableHeader = []; 
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "存储名称";
+                tableHeaderItem["value"] = "arrayName";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "存储型号";
+                tableHeaderItem["value"] = "model";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "存储池名称";
+                tableHeaderItem["value"] = "poolName";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "逻辑设备名称";
+                tableHeaderItem["value"] = "lunName";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "保护类型";
+                tableHeaderItem["value"] = "lunRaid";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "StorageGroup";
+                tableHeaderItem["value"] = "sgname";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "物理磁盘类型";
+                tableHeaderItem["value"] = "disktype";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "供给类型";
+                tableHeaderItem["value"] = "dgstype";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "容量(GB)";
+                tableHeaderItem["value"] = "Capacity";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "已使用容量(GB)";
+                tableHeaderItem["value"] = "UsedCapacity";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+              
+                
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableBody"] = param;
+
+ 
+                callback(null,finalResult);
             }
         ], function (err, result) {
               res.json(200, result);
