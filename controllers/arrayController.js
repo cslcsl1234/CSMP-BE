@@ -18,7 +18,6 @@ var util = require('../lib/util');
 
 var mongoose = require('mongoose');
 var ArrayObj = mongoose.model('Array');
- 
 var CallGet = require('../lib/CallGet'); 
 
 var App = require('../lib/App'); 
@@ -2810,6 +2809,37 @@ console.log("RULE17="+rule17);
     });  
 
 
+    app.get('/api/vmax/performance/perfDetail/history', function (req, res) {
+
+        var arraysn = req.query.device; 
+        var start = req.query.start; 
+        var end = req.query.end; 
+
+        if (typeof arraysn !== 'undefined') { 
+            var filterbase = 'device=\''+arraysn+'\'&!parttype';
+        } else {
+            res.json(400, 'Must be have arraysn!')
+            return;
+        } 
+
+        if ( typeof start === 'undefined' ) {
+            res.json(400, 'Must be have start paramater!')
+            return;
+        }
+
+        if ( typeof end === 'undefined' ) {
+            res.json(400, 'Must be have end paramater!')
+            return;
+        }
+
+        console.log(start);
+
+        var result = [];
+        res.json(200,result);
+
+    });  
+
+
 
 /*
 *  Array Capacity
@@ -3632,7 +3662,10 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
     
                 //VMAX.GetDMXMasking(device, function(result) { 
                 //VMAX.GetMaskViews(device, function(result) { 
-               // VMAX.GetFEPorts(device, function(result) {                     
+        VMAX.GetFEPorts(device, function(result) {            
+            res.json(200,result);
+        }); 
+
         //VMAX.GetFEPortPerf(device, feport, function(result) {
         //VMAX.GetSRDFGroups(device,function(result) {
         //VMAX.GetSRDFLunToReplica(device,function(result) {
@@ -3641,6 +3674,8 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
         //
         //
         
+
+        /*
         var inits = [];
  
         var init='10000090FA70C91A';
@@ -3664,6 +3699,7 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
         host.GetAssignedLUNByInitiator(inits,function(result) {
              res.json(200,result);
         })
+        */
         
 
     } ) ;
