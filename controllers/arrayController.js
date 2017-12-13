@@ -2984,7 +2984,7 @@ console.log("RULE17="+rule17);
                                     var matrics = item.points;
                                     var resultItem = {};
                                     resultItem["type"] = "DISK";
-                                    resultItem["component"] = item.properties.director + " " + item.properties.partid;
+                                    resultItem["component"] = item.properties.part.split(":")[0] + " " + item.properties.partid;
                                     resultItem["busy"] = util.GetMaxValue(matrics) ;
                                     arg1.push(resultItem);
                                 }
