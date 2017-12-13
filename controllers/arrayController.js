@@ -2816,7 +2816,7 @@ console.log("RULE17="+rule17);
         var end = req.query.end; 
 
         if (typeof arraysn !== 'undefined') { 
-            var filterbase = 'device=\''+arraysn+'\'&!parttype';
+            var filterbase = 'device=\''+arraysn + '\'' ;
         } else {
             res.json(400, 'Must be have arraysn!')
             return;
@@ -2834,8 +2834,169 @@ console.log("RULE17="+rule17);
 
         console.log(arraysn + "|" + start + "|" + end);
 
-        var result = [];
-        res.json(200,result);
+
+
+        var finalResult = [];
+
+        console.log(start);
+        async.waterfall([
+            function(callback){ 
+ 
+
+
+                var filter = filterbase + '&datagrp=\'VMAX-BEDirector\'&partgrp=\'Back-End\'&(name==\'CurrentUtilization\')';
+                var fields = 'device,part,name';
+                var keys = ['device,part'];
+
+                //var queryString =  {"filter":filter,"fields":fields}; 
+                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
+
+
+
+                console.log(queryString);
+                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
+                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+                        .headers({'Content-Type': 'multipart/form-data'}) 
+                        .query(queryString) 
+                        .end(function (response) { 
+                            if ( response.error ) {
+                                console.log(response.error);
+                                return response.error;
+                            } else {  
+                                var result = JSON.parse(response.body).values;    
+
+                                for ( var i in result ) {
+                                    var item = result[i];
+                                    var matrics = item.points;
+                                    var resultItem = {};
+                                    resultItem["type"] = "DF";
+                                    resultItem["component"] = item.properties.part;
+                                    resultItem["busy"] = util.GetMaxValue(matrics);
+                                    finalResult.push(resultItem);
+                                }
+                                callback(null,finalResult);
+                            }
+
+                        });
+
+ 
+            },
+            function(arg1, callback) {
+
+                var filter = filterbase + '&datagrp=\'VMAX-PORTS\'&partgrp=\'Back-End\'&(name==\'Availability\')';
+                var fields = 'device,feport,name';
+                var keys = ['device,feport'];
+
+                //var queryString =  {"filter":filter,"fields":fields}; 
+                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
+
+
+
+                console.log(queryString);
+                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
+                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+                        .headers({'Content-Type': 'multipart/form-data'}) 
+                        .query(queryString) 
+                        .end(function (response) { 
+                            if ( response.error ) {
+                                console.log(response.error);
+                                return response.error;
+                            } else {  
+                                var result = JSON.parse(response.body).values;    
+
+                                for ( var i in result ) {
+                                    var item = result[i];
+                                    var matrics = item.points;
+                                    var resultItem = {};
+                                    resultItem["type"] = "DF-PORT";
+                                    resultItem["component"] = item.properties.feport;
+                                    resultItem["busy"] = util.GetMaxValue(matrics) - 90 ;
+                                    arg1.push(resultItem);
+                                }
+                                callback(null,arg1);
+                            }
+
+                        });
+            },
+            function(arg1,  callback){  
+                var filter = filterbase + '&datagrp=\'VMAX-PORTS\'&partgrp=\'Back-End\'&(name==\'Availability\')';
+                var fields = 'device,feport,name';
+                var keys = ['device,feport'];
+
+                //var queryString =  {"filter":filter,"fields":fields}; 
+                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
+
+
+
+                console.log(queryString);
+                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
+                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+                        .headers({'Content-Type': 'multipart/form-data'}) 
+                        .query(queryString) 
+                        .end(function (response) { 
+                            if ( response.error ) {
+                                console.log(response.error);
+                                return response.error;
+                            } else {  
+                                var result = JSON.parse(response.body).values;    
+
+                                for ( var i in result ) {
+                                    var item = result[i];
+                                    var matrics = item.points;
+                                    var resultItem = {};
+                                    resultItem["type"] = "DF-PORT";
+                                    resultItem["component"] = item.properties.feport;
+                                    resultItem["busy"] = util.GetMaxValue(matrics) - 90 ;
+                                    arg1.push(resultItem);
+                                }
+                                callback(null,arg1);
+                            }
+
+                        });
+
+            } ,
+            function(arg1, callback) {
+                var filter = filterbase + '&datagrp=\'VMAX-Disk\'&(name==\'CurrentUtilization\')';
+                var fields = 'device,part,director,partid,name';
+                var keys = ['device,part'];
+
+                //var queryString =  {"filter":filter,"fields":fields}; 
+                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
+
+
+
+                console.log(queryString);
+                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
+                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+                        .headers({'Content-Type': 'multipart/form-data'}) 
+                        .query(queryString) 
+                        .end(function (response) { 
+                            if ( response.error ) {
+                                console.log(response.error);
+                                return response.error;
+                            } else {  
+
+                                console.log(response.body);
+                                var result = JSON.parse(response.body).values;    
+
+                                for ( var i in result ) {
+                                    var item = result[i];
+                                    var matrics = item.points;
+                                    var resultItem = {};
+                                    resultItem["type"] = "DISK";
+                                    resultItem["component"] = item.properties.director + " " + item.properties.partid;
+                                    resultItem["busy"] = util.GetMaxValue(matrics) ;
+                                    arg1.push(resultItem);
+                                }
+                                callback(null,arg1);
+                            }
+
+                        });               
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
 
     });  
 
@@ -2873,9 +3034,6 @@ console.log("RULE17="+rule17);
                 return;
         } ;
 
-
-        console.log(start);
-
         var filter = filterbase + '&(name==\'UsedCapacity\'|name==\'PoolFreeCapacity\')';
         var fields = 'device,name';
         var keys = ['device'];
@@ -2897,11 +3055,12 @@ console.log("RULE17="+rule17);
                     } else {  
                         var result = JSON.parse(response.body).values;    
 
-                        res.json(200,result);
+                        ret(200,result);
                     }
 
                 });
- 
+
+
     });  
 
     app.get('/api/array/capacity', function (req, res) {
