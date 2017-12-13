@@ -161,11 +161,14 @@ var menuController = function (app) {
                 break;
 
             case "VNX5600" :
+            case "VNX7500" :
 
                 res.json(200,FunctionDefine_VNX);
                 break;
+ 
             default :
-                res.json(400,"尚不支持此种设备类型!");
+                console.log("ERROR: No Support array type! type=["+arraytype.toUpperCase()+"]");
+                res.json(400,"尚不支持此种设备型号["+arraytype + "] !");
         }
         
 

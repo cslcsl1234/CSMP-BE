@@ -12,6 +12,58 @@
         ]
     },
     {
+        "tabName": "Block",
+        "hasDetail": true,
+        "tabDetail": [
+            
+            { 
+                "tabName": "Storage Processors",
+                "template": 10,
+                "url": "/vnx/block/sp",
+                "param": [
+                    {
+                        "postName": "device",
+                        "findName": "serialnb"
+                    }
+                ]
+            },            
+            { 
+                "tabName": "Port",
+                "template": 10,
+                "url": "/vnx/block/port",
+                "param": [
+                    {
+                        "postName": "device",
+                        "findName": "serialnb"
+                    }
+                ]
+            },
+            { 
+                "tabName": "LUNs",
+                "template": 10,
+                "url": "/vnx/block/luns",
+                "param": [
+                    {
+                        "postName": "device",
+                        "findName": "serialnb"
+                    }
+                ]
+            },
+            { 
+                "tabName": "Storage Group",
+                "template": 8,
+                "url": "/vnx/block/storagegroup",
+                "param": [
+                    {
+                        "postName": "device",
+                        "findName": "serialnb"
+                    }
+                ]
+            }
+        ]
+    },
+
+    {
         "hasDetail": false,
         "tabName": "文件系统",
         "template": 8,

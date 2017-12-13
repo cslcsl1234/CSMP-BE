@@ -12,7 +12,8 @@ var unirest = require('unirest');
 var configger = require('../config/configger');
 var unirest1 = require('unirest');
 var async = require('async');
- 
+var cache = require('memory-cache');
+
 var RecordFlat = require('../lib/RecordFlat');
 var util = require('../lib/util');
 
@@ -2778,7 +2779,6 @@ console.log("RULE17="+rule17);
             return;
         }
 
-        console.log(start);
 
         var filter = filterbase + '&(name==\'ReadRequests\'|name==\'WriteRequests\'|name==\'ReadThroughput\'|name==\'WriteThroughput\'|name==\'IORate\'|name==\'TotalCacheUtilization\')';
         var fields = 'device,name';
@@ -2832,7 +2832,7 @@ console.log("RULE17="+rule17);
             return;
         }
 
-        console.log(start);
+        console.log(arraysn + "|" + start + "|" + end);
 
         var result = [];
         res.json(200,result);
@@ -3208,6 +3208,945 @@ console.log("RULE17="+rule17);
 
             res.json(200,finalResult);
         })    
+    });
+
+
+   app.get('/api/vnx/block/sp', function (req, res) { 
+        
+        var device = req.query.device;
+ 
+        if ( device === undefined ) {
+            res.json(400, 'Must be special a device!')
+            return;
+        }
+
+
+        VNX.GetSPs(device, function(result) { 
+            
+            var data = result;
+
+            var finalResult = {};
+
+            // ---------- the part of table ---------------
+            var tableHeader = [];
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "SP名称";
+            tableHeaderItem["value"] = "part";
+            tableHeaderItem["sort"] = "true";
+            tableHeader.push(tableHeaderItem);
+
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "IP";
+            tableHeaderItem["value"] = "ip";
+            tableHeaderItem["sort"] = "true";
+            tableHeader.push(tableHeaderItem);
+
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "版本";
+            tableHeaderItem["value"] = "partvrs";
+            tableHeaderItem["sort"] = "true";
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "Memory(MB)";
+            tableHeaderItem["value"] = "TotalMemory";
+            tableHeaderItem["sort"] = "true";
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "ResponseTime(ms)";
+            tableHeaderItem["value"] = "ResponseTime";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "Utilization(%)";
+            tableHeaderItem["value"] = "CurrentUtilization";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem); 
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "Throughput(IOPS)";
+            tableHeaderItem["value"] = "TotalThroughput";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "Bandwidth(MB/s)";
+            tableHeaderItem["value"] = "TotalBandwidth";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+
+            
+
+            // -------------- Table Event -------------------
+            var tableevent = {};
+            tableevent["event"] = "appendArea";
+            tableevent["url"] = "/vnx/block/sp/perf";
+            var param=[];
+            var paramItem = {};
+            paramItem["findName"] = "serialnb";
+            paramItem["postName"] = "device";
+            param.push(paramItem);
+            var paramItem = {};
+            paramItem["findName"] = "part";
+            paramItem["postName"] = "part";
+            param.push(paramItem);
+
+            tableevent["param"] = param;
+
+            //
+            // Combine the result structure.
+            // 
+            finalResult["startDate"] = "2017-01-01T01:01:01+08:00";
+            finalResult["endDate"] = "2019-01-01T01:01:01+08:00"
+            finalResult["tableEvent"] = tableevent;
+
+
+            finalResult["tableHead"] = tableHeader;
+            finalResult["tableBody"] = data;
+
+            res.json(200, finalResult);
+
+        });
+
+    });
+
+app.get('/api/vnx/block/sp/perf', function ( req, res )  {
+        var device = req.query.device;
+        var part = req.query.part;
+        var start = req.query.startDate;
+        var end = req.query.endDate;
+
+        if ( device === undefined ) {
+            res.json(401, 'Must be special a device!')
+            return;
+        }
+
+        if ( part === undefined ) {
+            res.json(401, 'Must be special a part!')
+            return;
+        }
+
+        var finalResult = {}; 
+           async.waterfall([
+            function(callback){ 
+
+                VNX.getSPPerformance(device, part, start, end,function(result) { 
+ 
+                    finalResult["charts"] = result.charts;
+
+                    callback(null,finalResult);
+                                      
+                }); 
+
+         },
+
+            function(arg1,  callback){  
+
+                callback(null, arg1);
+
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+
+
+    });
+
+
+
+
+   app.get('/api/vnx/block/luns', function (req, res) { 
+        
+        var device = req.query.device;
+ 
+        if ( device === undefined ) {
+            res.json(400, 'Must be special a device!')
+            return;
+        }
+
+
+        VNX.GetBlockDevices(device, function(result) { 
+            
+            var data = result;
+
+            var finalResult = {};
+
+            // ---------- the part of table ---------------
+            var tableHeader = [];
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "LUN名称";
+            tableHeaderItem["value"] = "partdesc";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "LUN标识";
+            tableHeaderItem["value"] = "part";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "Storage Group";
+            tableHeaderItem["value"] = "sgname";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "RAID级别";
+            tableHeaderItem["value"] = "dgraid";
+            tableHeaderItem["sort"] = "true";
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "LUN类型";
+            tableHeaderItem["value"] = "parttype";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "物理磁盘类型";
+            tableHeaderItem["value"] = "disktype";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "Pool/RAID Group类型";
+            tableHeaderItem["value"] = "dgtype";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "Pool/RAID Group名称";
+            tableHeaderItem["value"] = "dgname";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "可用容量(GB)";
+            tableHeaderItem["value"] = "Capacity";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "使用容量(GB)";
+            tableHeaderItem["value"] = "UsedCapacity";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "Utilization(%)";
+            tableHeaderItem["value"] = "CurrentUtilization";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem); 
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "Throughput(IOPS)";
+            tableHeaderItem["value"] = "TotalThroughput";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "Bandwidth(MB/s)";
+            tableHeaderItem["value"] = "TotalBandwidth";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "ServiceTime(ms)";
+            tableHeaderItem["value"] = "TotalThroughput";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "ResponseTime(ms)";
+            tableHeaderItem["value"] = "ResponseTime";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+
+            
+            
+
+            // -------------- Table Event -------------------
+            var tableevent = {};
+            tableevent["event"] = "appendArea";
+            tableevent["url"] = "/vnx/block/lun/perf";
+            var param=[];
+            var paramItem = {};
+            paramItem["findName"] = "serialnb";
+            paramItem["postName"] = "device";
+            param.push(paramItem);
+            var paramItem = {};
+            paramItem["findName"] = "uid";
+            paramItem["postName"] = "uid";
+            param.push(paramItem);
+
+            tableevent["param"] = param;
+
+            //
+            // Combine the result structure.
+            // 
+            finalResult["startDate"] = "2017-01-01T01:01:01+08:00";
+            finalResult["endDate"] = "2019-01-01T01:01:01+08:00"
+            finalResult["tableEvent"] = tableevent;
+
+
+            finalResult["tableHead"] = tableHeader;
+            finalResult["tableBody"] = data;
+
+            res.json(200, finalResult);
+
+        });
+
+    });
+
+app.get('/api/vnx/block/lun/perf', function ( req, res )  {
+        var device = req.query.device;
+        var uid = req.query.uid;
+        var start = req.query.startDate;
+        var end = req.query.endDate;
+
+        if ( device === undefined ) {
+            res.json(401, 'Must be special a device!')
+            return;
+        }
+
+        if ( uid === undefined ) {
+            res.json(401, 'Must be special a part!')
+            return;
+        }
+
+        var finalResult = {}; 
+           async.waterfall([
+            function(callback){ 
+
+                VNX.GetBlockDevicePerformance(device, uid, start, end,function(result) { 
+ 
+                    finalResult["charts"] = result.charts;
+
+                    callback(null,finalResult);
+                                      
+                }); 
+
+         },
+
+            function(arg1,  callback){  
+
+                callback(null, arg1);
+
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+
+
+    });
+
+
+   app.get('/api/vnx/block/port', function (req, res) { 
+        
+        var device = req.query.device;
+ 
+        if ( device === undefined ) {
+            res.json(400, 'Must be special a device!')
+            return;
+        }
+
+
+        VNX.GetFEPort(device, function(result) { 
+            
+            var data = result;
+
+            var finalResult = {};
+
+            // ---------- the part of table ---------------
+            var tableHeader = [];
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "名称";
+            tableHeaderItem["value"] = "feport";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "WWN";
+            tableHeaderItem["value"] = "portwwn";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "类型";
+            tableHeaderItem["value"] = "conntype";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "所属SP";
+            tableHeaderItem["value"] = "memberof";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem); 
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "LoggedInInitiators";
+            tableHeaderItem["value"] = "LoggedInInitiators";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "RegisteredInitiators";
+            tableHeaderItem["value"] = "RegisteredInitiators";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "Throughput(IOPS)";
+            tableHeaderItem["value"] = "TotalThroughput";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+
+            var tableHeaderItem = {};
+            tableHeaderItem["name"] = "Bandwidth(MB/s)";
+            tableHeaderItem["value"] = "TotalBandwidth";
+            tableHeaderItem["sort"] = true;
+            tableHeader.push(tableHeaderItem);
+ 
+
+
+            
+            
+
+            // -------------- Table Event -------------------
+            var tableevent = {};
+            tableevent["event"] = "appendArea";
+            tableevent["url"] = "/vnx/block/port/perf";
+            var param=[];
+            var paramItem = {};
+            paramItem["findName"] = "serialnb";
+            paramItem["postName"] = "device";
+            param.push(paramItem);
+            var paramItem = {};
+            paramItem["findName"] = "portwwn";
+            paramItem["postName"] = "portwwn";
+            param.push(paramItem);
+
+            tableevent["param"] = param;
+
+            //
+            // Combine the result structure.
+            // 
+            finalResult["startDate"] = "2017-01-01T01:01:01+08:00";
+            finalResult["endDate"] = "2019-01-01T01:01:01+08:00"
+            finalResult["tableEvent"] = tableevent;
+
+
+            finalResult["tableHead"] = tableHeader;
+            finalResult["tableBody"] = data;
+
+            res.json(200, finalResult);
+
+        });
+
+    });
+
+app.get('/api/vnx/block/port/perf', function ( req, res )  {
+        var device = req.query.device;
+        var portwwn = req.query.portwwn;
+        var start = req.query.startDate;
+        var end = req.query.endDate;
+
+        if ( device === undefined ) {
+            res.json(401, 'Must be special a device!')
+            return;
+        }
+
+        if ( portwwn === undefined ) {
+            res.json(401, 'Must be special a portwwn!')
+            return;
+        }
+
+        var finalResult = {}; 
+           async.waterfall([
+            function(callback){ 
+
+                VNX.GetFEPortPerformance(device, portwwn, start, end,function(result) { 
+ 
+                    finalResult["charts"] = result.charts;
+
+                    callback(null,finalResult);
+                                      
+                }); 
+
+         },
+
+            function(arg1,  callback){  
+
+                callback(null, arg1);
+
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+
+
+    });
+
+
+
+
+   app.get('/api/vnx/block/storagegroup', function (req, res) { 
+        
+        var device = req.query.device;
+ 
+        if ( device === undefined ) {
+            res.json(400, 'Must be special a device!')
+            return;
+        }
+        var finalResult = {};
+         async.waterfall([
+            function(callback){ 
+                    var sgname;
+                    VNX.GetBlockStorageGroup(device, sgname, function(result) { 
+          
+                    finalResult['tableBody'] = result;
+                    callback(null,finalResult);
+                                      
+                });  
+            }, 
+            function( arg1, callback ) {
+ 
+
+                // Set Zero for not find export
+                var chart = [];
+                for ( var j in arg1.tableBody ) {
+                    var sgItem = arg1.tableBody[j]; 
+
+                    // Statistic Chat Data by Privilege  
+                    var isFind = false;    
+                    var catalog = sgItem.sgname;
+                    if ( catalog === undefined )     
+                        catalog = "N/A";
+
+                    for ( var i in chart ) {
+                        var chartItem = chart[i];
+                        if ( chartItem.name == catalog ) {
+                            isFind = true;
+                            chartItem.value = sgItem.Capacity;
+                            break;
+                        } 
+                    }
+                    if ( isFind == false ) {
+                        var chartItem = {};
+
+                        chartItem["name"] = catalog;
+                        chartItem["value"] = sgItem.Capacity;
+                        chart.push(chartItem);
+                    }
+                }
+
+                arg1["chartData"] = chart;
+                arg1["chartType"] = "pie";
+
+                callback(null,arg1);
+                              
+
+            },
+            function(arg1,  callback){  
+ 
+                    var tableHeader = [];
+            // ---------- the part of table ---------------
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "名称";
+                    tableHeaderItem["value"] = "sgname";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "物理磁盘类型";
+                    tableHeaderItem["value"] = "disktype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Lun数量";
+                    tableHeaderItem["value"] = "NumOfLuns";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "可用容量(GB)";
+                    tableHeaderItem["value"] = "Capacity";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem); 
+
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "使用容量(GB)";
+                    tableHeaderItem["value"] = "UsedCapacity";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem); 
+
+
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Throughput(IOPS)";
+                    tableHeaderItem["value"] = "TotalThroughput";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Bandwidth(MB/s)";
+                    tableHeaderItem["value"] = "TotalBandwidth";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "最大响应时间(ms)";
+                    tableHeaderItem["value"] = "MaxResponseTime";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "最大服务时间(ms)";
+                    tableHeaderItem["value"] = "MaxServiceTime";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+          
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "最大利用率(%)";
+                    tableHeaderItem["value"] = "MaxUnilization";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+          
+
+
+  
+                    arg1['tableHead'] = tableHeader;
+
+                    // -------------- Table Event -------------------
+                    var tableevent = {};
+                    tableevent["event"] = "appendArea";
+                    tableevent["url"] = "/vnx/block/storagegroup/luns";
+                    var param=[];
+                    var paramItem = {};
+                    paramItem["findName"] = "serialnb";
+                    paramItem["postName"] = "device";
+                    param.push(paramItem);
+                    var paramItem = {};
+                    paramItem["findName"] = "sgname";
+                    paramItem["postName"] = "sgname";
+                    param.push(paramItem);
+
+                    tableevent["param"] = param;
+
+
+                    arg1["tableEvent"] = tableevent;
+
+                    arg1["startDate"] = "2017-01-01T01:01:01+08:00";
+                    arg1["endDate"] = "2019-01-01T01:01:01+08:00"
+
+
+
+
+
+                    finalResult["tableHead"] = tableHeader; 
+
+                    callback(null, finalResult);
+
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           cache.put('vnx_storagegroup_result_'+device,result); 
+           console.log('---- put cache : vnx_storagegroup_result_'+device); 
+           res.json(200, result);
+        });
+       
+
+            
+
+    });
+
+
+   app.get('/api/vnx/block/storagegroup/luns', function (req, res) { 
+        
+        var device = req.query.device;
+        var sgname = req.query.sgname;
+  
+        if ( device === undefined ) {
+            res.json(400, 'Must be special a device!')
+            return;
+        }
+
+        // Cached the results.
+        var viewresult = cache.get('vnx_storagegroup_result_'+device+'_'+sgname);
+ 
+        if ( viewresult !== undefined && viewresult != null && viewresult != 'null' ) {
+ 
+            res.json(200, viewresult);
+            return;
+        }
+
+
+        var finalResult = {};
+         async.waterfall([
+            function(callback){   
+ 
+ console.log('---- get cache : vnx_storagegroup_result_'+device); 
+                 var result = cache.get('vnx_storagegroup_result_'+device); 
+                var viewDetailData = result.tableBody;
+                var viewItem = {};
+                for ( var i in viewDetailData ) {
+                    var item = viewDetailData[i];
+                    if ( item.sgname == sgname ) {
+                        viewItem = item;
+                        break;
+                    }
+                } 
+                finalResult['tableBody'] = viewItem.devices;
+                callback(null,finalResult);
+
+            }, 
+            function( arg1, callback ) {
+ 
+
+                // Set Zero for not find export
+                var chart = [];
+                for ( var j in arg1.tableBody ) {
+                    var sgItem = arg1.tableBody[j]; 
+
+                    // Statistic Chat Data by Privilege  
+                    var isFind = false;    
+                    var catalog = sgItem.sgname;
+                    if ( catalog === undefined )     
+                        catalog = "N/A";
+
+                    for ( var i in chart ) {
+                        var chartItem = chart[i];
+                        if ( chartItem.name == catalog ) {
+                            isFind = true;
+                            chartItem.value = sgItem.Capacity;
+                            break;
+                        } 
+                    }
+                    if ( isFind == false ) {
+                        var chartItem = {};
+
+                        chartItem["name"] = catalog;
+                        chartItem["value"] = sgItem.Capacity;
+                        chart.push(chartItem);
+                    }
+                }
+
+                arg1["chartData"] = chart;
+                arg1["chartType"] = "pie";
+
+                callback(null,arg1);
+                              
+
+            },
+            function(arg1,  callback){  
+                 // ----- the part of perf datetime --------------
+                    arg1["startDate"] = util.getPerfStartTime();
+                    arg1["endDate"] = util.getPerfEndTime();          
+
+
+                    var tableHeader = [];
+                    // ---------- the part of table ---------------
+                    var tableHeader = [];
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "LUN名称";
+                    tableHeaderItem["value"] = "partdesc";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "LUN标识";
+                    tableHeaderItem["value"] = "part";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Storage Group";
+                    tableHeaderItem["value"] = "sgname";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "RAID级别";
+                    tableHeaderItem["value"] = "dgraid";
+                    tableHeaderItem["sort"] = "true";
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "LUN类型";
+                    tableHeaderItem["value"] = "parttype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "物理磁盘类型";
+                    tableHeaderItem["value"] = "disktype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Pool/RAID Group类型";
+                    tableHeaderItem["value"] = "dgtype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Pool/RAID Group名称";
+                    tableHeaderItem["value"] = "dgname";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "可用容量(GB)";
+                    tableHeaderItem["value"] = "Capacity";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "使用容量(GB)";
+                    tableHeaderItem["value"] = "UsedCapacity";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Utilization(%)";
+                    tableHeaderItem["value"] = "CurrentUtilization";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem); 
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Throughput(IOPS)";
+                    tableHeaderItem["value"] = "TotalThroughput";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Bandwidth(MB/s)";
+                    tableHeaderItem["value"] = "TotalBandwidth";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "ServiceTime(ms)";
+                    tableHeaderItem["value"] = "TotalThroughput";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "ResponseTime(ms)";
+                    tableHeaderItem["value"] = "ResponseTime";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+
+
+
+  
+                    arg1['tableHead'] = tableHeader; 
+ 
+                    // -------------- Table Event -------------------
+                    var tableevent = {};
+                    tableevent["event"] = "updateChart";
+                    tableevent["rowSelect"] = "multy";
+                    tableevent["url"] = "/vnx/block/storagegroup/lunperf";
+                    var param=[];
+                    var paramItem = {};
+                    paramItem["findName"] = "serialnb";
+                    paramItem["postName"] = "device";
+                    param.push(paramItem);
+                    var paramItem = {};
+                    paramItem["findName"] = "uid";
+                    paramItem["postName"] = "uid";
+                    param.push(paramItem);
+
+                    tableevent["param"] = param;
+    
+                    arg1["tableEvent"] = tableevent;  
+ 
+
+            res.json(200, arg1);
+
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+       
+
+            
+
+    });
+
+
+
+   app.get('/api/vnx/block/storagegroup/lunperf', function (req, res) { 
+        
+        var device = req.query.device;
+        var sgname = req.query.sgname;
+        var start = req.query.startDate;
+        var end = req.query.endDate;
+        var lunids = req.query.uid;
+
+ 
+        var finalResult = {}; 
+           async.waterfall([
+            function(callback){ 
+
+                VNX.GetBlockDevicePerformance(device, lunids, start, end,function(result) { 
+ 
+                    finalResult["charts"] = result.charts;
+
+                    callback(null,finalResult);
+                                      
+                }); 
+
+         },
+
+            function(arg1,  callback){  
+
+                callback(null, arg1);
+
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+
+
     });
 
 /*
@@ -3646,6 +4585,22 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
 
     });
 
+
+     app.get('/api/testperf', function ( req, res )  {
+        var device = req.query.device; 
+        var part = req.query.part; 
+        var start = req.query.startDate; 
+        var end = req.query.endDate;  
+        var portwwn = req.query.portwwn; 
+        var uid = req.query.uid;
+
+        VNX.GetBlockDevicePerformance(device, uid, start, end, function(ret) {
+
+            res.json(200,ret);
+        }) 
+
+    });
+
      app.get('/api/array/test', function ( req, res )  {
         var device = req.query.device; 
         var part = req.query.fsid; 
@@ -3654,6 +4609,7 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
         var feport = req.query.feport;
         var lun = req.query.lun;
 
+        var sgname = req.query.sgname;
         //VMAX.GetAssignedVPlexByDevices(device,function(locations) {  
         //VMAX.GetAssignedHosts(device,function(locations) {
        //VMAX.GetMaskViews(device,function(locations) {
@@ -3662,10 +4618,13 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
     
                 //VMAX.GetDMXMasking(device, function(result) { 
                 //VMAX.GetMaskViews(device, function(result) { 
-        VMAX.GetFEPorts(device, function(result) {            
-            res.json(200,result);
-        }); 
+        //VNX.(device, function(result) {            
+        //    res.json(200,result);
+        //}); 
+        VNX.GetBlockStorageGroup(device, sgname, function(ret) {
 
+            res.json(200,ret);
+       }) 
         //VMAX.GetFEPortPerf(device, feport, function(result) {
         //VMAX.GetSRDFGroups(device,function(result) {
         //VMAX.GetSRDFLunToReplica(device,function(result) {
