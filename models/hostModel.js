@@ -122,6 +122,9 @@ hostSchema = new Schema({
         memory: {
             type: String
         },
+        cpu: {
+            type: String
+        },
 	// -- Could be any thing about configuration.
         envtype: {
             type: String

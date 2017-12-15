@@ -15,6 +15,7 @@ var async = require('async');
   
 var util = require('../lib/util');
 var CallGet = require('../lib/CallGet'); 
+var cache = require('memory-cache');
 
 var host = require('../lib/Host');
 
@@ -47,9 +48,96 @@ var hostController = function (app) {
 
     app.get('/api/hosts', function (req, res) {
         var hostname = req.query.device; 
-        host.GetHosts(hostname, function(code,result) {
-            res.json(200 , result);
-        });
+
+        var isCached = false;
+        async.waterfall(
+        [
+            function(callback){
+ 
+                host.GetHosts(hostname, function(code,result) {
+                    callback(null,result);
+                });
+            },
+            function(param,  callback){ 
+ 
+                var assignLunByHost = cache.get("AssignedLUNByHosts");
+                     
+                if ( assignLunByHost !== undefined && assignLunByHost != null && assignLunByHost != 'null' ) {
+                    isCached = true;
+                        
+                    var ret = [];
+
+                    for ( var i in param ) {
+                        var hostItem = param[i];
+                        var hostResult = {};
+
+                        for ( var j in assignLunByHost ) {
+                             if ( hostItem.baseinfo.name == assignLunByHost[j].hostname ) {
+                                //console.log("------------- Find --------------");
+                                  hostResult["Capacity"] = assignLunByHost[j].Capacity;
+                                  hostResult["NumOfLuns"] = assignLunByHost[j].NumOfLuns;
+                                  hostResult["baseinfo"] = hostItem.baseinfo;
+                                  hostResult["APPs"] = hostItem.APPs;
+                                  hostResult["HBAs"] = hostItem.HBAs;
+                                  hostResult["configuration"] = hostItem.configuration;
+                                  hostResult["maintenance"] = hostItem.maintenance;
+                                  hostResult["assets"] = hostItem.assets; 
+                                  ret.push(hostResult);
+                             }
+                        }
+                    }
+                    callback(null,ret);
+                } 
+                else 
+                    callback(null,param);
+
+
+
+            },
+            function(param,  callback){ 
+ 
+                if ( isCached == false ) {
+                    host.GetAssignedLUNByHosts(function(assignLunByHost) {
+                        cache.put('AssignedLUNByHosts',assignLunByHost);     
+
+                        
+                        var ret = [];
+
+                        for ( var i in param ) {
+                            var hostItem = param[i];
+                            var hostResult = {};
+
+                            for ( var j in assignLunByHost ) {
+                                 if ( hostItem.baseinfo.name == assignLunByHost[j].hostname ) {
+                                    //console.log("------------- Find --------------");
+                                      hostResult["Capacity"] = assignLunByHost[j].Capacity;
+                                      hostResult["NumOfLuns"] = assignLunByHost[j].NumOfLuns;
+                                      hostResult["baseinfo"] = hostItem.baseinfo;
+                                      hostResult["APPs"] = hostItem.APPs;
+                                      hostResult["HBAs"] = hostItem.HBAs;
+                                      hostResult["configuration"] = hostItem.configuration;
+                                      hostResult["maintenance"] = hostItem.maintenance;
+                                      hostResult["assets"] = hostItem.assets; 
+                                      ret.push(hostResult);
+                                 }
+                            }
+                        }
+                        callback(null,ret);
+
+
+
+                    })
+
+                } else 
+                callback(null,param);
+
+
+            }
+        ], function (err, result) {
+              res.json(200, result);
+        }
+        );
+
 
     });
 
@@ -407,46 +495,39 @@ var hostController = function (app) {
             },
             // Get All Localtion Records
             function(inits,  callback){ 
-                console.log(inits);
+
+                var assignLunByHost = cache.get("AssignedLUNByHosts");
+                var isCached = false ;
+                if ( assignLunByHost !== undefined && assignLunByHost != null && assignLunByHost != 'null' ) {
+                    isCached = true;
+                    callback(null , assignLunByHost);
+                } else {
+                    host.GetAssignedLUNByHosts(function(assignLunByHost) {
+                        cache.put('AssignedLUNByHosts',assignLunByHost);     
+                        callback(null , assignLunByHost);
+                    });
+                }       
+
+/*
                  host.GetAssignedLUNByInitiator(inits,function(result) {
                      callback(null,result);
                 })
-                       
+*/       
                     
             },
             // Get All Array devices Records
-            function(luns,  callback){ 
-                var param = {}; 
-                param['filter'] = '(parttype=\'LUN\')';
-                param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'Availability\'|name=\'PoolUsedCapacity\')';
-                param['keys'] = ['device','part','parttype'];
-                param['fields'] = ['model','alias','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked','disktype'];
-                param['limit'] = 1000000;
- 
-                CallGet.CallGet(param, function(param) { 
-                    var result = param.result;
-         
-                    for ( var i in luns ) {
-                        var lunItem = luns[i];
 
-                        for ( var j in result ) {
-                            var lunDetailItem = result[j];
-                            if ( lunItem.volumeWWN == lunDetailItem.partsn ) {
-                                lunItem["model"] = lunDetailItem.model;
-                                lunItem["sgname"] = lunDetailItem.sgname;
-                                lunItem["disktype"] = lunDetailItem.disktype;
-                                 lunItem["dgstype"] = lunDetailItem.dgstype;
-                                 lunItem["Capacity"] = lunDetailItem.Capacity;
-                                 lunItem["UsedCapacity"] = lunDetailItem.UsedCapacity; 
-                                 break;
-                            }
-                        }
+            function(luns,  callback){ 
+ 
+                for ( var i in luns ) {
+                    var item = luns[i];
+                    if ( item.hostname == device ) {
+                        callback(null, item.luns ); 
                     }
-                    callback(null, luns ); 
-                });
+                }
+                callback(null, [] ); 
                     
             },
-
 
 
 
@@ -636,7 +717,7 @@ var hostController = function (app) {
                     console.log("host is not exist. insert it."); 
  
                     var newappR = new HostObj(newhost);
-                    console.log(newappR);
+                    ///console.log(newappR);
                     newappR.save(asyncdone);
                 }
                 else { 
@@ -675,7 +756,7 @@ var hostController = function (app) {
 
 
             console.log("==================  " + i + '\t' + fields.length + '\t' + hbaStr + '\t' + appStr);
-            console.log(newhost);
+            //console.log(newhost);
 
             //
             // Insert a new host record into MongoDB
@@ -731,7 +812,7 @@ var hostController = function (app) {
                 }
  
                 SWITCH.getAlias(wwnlist, function(result) { 
-                    console.log(result);
+                    //console.log(result);
                     for ( var i in hbalist ) {
                         var item = hbalist[i];
                         item['alias'] = '';
@@ -751,7 +832,7 @@ var hostController = function (app) {
  
             function(host,  callback){ 
 
-                console.log(host);
+                //console.log(host);
                 HostObj.findOne({"baseinfo.name" : host.baseinfo.name}, function (err, doc) {
                     //system error.
                     if (err) {
@@ -761,9 +842,9 @@ var hostController = function (app) {
                         console.log("host is not exist. insert it."); 
 
                         var newhost = new HostObj(host);
-                        console.log('Test1');
+
                         newhost.save(function(err, thor) {
-                         console.log('Test2');
+
                          if (err)  { 
                             return res.json(400 , err);
                           } else 
@@ -868,7 +949,7 @@ var hostController = function (app) {
 
             
         }
-        console.log(hostlist);
+        //console.log(hostlist);
 
         async.forEach(hostlist, function(host) {
             console.log("doing the host :" + host.baseinfo.name);

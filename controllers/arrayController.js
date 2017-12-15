@@ -356,6 +356,7 @@ var arrayController = function (app) {
    app.get('/api/vmax/performance/disk', function (req, res) { 
     var device = req.query.device;
 
+    device='000495700228';
     if ( config.ProductType == 'demo' ) { 
             res.json(200,VMAXDISKListJSON);
             return;
@@ -630,6 +631,7 @@ var arrayController = function (app) {
 
    app.get('/api/vmax/array/luns', function (req, res) { 
         var device = req.query.device;
+        var deviceType ="";
 
         async.waterfall([
             function(callback){ 
@@ -640,10 +642,11 @@ var arrayController = function (app) {
             }
 
             var param = {};
-            param['filter'] = '(parttype=\'MetaMember\'|parttype=\'LUN\')';
+            //param['filter'] = '(parttype=\'MetaMember\'|parttype=\'LUN\')';
+            param['filter'] = '(parttype=\'LUN\')';
             param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'Availability\'|name=\'PoolUsedCapacity\')';
             param['keys'] = ['device','part','parttype'];
-            param['fields'] = ['alias','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked'];
+            param['fields'] = ['alias','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked','vmaxtype'];
             param['limit'] = 1000000;
 
             if (typeof device !== 'undefined') { 
@@ -651,8 +654,7 @@ var arrayController = function (app) {
             } 
 
 
-            CallGet.CallGet(param, function(param) { 
-                
+            CallGet.CallGet(param, function(param) {  
                 var data = param.result;
                 callback(null,data);
 
@@ -663,7 +665,7 @@ var arrayController = function (app) {
         // Relation with VPLEX Virutal Volume and Maskview
         // -------------------------------------------------
         function(arg1,  callback) {  
-
+ 
             VMAX.GetAssignedVPlexByDevices(device,function(result) {
 
                 for ( var i in arg1 ) {
@@ -693,13 +695,15 @@ var arrayController = function (app) {
            
         },
         // -------------------------------------------------
-        // Relation with  Maskview and Initiator/Host
+        // 1. Relation with  Maskview and Initiator/Host for VMAX
+        // 2. Mapping FE Director for DMX
         // -------------------------------------------------
         function(arg1,  callback) {  
-
+ 
             VMAX.GetAssignedInitiatorByDevices(device,function(result) {
 
                 var hostv ;
+
                 host.GetHBAFlatRecord(hostv,function(hbaresult) {
 
                     for ( var i in arg1 ) {
@@ -712,6 +716,11 @@ var arrayController = function (app) {
                             var deviceItem = result[j];
                             if ( item.partsn == deviceItem.deviceWWN ) { 
                                     
+                                if ( item.MappedFEPort === undefined ) 
+                                    item["MappedFEPort"] = deviceItem.FEName;
+                                else 
+                                    if ( item.MappedFEPort.indexOf(deviceItem.FEName) < 0 )
+                                        item.MappedFEPort += "," + deviceItem.FEName;
 
                                 item.ConnectedInitiators.push(deviceItem.initEndPoint);
 
@@ -742,14 +751,98 @@ var arrayController = function (app) {
                 });
 
 
+            })  
+
+        
+        },      
+        // -------------------------------------------------
+          // 2. Mapping FE Director for DMX
+        // -------------------------------------------------
+        function(arg1,  callback) {  
+ 
+
+            if ( arg1.length > 0 && arg1[0].vmaxtype == 'DMX' ) {
+                deviceType = 'DMX';
+                console.log("---------------------------\nBegin get mapping fe Director for DMX...\n--------------------------\n");
+
+               var param = {};
+                param['filter'] = '(parttype=\'LUNtoDirectorPort\')'; 
+                param['keys'] = ['device','part'];
+                param['fields'] = ['director' ];
+                param['limit'] = 1000000;
+
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&' + param['filter'];
+                } 
 
 
-            })
-           
-        },        
+                CallGet.CallGet(param, function(param) { 
+                    var dirs = param.result;
+                    for ( var i in arg1 ) {
+                        var lunItem = arg1[i];
+                        for ( var j in dirs ) {
+                            var dirItem = dirs[j];
+                            if ( lunItem.part == dirItem.part ) {
+                                if ( lunItem.director === undefined ) 
+                                    lunItem["director"] = dirItem.director;
+                                else 
+                                    lunItem.director = lunItem.director + ',' + dirItem.director
+                            }
+                        }
+                    }                    
+                    callback(null,arg1);
+
+                });
+
+            }
+            else 
+                callback(null,arg1);
+        }  ,
+        // -------------------------------------------------
+          // Releaship with SRDF 
+        // -------------------------------------------------
+        function(arg1,  callback) {  
+ 
+            var device1;
+            VMAX.GetSRDFLunToReplica(device1,function(ret) {
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+                    if ( item.config.indexOf("RDF") >= 0 ) {
+                        for ( var j in ret ) {
+                            var rdfItem = ret[j];
+
+                            // For RDF1
+                            if ( item.device == rdfItem.device && item.part == rdfItem.part ) {
+                                if ( item.replication === undefined ) {
+                                    item["replication"] = [];
+                                } 
+                                item.replication.push(rdfItem);
+                                item["remarray"] = rdfItem.remarray;
+                                item["remlun"] = rdfItem.remlun;
+                                item["replstat"] = rdfItem.replstat;
+                            } else 
+                            // FOR RDF2 
+                            if ( item.device == rdfItem.remarray  && item.part == rdfItem.remlun ) {
+                                 if ( item.replication === undefined ) {
+                                    item["replication"] = [];
+                                } 
+                                item.replication.push(rdfItem);
+                                item["remarray"] = rdfItem.remarray;
+                                item["remlun"] = rdfItem.remlun;    
+                                item["replstat"] = rdfItem.replstat;                           
+                            }
+                        }
+                    }
+                }
+
+                callback(null,arg1);
+           }) 
+
+        }  ,
+
+
         function(arg1,  callback){  
-
-
+ 
                 var data = arg1;
 
 
@@ -830,16 +923,39 @@ var arrayController = function (app) {
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
+                tableHeaderItem["name"] = "卷类型";
+                tableHeaderItem["value"] = "parttype";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
                 tableHeaderItem["name"] = "Pool";
                 tableHeaderItem["value"] = "poolname";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
-                var tableHeaderItem = {};
-                tableHeaderItem["name"] = "masked?";
-                tableHeaderItem["value"] = "ismasked";
-                tableHeaderItem["sort"] = true;
-                tableHeader.push(tableHeaderItem); 
+                if ( deviceType == 'DMX' ) {
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "映射前端口控制器";
+                    tableHeaderItem["value"] = "director";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem); 
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "已映射前端口";
+                    tableHeaderItem["value"] = "MappedFEPort";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem); 
+
+                } else {
+                     var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Storage Group";
+                    tableHeaderItem["value"] = "sgname";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem); 
+                   
+                }
 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "容量(GB)";
@@ -860,12 +976,34 @@ var arrayController = function (app) {
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "复制目标存储";
+                tableHeaderItem["value"] = "remarray";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+ 
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "复制目标卷";
+                tableHeaderItem["value"] = "remlun";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "复制状态";
+                tableHeaderItem["value"] = "replstat";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+                                
+
                 var tableData = {};
                 tableData["tableHead"] = tableHeader;
                 tableData["tableBody"] = data;
-                finalResult["tableHead"] = tableHeader;
-                finalResult["tableBody"] = data;
-
+                //finalResult["tableHead"] = tableHeader;
+                //finalResult["tableBody"] = data;
+                finalResult["tableData"] = tableData;
 
                 // ---------- the part of table event ---------------
                 var tableEvent = {}; 
@@ -886,9 +1024,7 @@ var arrayController = function (app) {
                 tableEvent["url"] = "/vmax/array/lun/assignedhosts";  
 
                 finalResult["tableEvent"] = tableEvent;
-
-
-
+ 
                 callback(null,finalResult); 
 
             }
@@ -994,10 +1130,10 @@ var arrayController = function (app) {
  
 
                 }
- 
-                finalResult["tableHead"] = tableHeader;
-                finalResult["tableBody"] = tableBody;
-
+                var tabledata = {};
+                tabledata["tableHead"] = tableHeader;
+                tabledata["tableBody"] = tableBody;
+                finalResult["tableData"] = tabledata;
      
                 callback(null,finalResult); 
 
@@ -2049,6 +2185,7 @@ var arrayController = function (app) {
                     for ( var j in result ) {
                         var lunItem = result[j];
                         if ( item.device == lunItem.device && lunItem.srdfgrpn == item.part ) {
+                            item["sgname"] = lunItem.sgname;
                             item.AssociatedDevices.push(lunItem);
                             item.NumOfDevices = item.NumOfDevices + 1;
                             item.srdfmode = lunItem.srdfmode;
@@ -2179,6 +2316,7 @@ var arrayController = function (app) {
                         var dateTime = new Date(parseInt(lunItem.linkstct)*1000);
                         lunItem.linkstct = dateTime.toISOString();
 
+
                         luns.push(lunItem);
                     }
                 } 
@@ -2194,6 +2332,12 @@ var arrayController = function (app) {
 
                 // ---------- the part of table ---------------
                 var tableHeader = [];
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "所属SG";
+                tableHeaderItem["value"] = "sgname";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+ 
                 var tableHeaderItem = {};
                 tableHeaderItem["name"] = "逻辑设备名称";
                 tableHeaderItem["value"] = "part";
@@ -2555,20 +2699,21 @@ console.log("RULE17="+rule17);
             tableHeadItem["value"] = "portwwn";
             tableHead.push(tableHeadItem);
 
-            var tableHeadItem = {};
-            tableHeadItem["name"] = "端口速率(GB/s)";
-            tableHeadItem["sort"] = true;
-            tableHeadItem["value"] = "maxspeed";
-            tableHead.push(tableHeadItem);
-                       
-            var tableHeadItem = {};
-            tableHeadItem["name"] = "连接速率(GB/s)";
-            tableHeadItem["sort"] = true;
-            tableHeadItem["value"] = "negspeed";
-            tableHead.push(tableHeadItem);
+            if ( item.vmaxtype != 'DMX' ) {
+                var tableHeadItem = {};
+                tableHeadItem["name"] = "端口速率(GB/s)";
+                tableHeadItem["sort"] = true;
+                tableHeadItem["value"] = "maxspeed";
+                tableHead.push(tableHeadItem);
+                           
+                var tableHeadItem = {};
+                tableHeadItem["name"] = "连接速率(GB/s)";
+                tableHeadItem["sort"] = true;
+                tableHeadItem["value"] = "negspeed";
+                tableHead.push(tableHeadItem);                    
+            }  
 
-
-             var tableHeadItem = {};
+            var tableHeadItem = {};
             tableHeadItem["name"] = "映射设备数";
             tableHeadItem["sort"] = true;
             tableHeadItem["value"] = "MappingVolCount";
@@ -2685,6 +2830,8 @@ console.log("RULE17="+rule17);
 
         var arraysn = req.query.device; 
 
+        arraysn = '000495700228';
+
         if ( config.ProductType == 'demo' ) {
                 res.json(200,demo_array_ports);
                 return;
@@ -2702,7 +2849,14 @@ console.log("RULE17="+rule17);
 
                 resultItem["container"] = item.device;
                 resultItem["directorType"] = item.porttype;
-                resultItem["cache"] = item.porttype + "-CACHE";
+                if ( item.porttype == 'DF') 
+                    resultItem["cache"] = "DA-CACHE";
+                else if ( item.porttype == 'RF' )
+                    resultItem["cache"] = "RA-CACHE";
+                else 
+                    resultItem["cache"] = item.porttype + "-CACHE";
+ 
+
                 resultItem["slot"] = item.dirslot;
                 resultItem["id"] = item.director;
                 resultItem["port"] = item.part;
@@ -2815,6 +2969,7 @@ console.log("RULE17="+rule17);
         var start = req.query.start; 
         var end = req.query.end; 
 
+        arraysn = '000495700228';
         if (typeof arraysn !== 'undefined') { 
             var filterbase = 'device=\''+arraysn + '\'' ;
         } else {
@@ -2870,7 +3025,7 @@ console.log("RULE17="+rule17);
                                     var matrics = item.points;
                                     var resultItem = {};
                                     resultItem["type"] = "DF";
-                                    resultItem["component"] = item.properties.part;
+                                    resultItem["component"] = item.properties.part.replace(":","-");
                                     resultItem["busy"] = util.GetMaxValue(matrics);
                                     finalResult.push(resultItem);
                                 }
@@ -2909,7 +3064,7 @@ console.log("RULE17="+rule17);
                                     var matrics = item.points;
                                     var resultItem = {};
                                     resultItem["type"] = "DF-PORT";
-                                    resultItem["component"] = item.properties.feport;
+                                    resultItem["component"] = item.properties.feport.replace(":","-");
                                     resultItem["busy"] = util.GetMaxValue(matrics) - 90 ;
                                     arg1.push(resultItem);
                                 }
@@ -2945,7 +3100,7 @@ console.log("RULE17="+rule17);
                                     var matrics = item.points;
                                     var resultItem = {};
                                     resultItem["type"] = "DF-PORT";
-                                    resultItem["component"] = item.properties.feport;
+                                    resultItem["component"] = item.properties.feport.replace(":","-");
                                     resultItem["busy"] = util.GetMaxValue(matrics) - 90 ;
                                     arg1.push(resultItem);
                                 }
@@ -2961,7 +3116,7 @@ console.log("RULE17="+rule17);
                 var keys = ['device,part'];
 
                 //var queryString =  {"filter":filter,"fields":fields}; 
-                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
+                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '0'}; 
 
 
 
@@ -2976,7 +3131,6 @@ console.log("RULE17="+rule17);
                                 return response.error;
                             } else {  
 
-                                console.log(response.body);
                                 var result = JSON.parse(response.body).values;    
 
                                 for ( var i in result ) {
@@ -2992,6 +3146,43 @@ console.log("RULE17="+rule17);
                             }
 
                         });               
+            },
+            function(arg1, callback) {
+                var filterbase = 'device==\''+arraysn+'\'&datagrp=\'VMAX-FEDirectorByPort\'&source=\'VMAX-Collector\'&partgrp=\'Front-End\'';
+
+                var filter = filterbase + '&(name==\'IORate\')';
+                var fields = 'device,feport,name';
+                var keys = ['device','feport'];
+
+                //var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
+                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '3600'}; 
+   
+                 console.log(queryString);
+               unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
+                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+                        .headers({'Content-Type': 'multipart/form-data'}) 
+                        .query(queryString) 
+                        .end(function (response) { 
+                            if ( response.error ) {
+                                console.log(response.error);
+                                return response.error;
+                            } else {  
+                                var result = JSON.parse(response.body).values;    
+
+                                for ( var i in result ) {
+                                    var item = result[i];
+                                    var matrics = item.points;
+                                    var resultItem = {};
+                                    resultItem["type"] = "FE-PORT";
+                                    resultItem["component"] = item.properties.feport.replace(":","-");
+                                    resultItem["busy"] = util.GetMaxValue(matrics) ;
+                                    arg1.push(resultItem);
+                                }
+                                callback(null,arg1);
+                            }
+                }); 
+
+              
             }
         ], function (err, result) {
            // result now equals 'done'
@@ -4770,7 +4961,7 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
 
         var sgname = req.query.sgname;
         //VMAX.GetAssignedVPlexByDevices(device,function(locations) {  
-        //VMAX.GetAssignedHosts(device,function(locations) {
+        //VMAX.GetAssignarraedHosts(device,function(locations) {
        //VMAX.GetMaskViews(device,function(locations) {
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
         //VMAX.GetAssignedHostsByDevices(device,function(locations) { 
@@ -4780,8 +4971,10 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
         //VNX.(device, function(result) {            
         //    res.json(200,result);
         //}); 
-        VNX.GetBlockStorageGroup(device, sgname, function(ret) {
+        //VNX.GetBlockStorageGroup(device, sgname, function(ret) {
+        var inits;
 
+        VMAX.GetSRDFLunToReplica(device,function(ret) {
             res.json(200,ret);
        }) 
         //VMAX.GetFEPortPerf(device, feport, function(result) {

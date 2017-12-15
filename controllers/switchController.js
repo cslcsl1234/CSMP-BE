@@ -1056,12 +1056,128 @@ function GetSwitchInfo(callback) {
     } ) ;
 
 
+
+    app.get('/api/switch/alias', function (req, res) {
+ 
+
+         async.waterfall(
+        [
+            function(callback){
+                
+                var wwnlist1 ;       
+                SWITCH.getAlias(wwnlist1,function(result) {
+
+                    var wwnlist = []; 
+                    for ( var i in result ) {
+                        var item = result[i];
+
+                        var isfind = false;
+                        for ( var j in wwnlist ) {
+                            var wwnitem = wwnlist[j];
+
+                            if ( item.zmemid == wwnitem.HBAWWN ) {
+                                isfind = true;
+                                if ( wwnitem.ALIAS.indexOf(item.alias) < 0 )
+                                    wwnitem['ALIAS'] = wwnitem.ALIAS + ',' + item.alias;
+                            }
+                        }
+
+                        if ( !isfind ) {
+                            var wwnitem = {};
+                            wwnitem['HBAWWN'] = item.zmemid;
+                            wwnitem['ALIAS'] = item.alias;
+                            wwnlist.push(wwnitem);
+                        }
+                    }
+                    callback(null,wwnlist);
+                });
+
+
+            },
+            // Get All Localtion Records
+            function(wwnlist,  callback){ 
+
+                var param = {};
+                if (typeof device !== 'undefined') {  
+                    param['filter'] = 'device=\''+device+'\'&!vstatus==\'inactive\'&parttype=\'Port\'&!iftype=\'Ethernet\'&!discrim=\'FCoE\'';
+                } else {
+                    param['filter'] = '!vstatus==\'inactive\'&parttype=\'Port\'&!iftype=\'Ethernet\'&!discrim=\'FCoE\'';
+                }
+
+                //param['filter_name'] = '(name=\'InCrcs\'|name=\'LinkFailures\'|name=\'SigLosses\'|name=\'SyncLosses\'|name=\'CreditLost\'|name=\'Availability\'|name=\'ifInOctets\'|name=\'ifOutOctets\')';
+                param['keys'] = ['device','partwwn'];
+                //param['fields'] = ['partid','slotnum','part','porttype','partwwn','ifname','portwwn','maxspeed','partstat','partphys','gbicstat'];
+                param['fields'] = ['partid','part','porttype','partwwn','ifname','portwwn','maxspeed','partstat','partphys','gbicstat','lswwn'];
+                
+                CallGet.CallGet(param, function(param) { 
+                    var noFindPort = [];
+                    for ( var i in wwnlist ) {
+                         var aliasItem = wwnlist[i];
+                         aliasItem["connectTo"] = [];
+
+                         var isfind = false;
+                         for ( var j in param.result ) {
+                             var portItem = param.result[j];
+                             if ( aliasItem.HBAWWN == portItem.portwwn ) {
+                                aliasItem.connectTo.push(portItem);   
+                                isfind = true;
+
+                             }
+
+                         }
+
+                    }
+
+ 
+                     for ( var j in param.result ) {
+                         var portItem = param.result[j];
+                         var isfind = false;
+                         for ( var i in wwnlist ) {
+                             var aliasItem = wwnlist[i];                        
+                             if ( aliasItem.HBAWWN == portItem.portwwn ) {
+                                isfind = true;
+                                break;
+                             }
+                        }
+                        if ( isfind == false ) {
+                            if (   ( portItem.partstat.indexOf("Offline") <0 ) &&
+                                   ( portItem.porttype != 'E-Port')
+                                ) {
+                                    var item = {};
+                                    item["HBAWWN"] = portItem.portwwn;
+                                    item["ALIAS"] = "n/a";
+                                    item["connectTo"] = [];
+                                    item.connectTo.push(portItem);
+                                    wwnlist.push(item);
+                                }
+                        }
+                     }
+
+
+                    //callback(null, param.result ); 
+                    callback(null,wwnlist);
+                });
+
+                 
+            },
+            function(param,  callback){ 
+                  callback(null,param);
+            }
+        ], function (err, result) {
+              res.json(200, result);
+        }
+        );
+
+    });
+
+
+
      app.get('/api/switch/test', function ( req, res )  {
         var device = req.query.device; 
         var portwwn = '20D60027F871F600';
         //SWITCH.getSwitchPortPerformance1(device,portwwn,function(result) {   
-        SWITCH.getFabric(device,function(result) {   
-        //SWITCH.GetSwitchPorts(device,function(result) {
+        //SWITCH.getFabric(device,function(result) {   
+        SWITCH.GetSwitchPorts(device,function(result) {
             //var result1 = VMAX.convertPerformanceStruct(result);
             res.json(200,result);
           });

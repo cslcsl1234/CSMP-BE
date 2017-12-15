@@ -51,6 +51,7 @@ require('./controllers/reportingController')(app);
 require('./controllers/externalController')(app);
 
 require('./controllers/BackendMgmtController')(app);
+require('./controllers/testController')(app);
 
 app.listen(config.SERVER.PORT, function () {
 	console.log('=== The Backend server listening on [' + config.Backend.URL + '] ===');

@@ -27,7 +27,7 @@
         "hasDetail": false,
         "tabName": "逻辑磁盘",
         "template": 7,
-        "url": "/dmx/array/luns",
+        "url": "/vmax/array/luns",
         "param": [
             {
                 "postName": "device",

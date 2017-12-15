@@ -132,6 +132,18 @@
         ]
     },
     {
+        "hasDetail": false,
+        "tabName": "Template12",
+        "template": 12,
+        "url": "/array",
+        "param": [
+            {
+                "postName": "host_name_param",
+                "findName": "host_name"
+            }
+        ]
+    },
+    {
         "hasDetail": true,
         "tabDetail": [
             
