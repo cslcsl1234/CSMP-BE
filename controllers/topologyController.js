@@ -35,6 +35,16 @@ var topologyController = function (app) {
     });
 
 
+   app.get('/api/topologyview', function (req, res) {  
+
+
+        topos.getToposViews(function(result) {
+            res.json(200,result);
+        });
+ 
+    });
+
+
 
    app.get('/api/topology/level1', function (req, res) {  
 

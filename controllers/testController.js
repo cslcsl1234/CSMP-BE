@@ -24,6 +24,7 @@ var AppObj = mongoose.model('Application');
 var getTopos = require('../lib/topos.js');
 var Host = require('../lib/host');
 var VMAX = require('../lib/Array_VMAX');
+var Switch = require('../lib/Switch');
 
 var testController = function (app) {
 
@@ -47,10 +48,14 @@ var testController = function (app) {
         var device;
 
        // App.GetApps(function(code, result) {
-        VMAX.GetAssignedInitiatorByDevices(device,function(result) {
+        //VMAX.GetAssignedInitiatorByDevices(device,function(result) {
+        Switch.GetSwitchPorts(device,function(result) {
+
+
 
         //Host.GetAssignedLUNByHosts(function(result) {
        // Host.GetAssignedLUNByInitiator(device, function(result) {
+       //Switch.getFabric(device, function(result) {
             res.json(200 , result);
 
         })
