@@ -22,7 +22,7 @@ var mongoose = require('mongoose');
 var AppObj = mongoose.model('Application');
  
 var getTopos = require('../lib/topos.js');
-var Host = require('../lib/host');
+var Host = require('../lib/Host');
 var VMAX = require('../lib/Array_VMAX');
 var Switch = require('../lib/Switch');
 
