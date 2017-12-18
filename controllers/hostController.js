@@ -48,6 +48,7 @@ var hostController = function (app) {
 
     app.get('/api/hosts', function (req, res) {
         var hostname = req.query.device; 
+        var appid = req.query.appid;
 
         var isCached = false;
         async.waterfall(
@@ -55,7 +56,24 @@ var hostController = function (app) {
             function(callback){
  
                 host.GetHosts(hostname, function(code,result) {
-                    callback(null,result);
+
+
+                    if ( appid !== undefined && appid != null && appid != '' ) {
+                        var resultByApp = [];
+                        for ( var i in result ) {
+                            var hostItem = result[i]; 
+                            var apps = String(hostItem.APPs).split(",");
+                            for ( var j in apps ) {
+                                var appid1 = apps[j]; 
+                                if ( appid == appid1 ) {
+                                    resultByApp.push(hostItem);
+                                    break;
+                                }
+                            }
+                        }
+                        callback(null,resultByApp);
+                    } else 
+                        callback(null,result);
                 });
             },
             function(param,  callback){ 

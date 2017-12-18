@@ -70,6 +70,18 @@
                 "findName": "device"
             }
         ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "性能热点",
+        "template": 12,
+        "url": "/array/srdf",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
     }
 
 ]

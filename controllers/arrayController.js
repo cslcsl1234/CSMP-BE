@@ -29,6 +29,7 @@ var GetEvents = require('../lib/GetEvents');
 var VMAX = require('../lib/Array_VMAX');
 var VNX = require('../lib/Array_VNX');
 var host = require('../lib/Host');
+var ARRAY_CAPACITY = require('../lib/Array_Capacity');
 
 var testjson = require('../demodata/test');  
 
@@ -353,56 +354,6 @@ var arrayController = function (app) {
         }
     });
 
-   app.get('/api/vmax/performance/disk', function (req, res) { 
-    var device = req.query.device;
-
-    device='000495700228';
-    if ( config.ProductType == 'demo' ) { 
-            res.json(200,VMAXDISKListJSON);
-            return;
-
-    } else {
-
-            if ( device === undefined ) {
-                res.json(400, 'Must be special a device!')
-                return;
-            }
-
-            var param = {};
-            //param['filter_name'] = '(name=\'Capacity\'|name=\'FreeCapacity\'|name=\'Availability\')';
-            param['keys'] = ['device','partsn'];
-            param['fields'] = ['partid','director'];
-
-            if (typeof device !== 'undefined') { 
-                param['filter'] = 'device=\''+device+'\'&source=\'VMAX-Collector\'&parttype=\'Disk\'';
-            } else {
-                param['filter'] = 'source=\'VMAX-Collector\'&parttype=\'Disk\'';
-            } 
-
-            CallGet.CallGet(param, function(param) {
-                
-                var data = param.result;
-
-                var finalResult = [];
-
-                // ----- the part of chart --------------
-                for ( var i in data ) {
-                    var item = data[i];
-                    var resultItem = {};
-
-                    resultItem["container"] = item.device;
-                    resultItem["ident"] = item.director;
-                    resultItem["spindleId"] = item.partid;
-                    finalResult.push(resultItem);
-                }
-
-
-                res.json(200, finalResult);
-
-            });
-
-        }
-    });
 
   app.get('/api/dmx/array/disks', function (req, res) { 
     var device = req.query.device;
@@ -2826,50 +2777,6 @@ console.log("RULE17="+rule17);
      } ) ;
 
 
-     app.get('/api/vmax/performance/director', function ( req, res )  {
-
-        var arraysn = req.query.device; 
-
-        arraysn = '000495700228';
-
-        if ( config.ProductType == 'demo' ) {
-                res.json(200,demo_array_ports);
-                return;
-        } ;
-
-
-        VMAX.GetPorts(arraysn, function(result) {
- 
-           var finalResult = [];  
-  
- 
-            for ( var i in result ) {
-                var item = result[i];
-                var resultItem = {};
-
-                resultItem["container"] = item.device;
-                resultItem["directorType"] = item.porttype;
-                if ( item.porttype == 'DF') 
-                    resultItem["cache"] = "DA-CACHE";
-                else if ( item.porttype == 'RF' )
-                    resultItem["cache"] = "RA-CACHE";
-                else 
-                    resultItem["cache"] = item.porttype + "-CACHE";
- 
-
-                resultItem["slot"] = item.dirslot;
-                resultItem["id"] = item.director;
-                resultItem["port"] = item.part;
-
-                finalResult.push(resultItem);
-
-            }
-
-            res.json(200,finalResult);
-
-        });
-
-     } ) ;
 
 
      app.get('/api/array/switchs', function ( req, res )  {
@@ -2962,14 +2869,112 @@ console.log("RULE17="+rule17);
  
     });  
 
+   app.get('/api/vmax/performance/disk', function (req, res) { 
+    var device = req.query.device;
 
+    //device='000290301265';
+    if ( config.ProductType == 'demo' ) { 
+            res.json(200,VMAXDISKListJSON);
+            return;
+
+    } else {
+
+            if ( device === undefined ) {
+                res.json(400, 'Must be special a device!')
+                return;
+            }
+
+            var param = {};
+            //param['filter_name'] = '(name=\'Capacity\'|name=\'FreeCapacity\'|name=\'Availability\')';
+            param['keys'] = ['device','partsn'];
+            param['fields'] = ['partid','director','part'];
+
+            if (typeof device !== 'undefined') { 
+                param['filter'] = 'device=\''+device+'\'&source=\'VMAX-Collector\'&parttype=\'Disk\'';
+            } else {
+                param['filter'] = 'source=\'VMAX-Collector\'&parttype=\'Disk\'';
+            } 
+
+            CallGet.CallGet(param, function(param) {
+                
+                var data = param.result;
+
+                var finalResult = [];
+
+                // ----- the part of chart --------------
+                for ( var i in data ) {
+                    var item = data[i];
+                    var resultItem = {};
+
+                    resultItem["container"] = item.device;
+                    resultItem["ident"] = item.director;
+                    resultItem["spindleId"] = item.partid;
+                    resultItem["displayName"] = item.part.split(" ")[1];
+                    resultItem["TipsDisplayName"] = item.part;
+                    finalResult.push(resultItem);
+                }
+
+
+                res.json(200, finalResult);
+
+            });
+
+        }
+    });
+
+
+     app.get('/api/vmax/performance/director', function ( req, res )  {
+
+        var arraysn = req.query.device; 
+
+        //arraysn = '000290301265';
+
+        if ( config.ProductType == 'demo' ) {
+                res.json(200,demo_array_ports);
+                return;
+        } ;
+
+
+        VMAX.GetPorts(arraysn, function(result) {
+ 
+           var finalResult = [];  
+  
+ 
+            for ( var i in result ) {
+                var item = result[i];
+                var resultItem = {};
+
+                resultItem["container"] = item.device;
+                resultItem["directorType"] = item.porttype;
+                if ( item.porttype == 'DF') 
+                    resultItem["cache"] = "DA-CACHE";
+                else if ( item.porttype == 'RF' )
+                    resultItem["cache"] = "RA-CACHE";
+                else 
+                    resultItem["cache"] = item.porttype + "-CACHE";
+ 
+
+                resultItem["slot"] = item.dirslot;
+                resultItem["id"] = item.director;
+                resultItem["port"] = item.part;
+
+                finalResult.push(resultItem);
+
+            }
+
+            res.json(200,finalResult);
+
+        });
+
+     } ) ;
     app.get('/api/vmax/performance/perfDetail/history', function (req, res) {
 
         var arraysn = req.query.device; 
         var start = req.query.start; 
         var end = req.query.end; 
 
-        arraysn = '000495700228';
+        //arraysn = '000290301265';
+        //start = '2017-12-14T11:24:23.083Z';
         if (typeof arraysn !== 'undefined') { 
             var filterbase = 'device=\''+arraysn + '\'' ;
         } else {
@@ -2987,8 +2992,11 @@ console.log("RULE17="+rule17);
             return;
         }
 
-        console.log(arraysn + "|" + start + "|" + end);
 
+        start = start.replace(/"/g,'');
+        end = end.replace(/"/g,'');
+
+        console.log(arraysn + "|" + start + "|" + end);
 
 
         var finalResult = [];
@@ -2999,8 +3007,8 @@ console.log("RULE17="+rule17);
  
 
 
-                var filter = filterbase + '&datagrp=\'VMAX-BEDirector\'&partgrp=\'Back-End\'&(name==\'CurrentUtilization\')';
-                var fields = 'device,part,name';
+                var filter = filterbase + '&parttype=\'Controller\'&name=\'CurrentUtilization\'';
+                var fields = 'device,part,partgrp,name';
                 var keys = ['device,part'];
 
                 //var queryString =  {"filter":filter,"fields":fields}; 
@@ -3023,10 +3031,20 @@ console.log("RULE17="+rule17);
                                 for ( var i in result ) {
                                     var item = result[i];
                                     var matrics = item.points;
-                                    var resultItem = {};
-                                    resultItem["type"] = "DF";
+                                    var resultItem = {}; 
+                                    if (  item.properties.partgrp == "Back-End" ) {
+                                        resultItem["type"] = "DF";
+                                    } else if ( item.properties.partgrp == "Front-End") {
+                                        resultItem["type"] = "FA";
+                                    } else {
+                                        resultItem["type"] =  item.properties.partgrp;
+                                    }
+                                    
                                     resultItem["component"] = item.properties.part.replace(":","-");
-                                    resultItem["busy"] = util.GetMaxValue(matrics);
+                                    resultItem["busy"] = Math.round(util.GetMaxValue(matrics)); 
+                                    resultItem["cacheBusy"] = 0;
+                                    resultItem["iops"] = null;
+                                    resultItem["utilization"] = null;
                                     finalResult.push(resultItem);
                                 }
                                 callback(null,finalResult);
@@ -3038,8 +3056,8 @@ console.log("RULE17="+rule17);
             },
             function(arg1, callback) {
 
-                var filter = filterbase + '&datagrp=\'VMAX-PORTS\'&partgrp=\'Back-End\'&(name==\'Availability\')';
-                var fields = 'device,feport,name';
+                var filter = filterbase + '&parttype=\'Port\'&name==\'CurrentUtilization\'';
+                var fields = 'device,feport,name,partgrp';
                 var keys = ['device,feport'];
 
                 //var queryString =  {"filter":filter,"fields":fields}; 
@@ -3063,9 +3081,20 @@ console.log("RULE17="+rule17);
                                     var item = result[i];
                                     var matrics = item.points;
                                     var resultItem = {};
-                                    resultItem["type"] = "DF-PORT";
+
+                                    if ( item.properties.partgrp == "Back-End" ) {
+                                        resultItem["type"] = "DF-PORT";
+                                    } else if ( item.properties.partgrp == "Front-End") {
+                                        resultItem["type"] = "FA-PORT";
+                                    } else {
+                                        resultItem["type"] =  item.properties.partgrp;
+                                    }
+ 
                                     resultItem["component"] = item.properties.feport.replace(":","-");
-                                    resultItem["busy"] = util.GetMaxValue(matrics) - 90 ;
+                                    resultItem["busy"] = Math.round(util.GetMaxValue(matrics)); 
+                                    resultItem["cacheBusy"] = 0;
+                                    resultItem["iops"] = null;
+                                    resultItem["utilization"] = null;
                                     arg1.push(resultItem);
                                 }
                                 callback(null,arg1);
@@ -3073,52 +3102,13 @@ console.log("RULE17="+rule17);
 
                         });
             },
-            function(arg1,  callback){  
-                var filter = filterbase + '&datagrp=\'VMAX-PORTS\'&partgrp=\'Back-End\'&(name==\'Availability\')';
-                var fields = 'device,feport,name';
-                var keys = ['device,feport'];
-
-                //var queryString =  {"filter":filter,"fields":fields}; 
-                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
-
-
-
-                console.log(queryString);
-                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
-                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
-                        .headers({'Content-Type': 'multipart/form-data'}) 
-                        .query(queryString) 
-                        .end(function (response) { 
-                            if ( response.error ) {
-                                console.log(response.error);
-                                return response.error;
-                            } else {  
-                                var result = JSON.parse(response.body).values;    
-
-                                for ( var i in result ) {
-                                    var item = result[i];
-                                    var matrics = item.points;
-                                    var resultItem = {};
-                                    resultItem["type"] = "DF-PORT";
-                                    resultItem["component"] = item.properties.feport.replace(":","-");
-                                    resultItem["busy"] = util.GetMaxValue(matrics) - 90 ;
-                                    arg1.push(resultItem);
-                                }
-                                callback(null,arg1);
-                            }
-
-                        });
-
-            } ,
             function(arg1, callback) {
-                var filter = filterbase + '&datagrp=\'VMAX-Disk\'&(name==\'CurrentUtilization\')';
-                var fields = 'device,part,director,partid,name';
+                var filter = filterbase + '&parttype=\'Disk\'&name==\'CurrentUtilization\'';
+                var fields = 'device,part,partid,name';
                 var keys = ['device,part'];
 
                 //var queryString =  {"filter":filter,"fields":fields}; 
-                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '0'}; 
-
-
+                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
 
                 console.log(queryString);
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
@@ -3139,7 +3129,13 @@ console.log("RULE17="+rule17);
                                     var resultItem = {};
                                     resultItem["type"] = "DISK";
                                     resultItem["component"] = item.properties.part.split(":")[0] + " " + item.properties.partid;
-                                    resultItem["busy"] = util.GetMaxValue(matrics) ;
+                                    //resultItem["displayName"] = item.properties.part.split(" ")[1];
+                                    //resultItem["displayName"] = item.properties.part;
+                                    //resultItem["TipsDisplayName"] = item.properties.part;
+                                    resultItem["busy"] = Math.round(util.GetMaxValue(matrics));;
+                                    resultItem["cacheBusy"] = 0;
+                                    resultItem["iops"] = null;
+                                    resultItem["utilization"] = null;
                                     arg1.push(resultItem);
                                 }
                                 callback(null,arg1);
@@ -3148,41 +3144,30 @@ console.log("RULE17="+rule17);
                         });               
             },
             function(arg1, callback) {
-                var filterbase = 'device==\''+arraysn+'\'&datagrp=\'VMAX-FEDirectorByPort\'&source=\'VMAX-Collector\'&partgrp=\'Front-End\'';
+  
+  /*
+                var resultItem = {};
+                resultItem["type"] = "DF-PORT";
+                resultItem["component"] = "DF-1A-0"
+                resultItem["busy"] = 22;
+                resultItem["cacheBusy"] = 0;
+                resultItem["iops"] = null;
+                resultItem["utilization"] = null;
+                arg1.push(resultItem);  
+ 
 
-                var filter = filterbase + '&(name==\'IORate\')';
-                var fields = 'device,feport,name';
-                var keys = ['device','feport'];
+                 var resultItem = {};
+                resultItem["type"] = "DF-PORT";
+                resultItem["component"] = "DF-1A-1"
+                resultItem["busy"] = 22;
+                resultItem["cacheBusy"] = 0;
+                resultItem["iops"] = null;
+                resultItem["utilization"] = null;
+                arg1.push(resultItem); 
+*/
+                callback(null,arg1);
 
-                //var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
-                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '3600'}; 
-   
-                 console.log(queryString);
-               unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
-                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
-                        .headers({'Content-Type': 'multipart/form-data'}) 
-                        .query(queryString) 
-                        .end(function (response) { 
-                            if ( response.error ) {
-                                console.log(response.error);
-                                return response.error;
-                            } else {  
-                                var result = JSON.parse(response.body).values;    
 
-                                for ( var i in result ) {
-                                    var item = result[i];
-                                    var matrics = item.points;
-                                    var resultItem = {};
-                                    resultItem["type"] = "FE-PORT";
-                                    resultItem["component"] = item.properties.feport.replace(":","-");
-                                    resultItem["busy"] = util.GetMaxValue(matrics) ;
-                                    arg1.push(resultItem);
-                                }
-                                callback(null,arg1);
-                            }
-                }); 
-
-              
             }
         ], function (err, result) {
            // result now equals 'done'
@@ -3492,10 +3477,10 @@ console.log("RULE17="+rule17);
 /*
        VNX Array API
  */
-     app.get('/api/vnx/array', function ( req, res )  {
+    app.get('/api/vnx/array', function ( req, res )  {
         var device = req.query.device; 
 
-        VNX.GetArrays(device, function(ret) {
+        ARRAY_CAPACITY.GetArrayCapacity(device, function(ret) {
             var finalResult = {};
             var returnData = ret[0];
 
@@ -3504,51 +3489,65 @@ console.log("RULE17="+rule17);
 
             // -------------- Left Chart ---------------------------
             var leftChart = {} ;
-            leftChart['title'] = "存储容量分布"; 
+            leftChart['title'] = "存储容量分布(TB)"; 
             leftChart['chartType'] = 'pie';
 
             var chartData = [];
             item={};
             item["color"] =  "#80B3E8",
-            item["name"] =  "已分配容量(GB)",
-            item["value"] =  returnData.NASFSPresentedCapacity;
-            chartData.push(item);
-
-            item={};
-            item["color"] =  "#444348",
-            item["name"] =  "剩余容量(GB)",
-            item["value"] =  returnData.NASPoolFreeCapacity;
-            chartData.push(item);
-
-            item={};
-            item["color"] =  "#91EC7E",
-            item["name"] =  "Overhead(GB)",
-            item["value"] =  returnData.NASFSOverheadCapacity;
+            item["name"] =  "已配置容量",
+            //item["value"] =  returnData.RawCapacity.ConfiguredUsableCapacity;
+            item["name2"] =  "已分配";
+            item["value2"] =  Math.round(returnData.ConfiguredUsableCapacity.UsedCapacity/1024);
+            item["name3"] =  "剩余可用";
+            item["value3"] =  Math.round(returnData.ConfiguredUsableCapacity.PoolFreeCapacity/1024 +returnData.ConfiguredUsableCapacity.FreeCapacity/1024);
             chartData.push(item);
 
             item={};
             item["color"] =  "#80B3E8",
-            item["name"] =  "Snapshot(GB)",
-            item["value"] =  returnData.NASSnapshotCapacity;
+            item["name"] =  "未配置容量",
+            item["value"] =  Math.round(returnData.RawCapacity.UnconfiguredCapacity/1024);
+            chartData.push(item);
+
+
+            item={};
+            item["color"] =  "#444348",
+            item["name"] =  "HotSpare",
+            item["value"] =  Math.round(returnData.RawCapacity.HotSpareCapacity/1024);
+            chartData.push(item);
+
+            item={};
+            item["color"] =  "#91EC7E",
+            item["name"] =  "Overhead",
+            item["value"] =  Math.round(returnData.RawCapacity.RAIDOverheadCapacity/1024);
+            chartData.push(item);
+
+            item={};
+            item["color"] =  "#80B3E8",
+            item["name"] =  "不可用容量",
+            item["value"] =  Math.round(returnData.RawCapacity.UnusableCapacity/1024);
             chartData.push(item);
             leftChart["chartData"] = chartData;
 
             // -------------- Right Chart ---------------------------
             var RightChart = {} ;
-            RightChart['title'] = "FS使用容量分布"; 
+            RightChart['title'] = "已分配容量分布(TB)"; 
             RightChart['chartType'] = 'pie';
 
             var chartData = [];
             item={};
             item["color"] =  "#80B3E8",
-            item["name"] =  "FS已使用(GB)",
-            item["value"] =  returnData.NASFSUsedCapacity;
+            item["name"] =  "Block",
+            item["value"] =  Math.round(returnData.UsedCapacityByType.BlockUsedCapacity/1024);
             chartData.push(item);
 
             item={};
             item["color"] =  "#444348",
-            item["name"] =  "FS剩余容量(GB)",
-            item["value"] =  returnData.NASFSFreeCapacity;
+            item["name"] = "File",
+            item["name2"] =  "FS已使用";
+            item["value2"] = Math.round(returnData.UsedCapacityByType.FileUsedCapacity/1024 - returnData.NASFSCapacity.NASFSFreeCapacity/1024 - returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
+            item["name3"] =  "FS剩余可用";
+            item["value3"] =  Math.round(returnData.NASFSCapacity.NASFSFreeCapacity/1024 +　returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
             chartData.push(item);
             RightChart["chartData"] = chartData;
 

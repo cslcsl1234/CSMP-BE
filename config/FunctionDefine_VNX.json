@@ -7,7 +7,7 @@
         "param": [
             {
                 "postName": "device",
-                "findName": "device"
+                "findName": "serialnb"
             }
         ]
     },

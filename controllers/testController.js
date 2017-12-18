@@ -25,6 +25,8 @@ var getTopos = require('../lib/topos.js');
 var Host = require('../lib/Host');
 var VMAX = require('../lib/Array_VMAX');
 var Switch = require('../lib/Switch');
+var VNX = require('../lib/Array_VNX');
+var Capacity = require('../lib/Array_Capacity');
 
 var testController = function (app) {
 
@@ -44,18 +46,64 @@ var testController = function (app) {
     });
 
 
+
+    app.get('/api/test1', function (req, res) {
+        var device = req.query.device;  
+        var start = req.query.start; 
+        var end = req.query.end; 
+
+        var filterbase = 'device=\''+device + '\'' ;
+                var filter = filterbase + '&datagrp=\'VMAX-BEDirector\'&partgrp=\'Back-End\'&name=\'CurrentUtilization\'';
+                var fields = 'device,part,name';
+                var keys = ['device,part'];
+
+                //var queryString =  {"filter":filter,"fields":fields}; 
+                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
+
+
+
+                console.log(queryString);
+                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
+                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+                        .headers({'Content-Type': 'multipart/form-data'}) 
+                        .query(queryString) 
+                        .end(function (response) { 
+                            if ( response.error ) {
+                                console.log(response.error);
+                                return response.error;
+                            } else {  
+                                var result = JSON.parse(response.body).values;    
+
+                                for ( var i in result ) {
+                                    var item = result[i];
+                                    var matrics = item.points;
+                                    var resultItem = {};
+                                    resultItem["type"] = "DF";
+                                    resultItem["component"] = item.properties.part.replace(":","-");
+                                    resultItem["busy"] = util.GetMaxValue(matrics);
+                                    finalResult.push(resultItem);
+                                }
+                                callback(null,finalResult);
+                            }
+
+                        });
+
+     });                       
+
     app.get('/api/test', function (req, res) {
-        var device;
+        var device = req.query.device; 
 
        // App.GetApps(function(code, result) {
         //VMAX.GetAssignedInitiatorByDevices(device,function(result) {
-        Switch.GetSwitchPorts(device,function(result) {
-
+        //Switch.GetSwitchPorts(device,function(result) {
+            //Capacity.GetArrayCapacity(device,function(result) {
 
 
         //Host.GetAssignedLUNByHosts(function(result) {
        // Host.GetAssignedLUNByInitiator(device, function(result) {
        //Switch.getFabric(device, function(result) {
+       //
+       Host.GetHosts(device, function(code,result) {
             res.json(200 , result);
 
         })
