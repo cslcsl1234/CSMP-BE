@@ -106,12 +106,12 @@ var testController = function (app) {
        //Switch.getFabric(device, function(result) {
        //
        //Host.GetHosts(device, function(code,result) {
-       //VMAX.GetStorageGroups(device, function(result) {
+       VMAX.GetDevices(device, function(result) {
        //Host.GetHBAFlatRecord(device, function(result) {
        //VPLEX.GetVirtualVolumeRelationByDevices(device,function(result) {
        
         //VPLEX.getVplexStorageViews(device, function(result) {  
-        GETCALL.centralizedManage( function(result) {
+       // GETCALL.centralizedManage( function(result) {
             res.json(200 , result);
 
         })
