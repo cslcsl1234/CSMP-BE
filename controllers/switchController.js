@@ -848,7 +848,10 @@ function GetSwitchInfo(callback) {
                         var hostItem = hosts[j];
                         if ( portItem.portwwn == hostItem.hba_wwn ) {
                             portItem["hostname"] = hostItem.hostname;
-                            break;
+                            portItem["connectedToDeviceType"] = 'Host';
+                            portItem["connectedToDevice"] = hostItem.hostname;
+                            portItem["connectedToPart"] = hostItem.hba_name; 
+                           break;
                         }
                     }
 
@@ -856,6 +859,39 @@ function GetSwitchInfo(callback) {
 
                 callback(null,arg1); 
             })
+
+                
+        }, 
+
+        function(arg1, callback){ 
+                var param = {};
+                //param['filter_name'] = '(name=\'Availability\')';
+                param['keys'] = ['serialnb','feport'];
+                param['fields'] = ['portwwn','porttype'];
+                //param['period'] = 3600;
+                //param['valuetype'] = 'MAX'; 
+                param['filter'] = '(datagrp=\'VMAX-PORTS\'&source=\'VMAX-Collector\'&partgrp=\'Front-End\')|(source=\'VNXBlock-Collector\'&parttype==\'Port\')';
+ 
+
+                CallGet.CallGet(param, function(param) {
+ 
+                    for ( var i in arg1 ) {
+                        var item1 = arg1[i]; 
+
+                        for ( var j in param.result ) {
+                            var FEPortItem = param.result[j];
+                            
+                            if ( item1.connectedToWWN == FEPortItem.portwwn ) {
+                                item1["connectedToDeviceType"] = 'Array';
+                                item1["connectedToDevice"] = FEPortItem.serialnb;
+                                item1["connectedToPart"] = FEPortItem.feport;
+                                break;
+                            }
+
+                        }
+                    } 
+                    callback( null, arg1 ); 
+                }); 
 
                 
         }

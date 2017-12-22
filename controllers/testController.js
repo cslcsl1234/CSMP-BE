@@ -17,6 +17,7 @@ var async = require('async');
 var RecordFlat = require('../lib/RecordFlat');
 var util = require('../lib/util');
 var App = require('../lib/App');
+var GETCALL = require('../lib/CallGet');
 
 var mongoose = require('mongoose');
 var AppObj = mongoose.model('Application');
@@ -24,6 +25,7 @@ var AppObj = mongoose.model('Application');
 var getTopos = require('../lib/topos.js');
 var Host = require('../lib/Host');
 var VMAX = require('../lib/Array_VMAX');
+var VPLEX = require('../lib/Array_VPlex');
 var Switch = require('../lib/Switch');
 var VNX = require('../lib/Array_VNX');
 var Capacity = require('../lib/Array_Capacity');
@@ -96,14 +98,20 @@ var testController = function (app) {
        // App.GetApps(function(code, result) {
         //VMAX.GetAssignedInitiatorByDevices(device,function(result) {
         //Switch.GetSwitchPorts(device,function(result) {
-            //Capacity.GetArrayCapacity(device,function(result) {
+        //Capacity.GetArrayCapacity(device,function(result) {
 
 
         //Host.GetAssignedLUNByHosts(function(result) {
        // Host.GetAssignedLUNByInitiator(device, function(result) {
        //Switch.getFabric(device, function(result) {
        //
-       Host.GetHosts(device, function(code,result) {
+       //Host.GetHosts(device, function(code,result) {
+       //VMAX.GetStorageGroups(device, function(result) {
+       //Host.GetHBAFlatRecord(device, function(result) {
+       //VPLEX.GetVirtualVolumeRelationByDevices(device,function(result) {
+       
+        //VPLEX.getVplexStorageViews(device, function(result) {  
+        GETCALL.centralizedManage( function(result) {
             res.json(200 , result);
 
         })

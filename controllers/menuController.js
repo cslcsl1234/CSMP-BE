@@ -162,6 +162,7 @@ var menuController = function (app) {
 
             case "VNX5600" :
             case "VNX7500" :
+            case "VNX7600" :
 
                 res.json(200,FunctionDefine_VNX);
                 break;

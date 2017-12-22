@@ -689,7 +689,7 @@ var virtualArrayController = function (app) {
 
                     var groupbyValue = item[groupby]; 
                     var itemValue = item[groupbyField];
-
+console.log(itemValue);
                     var isFind = false;
                     for ( var j in chartData ) {
                         var charItem = chartData[j];

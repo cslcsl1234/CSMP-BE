@@ -17,15 +17,12 @@ var util = require('../lib/util');
 var mongoose = require('mongoose');  
 var EventObj = mongoose.model('Event');
 var CallGet = require('../lib/CallGet'); 
- 
 var demo_events = require('../demodata/events');
-
-var GetEvents = require('../lib/GetEvents');  
+var GetEvents = require('../lib/GetEvents');
 
 var eventController = function (app) {
 
     var config = configger.load();
-
 
     app.get('/api/events', function (req, res) {
  
@@ -43,8 +40,6 @@ var eventController = function (app) {
         } else {
             eventParam['filter'] = '!acknowledged&active=\'1\'';
         } 
-
-
 
         eventParam['filter'] = filter;
 
