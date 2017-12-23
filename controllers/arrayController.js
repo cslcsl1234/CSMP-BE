@@ -138,6 +138,166 @@ var arrayController = function (app) {
 
     });
 
+
+    app.get('/api/array/capacity', function ( req, res )  {
+        var device = req.query.device; 
+
+
+        async.waterfall([
+            function(callback){  
+                ARRAY_CAPACITY.getArrayCapacityTrend(device,function(result){
+                    var valueField = [];
+/*
+
+                    var valueFieldItem = {};
+                    valueFieldItem["field"] = "ConfiguredUsableCapacity";
+                    valueFieldItem["name"] = "已配置可用容量";
+                    valueField.push(valueFieldItem);
+
+                    var valueFieldItem = {};
+                    valueFieldItem["field"] = "UnconfiguredCapacity";
+                    valueFieldItem["name"] = "未配置裸容量";
+                    valueField.push(valueFieldItem);
+
+                    var valueFieldItem = {};
+                    valueFieldItem["field"] = "UsedCapacity";
+                    valueFieldItem["name"] = "已分配容量";
+                    valueField.push(valueFieldItem);
+*/
+
+                    var valueFieldItem = {};
+                    valueFieldItem["field"] = "BlockUsedCapacity";
+                    valueFieldItem["name"] = "Block分配容量";
+                    valueField.push(valueFieldItem);
+
+                    var valueFieldItem = {};
+                    valueFieldItem["field"] = "FileUsedCapacity";
+                    valueFieldItem["name"] = "File分配容量";
+                    valueField.push(valueFieldItem);
+
+                    
+                    var valueFieldItem = {};
+                    valueFieldItem["field"] = "PoolFreeCapacity";
+                    valueFieldItem["name"] = "剩余可用容量";
+                    valueField.push(valueFieldItem);
+                                        
+
+                    var stackedarea = {};
+                    var header = {};
+                    header["Title"] = "容量趋势";
+                    header["YTitle"] = "容量(GB)";
+                    header["categoryField"] = "timestamp";
+                    header["dataformat"] = "YYYY-MM-DD";
+                    header["ValueField"] = valueField;
+                    stackedarea["chartHeader"] = header;
+                    stackedarea["chartData"] =  result[0].matrics;          
+
+                    callback(null, stackedarea);
+                })
+             },
+
+            function(arg1,  callback){   
+                ARRAY_CAPACITY.GetArrayCapacity(device, function(ret) {
+                    var finalResult = {};
+                    var returnData = ret[0];
+
+                    console.log(returnData);
+                    var item = {}; 
+
+                    // -------------- Left Chart ---------------------------
+                    var leftChart = {} ;
+                    leftChart['title'] = "存储容量分布(TB)"; 
+                    leftChart['chartType'] = 'pie';
+
+                    var chartData = [];
+                    item={};
+                    item["color"] =  "#80B3E8",
+                    item["name"] =  "已配置容量",
+                    //item["value"] =  returnData.RawCapacity.ConfiguredUsableCapacity;
+                    item["name2"] =  "已分配";
+                    item["value2"] =  Math.round(returnData.ConfiguredUsableCapacity.UsedCapacity/1024);
+                    item["name3"] =  "剩余可用";
+                    item["value3"] =  Math.round(returnData.ConfiguredUsableCapacity.PoolFreeCapacity/1024 +returnData.ConfiguredUsableCapacity.FreeCapacity/1024);
+                    chartData.push(item);
+
+                    item={};
+                    item["color"] =  "#80B3E8",
+                    item["name"] =  "未配置容量",
+                    item["value"] =  Math.round(returnData.RawCapacity.UnconfiguredCapacity/1024);
+                    chartData.push(item);
+
+
+                    item={};
+                    item["color"] =  "#444348",
+                    item["name"] =  "HotSpare",
+                    item["value"] =  Math.round(returnData.RawCapacity.HotSpareCapacity/1024);
+                    chartData.push(item);
+
+                    item={};
+                    item["color"] =  "#91EC7E",
+                    item["name"] =  "Overhead",
+                    item["value"] =  Math.round(returnData.RawCapacity.RAIDOverheadCapacity/1024);
+                    chartData.push(item);
+
+                    item={};
+                    item["color"] =  "#80B3E8",
+                    item["name"] =  "不可用容量",
+                    item["value"] =  Math.round(returnData.RawCapacity.UnusableCapacity/1024);
+                    chartData.push(item);
+                    leftChart["chartData"] = chartData;
+
+                    // -------------- Right Chart ---------------------------
+                    var RightChart = {} ;
+                    RightChart['title'] = "已分配容量分布(TB)"; 
+                    RightChart['chartType'] = 'pie';
+
+                    var chartData = [];
+                    item={};
+                    item["color"] =  "#80B3E8",
+                    item["name"] =  "Block",
+                    item["value"] =  Math.round(returnData.UsedCapacityByType.BlockUsedCapacity/1024);
+                    chartData.push(item);
+
+                    item={};
+                    item["color"] =  "#444348",
+                    item["name"] = "File",
+                    item["name2"] =  "FS已使用";
+                    if ( returnData.UsedCapacityByType.FileUsedCapacity === undefined || 
+                         returnData.NASFSCapacity === undefined || 
+                         returnData.FileUsedCapacity === undefined  ) {
+                        item["value2"] = 0 ;
+                        item["value3"] = 0 ;
+                    } else  {
+                        item["value2"] = Math.round(returnData.UsedCapacityByType.FileUsedCapacity/1024 - returnData.NASFSCapacity.NASFSFreeCapacity/1024 - returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
+                        item["value3"] =  Math.round(returnData.NASFSCapacity.NASFSFreeCapacity/1024 +　returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
+
+                    }
+
+
+                    item["name3"] =  "FS剩余可用";
+                   chartData.push(item);
+                    RightChart["chartData"] = chartData;
+
+                    // -------------- Finally combine the final result record -----------------
+                    finalResult["left"] = leftChart;
+                    finalResult["right"] = RightChart;
+                    finalResult["stackedarea"] = arg1;
+
+                     callback(null, finalResult);
+                })    
+
+
+                }
+            ], function (err, result) {
+               // result now equals 'done'
+               res.json(200, result);
+            });
+
+
+
+    });
+
+
    app.get('/api/vmax/array', function (req, res) { 
     var device = req.query.device;
 
@@ -3045,7 +3205,7 @@ console.log("RULE17="+rule17);
 
     });  
 
-    app.get('/api/array/capacity', function (req, res) {
+    app.get('/api/array/capacity1', function (req, res) {
  
  
          var arraysn = req.query.device; 
@@ -3283,87 +3443,6 @@ console.log("RULE17="+rule17);
 /*
        VNX Array API
  */
-    app.get('/api/vnx/array', function ( req, res )  {
-        var device = req.query.device; 
-
-        ARRAY_CAPACITY.GetArrayCapacity(device, function(ret) {
-            var finalResult = {};
-            var returnData = ret[0];
-
-            console.log(returnData);
-            var item = {}; 
-
-            // -------------- Left Chart ---------------------------
-            var leftChart = {} ;
-            leftChart['title'] = "存储容量分布(TB)"; 
-            leftChart['chartType'] = 'pie';
-
-            var chartData = [];
-            item={};
-            item["color"] =  "#80B3E8",
-            item["name"] =  "已配置容量",
-            //item["value"] =  returnData.RawCapacity.ConfiguredUsableCapacity;
-            item["name2"] =  "已分配";
-            item["value2"] =  Math.round(returnData.ConfiguredUsableCapacity.UsedCapacity/1024);
-            item["name3"] =  "剩余可用";
-            item["value3"] =  Math.round(returnData.ConfiguredUsableCapacity.PoolFreeCapacity/1024 +returnData.ConfiguredUsableCapacity.FreeCapacity/1024);
-            chartData.push(item);
-
-            item={};
-            item["color"] =  "#80B3E8",
-            item["name"] =  "未配置容量",
-            item["value"] =  Math.round(returnData.RawCapacity.UnconfiguredCapacity/1024);
-            chartData.push(item);
-
-
-            item={};
-            item["color"] =  "#444348",
-            item["name"] =  "HotSpare",
-            item["value"] =  Math.round(returnData.RawCapacity.HotSpareCapacity/1024);
-            chartData.push(item);
-
-            item={};
-            item["color"] =  "#91EC7E",
-            item["name"] =  "Overhead",
-            item["value"] =  Math.round(returnData.RawCapacity.RAIDOverheadCapacity/1024);
-            chartData.push(item);
-
-            item={};
-            item["color"] =  "#80B3E8",
-            item["name"] =  "不可用容量",
-            item["value"] =  Math.round(returnData.RawCapacity.UnusableCapacity/1024);
-            chartData.push(item);
-            leftChart["chartData"] = chartData;
-
-            // -------------- Right Chart ---------------------------
-            var RightChart = {} ;
-            RightChart['title'] = "已分配容量分布(TB)"; 
-            RightChart['chartType'] = 'pie';
-
-            var chartData = [];
-            item={};
-            item["color"] =  "#80B3E8",
-            item["name"] =  "Block",
-            item["value"] =  Math.round(returnData.UsedCapacityByType.BlockUsedCapacity/1024);
-            chartData.push(item);
-
-            item={};
-            item["color"] =  "#444348",
-            item["name"] = "File",
-            item["name2"] =  "FS已使用";
-            item["value2"] = Math.round(returnData.UsedCapacityByType.FileUsedCapacity/1024 - returnData.NASFSCapacity.NASFSFreeCapacity/1024 - returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
-            item["name3"] =  "FS剩余可用";
-            item["value3"] =  Math.round(returnData.NASFSCapacity.NASFSFreeCapacity/1024 +　returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
-            chartData.push(item);
-            RightChart["chartData"] = chartData;
-
-            // -------------- Finally combine the final result record -----------------
-            finalResult["left"] = leftChart;
-            finalResult["right"] = RightChart;
-
-            res.json(200,finalResult);
-        })    
-    });
 
 
    app.get('/api/vnx/block/sp', function (req, res) { 

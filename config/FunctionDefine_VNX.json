@@ -3,7 +3,7 @@
         "hasDetail": false,
         "tabName": "基本信息",
         "template": 4,
-        "url": "/vnx/array",
+        "url": "/array/capacity",
         "param": [
             {
                 "postName": "device",

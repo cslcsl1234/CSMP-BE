@@ -98,7 +98,7 @@ var testController = function (app) {
        // App.GetApps(function(code, result) {
         //VMAX.GetAssignedInitiatorByDevices(device,function(result) {
         //Switch.GetSwitchPorts(device,function(result) {
-        //Capacity.GetArrayCapacity(device,function(result) {
+       Capacity.getArrayCapacityTrend(device, function(result) {
 
 
         //Host.GetAssignedLUNByHosts(function(result) {
@@ -106,7 +106,7 @@ var testController = function (app) {
        //Switch.getFabric(device, function(result) {
        //
        //Host.GetHosts(device, function(code,result) {
-       VMAX.GetDevices(device, function(result) {
+       //VMAX.GetDevices(device, function(result) {
        //Host.GetHBAFlatRecord(device, function(result) {
        //VPLEX.GetVirtualVolumeRelationByDevices(device,function(result) {
        

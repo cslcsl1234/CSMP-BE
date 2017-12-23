@@ -1,9 +1,9 @@
 {
     "CapacityOverview": {
-        "Available": 1000,
-        "PhysicalFree": 650,
-        "Used": 150,
-        "Assigned": 500
+        "Available": 1234,
+        "PhysicalFree": 1200,
+        "Used": 400,
+        "Assigned": 800
     },
     "PoolDistributed": [
         {

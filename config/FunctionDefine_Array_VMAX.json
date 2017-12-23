@@ -82,6 +82,18 @@
                 "findName": "device"
             }
         ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "容量分布",
+        "template": 4,
+        "url": "/array/capacity",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
     }
 
 ]

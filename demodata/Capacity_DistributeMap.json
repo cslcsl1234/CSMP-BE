@@ -1,0 +1,34 @@
+  {
+    "serialnb": "CETV2164300044",
+    "sstype": "Unified",
+    "RawCapacity": {
+      "RawCapacity": 168168,
+      "UnconfiguredCapacity": 8867,
+      "ConfiguredUsableCapacity": 121837,
+      "HotSpareCapacity": 0,
+      "RAIDOverheadCapacity": 35997,
+      "UnusableCapacity": 1467
+    },
+    "ConfiguredUsableCapacity": {
+      "UsedCapacity": 115152,
+      "PoolFreeCapacity": 6685,
+      "FreeCapacity": 0
+    },
+    "UsedCapacityByType": {
+      "BlockUsedCapacity": 53712,
+      "FileUsedCapacity": 61440,
+      "VirtualUsedCapacity": 0,
+      "HDFSUsedCapacity": null,
+      "ObjectUsedCapacity": null
+    },
+    "FileUsedCapacity": {
+      "NASFSOverheadCapacity": 910,
+      "NASPoolFreeCapacity": 1906,
+      "NASSnapshotCapacity": 98,
+      "NASFSCapacity": 58526
+    },
+    "NASFSCapacity": {
+      "NASFSUsedCapacity": 35991,
+      "NASFSFreeCapacity": 22535
+    }
+  }
