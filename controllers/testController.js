@@ -25,7 +25,7 @@ var AppObj = mongoose.model('Application');
 var getTopos = require('../lib/topos.js');
 var Host = require('../lib/Host');
 var VMAX = require('../lib/Array_VMAX');
-var VPLEX = require('../lib/Array_VPlex');
+var VPLEX = require('../lib/Array_VPLEX');
 var Switch = require('../lib/Switch');
 var VNX = require('../lib/Array_VNX');
 var Capacity = require('../lib/Array_Capacity');
@@ -98,7 +98,7 @@ var testController = function (app) {
        // App.GetApps(function(code, result) {
         //VMAX.GetAssignedInitiatorByDevices(device,function(result) {
         //Switch.GetSwitchPorts(device,function(result) {
-       Capacity.getArrayCapacityTrend(device, function(result) {
+       Capacity.getArrayCapacityTrend(device,function(result) {
 
 
         //Host.GetAssignedLUNByHosts(function(result) {

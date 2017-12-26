@@ -177,7 +177,7 @@ var arrayController = function (app) {
 
                     
                     var valueFieldItem = {};
-                    valueFieldItem["field"] = "PoolFreeCapacity";
+                    valueFieldItem["field"] = "TotalFreeCapacity";
                     valueFieldItem["name"] = "剩余可用容量";
                     valueField.push(valueFieldItem);
                                         
@@ -190,6 +190,13 @@ var arrayController = function (app) {
                     header["dataformat"] = "YYYY-MM-DD";
                     header["ValueField"] = valueField;
                     stackedarea["chartHeader"] = header;
+
+
+                    // Add a "TotalFreeCapacity"
+                    for ( var i in result[0].matrics ) {
+                        var item = result[0].matrics[i];
+                        item["TotalFreeCapacity"] = parseFloat(item.FreeCapacity) + parseFloat(item.PoolFreeCapacity);
+                    }
                     stackedarea["chartData"] =  result[0].matrics;          
 
                     callback(null, stackedarea);
