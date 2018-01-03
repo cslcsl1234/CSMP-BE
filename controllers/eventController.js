@@ -80,6 +80,7 @@ var eventController = function (app) {
                                 eventitem["customerSeverity"] = eventInfoItem.customerSeverity;
                                 eventitem["state"] = eventInfoItem.state;
                                 eventitem["ProcessMethod"] = eventInfoItem.ProcessMethod;
+                                eventitem["sendSMS"] = eventInfoItem.sendSMS;
                                 break;
                             }
                         }
@@ -96,16 +97,13 @@ var eventController = function (app) {
                         return  res.json(200 , result);
 
                 });
- 
-            
-
         });
 
 
     });
 
 
-/* 
+/*
 *  Create a Event record 
 */
     app.post('/api/events', function (req, res) { 
@@ -149,8 +147,6 @@ var eventController = function (app) {
 
 
     });
-
-
 
 };
 

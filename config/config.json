@@ -12,8 +12,9 @@
     },
     "MongoDBURL" : "mongodb://csmpserver/csmp",
     "SRM_RESTAPI" : {
-        "SERIES_BEGIN_TS": "2016-04-01T18:30:00+08:00",
+        "SERIES_BEGIN_TS": "2017-12-14T18:30:00+08:00",
         "SERIES_LIMITS": "500000",
+        "SERIES_PERIOD": 0, 
         "METRICS_PROPERTIES_VALUE": "/metrics/properties/values",
         "METRICS_SERIES_VALUE": "/metrics/series/values"
 
@@ -21,6 +22,12 @@
     "SERVER": {
         "PORT": 8080
     },
-    "ProductType": "dev"
+    "ProductType": "Prod", 
+    "ProductTypeDesc": ["Prod","dev","test"],  
+    "SMS" : {
+        "ServiceIP" : "10.188.97.241",
+        "ServicePort" : 6821 ,
+        "Phones" : ["13910084247","18098800004"]
+    }
 
 }

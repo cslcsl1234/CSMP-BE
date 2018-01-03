@@ -825,6 +825,7 @@ function GetSwitchInfo(callback) {
         }) 
     });
 
+
     app.get('/api/switch/ports', function (req, res) {
         var device;
         async.waterfall([
@@ -833,10 +834,7 @@ function GetSwitchInfo(callback) {
             SWITCH.GetSwitchPorts(device, function(result) { 
                 callback(null,result);
             }); 
-
-
         }, 
-
         function(arg1, callback){ 
             var host;
             HOST.GetHBAFlatRecord(host, function(hosts) {
@@ -854,13 +852,9 @@ function GetSwitchInfo(callback) {
                            break;
                         }
                     }
-
                 }
-
                 callback(null,arg1); 
-            })
-
-                
+            })  
         }, 
 
         function(arg1, callback){ 
@@ -871,7 +865,6 @@ function GetSwitchInfo(callback) {
                 //param['period'] = 3600;
                 //param['valuetype'] = 'MAX'; 
                 param['filter'] = '(datagrp=\'VMAX-PORTS\'&source=\'VMAX-Collector\'&partgrp=\'Front-End\')|(source=\'VNXBlock-Collector\'&parttype==\'Port\')';
- 
 
                 CallGet.CallGet(param, function(param) {
  
@@ -887,7 +880,6 @@ function GetSwitchInfo(callback) {
                                 item1["connectedToPart"] = FEPortItem.feport;
                                 break;
                             }
-
                         }
                     } 
                     callback( null, arg1 ); 
@@ -914,158 +906,158 @@ function GetSwitchInfo(callback) {
         async.waterfall([
             function(callback){ 
 
-            SWITCH.GetSwitchPorts(device, function(result) { 
-                callback(null,result);
-            }); 
+                SWITCH.GetSwitchPorts(device, function(result) { 
+                    callback(null,result);
+                }); 
 
 
-        }, 
+            }, 
 
-        function(arg1, callback){ 
-            var host;
-            HOST.GetHBAFlatRecord(host, function(hosts) {
-                for ( var i in arg1 ) {
-                    var portItem = arg1[i];
-                    portItem["hostname"] = portItem.connectedToAlias;  // default equal the port alias name;
+            function(arg1, callback){ 
+                var host;
+                HOST.GetHBAFlatRecord(host, function(hosts) {
+                    for ( var i in arg1 ) {
+                        var portItem = arg1[i];
+                        portItem["hostname"] = portItem.connectedToAlias;  // default equal the port alias name;
 
-                    for ( var j in hosts ) {
-                        var hostItem = hosts[j];
-                        if ( portItem.portwwn == hostItem.hba_wwn ) {
-                            portItem["hostname"] = hostItem.hostname;
-                            break;
+                        for ( var j in hosts ) {
+                            var hostItem = hosts[j];
+                            if ( portItem.portwwn == hostItem.hba_wwn ) {
+                                portItem["hostname"] = hostItem.hostname;
+                                break;
+                            }
                         }
+
                     }
+
+                    callback(null,arg1); 
+                })
+
+                    
+            },         
+            function(arg1,  callback){  
+
+
+                    var data = arg1;
+
+
+                    var finalResult = {};
+
+                    // ----- the part of perf datetime --------------
+                    finalResult["startDate"] = util.getPerfStartTime();
+                    finalResult["endDate"] = util.getPerfEndTime();          
+
+
+
+                    
+
+                    // ----- the part of chart --------------
+
+                    var groupby = "partstat"; 
+                    var chartData = [];
+                    for ( var i in data ) {
+                        var item = data[i];
+
+                        var groupbyValue = item[groupby];  
+
+                        var isFind = false;
+                        for ( var j in chartData ) {
+                            var charItem = chartData[j];
+                            if ( charItem.name == groupbyValue ) {
+                                charItem.value = charItem.value + 1;
+                                isFind = true;
+                            }
+                        }
+                        if ( !isFind ) {
+                            var charItem = {};
+                            charItem["name"] = groupbyValue;
+                            charItem["value"] = 1;
+                            chartData.push(charItem);
+                        }
+
+
+
+                    }
+
+
+                    finalResult["chartType"] = "pie";
+                    finalResult["chartData"] = chartData;          
+
+                    // ---------- the part of table ---------------
+                    var tableHeader = [];
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "端口序号";
+                    tableHeaderItem["value"] = "partid";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "端口名称";
+                    tableHeaderItem["value"] = "part";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "类型";
+                    tableHeaderItem["value"] = "porttype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "最大速度";
+                    tableHeaderItem["value"] = "maxspeed";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+     
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "状态";
+                    tableHeaderItem["value"] = "partstat";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+      
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "连接WWN";
+                    tableHeaderItem["value"] = "connectedToWWN";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+      
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "连接设备名称";
+                    tableHeaderItem["value"] = "hostname";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    
+
+                    // ---------- the part of table event ---------------
+                    var tableEvent = {}; 
+                    var tableEventParam = [];
+                    var tableEventParamItem = {};
+                    tableEventParamItem["findName"] = 'partwwn';
+                    tableEventParamItem["postName"] = 'portwwn';
+                    tableEventParam.push(tableEventParamItem);
+
+
+                    var tableEventParamItem = {};
+                    tableEventParamItem["findName"] = 'device';
+                    tableEventParamItem["postName"] = 'device';
+                    tableEventParam.push(tableEventParamItem);
+
+
+                    tableEvent["event"] = "appendArea";
+                    tableEvent["param"] = tableEventParam;
+                    tableEvent["url"] = "/switch/port_detail/perf";  
+
+
+                    finalResult["tableHead"] = tableHeader;
+                    finalResult["tableEvent"] = tableEvent;
+                    finalResult["tableBody"] = data;
+
+                    callback(null,finalResult); 
 
                 }
-
-                callback(null,arg1); 
-            })
-
-                
-        },         
-        function(arg1,  callback){  
-
-
-                var data = arg1;
-
-
-                var finalResult = {};
-
-                // ----- the part of perf datetime --------------
-                finalResult["startDate"] = util.getPerfStartTime();
-                finalResult["endDate"] = util.getPerfEndTime();          
-
-
-
-                
-
-                // ----- the part of chart --------------
-
-                var groupby = "partstat"; 
-                var chartData = [];
-                for ( var i in data ) {
-                    var item = data[i];
-
-                    var groupbyValue = item[groupby];  
-
-                    var isFind = false;
-                    for ( var j in chartData ) {
-                        var charItem = chartData[j];
-                        if ( charItem.name == groupbyValue ) {
-                            charItem.value = charItem.value + 1;
-                            isFind = true;
-                        }
-                    }
-                    if ( !isFind ) {
-                        var charItem = {};
-                        charItem["name"] = groupbyValue;
-                        charItem["value"] = 1;
-                        chartData.push(charItem);
-                    }
-
-
-
-                }
-
-
-                finalResult["chartType"] = "pie";
-                finalResult["chartData"] = chartData;          
-
-                // ---------- the part of table ---------------
-                var tableHeader = [];
-                var tableHeaderItem = {};
-                tableHeaderItem["name"] = "端口序号";
-                tableHeaderItem["value"] = "partid";
-                tableHeaderItem["sort"] = true;
-                tableHeader.push(tableHeaderItem);
-
-                var tableHeaderItem = {};
-                tableHeaderItem["name"] = "端口名称";
-                tableHeaderItem["value"] = "part";
-                tableHeaderItem["sort"] = true;
-                tableHeader.push(tableHeaderItem);
-
-                var tableHeaderItem = {};
-                tableHeaderItem["name"] = "类型";
-                tableHeaderItem["value"] = "porttype";
-                tableHeaderItem["sort"] = true;
-                tableHeader.push(tableHeaderItem);
-
-                var tableHeaderItem = {};
-                tableHeaderItem["name"] = "最大速度";
-                tableHeaderItem["value"] = "maxspeed";
-                tableHeaderItem["sort"] = true;
-                tableHeader.push(tableHeaderItem);
- 
-                var tableHeaderItem = {};
-                tableHeaderItem["name"] = "状态";
-                tableHeaderItem["value"] = "partstat";
-                tableHeaderItem["sort"] = true;
-                tableHeader.push(tableHeaderItem);
-
-  
-                var tableHeaderItem = {};
-                tableHeaderItem["name"] = "连接WWN";
-                tableHeaderItem["value"] = "connectedToWWN";
-                tableHeaderItem["sort"] = true;
-                tableHeader.push(tableHeaderItem);
-
-  
-                var tableHeaderItem = {};
-                tableHeaderItem["name"] = "连接设备名称";
-                tableHeaderItem["value"] = "hostname";
-                tableHeaderItem["sort"] = true;
-                tableHeader.push(tableHeaderItem);
-
-                
-
-                // ---------- the part of table event ---------------
-                var tableEvent = {}; 
-                var tableEventParam = [];
-                var tableEventParamItem = {};
-                tableEventParamItem["findName"] = 'partwwn';
-                tableEventParamItem["postName"] = 'portwwn';
-                tableEventParam.push(tableEventParamItem);
-
-
-                var tableEventParamItem = {};
-                tableEventParamItem["findName"] = 'device';
-                tableEventParamItem["postName"] = 'device';
-                tableEventParam.push(tableEventParamItem);
-
-
-                tableEvent["event"] = "appendArea";
-                tableEvent["param"] = tableEventParam;
-                tableEvent["url"] = "/switch/port_detail/perf";  
-
-
-                finalResult["tableHead"] = tableHeader;
-                finalResult["tableEvent"] = tableEvent;
-                finalResult["tableBody"] = data;
-
-                callback(null,finalResult); 
-
-            }
             ], function (err, result) {
                    // result now equals 'done'  
                   res.json(200, result);

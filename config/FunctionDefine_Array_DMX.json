@@ -73,6 +73,18 @@
     },
     {
         "hasDetail": false,
+        "tabName": "Clone",
+        "template": 3,
+        "url": "/array/clone",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
         "tabName": "性能热点",
         "template": 12,
         "url": "/array/srdf",

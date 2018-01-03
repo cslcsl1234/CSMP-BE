@@ -23,6 +23,12 @@ var Datacenter = mongoose.model('Datacenter');
 
 var dashboard_demo = require('../demodata/Dashboard'); 
 
+
+var VMAX = require('../lib/Array_VMAX'); 
+var VNX = require('../lib/Array_VNX');
+
+
+
 // -----------------------------------
 // For demo data
 // ----------------------------------
@@ -298,12 +304,8 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
                         dcInfo["unit"] = unit.Name; 
                         return dcInfo;
                     }
-
                 }
-
-
             }
-
         }
     } 
 
@@ -315,6 +317,181 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
 
 };
 
+
+
+    app.get('/api/dashboard/PerfSummary', function (req, res) {
+
+        async.waterfall([
+            function(callback){ 
+                var finalResult = [];
+                 VMAX.getArrayPerformance(  function(result) {  
+
+                    var ReadIOPS = [];
+                    var WriteIOPS = [];
+                    for ( var i in result.values ) {
+                        var item = result.values[i];
+                        var prop = item.properties;
+                        var perf = item.points;
+
+                        for ( var j in perf ) {
+                            var perfItem = perf[j];
+                            var dt = perfItem[0];
+                            var value = perfItem[1];
+
+                            var resultItem = {};
+                            resultItem["DT"] = dt;
+                            resultItem["device"] = prop.device;
+                            resultItem["value"] = value;
+                            if ( prop.name == 'ReadRequests' ) ReadIOPS.push(resultItem);
+                            if ( prop.name == 'WriteRequests' ) WriteIOPS.push(resultItem);
+                        }
+                    }
+
+                    for ( var j in ReadIOPS ) {
+                        var item = ReadIOPS[j];
+                        for ( var z in WriteIOPS ) {
+                            var item1 = WriteIOPS[z];
+                            if ( item.DT==item1.DT && item.device == item1.device ) {
+                                var isFind = false;
+                                for ( var x in finalResult ) {
+                                    var finalItem = finalResult[x];
+                                    if ( finalItem.DT == item.DT ){
+                                        finalItem[item.device] = parseFloat(item.value) + parseFloat(item1.value);
+                                        isFind = true;
+                                    }
+                                }
+                                if ( isFind == false ) {
+
+                                    var newitem = {};
+                                    newitem["DT"] = item.DT;
+                                    newitem[item.device] = parseFloat(item.value) + parseFloat(item1.value); 
+                                    finalResult.push(newitem);
+                                }
+                            }
+                        }
+                    }
+                    callback(null , finalResult);
+                })
+
+            },
+
+            function(arg1,  callback){   
+                var config = configger.load(); 
+                var filterbase = 'source=\'VNXBlock-Collector\'&parttype==\'Controller\'&!vstatus==\'inactive\'';
+                   
+                if ( start === undefined ) var start = util.getPerfStartTime();
+                if ( end   === undefined ) var end = util.getPerfEndTime();
+
+                var filter = filterbase + '&(name=\'WriteThroughput\'|name=\'ReadThroughput\'|name=\'TotalThroughput\'|name=\'TotalBandwidth\'|name=\'ResponseTime\'|name=\'CurrentUtilization\')';
+
+                var fields = 'serialnb,part,ip,name';
+                var keys = ['serialnb,part'];
+
+                //var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
+                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '3600'}; 
+
+                console.log(queryString);
+
+                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
+                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+                        .headers({'Content-Type': 'multipart/form-data'}) 
+                        .query(queryString) 
+                        .end(function (response) { 
+                            if ( response.error ) {
+                                console.log(response.error);
+                                return response.error;
+                            } else {  
+                                //console.log(response.body);   
+                                var resultRecord = response.body;
+                                var r = JSON.parse(resultRecord); 
+
+
+                                var ReadIOPS = [];
+                                var WriteIOPS = [];
+                                for ( var i in r.values ) {
+                                    var item = r.values[i];
+                                    var prop = item.properties;
+                                    var perf = item.points;
+
+                                    for ( var j in perf ) {
+                                        var perfItem = perf[j];
+                                        var dt = perfItem[0];
+                                        var value = perfItem[1];
+
+                                        var resultItem = {};
+                                        resultItem["DT"] = dt;
+                                        resultItem["device"] = prop.serialnb;
+                                        resultItem["SP"] = prop.part;
+                                        resultItem["value"] = value;
+                                        if ( prop.name == 'ReadThroughput'  )  ReadIOPS.push(resultItem);
+                                        if ( prop.name == 'WriteThroughput' ) WriteIOPS.push(resultItem);
+                                    }
+                                }
+
+
+                                var finalResult = arg1;
+                                for ( var j in ReadIOPS ) {
+                                    var item = ReadIOPS[j];
+                                    for ( var z in WriteIOPS ) {
+                                        var item1 = WriteIOPS[z];
+                                        if ( item.DT==item1.DT && item.device == item1.device ) {
+                                            var isFind = false;
+                                            for ( var x in finalResult ) {
+                                                var finalItem = finalResult[x];
+                                                if ( finalItem.DT == item.DT ){
+                                                    finalItem[item.device] = parseFloat(item.value) + parseFloat(item1.value);
+                                                    isFind = true;
+                                                }
+                                            }
+                                            if ( isFind == false ) {
+
+                                                var newitem = {};
+                                                newitem["DT"] = item.DT;
+                                                newitem[item.device] = parseFloat(item.value) + parseFloat(item1.value); 
+                                                finalResult.push(newitem);
+                                            }
+                                        }
+                                    }
+                                }
+ 
+                                callback(null,finalResult);
+
+                            }
+                        });  
+            },
+            function(arg1,  callback){ 
+
+                var result = {};
+
+                var maxPerfValue = {};
+                maxPerfValue["value"] = 0;
+
+                var maxPerf = [];
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+
+                    var maxPerfItem = {};
+                    maxPerfItem["DT"] = item.DT;
+                    maxPerfItem["value"] = 0;
+                    for ( var key in item ) {
+                        if ( key == 'DT' ) continue;
+                        maxPerfItem.value += item[key];
+                    }
+                    if ( maxPerfValue.value < maxPerfItem.value ) maxPerfValue = maxPerfItem;
+                    maxPerf.push(maxPerfItem);
+                }
+
+                result["MaxIOPS"] = maxPerfValue;
+                result["perfdetail"] = arg1; 
+
+               callback(null,result);
+            }
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+ 
+    });
 
 };
 

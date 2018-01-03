@@ -29,6 +29,8 @@ var VPLEX = require('../lib/Array_VPLEX');
 var Switch = require('../lib/Switch');
 var VNX = require('../lib/Array_VNX');
 var Capacity = require('../lib/Array_Capacity');
+var GetEvents = require('../lib/GetEvents');
+var DeviceMgmt = require('../lib/DeviceManagement');
 
 var testController = function (app) {
 
@@ -96,25 +98,32 @@ var testController = function (app) {
         var device = req.query.device; 
 
        // App.GetApps(function(code, result) {
-        //VMAX.GetAssignedInitiatorByDevices(device,function(result) {
+        //c.GetAssignedInitiatorByDevices(device,function(result) {
         //Switch.GetSwitchPorts(device,function(result) {
-       Capacity.getArrayCapacityTrend(device,function(result) {
 
+       //Capacity.getArrayCapacityTrend(device,function(result) {
+        var msg = "this is test msg!";
+       // GetEvents.SendSMS2Phone(msg,function(result) {
 
         //Host.GetAssignedLUNByHosts(function(result) {
        // Host.GetAssignedLUNByInitiator(device, function(result) {
        //Switch.getFabric(device, function(result) {
        //
        //Host.GetHosts(device, function(code,result) {
-       //VMAX.GetDevices(device, function(result) {
+
+
+       //Switch.GetSwitchPorts(device, function(result) {
        //Host.GetHBAFlatRecord(device, function(result) {
        //VPLEX.GetVirtualVolumeRelationByDevices(device,function(result) {
        
         //VPLEX.getVplexStorageViews(device, function(result) {  
        // GETCALL.centralizedManage( function(result) {
-            res.json(200 , result);
+       //DeviceMgmt.GetFCSwitchPart('FabricSwitch','Port',function(result) {
+        Capacity.GetArrayTotalCapacity(function(result) {  
+            res.json(200, result);
+        });
 
-        })
+
     });
 
 

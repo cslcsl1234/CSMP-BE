@@ -141,11 +141,12 @@ var arrayController = function (app) {
 
     app.get('/api/array/capacity', function ( req, res )  {
         var device = req.query.device; 
-
+        var start = ( req.query.startDate === undefined ? util.getPerfStartTime() : req.query.startDate ) ;
+        var end = ( req.query.endDate === undefined ? util.getPerfEndTime() : req.query.endDate ) ;
 
         async.waterfall([
             function(callback){  
-                ARRAY_CAPACITY.getArrayCapacityTrend(device,function(result){
+                ARRAY_CAPACITY.getArrayCapacityTrend(device, start, end , function(result){
                     var valueField = [];
 /*
 
@@ -181,7 +182,12 @@ var arrayController = function (app) {
                     valueFieldItem["name"] = "剩余可用容量";
                     valueField.push(valueFieldItem);
                                         
-
+                    
+                    var valueFieldItem = {};
+                    valueFieldItem["field"] = "AllocateGrowthRate";
+                    valueFieldItem["name"] = "分配容量增长率";
+                    valueField.push(valueFieldItem);
+                                        
                     var stackedarea = {};
                     var header = {};
                     header["Title"] = "容量趋势";
@@ -208,7 +214,10 @@ var arrayController = function (app) {
                     var finalResult = {};
                     var returnData = ret[0];
 
-                    console.log(returnData);
+
+                    finalResult["startDate"] = start;
+                    finalResult["endDate"] = end;        
+ 
                     var item = {}; 
 
                     // -------------- Left Chart ---------------------------
@@ -223,7 +232,7 @@ var arrayController = function (app) {
                     //item["value"] =  returnData.RawCapacity.ConfiguredUsableCapacity;
                     item["name2"] =  "已分配";
                     item["value2"] =  Math.round(returnData.ConfiguredUsableCapacity.UsedCapacity/1024);
-                    item["name3"] =  "剩余可用";
+                    item["name3"] =  "剩余可分配";
                     item["value3"] =  Math.round(returnData.ConfiguredUsableCapacity.PoolFreeCapacity/1024 +returnData.ConfiguredUsableCapacity.FreeCapacity/1024);
                     chartData.push(item);
 
@@ -263,25 +272,30 @@ var arrayController = function (app) {
                     item["color"] =  "#80B3E8",
                     item["name"] =  "Block",
                     item["value"] =  Math.round(returnData.UsedCapacityByType.BlockUsedCapacity/1024);
+                    item["name2"] =  "剩余可分配";
+                    item["value2"] =  Math.round((returnData.ConfiguredUsableCapacity.PoolFreeCapacity - returnData.FileUsedCapacity.NASPoolFreeCapacity)/1024);
                     chartData.push(item);
 
                     item={};
                     item["color"] =  "#444348",
                     item["name"] = "File",
                     item["name2"] =  "FS已使用";
+                    item["name3"] =  "FS剩余可用";
+                    item["name4"] =  "FS剩余可分配";
                     if ( returnData.UsedCapacityByType.FileUsedCapacity === undefined || 
                          returnData.NASFSCapacity === undefined || 
                          returnData.FileUsedCapacity === undefined  ) {
                         item["value2"] = 0 ;
                         item["value3"] = 0 ;
+                        item["value4"] = 0 ;
                     } else  {
                         item["value2"] = Math.round(returnData.UsedCapacityByType.FileUsedCapacity/1024 - returnData.NASFSCapacity.NASFSFreeCapacity/1024 - returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
                         item["value3"] =  Math.round(returnData.NASFSCapacity.NASFSFreeCapacity/1024 +　returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
+                        item["value4"] =  Math.round(returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
 
                     }
 
 
-                    item["name3"] =  "FS剩余可用";
                    chartData.push(item);
                     RightChart["chartData"] = chartData;
 
@@ -289,6 +303,9 @@ var arrayController = function (app) {
                     finalResult["left"] = leftChart;
                     finalResult["right"] = RightChart;
                     finalResult["stackedarea"] = arg1;
+
+
+
 
                      callback(null, finalResult);
                 })    
@@ -2219,6 +2236,193 @@ var arrayController = function (app) {
  
     });
 
+   app.get('/api/array/clone', function (req, res) { 
+        var device = req.query.device;
+        if ( device === undefined ) {
+            res.json(400, 'Must be special a device!')
+            return;
+        }
+
+
+        async.waterfall([
+            function(callback){ 
+
+
+            VMAX.GetCloneLunToReplica(device,function(result) {
+                    callback(null,result);
+            });
+
+        },
+            // -- Get all of initial group member list and rela with maskview 
+            function(result,  callback){  
+ 
+ 
+                VMAX.GetDevices(device, function(res) { 
+      
+                    for (var i in result ) {
+                        var rdfItem = result[i];
+
+                        var matchCount = 0;
+                        for ( var j in res ) {
+                            var lunItem = res[j];
+                            if ( rdfItem.srcarray == lunItem.device && rdfItem.srclun == lunItem.part ) {
+                                rdfItem["sgname"] = lunItem.sgname; 
+                                rdfItem["hosts"] = lunItem.hosts;
+                                rdfItem["ConnectedInitiators"] = lunItem.ConnectedInitiators;
+                                matchCount++;
+                                if ( matchCount == 2 ) break;
+                            } 
+                            if ( rdfItem.device == lunItem.device && rdfItem.part == lunItem.part ) {
+                                rdfItem["remsgname"] = lunItem.sgname; 
+                                rdfItem["remhosts"] = lunItem.hosts;
+                                rdfItem["remConnectedInitiators"] = lunItem.ConnectedInitiators;
+                                matchCount++;
+                                if ( matchCount == 2 ) break;
+                            }
+                        }
+                        
+                    }
+                    callback(null,result);
+                                      
+                }); 
+
+
+            }, 
+            function(result,  callback){  
+
+                var finalResult = [];
+                for ( var i in result ) {
+                    var item = result[i];
+
+                    var finalResultItem = {};
+                    finalResultItem["srcarray"] = item.srcarray;
+                    finalResultItem["srclun"] = item.srclun;
+                    finalResultItem["sgname"] = item.sgname;
+                    var hosts = "";
+                    for ( var z in item.hosts ) {
+                        if ( hosts == "" )
+                        hosts = item.hosts[z].hostname;
+                        else 
+                            hosts = hosts +',' + item.hosts[z].hostname;
+                    }
+                    finalResultItem["hosts"] = hosts;
+
+                    var inits = "";
+                    for ( var z in item.ConnectedInitiators ) {
+                        if ( inits == "" )
+                            inits = item.ConnectedInitiators[z];
+                        else 
+                            inits = inits +',' + item.ConnectedInitiators[z];
+                    }
+                    finalResultItem["ConnectedInitiators"] = inits;
+
+                    finalResultItem["remarray"] = item.device;
+                    finalResultItem["remlun"] = item.part;
+                    finalResultItem["remsgname"] = item.remsgname;
+                     var remhosts = "";
+                    for ( var z in item.remhosts ) {
+                        if ( remhosts == "" )
+                            remhosts = item.remhosts[z].hostname;
+                        else 
+                            remhosts = remhosts +',' + item.remhosts[z].hostname;
+                    }
+                    finalResultItem["remhosts"] = remhosts;
+
+                     var remConnectedInitiators = "";
+                    for ( var z in item.remConnectedInitiators ) {
+                        if ( remConnectedInitiators == "" )
+                            remConnectedInitiators = item.remConnectedInitiators[z];
+                        else 
+                            remConnectedInitiators = remConnectedInitiators +',' + item.remConnectedInitiators[z];
+                    }
+                    finalResultItem["remConnectedInitiators"] = remConnectedInitiators;
+                                       
+                    finalResultItem["replstat"] = item.replstat;
+                    finalResultItem["repltech"] = item.repltech;
+
+                    finalResult.push(finalResultItem);
+
+                }
+
+                callback(null, finalResult);
+            },
+
+
+            function(arg1,  callback){  
+
+
+                var data = arg1;
+
+
+                var finalResult = {};
+
+                // ---------- the part of table ---------------
+                var tableHeader = [];
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "复制源LUN";
+                tableHeaderItem["value"] = "srclun";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "源LUN分配主机";
+                tableHeaderItem["value"] = "hosts";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "源LUN映射主机HBA";
+                tableHeaderItem["value"] = "ConnectedInitiators";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+ 
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "目标LUN";
+                tableHeaderItem["value"] = "remlun";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+ 
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "目标LUN分配主机";
+                tableHeaderItem["value"] = "remhosts";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+ 
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "目标LUN映射主机HBA";
+                tableHeaderItem["value"] = "remConnectedInitiators";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "复制技术";
+                tableHeaderItem["value"] = "repltech";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+
+                var tableHeaderItem = {};
+                tableHeaderItem["name"] = "复制状态";
+                tableHeaderItem["value"] = "replstat";
+                tableHeaderItem["sort"] = true;
+                tableHeader.push(tableHeaderItem);
+ 
+                finalResult["tableHead"] = tableHeader;
+                finalResult["tableBody"] = data;
+ 
+ 
+
+                callback(null,finalResult); 
+
+            }
+            ], function (err, result) {
+                   // result now equals 'done' 
+                   res.json(200, result);
+            });
+ 
+    });
 
     /*
     *  Get SRDF Group of VMAX.
