@@ -20,7 +20,7 @@
                 "color": "red",
                 "param": [
                     {
-                        "findName": "host_name",
+                        "findName": "number",
                         "postName": "device"
                     }
                 ],

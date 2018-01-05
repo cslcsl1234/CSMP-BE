@@ -31,6 +31,7 @@ var VNX = require('../lib/Array_VNX');
 var Capacity = require('../lib/Array_Capacity');
 var GetEvents = require('../lib/GetEvents');
 var DeviceMgmt = require('../lib/DeviceManagement');
+var SWITCH = require('../lib/Switch');
 
 var testController = function (app) {
 
@@ -119,10 +120,21 @@ var testController = function (app) {
         //VPLEX.getVplexStorageViews(device, function(result) {  
        // GETCALL.centralizedManage( function(result) {
        //DeviceMgmt.GetFCSwitchPart('FabricSwitch','Port',function(result) {
-        Capacity.GetArrayTotalCapacity(function(result) {  
-            res.json(200, result);
-        });
+       //Capacity.GetArrayTotalCapacity(function(result) {  
 
+/*
+            var device = '000495700228';
+            var part = '1382';
+        VMAX.getArrayLunPerformance(device, part, function(rest) { 
+                res.json(200, rest);
+            
+        });
+        */
+        var wwnlist1 = '21000024FF137FA2';
+                SWITCH.getAlias(wwnlist1,function(result) {
+
+                    res.json(200, result);
+               }) 
 
     });
 

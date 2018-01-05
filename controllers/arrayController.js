@@ -30,6 +30,7 @@ var VMAX = require('../lib/Array_VMAX');
 var VNX = require('../lib/Array_VNX');
 var host = require('../lib/Host');
 var ARRAY_CAPACITY = require('../lib/Array_Capacity');
+var SWITCH = require('../lib/Switch');
 
 var testjson = require('../demodata/test');  
 
@@ -273,7 +274,7 @@ var arrayController = function (app) {
                     item["name"] =  "Block",
                     item["value"] =  Math.round(returnData.UsedCapacityByType.BlockUsedCapacity/1024);
                     item["name2"] =  "剩余可分配";
-                    item["value2"] =  Math.round((returnData.ConfiguredUsableCapacity.PoolFreeCapacity - returnData.FileUsedCapacity.NASPoolFreeCapacity)/1024);
+                    item["value2"] =  Math.round((returnData.ConfiguredUsableCapacity.PoolFreeCapacity - ( returnData.FileUsedCapacity !== undefined ? returnData.FileUsedCapacity.NASPoolFreeCapacity : 0 ))/1024);
                     chartData.push(item);
 
                     item={};
@@ -985,8 +986,15 @@ var arrayController = function (app) {
         var finalResult = {}; 
  
         async.waterfall([
- 
             function( callback){  
+
+                SWITCH.getAlias(ConnectedInitiators,function(result) {
+
+                    callback(null,result);
+                }) 
+
+            },
+            function(arg1, callback){  
 
                 if ( hosts === undefined || ( hosts !== undefined && hosts.length == 0 ) ) {
                     // ---------- the part of table ---------------
@@ -996,12 +1004,32 @@ var arrayController = function (app) {
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
-                    for ( var i in ConnectedInitiators ) {
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Alias";
+                    tableHeaderItem["value"] = "alias";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+
+                    var ConnectedInitiatorsArray = [];
+                    if ( Array.isArray(ConnectedInitiators) )
+                        ConnectedInitiatorsArray = ConnectedInitiators;
+                    else 
+                        ConnectedInitiatorsArray.push(ConnectedInitiators);
+
+
+                    for ( var i in ConnectedInitiatorsArray ) {
                         var bodyItem = {};
-                        bodyItem["hbawwn"] = ConnectedInitiators[i]
+                        bodyItem["hbawwn"] = ConnectedInitiatorsArray[i]
+                        bodyItem["alias"] = "";
+                        for ( var j in arg1 ) {
+                            var wwnalias = arg1[j];
+                            if ( wwnalias.zmemid == ConnectedInitiatorsArray[i] ) {
+                                bodyItem["alias"] = wwnalias.alias;
+                                break;
+                            }
+                        }
                         tableBody.push(bodyItem);
                     }
-
 
                 } else {
 

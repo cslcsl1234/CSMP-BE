@@ -22,7 +22,7 @@
     "SERVER": {
         "PORT": 8080
     },
-    "ProductType": "Prod", 
+    "ProductType": "dev", 
     "ProductTypeDesc": ["Prod","dev","test"],  
     "SMS" : {
         "ServiceIP" : "10.188.97.241",

@@ -51,9 +51,36 @@ var eventController = function (app) {
             // Filter event records for between start and end.
             for ( var i in result1 ) {
                 var eventitem = result1[i];
+
+                switch ( eventitem.severity ) {
+                    case "3":
+                        eventitem["severity"] = "warning";
+                        break;
+                    case "2":
+                        eventitem["severity"] = "error";
+                        break;
+                    case "1":
+                        eventitem["severity"] = "critical";
+                        break; 
+                    default:
+                        eventitem["severity"] = "info";
+                        break;                                                                             
+                }
+
+                switch ( eventitem.devtype ) {
+                    case "FabricSwitch":
+                        eventitem["devtype"] = "switch";
+                        break; 
+                    default:
+                        eventitem["devtype"] = "storage";
+                        break;                                                                             
+                }
+
+
                 if ( ( startdt !== undefined ) && ( enddt !== undefined )) {
                     if ( eventitem.timestamp >= startdt && eventitem.timestamp <= enddt ) {
- 
+                        
+
                         result.push(eventitem);
                     }
                     else { 
@@ -65,38 +92,39 @@ var eventController = function (app) {
             }
  
 
-                 EventObj.find({}, function (err, doc) {
+             EventObj.find({}, function (err, doc) {
 
-                    for ( var i in result ) {
-                        var eventitem = result[i];
+                for ( var i in result ) {
+                    var eventitem = result[i];
 
-                        
-                        eventitem["customerSeverity"] = -1;
-                        eventitem["state"] = '未处理';
-                        eventitem["ProcessMethod"] = '';
-                        for ( var j in doc ) {
-                            var eventInfoItem = doc[j];
-                            if ( eventitem.id == eventInfoItem.id ) {
-                                eventitem["customerSeverity"] = eventInfoItem.customerSeverity;
-                                eventitem["state"] = eventInfoItem.state;
-                                eventitem["ProcessMethod"] = eventInfoItem.ProcessMethod;
-                                eventitem["sendSMS"] = eventInfoItem.sendSMS;
-                                break;
-                            }
+                    eventitem["customerSeverity"] = -1;
+                    eventitem["state"] = '未处理';
+                    eventitem["ProcessMethod"] = '';
+                    for ( var j in doc ) {
+                        var eventInfoItem = doc[j];
+                        if ( eventitem.id == eventInfoItem.id ) {
+                            eventitem["customerSeverity"] = eventInfoItem.customerSeverity;
+                            eventitem["state"] = eventInfoItem.state;
+                            eventitem["ProcessMethod"] = eventInfoItem.ProcessMethod;
+                            eventitem["sendSMS"] = eventInfoItem.sendSMS;
+                            break;
                         }
-                                                 
                     }
-                    if ( state !== undefined ) {
-                        var result1 = [];
-                        for ( var i in result ) {
-                            var eventitem = result[i]; 
-                            if  ( state.indexOf(eventitem.state) > -1 )  result1.push(eventitem);
-                        }
-                        return  res.json(200 , result1);
-                    } else 
-                        return  res.json(200 , result);
+                                             
+                }
+                if ( state !== undefined ) {
+                    var result1 = [];
+                    for ( var i in result ) {
+                        var eventitem = result[i]; 
+                        if  ( state.indexOf(eventitem.state) > -1 )  result1.push(eventitem);
+                    }
+                    return  res.json(200 , result1);
+                } else 
+                    return  res.json(200 , result);
 
-                });
+            });
+
+
         });
 
 
