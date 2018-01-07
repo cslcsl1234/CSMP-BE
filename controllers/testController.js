@@ -122,6 +122,12 @@ var testController = function (app) {
        //DeviceMgmt.GetFCSwitchPart('FabricSwitch','Port',function(result) {
        //Capacity.GetArrayTotalCapacity(function(result) {  
 
+        var period;
+        VMAX.GetDirectorPerformance(device, period,  function(rest) { 
+       
+                    res.json(200, rest);
+               }) 
+
 /*
             var device = '000495700228';
             var part = '1382';
@@ -129,12 +135,7 @@ var testController = function (app) {
                 res.json(200, rest);
             
         });
-        */
-        var wwnlist1 = '21000024FF137FA2';
-                SWITCH.getAlias(wwnlist1,function(result) {
-
-                    res.json(200, result);
-               }) 
+        */ 
 
     });
 

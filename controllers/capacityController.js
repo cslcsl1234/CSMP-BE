@@ -55,7 +55,8 @@ var capacityController = function (app) {
 
         async.waterfall([
                 function(callback){ 
-                    CAPACITY.GetArrayTotalCapacity(function(ret) { 
+                    var periodType;
+                    CAPACITY.GetArrayTotalCapacity(periodType, function(ret) { 
                         callback(null,ret.Total);
                     })     
                 }, 
@@ -79,7 +80,64 @@ var capacityController = function (app) {
          async.waterfall([
  
             function(callback){ 
-                CAPACITY.GetArrayTotalCapacity(function(ret) { 
+                var periodType = '';
+                getPeriodCapacity(periodType,function(rss) {
+                     callback(null,rss);
+                });
+            }, 
+            function(arg1,  callback){  
+
+                var periodType = 'lastyear';
+                getPeriodCapacity(periodType,function(lastyear_res) {
+                    for ( var i in arg1 ) {
+                        var item = arg1[i];
+
+                        for ( var j in lastyear_res ) {
+                            var lyItem = lastyear_res[j];
+                            if ( item.device == lyItem.device ) {
+                                item["YearOnYearGrowthRate"] = (lyItem.Allocated > 0 ? ((item.Allocated - lyItem.Allocated) / lyItem.Allocated) * 100 : 0);
+                                break;
+                            }
+                        }
+                    }
+
+                     callback(null,arg1);
+                });
+
+             } , 
+            function(arg1,  callback){  
+
+                var periodType = 'lastmonth';
+                getPeriodCapacity(periodType,function(lastmonth_res) {
+                    for ( var i in arg1 ) {
+                        var item = arg1[i];
+
+                        for ( var j in lastmonth_res ) {
+                            var lyItem = lastmonth_res[j];
+                            if ( item.device == lyItem.device ) {
+                                item["MonthOnMonthGrowthRate"] = (lyItem.Allocated > 0 ? ((item.Allocated - lyItem.Allocated) / lyItem.Allocated) * 100 : 0);
+                                break;
+                            }
+                        }
+                    }
+
+                     callback(null,arg1);
+                });
+
+             } 
+        ], function (err, ret) {
+              // result now equals 'done'
+              res.json(200,ret);
+        });
+
+
+   });
+
+     var getPeriodCapacity = function(periodtype, callback) {
+         async.waterfall([
+ 
+            function(callback){  
+                CAPACITY.GetArrayTotalCapacity(periodtype, function(ret) { 
                     callback(null,ret.Detail);
                 })     
             }, 
@@ -113,15 +171,11 @@ var capacityController = function (app) {
             }
         ], function (err, ret) {
               // result now equals 'done'
-              res.json(200,ret);
+              callback(ret);
         });
 
-
-   });
-
-
-
-     
+     };
+ 
      app.get('/api/capacity/overview', function (req, res) {
                 res.json(200,Capacity_Overview);
 

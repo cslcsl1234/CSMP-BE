@@ -13,6 +13,8 @@ var configger = require('../config/configger');
 var unirest1 = require('unirest');
 var async = require('async');
 var cache = require('memory-cache');
+var moment = require('moment');
+
 
 var RecordFlat = require('../lib/RecordFlat');
 var util = require('../lib/util');
@@ -3172,6 +3174,9 @@ console.log("RULE17="+rule17);
         });
 
      } ) ;
+
+
+
     app.get('/api/vmax/performance/perfDetail/history', function (req, res) {
 
         var arraysn = req.query.device; 
@@ -3381,6 +3386,235 @@ console.log("RULE17="+rule17);
 
     });  
 
+
+    app.get('/api/vmax/performance/storagegroup', function (req, res) {
+
+        var device = req.query.device;  
+        var period = req.query.period;
+ 
+        async.waterfall([
+            function(callback){
+                VMAX.GetStorageGroupsPerformance(device, period, function(rest) { 
+                    callback(null,rest);
+               });
+            }, 
+            function(arg1, callback) {
+
+                var finalResult = {};
+
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+
+                    if ( device === undefined )
+                        var resKey = item.device + ":" + item.part;
+                    else 
+                        var resKey = item.part;
+
+                    for ( var j in item.matrics ) {
+                        var perfItem = item.matrics[j];
+
+
+                        for ( var key in perfItem ) {
+
+                            if ( key == 'timestamp' ) 
+                                var DT =   moment(parseInt(perfItem[key])*1000).format("MM-DD HH:00");
+
+                            else {
+                                perfItem[key] = parseFloat(perfItem[key]);
+
+                                if ( finalResult[key] === undefined ) {
+                                    finalResult[key] = [];
+                                    var resItem = {};
+                                    resItem["DT"] = DT;
+                                    resItem[resKey] = perfItem[key];
+                                    finalResult[key].push(resItem);
+                                } else {
+                                    var isFind = false;
+                                    for ( var z in finalResult[key] ) {
+                                        var resItem = finalResult[key][z];
+                                        if ( resItem.DT == DT )  {
+                                            resItem[resKey] = perfItem[key];
+                                            isFind = true;
+                                        } 
+                                    }
+                                    if ( isFind == false ) {
+
+                                        var resItem = {};
+                                        resItem["DT"] = DT;
+                                        resItem[resKey] = perfItem[key];
+                                        finalResult[key].push(resItem);                                        
+                                    }
+                                }
+                            }
+
+
+                        }
+                    }
+                }
+                callback(null,finalResult);
+            } 
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+
+    });  
+
+
+    app.get('/api/vmax/performance/storagegroup/bubblechart', function (req, res) {
+
+        var device = req.query.device;  
+        var period = req.query.period;
+ 
+        async.waterfall([
+            function(callback){
+                VMAX.GetStorageGroupsPerformance(device, period, function(rest) { 
+                    callback(null,rest);
+               });
+            }, 
+            function(arg1, callback) {
+
+                var finalResult = [];
+
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+
+                    if ( device === undefined )
+                        var resKey = item.device + ":" + item.part;
+                    else 
+                        var resKey = item.part;
+ 
+                    // get the lastest item for perf matrics
+                    var perfItem = item.matrics[item.matrics.length-1];
+
+                    var resultPerfItem = {};
+                    //if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
+                    resultPerfItem["device"] = item.device;
+                    resultPerfItem["sgname"] = item.sgname;
+
+                    resultPerfItem["DT"] =moment(parseInt(perfItem["timestamp"])*1000).format("MM-DD HH:00");
+                    resultPerfItem["Requests"] = Math.round((parseFloat(perfItem.ReadRequests) + parseFloat(perfItem.WriteRequests))*100)/100 ;
+                    resultPerfItem["Throughput"] = Math.round((parseFloat(perfItem.ReadThroughput) + parseFloat(perfItem.WriteThroughput))*100)/100 ;
+                    resultPerfItem["ResponseTime"] = Math.round((parseFloat(perfItem.ResponseTime) + parseFloat(perfItem.ResponseTime))*100)/100 ;
+                    if ( resultPerfItem.ResponseTime >= 0 )  resultPerfItem["Color"] = "#7CFC00";  //lawn green
+                    if ( resultPerfItem.ResponseTime >= 2 )  resultPerfItem["Color"] = "#FFA500";  //orange
+                    if ( resultPerfItem.ResponseTime >= 5 )  resultPerfItem["Color"] = "#FF0000";  //red
+
+
+                    finalResult.push(resultPerfItem);
+  
+                }
+                callback(null,finalResult);
+            } 
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+
+    });  
+
+
+    app.get('/api/vmax/performance/director/utilization', function (req, res) {
+
+        var device = req.query.device;  
+        var period = req.query.period;
+        var directorType = req.query.type;  // FA | RF | DA
+
+        var resultByPartgrp = {};
+        var partgrp_FA = 'Front-End';
+        var partgrp_DA = 'Back-End';
+        var partgrp_RF = "RDF";
+        resultByPartgrp["FrontEnd"] = [];
+        resultByPartgrp["BackEnd"] = [];
+        resultByPartgrp["RDF"] = [];
+
+
+        async.waterfall([
+            function(callback){
+                VMAX.GetDirectorPerformance(device, period, function(rest) { 
+                    callback(null,rest);
+               });
+            }, 
+            function(arg1, callback) { 
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+                    if ( item.partgrp == partgrp_FA ) 
+                        resultByPartgrp["FrontEnd"].push(item);
+                    else if ( item.partgrp == partgrp_DA ) 
+                        resultByPartgrp["BackEnd"].push(item);
+                    else if ( item.partgrp == partgrp_RF ) 
+                        resultByPartgrp["RDF"].push(item);
+
+                }
+                callback(null,resultByPartgrp);           
+            },
+            function(res, callback) { 
+                var finalResult1 = {};
+
+                for ( var directortype in res ) { 
+                    var arg1 = res[directortype];
+                    var finalResult = {}; 
+
+                    for ( var i in arg1 ) {
+                        var item = arg1[i];
+
+                        if ( device === undefined )
+                            var resKey = item.device + ":" + item.part;
+                        else 
+                            var resKey = item.part;
+
+                        for ( var j in item.matrics ) {
+                            var perfItem = item.matrics[j];
+
+
+                            for ( var key in perfItem ) {
+
+                                if ( key == 'timestamp' ) 
+                                    var DT =   moment(parseInt(perfItem[key])*1000).format("MM-DD HH:00");
+
+                                else {
+                                    perfItem[key] = parseFloat(perfItem[key]);
+
+                                    if ( finalResult[key] === undefined ) {
+                                        finalResult[key] = [];
+                                        var resItem = {};
+                                        resItem["DT"] = DT;
+                                        resItem[resKey] = perfItem[key];
+                                        finalResult[key].push(resItem);
+                                    } else {
+                                        var isFind = false;
+                                        for ( var z in finalResult[key] ) {
+                                            var resItem = finalResult[key][z];
+                                            if ( resItem.DT == DT )  {
+                                                resItem[resKey] = perfItem[key];
+                                                isFind = true;
+                                            } 
+                                        }
+                                        if ( isFind == false ) {
+
+                                            var resItem = {};
+                                            resItem["DT"] = DT;
+                                            resItem[resKey] = perfItem[key];
+                                            finalResult[key].push(resItem);                                        
+                                        }
+                                    }
+                                }
+
+
+                            }
+                        }
+                    }
+                    finalResult1[directortype] = finalResult;
+
+                }
+                callback(null,finalResult1);
+            } 
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+
+    });  
 
 
 /*
