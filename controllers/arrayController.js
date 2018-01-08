@@ -3488,7 +3488,7 @@ console.log("RULE17="+rule17);
                     var perfItem = item.matrics[item.matrics.length-1];
 
                     var resultPerfItem = {};
-                    //if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
+if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
                     resultPerfItem["device"] = item.device;
                     resultPerfItem["sgname"] = item.sgname;
 
@@ -3569,7 +3569,7 @@ console.log("RULE17="+rule17);
 
                             for ( var key in perfItem ) {
 
-                                if ( key == 'timestamp' ) 
+                                if ( key == 'timestamp' ) // var DT = perfItem[key]
                                     var DT =   moment(parseInt(perfItem[key])*1000).format("MM-DD HH:00");
 
                                 else {

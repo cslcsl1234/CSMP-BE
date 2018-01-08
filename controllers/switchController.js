@@ -181,7 +181,7 @@ var switchController = function (app) {
 
 
         var param = {};
-        param['filter_name'] = 'name=\'Availability\'';
+        //param['filter_name'] = 'name=\'Availability\'';
         param['keys'] = ['device'];
         param['fields'] = ['devicesn','vendor','model','ip','devdesc'];
 
@@ -646,7 +646,6 @@ function GetSwitchInfo(callback) {
         });
 
 
-
     });
 
 
@@ -659,7 +658,7 @@ function GetSwitchInfo(callback) {
         }
 
         var param = {};
-        param['filter_name'] = 'name=\'Availability\'';
+        //param['filter_name'] = 'name=\'Availability\'';
         param['keys'] = ['device'];
         param['fields'] = ['devicesn','vendor','model','ip','devdesc']; 
         param['filter'] = 'device=\''+device+'\'&devtype==\'FabricSwitch\'&!(parttype==\'Fabric\'|parttype=\'Zone%\')&!datagrp=\'%ZONE%\'';
