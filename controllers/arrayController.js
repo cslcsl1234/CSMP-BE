@@ -3393,7 +3393,7 @@ console.log("RULE17="+rule17);
         var period = req.query.period;
  
         async.waterfall([
-            function(callback){
+            function(callback) {
                 VMAX.GetStorageGroupsPerformance(device, period, function(rest) { 
                     callback(null,rest);
                });
@@ -3417,7 +3417,7 @@ console.log("RULE17="+rule17);
                         for ( var key in perfItem ) {
 
                             if ( key == 'timestamp' ) 
-                                var DT =   moment(parseInt(perfItem[key])*1000).format("MM-DD HH:00");
+                                var DT =   moment(parseInt(perfItem[key])*1000).format("MM-DD hh:mm");
 
                             else {
                                 perfItem[key] = parseFloat(perfItem[key]);
@@ -3468,7 +3468,9 @@ console.log("RULE17="+rule17);
  
         async.waterfall([
             function(callback){
-                VMAX.GetStorageGroupsPerformance(device, period, function(rest) { 
+                var valuetype = 'last';
+                var start = util.getConfStartTime('1d');
+                VMAX.GetStorageGroupsPerformance(device, period, start, valuetype, function(rest) { 
                     callback(null,rest);
                });
             }, 
@@ -3517,8 +3519,26 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
     app.get('/api/vmax/performance/director/utilization', function (req, res) {
 
         var device = req.query.device;  
-        var period = req.query.period;
-        var directorType = req.query.type;  // FA | RF | DA
+        var periodtype = req.query.period;   // 1d | 1w | 1m
+        switch (periodtype) {
+            case '1d' : 
+                var period = 0;
+                var start = util.getConfStartTime('1d');
+                break;
+            case '1w' : 
+                var period = 3600;
+                var start = util.getConfStartTime('1w');
+                break;
+            case '1m' : 
+                var period = 86400;
+                var start = util.getConfStartTime('1m');
+                break;
+            default : 
+                var period = 0;
+                var start = util.getConfStartTime('1d');
+                break;
+        }
+        var valuetype = req.query.valuetype;   // max | average
 
         var resultByPartgrp = {};
         var partgrp_FA = 'Front-End';
@@ -3531,7 +3551,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
 
         async.waterfall([
             function(callback){
-                VMAX.GetDirectorPerformance(device, period, function(rest) { 
+                VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) { 
                     callback(null,rest);
                });
             }, 
@@ -3570,7 +3590,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
                             for ( var key in perfItem ) {
 
                                 if ( key == 'timestamp' ) // var DT = perfItem[key]
-                                    var DT =   moment(parseInt(perfItem[key])*1000).format("MM-DD HH:00");
+                                    var DT =   moment(parseInt(perfItem[key])*1000).format("MM-DD hh:mm");
 
                                 else {
                                     perfItem[key] = parseFloat(perfItem[key]);

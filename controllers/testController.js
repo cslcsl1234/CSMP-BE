@@ -100,54 +100,11 @@ var testController = function (app) {
 
     app.get('/api/test', function (req, res) {
         var device = req.query.device; 
-
-       // App.GetApps(function(code, result) {
-        //c.GetAssignedInitiatorByDevices(device,function(result) {
-        //Switch.GetSwitchPorts(device,function(result) {
-
-       //Capacity.getArrayCapacityTrend(device,function(result) {
-        var msg = "this is test msg!";
-       // GetEvents.SendSMS2Phone(msg,function(result) {
-
-        //Host.GetAssignedLUNByHosts(function(result) {
-       // Host.GetAssignedLUNByInitiator(device, function(result) {
-       //Switch.getFabric(device, function(result) {
-       //
-       //Host.GetHosts(device, function(code,result) {
-
-
-       //Switch.GetSwitchPorts(device, function(result) {
-       //Host.GetHBAFlatRecord(device, function(result) {
-       //VPLEX.GetVirtualVolumeRelationByDevices(device,function(result) {
-       
-        //VPLEX.getVplexStorageViews(device, function(result) {  
-       // GETCALL.centralizedManage( function(result) {
-       //DeviceMgmt.GetFCSwitchPart('FabricSwitch','Port',function(result) {
-       //Capacity.GetArrayTotalCapacity(function(result) {  
-/*
-        var period;
-        VMAX.GetDirectorPerformance(device, period,  function(rest) { 
-       
-                    res.json(200, rest);
-               }) 
-
-
-            var device = '000495700228';
-            var part = '1382';
-        VMAX.getArrayLunPerformance(device, part, function(rest) { 
-                res.json(200, rest);
-            
-        });
-
-       
-        var periodType;
-        Capacity.GetArrayTotalCapacity(periodType, function(ret) { 
-            res.json(200, ret);
-        }) 
-        */ 
-                VNX.GetVNX_FileSystem(device,function(result) {  
+        var period = 0;
+                SWITCH.GetSwitchPorts(device, function(result) { 
+                    console.log("Finished!");
                     res.json(200, result);
-                });  
+               }); 
 
 });
 
