@@ -32,6 +32,9 @@ var Capacity = require('../lib/Array_Capacity');
 var GetEvents = require('../lib/GetEvents');
 var DeviceMgmt = require('../lib/DeviceManagement');
 var SWITCH = require('../lib/Switch');
+var CallGet = require('../lib/CallGet');  
+var util = require('../lib/util');   
+
 
 var testController = function (app) {
 
@@ -121,23 +124,32 @@ var testController = function (app) {
        // GETCALL.centralizedManage( function(result) {
        //DeviceMgmt.GetFCSwitchPart('FabricSwitch','Port',function(result) {
        //Capacity.GetArrayTotalCapacity(function(result) {  
-
+/*
         var period;
         VMAX.GetDirectorPerformance(device, period,  function(rest) { 
        
                     res.json(200, rest);
                }) 
 
-/*
+
             var device = '000495700228';
             var part = '1382';
         VMAX.getArrayLunPerformance(device, part, function(rest) { 
                 res.json(200, rest);
             
         });
-        */ 
 
-    });
+       
+        var periodType;
+        Capacity.GetArrayTotalCapacity(periodType, function(ret) { 
+            res.json(200, ret);
+        }) 
+        */ 
+                VNX.GetVNX_FileSystem(device,function(result) {  
+                    res.json(200, result);
+                });  
+
+});
 
 
     app.get('/api/test/list', function (req, res) {

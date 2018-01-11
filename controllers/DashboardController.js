@@ -488,6 +488,12 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
             }
         ], function (err, result) {
            // result now equals 'done'
+
+            var perfdetail = result.perfdetail;
+            perfdetail.sort(function (a, b) {
+                return a.DT.localeCompare(b.DT);
+            });
+
            res.json(200, result);
         });
  
