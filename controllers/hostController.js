@@ -75,7 +75,7 @@ var hostController = function (app) {
                     } else 
                         callback(null,result);
                 });
-            },
+            }, 
             function(param,  callback){ 
  
                 var assignLunByHost = cache.get("AssignedLUNByHosts");
@@ -111,7 +111,7 @@ var hostController = function (app) {
 
 
 
-            },
+            }, 
             function(param,  callback){ 
  
                 if ( isCached == false ) {
@@ -127,7 +127,7 @@ var hostController = function (app) {
 
                             for ( var j in assignLunByHost ) {
                                  if ( hostItem.baseinfo.name == assignLunByHost[j].hostname ) {
-                                    //console.log("------------- Find --------------");
+                                   // console.log("------------- Find --------------");
                                       hostResult["Capacity"] = assignLunByHost[j].Capacity;
                                       hostResult["NumOfLuns"] = assignLunByHost[j].NumOfLuns;
                                       hostResult["baseinfo"] = hostItem.baseinfo;

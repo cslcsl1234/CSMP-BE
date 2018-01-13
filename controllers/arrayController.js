@@ -785,8 +785,7 @@ var arrayController = function (app) {
                }) 
 
         },
-        function(arg1,  callback){  
- 
+        function(arg1,  callback){   
                 var data = arg1;
 
 
@@ -3480,6 +3479,8 @@ console.log("RULE17="+rule17);
 
                 for ( var i in arg1 ) {
                     var item = arg1[i];
+
+                    if ( item.matrics.length <= 0 ) continue;
 
                     if ( device === undefined )
                         var resKey = item.device + ":" + item.part;

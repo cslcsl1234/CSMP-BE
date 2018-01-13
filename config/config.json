@@ -22,8 +22,9 @@
     "SERVER": {
         "PORT": 8080
     },
-    "ProductType": "Prod", 
-    "ProductTypeDesc": ["Prod","dev","test"],  
+    "ProductType": "Dev", 
+    "ProductTypeDesc": ["Prod","Dev","Test"],  
+    "SRMDevLastDT": "2018-01-10T14:00:00+08:00",
     "SMS" : {
         "ServiceIP" : "10.188.97.241",
         "ServicePort" : 6821 ,

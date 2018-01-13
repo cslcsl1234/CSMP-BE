@@ -32,6 +32,14 @@ userSchema = new Schema({
         type: String,
         required: true
     },
+    phone: {
+        type: String,
+        required: true
+    },
+    sendsms: {
+        type: Boolean,
+        default : false
+    },
     roleList: { 
         type: Array ,
         required: true
@@ -98,7 +106,7 @@ userSchema.statics = {
             return done(null, null, 'username & password are required');
         }
         var User = this;
-	var userobj = new User({username: user.username, password: user.password, email: user.email, role: user.role});
+	    var userobj = new User({username: user.username, password: user.password, email: user.email, phone: user.phone, sendsms: user.sendsms, role: user.role});
         this.findOne({username: user.username}, function (err, doc) {
             //system error.
             if (err) {

@@ -34,7 +34,8 @@ var DeviceMgmt = require('../lib/DeviceManagement');
 var SWITCH = require('../lib/Switch');
 var CallGet = require('../lib/CallGet');  
 var util = require('../lib/util');   
-
+var topos= require('../lib/topos');
+var DeviceMgmt = require('../lib/DeviceManagement');
 
 var testController = function (app) {
 
@@ -100,14 +101,59 @@ var testController = function (app) {
 
     app.get('/api/test', function (req, res) {
         var device = req.query.device; 
-        var period = 0;
-                SWITCH.GetSwitchPorts(device, function(result) { 
-                    console.log("Finished!");
-                    res.json(200, result);
-               }); 
+        var period = 0; 
+        var eventParam = {};
+        if (typeof device !== 'undefined') { 
+            eventParam['filter'] = 'device=\''+device + '\'&!acknowledged&active=\'1\'';
+            var filter = 'device=\''+device + '\'&!acknowledged&active=\'1\'';
+        } else {
+            eventParam['filter'] = '!acknowledged&active=\'1\'';
+        } 
+ 
+        //console.log(eventParam);
+        GetEvents.GetEvents(eventParam, function(result1) {   
+
+                 res.json(200 , result1);
+            });
 
 });
 
+    app.get('/api/test2', function (req, res) {
+        var device = req.query.device; 
+        var period = 0;
+        var arg1={};
+                var queryString = " PREFIX  srm: <http://ontologies.emc.com/2013/08/srm#>  ";
+                queryString = queryString + " PREFIX  filter:<http://ontologies.emc.com/2015/mnr/topology#>      ";
+                queryString = queryString + " PREFIX  rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  ";
+                queryString = queryString + " SELECT distinct ?init_wwn ?arrayName ?poolName ?lunName ?lunRaid ?volumeWWN  ";
+                queryString = queryString + " WHERE {   ";
+             
+                queryString = queryString + "        ?initiator rdf:type srm:ProtocolEndpoint .      ";
+                queryString = queryString + "        ?initiator  srm:Identifier ?www .        ";
+                queryString = queryString + "        BIND(replace(?www , 'topo:srm.ProtocolEndpoint:', '', 'i') as ?init_wwn) .    ";
+                queryString = queryString + "        ?initiator srm:maskedTo ?mv .";
+                queryString = queryString + "         ?mv srm:maskedToDisk ?disk .    ";          
+
+                 queryString = queryString + "        ?disk srm:displayName ?lunName .    ";               
+
+                queryString = queryString + "       ?disk srm:isUsed ?lunisused .  ";
+                queryString = queryString + "       ?disk srm:raid ?lunRaid .  ";
+                queryString = queryString + "       ?disk srm:lunTagId ?lunTagId .  ";
+                queryString = queryString + "       ?disk srm:volumeWWN ?volumeWWN .  ";
+                queryString = queryString + "       ?disk srm:residesOnStoragePool ?pool .  ";
+                queryString = queryString + "       ?disk srm:residesOnStorageEntity ?array .  ";
+                queryString = queryString + "       ?pool srm:displayName ?poolName .  ";
+                queryString = queryString + "       ?array srm:displayName ?arrayName .  ";
+                queryString = queryString + " }  ";
+
+
+                  topos.querySparql(queryString,  function (response) {
+                                  //var resultRecord = RecordFlat(response.body, keys);
+                                    
+                      arg1["lun"] = response;
+                      res.json(200 , arg1);
+                  }); 
+});
 
     app.get('/api/test/list', function (req, res) {
 

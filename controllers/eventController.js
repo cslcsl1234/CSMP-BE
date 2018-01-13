@@ -40,9 +40,7 @@ var eventController = function (app) {
         } else {
             eventParam['filter'] = '!acknowledged&active=\'1\'';
         } 
-
-        eventParam['filter'] = filter;
-
+ 
         //console.log(eventParam);
         GetEvents.GetEvents(eventParam, function(result1) {   
 

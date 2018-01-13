@@ -163,8 +163,8 @@ var authController = function (app) {
         };
 
 
-        console.log(req.body);
-        console.log("username = %s, password = %s", req.body.username, req.body.password);
+        //console.log(req.body);
+        //console.log("username = %s, password = %s", req.body.username, req.body.password);
 
         User.login(user, function (err, userid, msg) {
 
