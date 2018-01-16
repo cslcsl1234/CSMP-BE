@@ -845,6 +845,7 @@ function GetSwitchInfo(callback) {
                         var hostItem = hosts[j];
                         if ( portItem.portwwn == hostItem.hba_wwn ) {
                             portItem["hostname"] = hostItem.hostname;
+                            portItem["hostip"] = hostItem.managementip;
                             portItem["connectedToDeviceType"] = 'Host';
                             portItem["connectedToDevice"] = hostItem.hostname;
                             portItem["connectedToPart"] = hostItem.hba_name; 
