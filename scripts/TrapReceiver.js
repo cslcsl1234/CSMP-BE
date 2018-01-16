@@ -5,6 +5,7 @@ var moment = require('moment');
 var async = require('async'); 
 var util = require('util');
 var MIB = require('../lib/mib');
+var Config= require('./config.json');
 
 var SMS = require('./SendSMS');
 
@@ -25,7 +26,7 @@ GetSendPhones(
         });
 
 //var flushSendPhones=setInterval(GetSendPhones,60000*60*24,
-var flushSendPhones=setInterval(GetSendPhones,10000,
+var flushSendPhones=setInterval(GetSendPhones,Config.FlashPhoneInterval,
 	function(res) { 
                 logger.info("flush send phone list: "+ res);
 		phones = res;
@@ -48,9 +49,20 @@ trapd.on('trap', function(msg){
 
 	parseSRMEvent(res, function(srmevent) {
 		//	
-		//console.log(srmevent);
+		console.log(srmevent);
 		//
-		var sendMsg = "["+srmevent.openedat+"]发生["+srmevent.severity+"]级别事件:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"].产生事件的设备:[" + srmevent.partinfo.lsname+ ", IP: "+srmevent.partinfo.ip+" ],部件:["+srmevent.partinfo.part+"]. 关联对象类型:[" + srmevent.partinfo.connectedToDeviceType +"], 关联对象:[" + srmevent.partinfo.connectedToDevice +"]. <End>"
+		//
+		switch ( srmevent.partinfo.connectedToDeviceType ) {
+			case "Host":
+				var relaObject = "HostIP:" + srmevent.partinfo.hostip+ ",Alias:"+srmevent.partinfo.connectedToAlias;
+
+				break;
+
+			default :
+				var relaObject = connectedToDevice + ',' + connectedToPart;
+				break;
+		}
+		var sendMsg = "["+srmevent.openedat+"]发生["+srmevent.severity+"]级别事件:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"].产生事件的设备:[" + srmevent.partinfo.lsname+ ", IP: "+srmevent.partinfo.ip+" ],部件:["+srmevent.partinfo.part+"]. 关联对象类型:[" + srmevent.partinfo.connectedToDeviceType +"], 关联对象:[" + relaObject +"]. <End>"
 
 		logger.info(sendMsg);
 		if ( phones.length > 0 )

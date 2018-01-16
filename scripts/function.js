@@ -1,7 +1,8 @@
 "use strict"
 
 var unirest = require("unirest");
-var csmpserver = "192.168.182.20:8080";
+var Config= require("./config.json");
+var csmpserver = Config.Server +":" + Config.Port;
 
 module.exports = {
 	GetSwitchPorts,

@@ -1,7 +1,7 @@
 mongoimport -d csmp -c roles --drop roles.dat
 
 
-customerdata=../customerdata/$1
+customerdata=../CustomerData/$1
  
 mongoimport -d csmp -c datacenters  --drop ${customerdata}/datacenters.dat
 mongoimport -d csmp -c hosts  --drop ${customerdata}/hosts.dat
