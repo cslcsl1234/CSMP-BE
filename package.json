@@ -13,7 +13,8 @@
     "synchronize": "*",
     "unirest": "*",
     "tempfile": "*",
-    "officegen": "*"
+    "officegen": "*",
+    "moment": "*"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
