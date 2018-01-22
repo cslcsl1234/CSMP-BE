@@ -11,24 +11,26 @@ module.exports = (grunt)->
     grunt.task.run 'addmenu:userManagement.role:userManagement:角色管理:1:3:ion-android-home:dashboard.sysManage.role'
     grunt.task.run 'addmenu:userManagement.menu:userManagement:菜单管理:1:1:ion-android-home:dashboard.sysManage.menu'
 
-
     grunt.task.run 'addmenu:EquipmentManagement:#:设备管理:0:10:ion-grid:dashboard.EquipmentManagement'
     grunt.task.run 'addmenu:EquipmentManagement.Array:EquipmentManagement:存储:1:10:ion-android-home:dashboard.EquipmentManagement.Array'
 
     grunt.task.run 'addmenu:performance:#:性能管理:0:3:glyphicon glyphicon-hdd:dashboard.performance' 
     grunt.task.run 'addmenu:performance.logicalPerformance:performance:逻辑卷性能:1:1:glyphicon glyphicon-hdd:dashboard.performance.logicalPerformance' 
 
+
     grunt.task.run 'addrole:admin:userManagement,userManagement.role,userManagement.menu,userManagement.user'
     grunt.task.run 'addrole:guest:EquipmentManagement'
-    grunt.task.run 'adduser:admin:admin1@example.com:password:admin'
-    grunt.task.run 'adduser:guest:guest@qq.com:password:guest'
+    grunt.task.run 'adduser:admin:admin1@example.com:password:13900001111:true:admin'
+    grunt.task.run 'adduser:guest:guest@qq.com:password:13911112222:false:guest'
 
-  grunt.registerTask 'adduser', 'add a user to db', (user, email, pass, role)->
+  grunt.registerTask 'adduser', 'add a user to db', (user, email, pass, phone, sendsms,role)->
     User = mongoose.model('User');
     user = new User
       username: user
       email: email
       password: pass
+      phone: phone
+      sendsms: sendsms
       roleList: role
 
     done = @.async()
