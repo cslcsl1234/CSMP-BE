@@ -1,13 +1,14 @@
 var net = require('net');
 var iconv = require('iconv-lite');
 var logger = require('./log');
+var Config = require('../config/config.json');
 
 var encode="utf-8";
 
 //var HOST='10.188.97.241';
 //var PORT=6821;
-var HOST='127.0.0.1'
-var PORT=1337;
+var HOST=Config.SMS.ServiceIP;
+var PORT=Config.SMS.ServicePort;
 
 
 var MsgTemplate="043244440100              111111111119999999999000000000000000000000000000000  13500700001    1111111111222222222233333333334444444444555555555566666666661111111111                                                                                                                                                                                                                            0|                                                  ";
