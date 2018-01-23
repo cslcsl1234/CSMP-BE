@@ -18,15 +18,14 @@
 --of this software.
 --
 ------------------------------------------------------------------------------
---      SRM-ALERTS-MIB 1.00
+--      SRM-ALERTS-MIB 1.10
 --              History:
---      1.00    27/05/2016 Creation.
+--      1.10    27/05/2016 Creation.
 --
 --  This MIB should be used by external trap receivers for receiving SRM Alerts as traps.
 ------------------------------------------------------------------------------
 
-SRM-ALERTS-MIB
-DEFINITIONS ::= BEGIN
+SRM-ALERTS-MIB DEFINITIONS ::= BEGIN
 IMPORTS
         OBJECT-TYPE
                 FROM RFC-1212
@@ -44,109 +43,13 @@ alertEventTrap OBJECT IDENTIFIER ::= { alertEvent 2 }
 
 -- Objects definitions
 
-id  OBJECT-TYPE
-    SYNTAX OCTET STRING
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-            "The ID of the alert."
-    ::= { alertEventTrap  1 }
-
-name    OBJECT-TYPE
-        SYNTAX OCTET STRING (SIZE(0..255))
-        ACCESS  read-only
-        STATUS  mandatory
-        DESCRIPTION
-                "The unique name of an alert. The Alert correlation unique index. Generated like {device}_{parttype}_{part}_{eventname}."
-        ::= { alertEventTrap  2 }
-
-openedat    OBJECT-TYPE
-            SYNTAX OCTET STRING (SIZE(0..64))
-            ACCESS  read-only
-            STATUS  mandatory
-            DESCRIPTION
-                    "The date and time when the alert first occurs."
-            ::= { alertEventTrap  3 }
-
-count   OBJECT-TYPE
+device  OBJECT-TYPE
         SYNTAX OCTET STRING (SIZE(0..64))
         ACCESS  read-only
         STATUS  mandatory
         DESCRIPTION
-                "Number of times an alert has occurred."
-        ::= { alertEventTrap  4 }
-
-eventstate  OBJECT-TYPE
-            SYNTAX OCTET STRING (SIZE(0..64))
-            ACCESS  read-only
-            STATUS  mandatory
-            DESCRIPTION
-                    "The mandatory state of the alert, (ACTIVE or INACTIVE)."
-            ::= { alertEventTrap  5 }
-
-source  OBJECT-TYPE
-        SYNTAX OCTET STRING (SIZE(0..64))
-        ACCESS  read-only
-        STATUS  mandatory
-        DESCRIPTION
-                "The source of the alert."
-        ::= { alertEventTrap  6 }
-
-parttype    OBJECT-TYPE
-            SYNTAX OCTET STRING (SIZE(0..64))
-            ACCESS  read-only
-            STATUS  mandatory
-            DESCRIPTION
-                    "The part type that the alert occurred on."
-            ::= { alertEventTrap  7 }
-
-part    OBJECT-TYPE
-        SYNTAX OCTET STRING (SIZE(0..64))
-        ACCESS  read-only
-        STATUS  mandatory
-        DESCRIPTION
-                "The part that the alert occurred on."
-        ::= { alertEventTrap  8 }
-
-eventname   OBJECT-TYPE
-            SYNTAX OCTET STRING (SIZE(0..64))
-            ACCESS  read-only
-            STATUS  mandatory
-            DESCRIPTION
-                    "The name of the alert."
-            ::= { alertEventTrap  9 }
-
-parttypedisplayname    OBJECT-TYPE
-                       SYNTAX OCTET STRING (SIZE(0..64))
-                       ACCESS  read-only
-                       STATUS  mandatory
-                       DESCRIPTION
-                               "The display-ready part type that the alert occurred on."
-                       ::= { alertEventTrap  10 }
-
-partdisplayname OBJECT-TYPE
-                SYNTAX OCTET STRING (SIZE(0..64))
-                ACCESS  read-only
-                STATUS  mandatory
-                DESCRIPTION
-                        "The display-ready part that the alert occurred on."
-                ::= { alertEventTrap  11 }
-
-eventdisplayname    OBJECT-TYPE
-                    SYNTAX OCTET STRING (SIZE(0..64))
-                    ACCESS  read-only
-                    STATUS  mandatory
-                    DESCRIPTION
-                            "The display-ready name of the alert."
-                    ::= { alertEventTrap  12 }
-
-fullmsg OBJECT-TYPE
-        SYNTAX OCTET STRING
-        ACCESS  read-only
-        STATUS  mandatory
-        DESCRIPTION
-                "A message used to describe more information about the alert."
-        ::= { alertEventTrap  13 }
+                "The device that the alert occurred on."
+        ::= { alertEventTrap  0 }
 
 devtype OBJECT-TYPE
         SYNTAX OCTET STRING (SIZE(0..64))
@@ -154,31 +57,26 @@ devtype OBJECT-TYPE
         STATUS  mandatory
         DESCRIPTION
                 "The device type that the alert occurred on."
-        ::= { alertEventTrap  14 }
+        ::= { alertEventTrap  1 }
 
-device  OBJECT-TYPE
+
+part    OBJECT-TYPE
         SYNTAX OCTET STRING (SIZE(0..64))
         ACCESS  read-only
         STATUS  mandatory
         DESCRIPTION
-                "The device that the alert occurred on."
-        ::= { alertEventTrap  15 }
+                "The part that the alert occurred on."
+        ::= { alertEventTrap  2 }
 
-sourceip    OBJECT-TYPE
+
+parttype    OBJECT-TYPE
             SYNTAX OCTET STRING (SIZE(0..64))
             ACCESS  read-only
             STATUS  mandatory
             DESCRIPTION
-                    "The IP of the source of the alert."
-            ::= { alertEventTrap  16 }
+                    "The part type that the alert occurred on."
+            ::= { alertEventTrap  3 }
 
-sourcedomainname    OBJECT-TYPE
-                    SYNTAX OCTET STRING (SIZE(0..64))
-                    ACCESS  read-only
-                    STATUS  mandatory
-                    DESCRIPTION
-                            "The domain name of the source of the alert."
-                    ::= { alertEventTrap  17 }
 
 sourceeventtype OBJECT-TYPE
                 SYNTAX OCTET STRING (SIZE(0..64))
@@ -186,7 +84,8 @@ sourceeventtype OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "The event type from the source of the alert."
-                ::= { alertEventTrap  18 }
+                ::= { alertEventTrap  4 }
+
 
 value   OBJECT-TYPE
         SYNTAX OCTET STRING (SIZE(0..64))
@@ -194,95 +93,7 @@ value   OBJECT-TYPE
         STATUS  mandatory
         DESCRIPTION
                 "The value of the metric or attribute that caused the alert."
-        ::= { alertEventTrap  19 }
-
-active  OBJECT-TYPE
-        SYNTAX OCTET STRING (SIZE(0..64))
-        ACCESS  read-only
-        STATUS  mandatory
-        DESCRIPTION
-                "A (1) value indicates this alert is currently active on the system."
-        ::= { alertEventTrap  20 }
-
-timestamp   OBJECT-TYPE
-            SYNTAX OCTET STRING (SIZE(0..64))
-            ACCESS  read-only
-            STATUS  mandatory
-            DESCRIPTION
-                    "The timestamp of the lastest entry of an alert."
-            ::= { alertEventTrap  21 }
-
-closedat    OBJECT-TYPE
-            SYNTAX OCTET STRING (SIZE(0..64))
-            ACCESS  read-only
-            STATUS  mandatory
-            DESCRIPTION
-                    "The date-time when the alert was closed."
-            ::= { alertEventTrap  22 }
-
-duration OBJECT-TYPE
-         SYNTAX OCTET STRING (SIZE(0..64))
-         ACCESS  read-only
-         STATUS  mandatory
-         DESCRIPTION
-                "The duration between when the alert was ACTIVE to INACTIVE."
-         ::= { alertEventTrap  23 }
-
-lastchangedat   OBJECT-TYPE
-                SYNTAX OCTET STRING (SIZE(0..64))
-                ACCESS  read-only
-                STATUS  mandatory
-                DESCRIPTION
-                        "The date and time when an alert was last updated."
-                ::= { alertEventTrap  24 }
-
-isroot  OBJECT-TYPE
-        SYNTAX OCTET STRING (SIZE(0..64))
-        ACCESS  read-only
-        STATUS  mandatory
-        DESCRIPTION
-                "A (1) value indicates this alert is has no known deeper underlying cause."
-        ::= { alertEventTrap  25 }
-
-isproblem   OBJECT-TYPE
-            SYNTAX OCTET STRING (SIZE(0..64))
-            ACCESS  read-only
-            STATUS  mandatory
-            DESCRIPTION
-                    "A (1) value indicates this alert was discovered via Codebook Correlation."
-            ::= { alertEventTrap  26 }
-
-acknowledged OBJECT-TYPE
-             SYNTAX OCTET STRING (SIZE(0..64))
-             ACCESS  read-only
-             STATUS  mandatory
-             DESCRIPTION
-                     "A (1) value indicates that the alert has been acknowledged by a user."
-             ::= { alertEventTrap  27 }
-
-eventtype   OBJECT-TYPE
-            SYNTAX OCTET STRING (SIZE(0..64))
-            ACCESS  read-only
-            STATUS  mandatory
-            DESCRIPTION
-                    "The type of event, (MOMENTARY, DURABLE)."
-            ::= { alertEventTrap  28 }
-
-category    OBJECT-TYPE
-            SYNTAX OCTET STRING (SIZE(0..64))
-            ACCESS  read-only
-            STATUS  mandatory
-            DESCRIPTION
-                    "The category of the alert."
-            ::= { alertEventTrap  29 }
-
-eventtext   OBJECT-TYPE
-            SYNTAX OCTET STRING
-            ACCESS  read-only
-            STATUS  mandatory
-            DESCRIPTION
-                    "A description of the alert"
-            ::= { alertEventTrap  30 }
+        ::= { alertEventTrap  5 }
 
 severity    OBJECT-TYPE
             SYNTAX OCTET STRING (SIZE(0..64))
@@ -290,87 +101,57 @@ severity    OBJECT-TYPE
             STATUS  mandatory
             DESCRIPTION
                     "The severity of the alert - CRITICAL(1), MAJOR(2), MINOR(3), UNKNOWN(4), INFORMATIONAL(5)."
-            ::= { alertEventTrap  31 }
+            ::= { alertEventTrap  6 }
 
-impact  OBJECT-TYPE
+
+fullmsg OBJECT-TYPE
+        SYNTAX OCTET STRING
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "A message used to describe more information about the alert."
+        ::= { alertEventTrap  7 }
+
+source  OBJECT-TYPE
         SYNTAX OCTET STRING (SIZE(0..64))
         ACCESS  read-only
         STATUS  mandatory
         DESCRIPTION
-                "The impact of the alert."
-        ::= { alertEventTrap  32}
+                "The source of the alert."
+        ::= { alertEventTrap  8 }
 
-certainty   OBJECT-TYPE
+openedat    OBJECT-TYPE
             SYNTAX OCTET STRING (SIZE(0..64))
             ACCESS  read-only
             STATUS  mandatory
             DESCRIPTION
-                    "The certainty of the alert."
-            ::= { alertEventTrap  33 }
+                    "The date and time when the alert first occurs."
+            ::= { alertEventTrap  9 }
 
-inmaintenance   OBJECT-TYPE
-                SYNTAX OCTET STRING (SIZE(0..64))
-                ACCESS  read-only
-                STATUS  mandatory
-                DESCRIPTION
-                        "A (1) value indicates the device this alert occurs on is currently undergoing maintenance"
-                ::= { alertEventTrap  34 }
+category    OBJECT-TYPE
+            SYNTAX OCTET STRING (SIZE(0..64))
+            ACCESS  read-only
+            STATUS  mandatory
+            DESCRIPTION
+                    "The category of the alert."
+            ::= { alertEventTrap  10 }
 
-troubleticketid OBJECT-TYPE
-                SYNTAX OCTET STRING (SIZE(0..64))
-                ACCESS  read-only
-                STATUS  mandatory
-                DESCRIPTION
-                        "The ID of this alerting in an external ticket management system."
-                ::= { alertEventTrap  35 }
+sourceip    OBJECT-TYPE
+            SYNTAX OCTET STRING (SIZE(0..64))
+            ACCESS  read-only
+            STATUS  mandatory
+            DESCRIPTION
+                    "The IP of the source of the alert."
+            ::= { alertEventTrap  11 }
 
-owner   OBJECT-TYPE
-        SYNTAX OCTET STRING (SIZE(0..64))
-        ACCESS  read-only
-        STATUS  mandatory
-        DESCRIPTION
-                "The current owner of the alert."
-        ::= { alertEventTrap  36 }
+sourcedomainname    OBJECT-TYPE
+                    SYNTAX OCTET STRING (SIZE(0..64))
+                    ACCESS  read-only
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "The domain name of the source of the alert."
+                    ::= { alertEventTrap  12 }
 
-systemdefined1  OBJECT-TYPE
-                SYNTAX OCTET STRING
-                ACCESS  read-only
-                STATUS  mandatory
-                DESCRIPTION
-                        "A custom field that is reserved for M&R Platform and SolutionPack use."
-                ::= { alertEventTrap  37 }
-
-systemdefined2  OBJECT-TYPE
-                SYNTAX OCTET STRING
-                ACCESS  read-only
-                STATUS  mandatory
-                DESCRIPTION
-                        "A custom field that is reserved for M&R Platform and SolutionPack use."
-                ::= { alertEventTrap  38 }
-
-systemdefined3  OBJECT-TYPE
-                SYNTAX OCTET STRING
-                ACCESS  read-only
-                STATUS  mandatory
-                DESCRIPTION
-                        "A custom field that is reserved for M&R Platform and SolutionPack use."
-                ::= { alertEventTrap  39 }
-
-systemdefined4  OBJECT-TYPE
-                SYNTAX OCTET STRING
-                ACCESS  read-only
-                STATUS  mandatory
-                DESCRIPTION
-                        "A custom field that is reserved for M&R Platform and SolutionPack use."
-                ::= { alertEventTrap  40 }
-
-systemdefined5  OBJECT-TYPE
-                SYNTAX OCTET STRING
-                ACCESS  read-only
-                STATUS  mandatory
-                DESCRIPTION
-                        "A custom field that is reserved for M&R Platform and SolutionPack use."
-                ::= { alertEventTrap  41 }
 
 userdefined1    OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -378,7 +159,7 @@ userdefined1    OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  42 }
+                ::= { alertEventTrap  13 }
 
 userdefined2    OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -386,7 +167,7 @@ userdefined2    OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  43 }
+                ::= { alertEventTrap  14 }
 
 userdefined3    OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -394,7 +175,7 @@ userdefined3    OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  44 }
+                ::= { alertEventTrap  15 }
 
 userdefined4    OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -402,7 +183,7 @@ userdefined4    OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  45 }
+                ::= { alertEventTrap  16 }
 
 userdefined5    OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -410,7 +191,7 @@ userdefined5    OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  46 }
+                ::= { alertEventTrap  17 }
 
 userdefined6    OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -418,7 +199,215 @@ userdefined6    OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  47 }
+                ::= { alertEventTrap  18 }
+
+
+eventname   OBJECT-TYPE
+            SYNTAX OCTET STRING (SIZE(0..64))
+            ACCESS  read-only
+            STATUS  mandatory
+            DESCRIPTION
+                    "The name of the alert."
+            ::= { alertEventTrap  19 }
+
+
+eventstate  OBJECT-TYPE
+            SYNTAX OCTET STRING (SIZE(0..64))
+            ACCESS  read-only
+            STATUS  mandatory
+            DESCRIPTION
+                    "The mandatory state of the alert, (ACTIVE or INACTIVE)."
+            ::= { alertEventTrap  20 }
+
+
+eventdisplayname    OBJECT-TYPE
+                    SYNTAX OCTET STRING (SIZE(0..64))
+                    ACCESS  read-only
+                    STATUS  mandatory
+                    DESCRIPTION
+                            "The display-ready name of the alert."
+                    ::= { alertEventTrap  21 }
+
+
+systemdefined1  OBJECT-TYPE
+                SYNTAX OCTET STRING
+                ACCESS  read-only
+                STATUS  mandatory
+                DESCRIPTION
+                        "A custom field that is reserved for M&R Platform and SolutionPack use."
+                ::= { alertEventTrap  22 }
+
+systemdefined2  OBJECT-TYPE
+                SYNTAX OCTET STRING
+                ACCESS  read-only
+                STATUS  mandatory
+                DESCRIPTION
+                        "A custom field that is reserved for M&R Platform and SolutionPack use."
+                ::= { alertEventTrap  23 }
+
+systemdefined3  OBJECT-TYPE
+                SYNTAX OCTET STRING
+                ACCESS  read-only
+                STATUS  mandatory
+                DESCRIPTION
+                        "A custom field that is reserved for M&R Platform and SolutionPack use."
+                ::= { alertEventTrap  24 }
+
+systemdefined4  OBJECT-TYPE
+                SYNTAX OCTET STRING
+                ACCESS  read-only
+                STATUS  mandatory
+                DESCRIPTION
+                        "A custom field that is reserved for M&R Platform and SolutionPack use."
+                ::= { alertEventTrap  25 }
+
+systemdefined5  OBJECT-TYPE
+                SYNTAX OCTET STRING
+                ACCESS  read-only
+                STATUS  mandatory
+                DESCRIPTION
+                        "A custom field that is reserved for M&R Platform and SolutionPack use."
+                ::= { alertEventTrap  26 }
+
+
+count   OBJECT-TYPE
+        SYNTAX OCTET STRING (SIZE(0..64))
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "Number of times an alert has occurred."
+        ::= { alertEventTrap  27 }
+
+
+parttypedisplayname    OBJECT-TYPE
+                       SYNTAX OCTET STRING (SIZE(0..64))
+                       ACCESS  read-only
+                       STATUS  mandatory
+                       DESCRIPTION
+                               "The display-ready part type that the alert occurred on."
+                       ::= { alertEventTrap  28 }
+
+
+partdisplayname OBJECT-TYPE
+                SYNTAX OCTET STRING (SIZE(0..64))
+                ACCESS  read-only
+                STATUS  mandatory
+                DESCRIPTION
+                        "The display-ready part that the alert occurred on."
+                ::= { alertEventTrap  29 }
+
+closedat    OBJECT-TYPE
+            SYNTAX OCTET STRING (SIZE(0..64))
+            ACCESS  read-only
+            STATUS  mandatory
+            DESCRIPTION
+                    "The date-time when the alert was closed."
+            ::= { alertEventTrap  30 }
+
+duration OBJECT-TYPE
+         SYNTAX OCTET STRING (SIZE(0..64))
+         ACCESS  read-only
+         STATUS  mandatory
+         DESCRIPTION
+                "The duration between when the alert was ACTIVE to INACTIVE."
+         ::= { alertEventTrap  31 }
+
+isroot  OBJECT-TYPE
+        SYNTAX OCTET STRING (SIZE(0..64))
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "A (1) value indicates this alert is has no known deeper underlying cause."
+        ::= { alertEventTrap  32 }
+
+isproblem   OBJECT-TYPE
+            SYNTAX OCTET STRING (SIZE(0..64))
+            ACCESS  read-only
+            STATUS  mandatory
+            DESCRIPTION
+                    "A (1) value indicates this alert was discovered via Codebook Correlation."
+            ::= { alertEventTrap  33 }
+
+eventtext   OBJECT-TYPE
+            SYNTAX OCTET STRING
+            ACCESS  read-only
+            STATUS  mandatory
+            DESCRIPTION
+                    "A description of the alert"
+            ::= { alertEventTrap  34 }
+
+impact  OBJECT-TYPE
+        SYNTAX OCTET STRING (SIZE(0..64))
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "The impact of the alert."
+        ::= { alertEventTrap  35}
+
+certainty   OBJECT-TYPE
+            SYNTAX OCTET STRING (SIZE(0..64))
+            ACCESS  read-only
+            STATUS  mandatory
+            DESCRIPTION
+                    "The certainty of the alert."
+            ::= { alertEventTrap  36 }
+
+eventtype   OBJECT-TYPE
+            SYNTAX OCTET STRING (SIZE(0..64))
+            ACCESS  read-only
+            STATUS  mandatory
+            DESCRIPTION
+                    "The type of event, (MOMENTARY, DURABLE)."
+            ::= { alertEventTrap  37 }
+
+
+active  OBJECT-TYPE
+        SYNTAX OCTET STRING (SIZE(0..64))
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "A (1) value indicates this alert is currently active on the system."
+        ::= { alertEventTrap  38 }
+
+lastchangedat   OBJECT-TYPE
+                SYNTAX OCTET STRING (SIZE(0..64))
+                ACCESS  read-only
+                STATUS  mandatory
+                DESCRIPTION
+                        "The date and time when an alert was last updated."
+                ::= { alertEventTrap  39 }
+
+acknowledged OBJECT-TYPE
+             SYNTAX OCTET STRING (SIZE(0..64))
+             ACCESS  read-only
+             STATUS  mandatory
+             DESCRIPTION
+                     "A (1) value indicates that the alert has been acknowledged by a user."
+             ::= { alertEventTrap  40 }
+
+inmaintenance   OBJECT-TYPE
+                SYNTAX OCTET STRING (SIZE(0..64))
+                ACCESS  read-only
+                STATUS  mandatory
+                DESCRIPTION
+                        "A (1) value indicates the device this alert occurs on is currently undergoing maintenance"
+                ::= { alertEventTrap  41 }
+
+troubleticketid OBJECT-TYPE
+                SYNTAX OCTET STRING (SIZE(0..64))
+                ACCESS  read-only
+                STATUS  mandatory
+                DESCRIPTION
+                        "The ID of this alerting in an external ticket management system."
+                ::= { alertEventTrap  42 }
+
+owner   OBJECT-TYPE
+        SYNTAX OCTET STRING (SIZE(0..64))
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "The current owner of the alert."
+        ::= { alertEventTrap  43 }
 
 userdefined7    OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -426,7 +415,7 @@ userdefined7    OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  48 }
+                ::= { alertEventTrap  44 }
 
 userdefined8    OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -434,7 +423,7 @@ userdefined8    OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  49 }
+                ::= { alertEventTrap  45 }
 
 userdefined9    OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -442,7 +431,7 @@ userdefined9    OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  50 }
+                ::= { alertEventTrap  46 }
 
 userdefined10   OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -450,7 +439,7 @@ userdefined10   OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  51 }
+                ::= { alertEventTrap  47 }
 
 userdefined11   OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -458,7 +447,7 @@ userdefined11   OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  52 }
+                ::= { alertEventTrap  48 }
 
 userdefined12   OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -466,7 +455,7 @@ userdefined12   OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  53 }
+                ::= { alertEventTrap  49 }
 
 userdefined13   OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -474,7 +463,7 @@ userdefined13   OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  54 }
+                ::= { alertEventTrap  50 }
 
 userdefined14   OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -482,7 +471,7 @@ userdefined14   OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  55 }
+                ::= { alertEventTrap  51 }
 
 userdefined15   OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -490,7 +479,7 @@ userdefined15   OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  56 }
+                ::= { alertEventTrap  52 }
 
 userdefined16   OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -498,7 +487,7 @@ userdefined16   OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  57 }
+                ::= { alertEventTrap  53 }
 
 userdefined17   OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -506,7 +495,7 @@ userdefined17   OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  58 }
+                ::= { alertEventTrap  54 }
 
 userdefined18   OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -514,7 +503,7 @@ userdefined18   OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  59 }
+                ::= { alertEventTrap  55 }
 
 userdefined19   OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -522,7 +511,7 @@ userdefined19   OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  60 }
+                ::= { alertEventTrap  56 }
 
 userdefined20   OBJECT-TYPE
                 SYNTAX OCTET STRING
@@ -530,7 +519,9 @@ userdefined20   OBJECT-TYPE
                 STATUS  mandatory
                 DESCRIPTION
                         "A custom field that can be modified by the system administrator."
-                ::= { alertEventTrap  61 }
+                ::= { alertEventTrap  57 }
+ 
+ 
 
 -- Trap Definitions ------------------------------------------------------------
 alertEventTrapMessage    TRAP-TYPE

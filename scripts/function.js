@@ -1,8 +1,8 @@
 "use strict"
 
 var unirest = require("unirest");
-var Config= require("./config.json");
-var csmpserver = Config.Server +":" + Config.Port;
+var Config= require("../config/config.json");
+var csmpserver = "csmpserver:" + Config.SERVER.PORT;
 
 module.exports = {
 	GetSwitchPorts,
@@ -70,6 +70,7 @@ function GetUsers(callback) {
 
 function GetAuthKey(callback) {
 
+	console.log("http://"+csmpserver+"/api/login");
 	var req_login = unirest("POST", "http://"+csmpserver+"/api/login");
 
 	req_login.headers({

@@ -5,7 +5,7 @@ var moment = require('moment');
 var async = require('async'); 
 var util = require('util');
 var MIB = require('../lib/mib');
-var Config= require('./config.json');
+var Config= require('../config/config.json');
 
 var SMS = require('./SendSMS');
 
@@ -21,14 +21,15 @@ var phones = [];
 
 GetSendPhones(
         function(res) {
-                logger.info("flush send phone list: "+ res);
+                //logger.info("flush send phone list: "+ res);
+                logger.info("11 flush send phone list: "+ res + " for every " + Config.SMS.FlashPhoneInterval + "ms");
                 phones = res;
         });
 
-//var flushSendPhones=setInterval(GetSendPhones,60000*60*24,
-var flushSendPhones=setInterval(GetSendPhones,Config.FlashPhoneInterval,
+//var flushSendPhones=setInterval(GetSendPhones,10000,
+var flushSendPhones=setInterval(GetSendPhones,Config.SMS.FlashPhoneInterval,
 	function(res) { 
-                logger.info("flush send phone list: "+ res);
+                logger.info("flush send phone list: "+ res + " for every " + Config.SMS.FlashPhoneInterval + "s");
 		phones = res;
 	});
 
@@ -62,14 +63,28 @@ trapd.on('trap', function(msg){
 				var relaObject = connectedToDevice + ',' + connectedToPart;
 				break;
 		}
-		var sendMsg = "["+srmevent.openedat+"]发生["+srmevent.severity+"]级别事件:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"].产生事件的设备:[" + srmevent.partinfo.lsname+ ", IP: "+srmevent.partinfo.ip+" ],部件:["+srmevent.partinfo.part+"]. 关联对象类型:[" + srmevent.partinfo.connectedToDeviceType +"], 关联对象:[" + relaObject +"]. <End>"
+		var sendMsg = "["+srmevent.openedat+"]:["+srmevent.severity+"]:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"].设备:[" + srmevent.partinfo.lsname+ ", IP: "+srmevent.partinfo.ip+" ],部件:["+srmevent.partinfo.part+"]. 关联类型:[" + srmevent.partinfo.connectedToDeviceType +"], 关联对象:[" + relaObject +"]";
 
 		logger.info(sendMsg);
 		if ( phones.length > 0 )
-			SMS.SendSMS(sendMsg,phones,function(res) {
+		   for ( var i in phones ) {
+			var phone = phones[i];	
+			SMS.SendSMS(sendMsg,phone ,function(res) {
+				logger.info("--------------------------------------------");
+				logger.info("        SMS Gateway Response Begin ");
+				logger.info("--------------------------------------------");
 				console.log(res);
 				logger.info("--------------------------------------------");
+				logger.info("        SMS Gateway Response End ");
+				logger.info("--------------------------------------------");
+
+
+   logger.info("===========================================================================");
+   logger.info("Trap Received End" + moment(now).format("YYYY-MM-DD hh:mm:ss"));
+   logger.info("===========================================================================");
+
 			});
+		   };
 
 
 	});
