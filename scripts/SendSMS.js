@@ -1,6 +1,7 @@
 var net = require('net');
 var iconv = require('iconv-lite');
 var logger = require('./log');
+
 var Config = require('../config/config.json');
 
 var encode="utf-8";
@@ -31,34 +32,37 @@ SendSMS("test",phonetest,function(res) {
 });
 **/
 
-function SendSMS(SendMsg, Phones, callback) {
+function SendSMS(SendMsg, SendPhone, callback) {
+
+	logger.info("Connecting ["+HOST+":"+PORT+"] ... ...");
 
 	var client = new net.Socket();
 	client.connect(PORT, HOST, function() {
 		logger.info(HOST+':'+PORT+' Connected ... ');
 		var phone = MsgTemplate.substr(79,15);
 
-		for ( var i in Phones){
-			var SendPhone= Phones[i];
+		var SendPackage = MsgTemplate1+padRight(SendPhone,15)+ padRight(SendMsg,240) + MsgTemplate2;
+		logger.info("sendmsg:["+SendPackage+"]");
+		var senddata = iconv.encode(SendPackage,'GBK');
+		logger.info("encode(GBK)-sendmsg:["+senddata+"]");
+		client.write(senddata);
 			
-			var SendPackage = MsgTemplate1+padRight(SendPhone,15)+ padRight(SendMsg,240) + MsgTemplate2;
-			logger.info("send:["+SendPackage+"]");
-			client.write(SendPackage);
-			
-		}
 
 	});
 
 	client.on('data', function(resp) {
-		//console.log(resp);
+		console.log("------- Response Begin -------");
+		console.log(resp);
+		console.log("------- Response End   -------");
 		var data = iconv.decode(resp,'GBK').toString();
 
+		logger.info(' --------------- Parse Received Fields  -----------------');
 		var packcodelen = data.substr(0,4);
 		var respcode    = data.substr(4,7);
 		var retmsg      = data.substr(11,50);
 		logger.info("respcode    =["+respcode+']');
 		logger.info("respmsg     =["+retmsg+']');
-		logger.info(' --------------- Received Fields  -----------------');
+		logger.info(' --------------- Parse Received Fields  -----------------');
 
 		client.destroy(); // kill client after server's response
 	});

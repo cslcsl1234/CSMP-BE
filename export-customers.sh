@@ -1,4 +1,4 @@
-customerdata=../customerdata/$1
+customerdata=../CustomerData/$1
 
 mkdir -p ${customerdata}
 
