@@ -34,6 +34,7 @@ var flushSendPhones=setInterval(GetSendPhones,Config.SMS.FlashPhoneInterval,
 	});
 
 trapd.on('trap', function(msg){
+   console.log(msg);
    var now = new Date();
    logger.info("===========================================================================");
    logger.info("Trap Received " + moment(now).format("YYYY-MM-DD hh:mm:ss"));
@@ -53,17 +54,55 @@ trapd.on('trap', function(msg){
 		console.log(srmevent);
 		//
 		//
-		switch ( srmevent.partinfo.connectedToDeviceType ) {
-			case "Host":
-				var relaObject = "HostIP:" + srmevent.partinfo.hostip+ ",Alias:"+srmevent.partinfo.connectedToAlias;
+		if ( srmevent.partinfo !== undefined ) {
+			if ( srmevent.partinfo.lsname !== undefined ) 
+			    var relaObjectDevice = srmevent.partinfo.lsname;
+			else 
+			    var relaObjectDevice = "";
 
-				break;
 
-			default :
-				var relaObject = connectedToDevice + ',' + connectedToPart;
-				break;
+			if ( srmevent.partinfo.ip !== undefined ) 
+			    var relaObjectDeviceIP = srmevent.partinfo.ip;
+			else 
+			    var relaObjectDeviceIP = "";
+
+			if ( srmevent.partinfo.part !== undefined ) 
+			    var relaObjectDevicePart = srmevent.partinfo.part;
+			else 
+			    var relaObjectDevicePart = "";
+
+			if ( srmevent.partinfo.connectedToAlias!== undefined ) 
+			    var relaObjectAlias  = srmevent.partinfo.connectedToAlias;
+			else 
+			    var relaObjectAlias = "";
+
+
+			if ( srmevent.partinfo.connectedToDeviceType !== undefined )  {
+			    var relaObjectType = srmevent.partinfo.connectedToDeviceType;
+			    switch ( srmevent.partinfo.connectedToDeviceType ) {
+				case "Host":
+					var relaObject = "HostIP:" + relaObjectDeviceIP + ",Alias:"+ relaObjectAlias;
+
+					break;
+
+				default :
+					var relaObject = relaObjectDevice + ',' + relaObjectDevicePart ;
+					break;
+			    }
+			}
+			else  {
+				var relaObject = relaObjectAlias;
+				var relaObjectType = "unknow";
+			}
+
+		} else {
+			var relaObject = "NotFound";
+			var relaObjectType = "unknow";
 		}
-		var sendMsg = "["+srmevent.openedat+"]:["+srmevent.severity+"]:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"].设备:[" + srmevent.partinfo.lsname+ ", IP: "+srmevent.partinfo.ip+" ],部件:["+srmevent.partinfo.part+"]. 关联类型:[" + srmevent.partinfo.connectedToDeviceType +"], 关联对象:[" + relaObject +"]";
+
+
+
+		var sendMsg = "["+srmevent.openedat+"]:["+srmevent.severity+"]:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"].设备:[" + relaObjectDevice + ", IP: "+ relaObjectDeviceIP +" ],部件:["+ relaObjectDevicePart +"]. 关联类型:[" + relaObjectType +"], 关联对象:[" + relaObject +"]";
 
 		logger.info(sendMsg);
 		if ( phones.length > 0 )
@@ -104,7 +143,7 @@ function parseSRMEvent(trapinfo,callback) {
 	    srmevent[item.ObjectName] = item.Value.toString();
 	}
 
-	srmevent["openedat"] = moment(parseInt(srmevent.openedat)*1000).format("YYYY-MM-DD hh:mm:ss");
+	//srmevent["openedat"] = moment(parseInt(srmevent.openedat)*1000).format("YYYY-MM-DD hh:mm:ss");
 	switch ( srmevent.severity ) {
 	    case "3":
 		srmevent["severity"] = "warning";
@@ -174,11 +213,13 @@ function relationWithPort(event, callback1 ) {
             switch ( eventItem.devtype ) {
                 case 'FabricSwitch':
                     if ( eventItem.parttype == 'Port') {
+
+			eventItem.part = parseInt(eventItem.part) - 1;
                         
                         for ( var j in swports ) {
                             var portItem = swports[j];
          
-                            if ( eventItem.device == portItem.device && eventItem.part == portItem.partid ) {
+                            if ( eventItem.sourceip == portItem.ip && eventItem.part == portItem.partid ) {
                                 eventItem["partinfo"] = portItem;
                                 break;
                             }
