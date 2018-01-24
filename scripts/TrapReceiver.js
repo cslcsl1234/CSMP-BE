@@ -34,6 +34,7 @@ var flushSendPhones=setInterval(GetSendPhones,Config.SMS.FlashPhoneInterval,
 	});
 
 trapd.on('trap', function(msg){
+   console.log(msg);
    var now = new Date();
    logger.info("===========================================================================");
    logger.info("Trap Received " + moment(now).format("YYYY-MM-DD hh:mm:ss"));
