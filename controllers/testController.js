@@ -57,45 +57,54 @@ var testController = function (app) {
 
 
     app.get('/api/test1', function (req, res) {
-        var device = req.query.device;  
-        var start = req.query.start; 
-        var end = req.query.end; 
+        async.waterfall([
+            function(callback){ 
+    
+                var param = {};
+                if (typeof device !== 'undefined') {  
+                    param['filter'] = 'device=\''+device+'\'&!vstatus==\'inactive\'&parttype=\'Port\'&!iftype=\'Ethernet\'&!discrim=\'FCoE\'';
+                } else {
+                    param['filter'] = '!vstatus==\'inactive\'&parttype=\'Port\'&!iftype=\'Ethernet\'&!discrim=\'FCoE\'';
+                }
+     
+                param['keys'] = ['device','partwwn']; 
+                param['fields'] = ['partid','part','porttype','partwwn','ifname','portwwn','maxspeed','partstat','partphys','gbicstat','lswwn','ip','lsname'];
+    
+                CallGet.CallGet(param, function(param) { 
+                var result = [];
+         
+                callback(null, param.result ); 
+                });
+            },
+            function(arg1,  callback){ 
+    
+                var param = {};
+                if (typeof device !== 'undefined') {  
+                    param['filter'] = 'device=\''+device+'\'&!vstatus==\'inactive\'&datagrp=\'BROCADE_SWITCHFCPORTSTATS\'';
+                } else {
+                    param['filter'] = '!vstatus==\'inactive\'&datagrp=\'BROCADE_SWITCHFCPORTSTATS\'';
+                }
+    
+                //param['filter_name'] = '(name=\'InFramesEncodingErrors\'|name=\'InCrcs\'|name=\'OutFramesEncodingErrors\'|name=\'C3Discards\'|name=\'LinkFailures\')';
+                param['filter_name'] = '(name=\'InFramesEncodingErrors\')';
+                param['keys'] = ['device','partwwn'];
+                //param['fields'] = ['partid','slotnum','part','porttype','partwwn','ifname','portwwn','maxspeed','partstat','partphys','gbicstat'];
+                param['fields'] = ['porttype'];
+                param['period'] = 3600;   
+                param['start'] = util.getConfStartTime('1d');  
+    
+    
+                CallGet.CallGet(param, function(param) { 
+                    var result = param.result ;
 
-        var filterbase = 'device=\''+device + '\'' ;
-                var filter = filterbase + '&datagrp=\'VMAX-BEDirector\'&partgrp=\'Back-End\'&name=\'CurrentUtilization\'';
-                var fields = 'device,part,name';
-                var keys = ['device,part'];
-
-                //var queryString =  {"filter":filter,"fields":fields}; 
-                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
-
-
-
-                console.log(queryString);
-                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
-                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
-                        .headers({'Content-Type': 'multipart/form-data'}) 
-                        .query(queryString) 
-                        .end(function (response) { 
-                            if ( response.error ) {
-                                console.log(response.error);
-                                return response.error;
-                            } else {  
-                                var result = JSON.parse(response.body).values;    
-
-                                for ( var i in result ) {
-                                    var item = result[i];
-                                    var matrics = item.points;
-                                    var resultItem = {};
-                                    resultItem["type"] = "DF";
-                                    resultItem["component"] = item.properties.part.replace(":","-");
-                                    resultItem["busy"] = util.GetMaxValue(matrics);
-                                    finalResult.push(resultItem);
-                                }
-                                callback(null,finalResult);
-                            }
-
-                        });
+                    callback(null,arg1);     
+                });
+    
+            }
+        ], function (err, result) {
+            res.json(200 , result);
+        });
+    
 
      });                       
 
@@ -111,12 +120,14 @@ var testController = function (app) {
         } 
  
         //console.log(eventParam);
-        GetEvents.GetEvents(eventParam, function(result1) {   
-
-                 res.json(200 , result1);
+        //GetEvents.GetEvents(eventParam, function(result1) {   
+ 
+            Host.GetHosts( device, function(retcode, result) {  
+                console.log(result.length);
+                 res.json(200 , result);
             });
 
-});
+    });
 
     app.get('/api/test2', function (req, res) {
         var device = req.query.device; 

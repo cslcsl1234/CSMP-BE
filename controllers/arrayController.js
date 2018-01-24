@@ -432,7 +432,9 @@ var arrayController = function (app) {
             } else {
                 param['filter'] = 'parttype=\'Disk\'';
             } 
-
+            param['period'] = 3600;
+            param['start'] = util.getConfStartTime('1d');
+     
             CallGet.CallGet(param, function(param) {
                 
                 var data = param.result;
@@ -689,12 +691,13 @@ var arrayController = function (app) {
             param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'Availability\'|name=\'PoolUsedCapacity\')';
             param['keys'] = ['device','part','parttype'];
             param['fields'] = ['alias','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked'];
-            param['limit'] = 1000000;
 
             if (typeof device !== 'undefined') { 
                 param['filter'] = 'device=\''+device+'\'&' + param['filter'];
             } 
-
+            param['period'] = 3600;
+            param['start'] = util.getConfStartTime('1d');
+     
 
             CallGet.CallGet(param, function(param) { 
                 

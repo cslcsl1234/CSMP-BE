@@ -71,8 +71,6 @@ var capacityController = function (app) {
               // result now equals 'done'
               res.json(200,ret);
         });
-
-
     });
 
      app.get('/api/capacity/distributemapByArray', function (req, res) {

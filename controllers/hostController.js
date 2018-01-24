@@ -81,33 +81,32 @@ var hostController = function (app) {
                 var assignLunByHost = cache.get("AssignedLUNByHosts");
                      
                 if ( assignLunByHost !== undefined && assignLunByHost != null && assignLunByHost != 'null' ) {
+                    console.log("AssignedLUNByHosts is Cached!");
                     isCached = true;
                         
                     var ret = [];
 
                     for ( var i in param ) {
                         var hostItem = param[i];
-                        var hostResult = {};
+                        hostItem["Capacity"] = 0;
+                        hostItem["NumOfLuns"] = 0;     
 
                         for ( var j in assignLunByHost ) {
                              if ( hostItem.baseinfo.name == assignLunByHost[j].hostname ) {
-                                //console.log("------------- Find --------------");
-                                  hostResult["Capacity"] = assignLunByHost[j].Capacity;
-                                  hostResult["NumOfLuns"] = assignLunByHost[j].NumOfLuns;
-                                  hostResult["baseinfo"] = hostItem.baseinfo;
-                                  hostResult["APPs"] = hostItem.APPs;
-                                  hostResult["HBAs"] = hostItem.HBAs;
-                                  hostResult["configuration"] = hostItem.configuration;
-                                  hostResult["maintenance"] = hostItem.maintenance;
-                                  hostResult["assets"] = hostItem.assets; 
-                                  ret.push(hostResult);
+ 
+                                hostItem["Capacity"] = assignLunByHost[j].Capacity;
+                                hostItem["NumOfLuns"] = assignLunByHost[j].NumOfLuns;    
+                               
                              }
                         }
                     }
-                    callback(null,ret);
-                } 
-                else 
                     callback(null,param);
+                } 
+                else {
+                    console.log("AssignedLUNByHosts is not Cached!");
+                    callback(null,param);
+                }
+                    
 
 
 
@@ -118,36 +117,27 @@ var hostController = function (app) {
                     host.GetAssignedLUNByHosts(function(assignLunByHost) {
                         cache.put('AssignedLUNByHosts',assignLunByHost);     
 
-                        
-                        var ret = [];
-
                         for ( var i in param ) {
-                            var hostItem = param[i];
-                            var hostResult = {};
+                            var hostItem = param[i]; 
+                            hostItem["Capacity"] = 0;
+                            hostItem["NumOfLuns"] = 0;     
+
 
                             for ( var j in assignLunByHost ) {
                                  if ( hostItem.baseinfo.name == assignLunByHost[j].hostname ) {
-                                   // console.log("------------- Find --------------");
-                                      hostResult["Capacity"] = assignLunByHost[j].Capacity;
-                                      hostResult["NumOfLuns"] = assignLunByHost[j].NumOfLuns;
-                                      hostResult["baseinfo"] = hostItem.baseinfo;
-                                      hostResult["APPs"] = hostItem.APPs;
-                                      hostResult["HBAs"] = hostItem.HBAs;
-                                      hostResult["configuration"] = hostItem.configuration;
-                                      hostResult["maintenance"] = hostItem.maintenance;
-                                      hostResult["assets"] = hostItem.assets; 
-                                      ret.push(hostResult);
+ 
+                                      hostItem["Capacity"] = assignLunByHost[j].Capacity;
+                                      hostItem["NumOfLuns"] = assignLunByHost[j].NumOfLuns;    
+                                     
+                                                                                                           
                                  }
                             }
                         }
-                        callback(null,ret);
-
-
-
+                        callback(null,param);
                     })
 
                 } else 
-                callback(null,param);
+                    callback(null,param);
 
 
             }
@@ -299,7 +289,7 @@ var hostController = function (app) {
 
             item={};
             item["name"] = "主机名称"; 
-            item["value"] = returnData.baseinfo.name;
+            item["value"] = (returnData.baseinfo !== undefined) ? (returnData.baseinfo.name !== undefined ? returnData.baseinfo.name :"") : "" ;
             UI_Block1.detail.push(item);
  
             item={};
@@ -346,17 +336,17 @@ var hostController = function (app) {
 
             item={};
             item["name"] = "操作系统"; 
-            item["value"] = returnData.configuration.OS;
+            item["value"] = (returnData.configuration !== undefined) ? (returnData.configuration.OS !== undefined ? returnData.configuration.OS :"") : "" ;
             UI_Block2.detail.push(item);
 
             item={};
             item["name"] = "操作系统版本"; 
-            item["value"] = returnData.configuration.OSVersion;
+            item["value"] = (returnData.configuration !== undefined) ? (returnData.configuration.OSVersion !== undefined ? returnData.configuration.OSVersion :"") : "" ;
             UI_Block2.detail.push(item);
 
             item={};
             item["name"] = "内存(GB)"; 
-            item["value"] = returnData.configuration.memory;
+            item["value"] = (returnData.configuration !== undefined) ? (returnData.configuration.memory !== undefined ? returnData.configuration.memory :"") : "" ;
             UI_Block2.detail.push(item);
 
 
@@ -368,23 +358,23 @@ var hostController = function (app) {
 
             item={};
             item["name"] = "资产编号"; 
-            item["value"] = returnData.assets.no;
+            item["value"] = ( returnData.assets !== undefined) ? ( returnData.assets.no !== undefined ? returnData.assets.no :"") : "" ;
             UI_Block3.detail.push(item);
 
 
             item={};
             item["name"] = "用途"; 
-            item["value"] = returnData.assets.purpose;
+            item["value"] =  ( returnData.assets !== undefined) ? ( returnData.assets.purpose !== undefined ? returnData.assets.purpose :"") : "" ; ;
             UI_Block3.detail.push(item);
 
 
             item={};
             item["name"] = "所属部门"; 
-            item["value"] = returnData.assets.department;
+            item["value"] = ( returnData.assets !== undefined) ? ( returnData.assets.department !== undefined ? returnData.assets.department :"") : "" ;
             UI_Block3.detail.push(item);
             item={};
             item["name"] = "资产管理员"; 
-            item["value"] = returnData.assets.manager;
+            item["value"] = ( returnData.assets !== undefined) ? ( returnData.assets.manager !== undefined ? returnData.assets.manager :"") : "" ;
             UI_Block3.detail.push(item);
 
 
@@ -396,22 +386,22 @@ var hostController = function (app) {
 
             item={};
             item["name"] = "维保厂商"; 
-            item["value"] = returnData.maintenance.vendor;
+            item["value"] = ( returnData.maintenance !== undefined) ? ( returnData.maintenance.vendor !== undefined ? returnData.maintenance.vendor :"") : "" ;
             UI_Block4.detail.push(item);
 
             item={};
             item["name"] = "运维部门"; 
-            item["value"] = returnData.maintenance.maintenance_department;
+            item["value"] = ( returnData.maintenance !== undefined) ? ( returnData.maintenance.maintenance_department !== undefined ? returnData.maintenance.maintenance_department :"") : "";
             UI_Block4.detail.push(item);
 
             item={};
             item["name"] = "维保联系人"; 
-            item["value"] = returnData.maintenance.maintenance_owner;
+            item["value"] = ( returnData.maintenance !== undefined) ? ( returnData.maintenance.maintenance_owner !== undefined ? returnData.maintenance.maintenance_owner :"") : "";
             UI_Block4.detail.push(item);
 
             item={};
             item["name"] = "联系方式"; 
-            item["value"] = returnData.maintenance.contact;
+            item["value"] = ( returnData.maintenance !== undefined) ? ( returnData.maintenance.contact !== undefined ? returnData.maintenance.contact :"") : "";
             UI_Block4.detail.push(item);
 
 

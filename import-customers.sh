@@ -1,5 +1,5 @@
 
-dbserver=csmpserver
+dbserver=csmpdbserver
 basepath=../CustomerData
 customerdata=${basepath}/$1
  

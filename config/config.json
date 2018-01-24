@@ -21,12 +21,12 @@
     "SERVER": {
         "PORT": 8080
     },
-    "ProductType": "Dev", 
+    "ProductType": "Prod", 
     "ProductTypeDesc": ["Prod","Dev","Test"],  
-    "SRMDevLastDT": "2018-01-10T14:00:00+08:00",
+    "SRMDevLastDT": "2018-01-22T14:00:00+08:00",
     "SMS" : {
         "ServiceIP" : "10.188.80.33",
         "ServicePort" : 6821 ,
-	"FlashPhoneInterval": 8640000
+	    "FlashPhoneInterval": 8640000
     }
 }

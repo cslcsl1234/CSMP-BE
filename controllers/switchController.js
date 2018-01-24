@@ -451,8 +451,6 @@ function GetSwitchInfo(callback) {
  
         var fabwwn = req.query.fabwwn;
 
- 
-
         async.waterfall(
         [
     
@@ -522,7 +520,12 @@ function GetSwitchInfo(callback) {
             },
             function(zoneResult, callback){
                 var fields = 'part,psname,device,lsname';
-                var filter = 'pswwn=\''+fabwwn+'\'&parttype==\'Fabric\'|parttype==\'VSAN\'';
+                if ( fabwwn !== undefined )
+                    var filter = 'pswwn=\''+fabwwn+'\'&parttype==\'Fabric\'|parttype==\'VSAN\'';
+                else 
+                    var filter = 'parttype==\'Fabric\'|parttype==\'VSAN\'';
+                
+                
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
                         .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                         .headers({'Content-Type': 'multipart/form-data'}) 
@@ -530,7 +533,7 @@ function GetSwitchInfo(callback) {
                         .end(function (response) {
 
                             var resultJson = JSON.parse(response.body).values; 
-                            //callback(null,resultJson[0].psname);
+ 
                             for ( var i in zoneResult ) {
                                 var item = zoneResult[i];
                                 item["fabricname"] = resultJson[0].psname;
@@ -550,10 +553,6 @@ function GetSwitchInfo(callback) {
                                 }
 
                             }
-
-
-                            
-
 
                             callback(null,zoneResult);
                         });
@@ -589,8 +588,6 @@ function GetSwitchInfo(callback) {
 
                             }
                         }
-
-
                     }
                     callback(null,arg1);
                 });                 
@@ -599,8 +596,6 @@ function GetSwitchInfo(callback) {
               // result now equals 'done'
               res.json(200, result);
         });
-
-
          
     });
 
@@ -610,8 +605,7 @@ function GetSwitchInfo(callback) {
 *  Create a Switch record 
 */
     app.post('/api/switch', function (req, res) {
-        console.log(req.body);
-
+ 
         var reqBody = req.body;
 
         SwitchObj.findOne({"basicInfo.device" : reqBody.basicInfo.device}, function (err, doc) {
@@ -826,7 +820,10 @@ function GetSwitchInfo(callback) {
 
 
     app.get('/api/switch/ports', function (req, res) {
-        var device;
+
+        var device = req.query.device;
+        var isPortStatics = req.query.isPortStatics;
+
         async.waterfall([
             function(callback){ 
 
@@ -834,6 +831,46 @@ function GetSwitchInfo(callback) {
                 callback(null,result);
             }); 
         }, 
+        function(arg1, callback){ 
+
+            if ( isPortStatics === undefined ) 
+                callback(null,arg1);
+            else if ( isPortStatics != 'true' ) 
+                callback(null,arg1);
+            else {
+                                 
+                SWITCH.GetSwitchPortsStatics(device, function(result) {  
+
+                        for ( var i in arg1 ) {
+                            var portItem = arg1[i];  
+
+                            for ( var j in result ) {
+                                var item = result[j];
+                                if ( item.device == portItem.device && item.partwwn == portItem.partwwn ) {
+                                    for ( var key in item ) {
+
+                                        switch ( key ) {
+                                            case 'device' :
+                                            case 'name' :
+                                            case 'partwwn' :
+                                            case 'porttype' :
+                                                break;
+                                            default : 
+                                                portItem[key] = item[key];
+                                                break;
+                                        }
+
+                                    }
+                                }
+                            }
+
+                        }            
+                        callback(null,arg1);
+                });
+            }
+ 
+            
+        },
         function(arg1, callback){ 
             var host;
             HOST.GetHBAFlatRecord(host, function(hosts) {
@@ -1091,7 +1128,6 @@ function GetSwitchInfo(callback) {
          async.waterfall(
         [
             function(callback){
-                
                 var wwnlist1 ;       
                 SWITCH.getAlias(wwnlist1,function(result) {
 
@@ -1119,8 +1155,6 @@ function GetSwitchInfo(callback) {
                     }
                     callback(null,wwnlist);
                 });
-
-
             },
             // Get All Localtion Records
             function(wwnlist,  callback){ 
