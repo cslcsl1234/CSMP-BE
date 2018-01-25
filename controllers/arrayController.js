@@ -3103,6 +3103,7 @@ console.log("RULE17="+rule17);
             } else {
                 param['filter'] = 'source=\'VMAX-Collector\'&parttype=\'Disk\'';
             } 
+            param['valuetype'] = 'MAX';
 
             CallGet.CallGet(param, function(param) {
                 
@@ -3320,7 +3321,7 @@ console.log("RULE17="+rule17);
                 var keys = ['device,part'];
 
                 //var queryString =  {"filter":filter,"fields":fields}; 
-                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
+                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '3600', type: 'max'}; 
 
                 console.log(queryString);
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
@@ -3343,8 +3344,8 @@ console.log("RULE17="+rule17);
                                     resultItem["component"] = item.properties.part.split(":")[0] + " " + item.properties.partid;
                                     //resultItem["displayName"] = item.properties.part.split(" ")[1];
                                     //resultItem["displayName"] = item.properties.part;
-                                    //resultItem["TipsDisplayName"] = item.properties.part;
-                                    resultItem["busy"] = Math.round(util.GetMaxValue(matrics));;
+                                    //resultItem["TipsDisplayName"] = item.properties.part; 
+                                    resultItem["busy"] = Math.round(util.GetMaxValue(matrics)); 
                                     resultItem["cacheBusy"] = 0;
                                     resultItem["iops"] = null;
                                     resultItem["utilization"] = null;
@@ -5275,11 +5276,22 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
 
                                 for ( var j in hostresult ) {
                                     var hostItem = hostresult[j];
-                                    if ( hostItem.baseinfo.service_ip.indexOf(ip) >=0 || 
-                                         hostItem.baseinfo.management_ip.indexOf(ip) >= 0 
-                                        ) {
-                                        item["host"] = hostItem;
-                                        item["hostname"] = hostItem.baseinfo.name;
+
+                                    if ( hostItem.baseinfo !== undefined ) {
+                                        if ( hostItem.baseinfo.service_ip !== undefined ) {
+                                            if ( hostItem.baseinfo.service_ip.indexOf(ip) >= 0 ) {
+                                                item["host"] = hostItem;
+                                                item["hostname"] = hostItem.baseinfo.name;                                                
+                                            }
+                                        }
+
+                                        if ( hostItem.baseinfo.management_ip !== undefined ) {
+                                            if ( hostItem.baseinfo.management_ip.indexOf(ip) >= 0 ) {
+                                                item["host"] = hostItem;
+                                                item["hostname"] = hostItem.baseinfo.name;                                                
+                                            }
+                                        }
+                                        
                                     }
 
                                 }
