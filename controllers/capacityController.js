@@ -6,22 +6,22 @@
  * This is AOP.
  * @param app
  */
-const debug = require('debug')('capacityController')  
-const name = 'my-app'  
+const debug = require('debug')('capacityController')
+const name = 'my-app'
 var unirest = require('unirest');
 var configger = require('../config/configger');
 var unirest1 = require('unirest');
-var async = require('async'); 
+var async = require('async');
 
 var mongoose = require('mongoose');
 var ArrayObj = mongoose.model('Array');
- 
-var CallGet = require('../lib/CallGet');  
+
+var CallGet = require('../lib/CallGet');
 var getTopos = require('../lib/topos.js');
 var CAPACITY = require('../lib/Array_Capacity');
 
 
-var GetEvents = require('../lib/GetEvents'); 
+var GetEvents = require('../lib/GetEvents');
 
 // ----------------------------------------
 // ------------ For Demo Data -------------
@@ -38,121 +38,121 @@ var capacityController = function (app) {
 
     var config = configger.load();
 
-    app.all('*', function(req, res, next) {
+    app.all('*', function (req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,Keep-Alive,X-Requested-With,If-Modified-Since");
-        res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+        res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
         res.header('Access-Control-Expose-Headers', '*');
 
-        debug('req.method = %s', req.method);     
-        debug('req.url = %s', req.url); 
+        debug('req.method = %s', req.method);
+        debug('req.url = %s', req.url);
 
-        if(req.method=="OPTIONS") res.send(200);  /*让options请求快速返回*/
-        else  next();
+        if (req.method == "OPTIONS") res.send(200); /*让options请求快速返回*/
+        else next();
     });
 
     app.get('/api/capacity/distributemap', function (req, res) {
 
         async.waterfall([
-                function(callback){ 
-                    var periodType;
-                    CAPACITY.GetArrayTotalCapacity(periodType, function(ret) { 
-                        callback(null,ret.Total);
-                    })     
-                }, 
-                function(arg1,  callback){  
-                    var res = CAPACITY.CombineCapacity(arg1);
-                    callback(null,res);
-                },
-                function(arg1,  callback){ 
-                      callback(null,arg1);
-                }
-            ], function (err, ret) {
-              // result now equals 'done'
-              res.json(200,ret);
+            function (callback) {
+                var periodType;
+                CAPACITY.GetArrayTotalCapacity(periodType, function (ret) {
+                    callback(null, ret.Total);
+                })
+            },
+            function (arg1, callback) {
+                var res = CAPACITY.CombineCapacity(arg1);
+                callback(null, res);
+            },
+            function (arg1, callback) {
+                callback(null, arg1);
+            }
+        ], function (err, ret) {
+            // result now equals 'done'
+            res.json(200, ret);
         });
     });
 
-     app.get('/api/capacity/distributemapByArray', function (req, res) {
+    app.get('/api/capacity/distributemapByArray', function (req, res) {
 
-         async.waterfall([
- 
-            function(callback){ 
+        async.waterfall([
+
+            function (callback) {
                 var periodType = '';
-                getPeriodCapacity(periodType,function(rss) {
-                     callback(null,rss);
+                getPeriodCapacity(periodType, function (rss) {
+                    callback(null, rss);
                 });
-            }, 
-            function(arg1,  callback){  
+            },
+            function (arg1, callback) {
 
                 var periodType = 'lastyear';
-                getPeriodCapacity(periodType,function(lastyear_res) {
-                    for ( var i in arg1 ) {
+                getPeriodCapacity(periodType, function (lastyear_res) {
+                    for (var i in arg1) {
                         var item = arg1[i];
 
-                        for ( var j in lastyear_res ) {
+                        for (var j in lastyear_res) {
                             var lyItem = lastyear_res[j];
-                            if ( item.device == lyItem.device ) {
+                            if (item.device == lyItem.device) {
                                 item["YearOnYearGrowthRate"] = (lyItem.Allocated > 0 ? ((item.Allocated - lyItem.Allocated) / lyItem.Allocated) * 100 : 0);
                                 break;
                             }
                         }
                     }
 
-                     callback(null,arg1);
+                    callback(null, arg1);
                 });
 
-             } , 
-            function(arg1,  callback){  
+            },
+            function (arg1, callback) {
 
                 var periodType = 'lastmonth';
-                getPeriodCapacity(periodType,function(lastmonth_res) {
-                    for ( var i in arg1 ) {
+                getPeriodCapacity(periodType, function (lastmonth_res) {
+                    for (var i in arg1) {
                         var item = arg1[i];
 
-                        for ( var j in lastmonth_res ) {
+                        for (var j in lastmonth_res) {
                             var lyItem = lastmonth_res[j];
-                            if ( item.device == lyItem.device ) {
+                            if (item.device == lyItem.device) {
                                 item["MonthOnMonthGrowthRate"] = (lyItem.Allocated > 0 ? ((item.Allocated - lyItem.Allocated) / lyItem.Allocated) * 100 : 0);
                                 break;
                             }
                         }
                     }
 
-                     callback(null,arg1);
+                    callback(null, arg1);
                 });
 
-             } 
+            }
         ], function (err, ret) {
-              // result now equals 'done'
-              res.json(200,ret);
+            // result now equals 'done'
+            res.json(200, ret);
         });
 
 
-   });
+    });
 
-     var getPeriodCapacity = function(periodtype, callback) {
-         async.waterfall([
- 
-            function(callback){  
-                CAPACITY.GetArrayTotalCapacity(periodtype, function(ret) { 
-                    callback(null,ret.Detail);
-                })     
-            }, 
-            function(arg1,  callback){  
+    var getPeriodCapacity = function (periodtype, callback) {
+        async.waterfall([
+
+            function (callback) {
+                CAPACITY.GetArrayTotalCapacity(periodtype, function (ret) {
+                    callback(null, ret.Detail);
+                })
+            },
+            function (arg1, callback) {
 
                 var result = [];
-                for ( var i in arg1 ) {
+                for (var i in arg1) {
                     var item = arg1[i];
                     var res = CAPACITY.CombineCapacity(item);
                     result.push(res);
                 }
-                callback(null,result ); 
-             },
-            function(arg1,  callback){ 
+                callback(null, result);
+            },
+            function (arg1, callback) {
 
                 var finalResult = [];
-                for ( var i in arg1 ) {
+                for (var i in arg1) {
                     var item = arg1[i];
 
                     var resItem = {};
@@ -162,51 +162,51 @@ var capacityController = function (app) {
                     resItem["PoolFree"] = item.RawCapacity.ConfiguredRawCapacityGB.ConfiguredUsable.AllocateUsable.BlockPoolFree;
                     resItem["NASPoolFree"] = item.RawCapacity.ConfiguredRawCapacityGB.ConfiguredUsable.AllocateUsable.NASPoolFree;
                     resItem["ConfiguredUsableFree"] = item.RawCapacity.ConfiguredRawCapacityGB.ConfiguredUsable.AllocateUsable.ConfiguredUsableFree;
-                    
+
                     finalResult.push(resItem);
                 }
-                callback(null,finalResult);
+                callback(null, finalResult);
             }
         ], function (err, ret) {
-              // result now equals 'done'
-              callback(ret);
+            // result now equals 'done'
+            callback(ret);
         });
 
-     };
- 
-     app.get('/api/capacity/overview', function (req, res) {
-                res.json(200,Capacity_Overview);
+    };
 
-   });
+    app.get('/api/capacity/overview', function (req, res) {
+        res.json(200, Capacity_Overview);
+
+    });
     app.get('/api/capacity/PoolOverview', function (req, res) {
-                res.json(200,Capacity_PoolOverview);
-   });
+        res.json(200, Capacity_PoolOverview);
+    });
     app.get('/api/capacity/PoolDetail', function (req, res) {
-                res.json(200,Capacity_PoolDetail);
-   });
+        res.json(200, Capacity_PoolDetail);
+    });
     app.get('/api/capacity/PoolComponentDetail', function (req, res) {
-                res.json(200,Capacity_PoolComponentDetail);
-   });
+        res.json(200, Capacity_PoolComponentDetail);
+    });
 
 
 
-/*
-*  Array Capacity
-*/
+    /*
+     *  Array Capacity
+     */
 
 
 
     app.get('/api/capacity/overview1', function (req, res) {
- 
-        if ( config.ProductType == 'demo' ) {
-            res.json(200,Capacity_Overview);
-            return;
-        } ;
 
- 
+        if (config.ProductType == 'demo') {
+            res.json(200, Capacity_Overview);
+            return;
+        };
+
+
         async.waterfall([
-            function(callback){ 
- 
+            function (callback) {
+
 
                 var param = {};
                 param['filter'] = '!parttype';
@@ -215,133 +215,133 @@ var capacityController = function (app) {
                 param['fields'] = ['device'];
                 param['limit'] = 1000000;
 
-                CallGet.CallGet(param, function(param) { 
-                
+                CallGet.CallGet(param, function (param) {
 
-                   var data = param.result;
-                   callback(null,data);
-                } );
-     
+
+                    var data = param.result;
+                    callback(null, data);
+                });
+
             },
-            function(arg1,  callback){  
-               callback(null,arg1);
- 
+            function (arg1, callback) {
+                callback(null, arg1);
+
 
             }
         ], function (err, result) {
-           // result now equals 'done'
-           res.json(200, result);
+            // result now equals 'done'
+            res.json(200, result);
         });
 
 
- 
 
-         
+
+
     });
 
 
     app.get('/api/capacity/PoolOverview1', function (req, res) {
- 
-        if ( config.ProductType == 'demo' ) {
-                res.json(200,Capacity_PoolOverview);
-                return;
-        } ;
 
- 
+        if (config.ProductType == 'demo') {
+            res.json(200, Capacity_PoolOverview);
+            return;
+        };
+
+
         async.waterfall([
-            function(callback){ 
- 
+            function (callback) {
 
-                callback(null,"neet to do");
-     
+
+                callback(null, "neet to do");
+
             },
-            function(arg1,  callback){  
-               callback(null,arg1);
- 
+            function (arg1, callback) {
+                callback(null, arg1);
+
 
             }
         ], function (err, result) {
-           // result now equals 'done'
-           res.json(200, result);
+            // result now equals 'done'
+            res.json(200, result);
         });
 
 
- 
 
-         
+
+
     });
 
 
 
 
     app.get('/api/capacity/PoolDetail1', function (req, res) {
- 
-        if ( config.ProductType == 'demo' ) {
-                res.json(200,Capacity_PoolDetail);
-                return;
-        } ;
 
- 
+        if (config.ProductType == 'demo') {
+            res.json(200, Capacity_PoolDetail);
+            return;
+        };
+
+
 
         async.waterfall([
-            function(callback){ 
+            function (callback) {
 
-            var param = {};
-            param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\')';
-            param['keys'] = ['device','part'];
-            param['fields'] = ['diskrpm','isfast','raidtype','pooltype'];
+                var param = {};
+                param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\')';
+                param['keys'] = ['device', 'part'];
+                param['fields'] = ['diskrpm', 'isfast', 'raidtype', 'pooltype'];
 
-            param['filter'] = 'parttype=\'Storage Pool\'';
+                param['filter'] = 'parttype=\'Storage Pool\'';
 
 
-            CallGet.CallGet(param, function(param) {
-                   var data = param.result;
-                   callback(null,data);
-                } );
-     
+                CallGet.CallGet(param, function (param) {
+                    var data = param.result;
+                    callback(null, data);
+                });
+
             },
-            function(arg1,  callback){  
-               callback(null,arg1);
- 
+            function (arg1, callback) {
+                callback(null, arg1);
+
 
             }
         ], function (err, result) {
-           // result now equals 'done'
-           res.json(200, result);
+            // result now equals 'done'
+            res.json(200, result);
         });
 
 
- 
 
-         
+
+
     });
 
 
     app.get('/api/capacity/PoolComponentDetail1', function (req, res) {
- 
-        if ( config.ProductType == 'demo' ) {
-                res.json(200,Capacity_PoolComponentDetail);
-                return;
-        } ;
 
- 
+        if (config.ProductType == 'demo') {
+            res.json(200, Capacity_PoolComponentDetail);
+            return;
+        };
+
+
         async.waterfall([
-            function(callback){ 
- 
+            function (callback) {
 
-                callback(null,"neet to do");
-     
+
+                callback(null, "neet to do");
+
             },
-            function(arg1,  callback){  
-               callback(null,arg1);
- 
+            function (arg1, callback) {
+                callback(null, arg1);
+
 
             }
         ], function (err, result) {
-           // result now equals 'done'
-           res.json(200, result);
+            // result now equals 'done'
+            res.json(200, result);
         });
-         
+
     });
 
 

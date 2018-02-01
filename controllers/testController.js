@@ -55,56 +55,157 @@ var testController = function (app) {
     });
 
 
+    function GetAssignedInitiatorByDevices(device, callback) { 
 
-    app.get('/api/test1', function (req, res) {
         async.waterfall([
             function(callback){ 
-    
-                var param = {};
-                if (typeof device !== 'undefined') {  
-                    param['filter'] = 'device=\''+device+'\'&!vstatus==\'inactive\'&parttype=\'Port\'&!iftype=\'Ethernet\'&!discrim=\'FCoE\'';
-                } else {
-                    param['filter'] = '!vstatus==\'inactive\'&parttype=\'Port\'&!iftype=\'Ethernet\'&!discrim=\'FCoE\'';
-                }
-     
-                param['keys'] = ['device','partwwn']; 
-                param['fields'] = ['partid','part','porttype','partwwn','ifname','portwwn','maxspeed','partstat','partphys','gbicstat','lswwn','ip','lsname'];
-    
-                CallGet.CallGet(param, function(param) { 
-                var result = [];
-         
-                callback(null, param.result ); 
-                });
-            },
-            function(arg1,  callback){ 
-    
-                var param = {};
-                if (typeof device !== 'undefined') {  
-                    param['filter'] = 'device=\''+device+'\'&!vstatus==\'inactive\'&datagrp=\'BROCADE_SWITCHFCPORTSTATS\'';
-                } else {
-                    param['filter'] = '!vstatus==\'inactive\'&datagrp=\'BROCADE_SWITCHFCPORTSTATS\'';
-                }
-    
-                //param['filter_name'] = '(name=\'InFramesEncodingErrors\'|name=\'InCrcs\'|name=\'OutFramesEncodingErrors\'|name=\'C3Discards\'|name=\'LinkFailures\')';
-                param['filter_name'] = '(name=\'InFramesEncodingErrors\')';
-                param['keys'] = ['device','partwwn'];
-                //param['fields'] = ['partid','slotnum','part','porttype','partwwn','ifname','portwwn','maxspeed','partstat','partphys','gbicstat'];
-                param['fields'] = ['porttype'];
-                param['period'] = 3600;   
-                param['start'] = util.getConfStartTime('1d');  
-    
-    
-                CallGet.CallGet(param, function(param) { 
-                    var result = param.result ;
 
-                    callback(null,arg1);     
-                });
-    
+                var queryString = "PREFIX  srm: <http://ontologies.emc.com/2013/08/srm#>  ";
+                queryString = queryString + "     PREFIX  filter:<http://ontologies.emc.com/2015/mnr/topology#>   ";
+                queryString = queryString + "     PREFIX  rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>   ";
+
+                queryString = queryString + "     SELECT distinct  ?arraySN ?deviceName ?deviceWWN ?MaskingView  ";
+                queryString = queryString + "     WHERE {    ";
+                queryString = queryString + "       ?arrayEntity rdf:type srm:StorageEntity .     ";
+                queryString = queryString + "       ?arrayEntity srm:serialNumber ?arraySN .    ";
+                queryString = queryString + "       ?arrayEntity srm:containsStorageVolume ?device .    ";
+                queryString = queryString + "       ?device srm:displayName ?deviceName .   ";
+                queryString = queryString + "       ?device srm:volumeWWN ?deviceWWN .    ";
+                queryString = queryString + "       ?device srm:maskedTo ?MaskingView .   "; 
+                if ( device !== undefined )
+                    queryString = queryString + "     FILTER  (?arraySN = '" + device + "' ) .  ";      
+                queryString = queryString + "     }  ";
+
+                topos.querySparql(queryString,  function (response) { 
+                    for ( var i in response ) {
+                        var item = response[i]; 
+                        item["MaskingView"] = item.MaskingView.replace("topo:srm.MaskingView:"+item.arraySN+":",""); 
+                    }
+                    var result = {};
+                    result["devices"] = response;
+                    callback(null,result);
+                }); 
+            }, 
+            function(arg1,  callback){   
+                var queryString = "PREFIX  srm: <http://ontologies.emc.com/2013/08/srm#>  ";
+                queryString = queryString + "     PREFIX  filter:<http://ontologies.emc.com/2015/mnr/topology#>   ";
+                queryString = queryString + "     PREFIX  rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>   ";
+
+                queryString = queryString + "     SELECT distinct  ?arraySN ?MaskingView ?initEndPoint ";
+                queryString = queryString + "     WHERE {    ";
+                queryString = queryString + "       ?arrayEntity rdf:type srm:StorageEntity .     ";
+                queryString = queryString + "       ?arrayEntity srm:serialNumber ?arraySN .    ";
+                queryString = queryString + "       ?arrayEntity srm:containsStorageVolume ?device .    "; 
+                queryString = queryString + "       ?device srm:maskedTo ?MaskingView .   ";  
+                queryString = queryString + "       ?MaskingView srm:maskedToInitiator ?initEndPoint .    "; 
+                
+                if ( device !== undefined )
+                    queryString = queryString + "     FILTER  (?arraySN = '" + device + "' ) .  ";      
+                queryString = queryString + "     }  ";
+
+                var maskingviews = {};
+                topos.querySparql(queryString,  function (response) { 
+                    for ( var i in response ) {
+                        var item = response[i]; 
+                        item["MaskingView"] = item.MaskingView.replace("topo:srm.MaskingView:"+item.arraySN+":",""); 
+                        item["initEndPoint"] = item.initEndPoint.replace("topo:srm.ProtocolEndpoint:","");
+                       if ( maskingviews[item.MaskingView] !== undefined ) {
+                            maskingviews[item.MaskingView]["initEndPoint"].push(item.initEndPoint);
+                        } else {
+                            maskingviews[item.MaskingView] = {}
+                            maskingviews[item.MaskingView]["arraySN"] = item.arraySN;
+                            maskingviews[item.MaskingView]["initEndPoint"] = [];
+                            maskingviews[item.MaskingView]["initEndPoint"].push(item.initEndPoint);
+                        };
+                    } 
+ 
+
+
+                    arg1["maskingview"] = maskingviews;
+                    callback(null,arg1);
+                });                 
+            }, 
+            function(arg1,  callback){   
+                var queryString = "PREFIX  srm: <http://ontologies.emc.com/2013/08/srm#>  ";
+                queryString = queryString + "     PREFIX  filter:<http://ontologies.emc.com/2015/mnr/topology#>   ";
+                queryString = queryString + "     PREFIX  rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>   ";
+
+                queryString = queryString + "     SELECT distinct  ?arraySN ?MaskingView ?FEName ";
+                queryString = queryString + "     WHERE {    ";
+                queryString = queryString + "       ?arrayEntity rdf:type srm:StorageEntity .     ";
+                queryString = queryString + "       ?arrayEntity srm:serialNumber ?arraySN .    ";
+                queryString = queryString + "       ?arrayEntity srm:containsStorageVolume ?device .    "; 
+                queryString = queryString + "       ?device srm:maskedTo ?MaskingView .   ";  
+                queryString = queryString + "       ?MaskingView srm:maskedToTarget ?FEEndPoint .    "; 
+                queryString = queryString + "       ?FEEndPoint srm:Identifier ?FEName .    "; 
+                
+                if ( device !== undefined )
+                    queryString = queryString + "     FILTER  (?arraySN = '" + device + "' ) .  ";      
+                queryString = queryString + "     }  ";
+
+                var maskingviews = arg1.maskingview;
+                topos.querySparql(queryString,  function (response) { 
+                    for ( var i in response ) {
+                        var item = response[i]; 
+                        item["MaskingView"] = item.MaskingView.replace("topo:srm.MaskingView:"+item.arraySN+":",""); 
+                        item["FEName"] = item.FEName.replace("topo:srm.StorageFrontEndPort:"+item.arraySN+":","");
+
+                        if ( maskingviews[item.MaskingView] !== undefined ) {
+                            if ( maskingviews[item.MaskingView]["FEName"] === undefined )
+                                 maskingviews[item.MaskingView]["FEName"] = [];
+                             maskingviews[item.MaskingView]["FEName"].push(item.FEName);
+                        } else {
+                            maskingviews[item.MaskingView] = {}
+                            maskingviews[item.MaskingView]["arraySN"] = item.arraySN;
+                            maskingviews[item.MaskingView]["FEName"] = [];
+                            maskingviews[item.MaskingView]["FEName"].push(item.FEName);
+                        };
+
+                    } 
+                    
+                    callback(null,arg1);
+                });                 
             }
-        ], function (err, result) {
-            res.json(200 , result);
+        ], function (err, result) { 
+
+           callback( result ); 
         });
-    
+ 
+}
+
+
+    app.get('/api/test1', function (req, res) {
+
+        var device;
+ 
+
+        var queryString = "PREFIX  srm: <http://ontologies.emc.com/2013/08/srm#>  ";
+        queryString = queryString + "     PREFIX  filter:<http://ontologies.emc.com/2015/mnr/topology#>   ";
+        queryString = queryString + "     PREFIX  rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>   ";
+
+        queryString = queryString + "     SELECT distinct  ?arraySN ?deviceName ?deviceWWN ?MaskingView  ?initEndPoint  ?FEName ";
+        queryString = queryString + "     WHERE {    ";
+        queryString = queryString + "       ?arrayEntity rdf:type srm:StorageEntity .     ";
+        queryString = queryString + "       ?arrayEntity srm:serialNumber ?arraySN .    ";
+        queryString = queryString + "       ?arrayEntity srm:containsStorageVolume ?device .    ";
+        queryString = queryString + "       ?device srm:displayName ?deviceName .   ";
+        queryString = queryString + "       ?device srm:volumeWWN ?deviceWWN .    ";
+        queryString = queryString + "       ?device srm:maskedTo ?MaskingView .   ";
+        queryString = queryString + "       ?MaskingView srm:maskedToInitiator ?initEndPoint .    "; 
+        queryString = queryString + "       ?MaskingView srm:maskedToTarget ?FEEndPoint .    "; 
+        queryString = queryString + "       ?FEEndPoint srm:Identifier ?FEName .    "; 
+         if ( device !== undefined )
+            queryString = queryString + "     FILTER  (?arraySN = '" + device + "' ) .  ";      
+        queryString = queryString + "     }  ";
+
+        topos.querySparql(queryString,  function (response) {
+                        //var resultRecord = RecordFlat(response.body, keys);
+            for ( var i in response ) {
+                var item = response[i]; 
+                item["MaskingView"] = item.MaskingView.replace("topo:srm.MaskingView:"+item.arraySN+":",""); 
+           }
+           res.json(200 , response);
+        }); 
 
      });                       
 
@@ -121,12 +222,18 @@ var testController = function (app) {
  
         //console.log(eventParam);
         //GetEvents.GetEvents(eventParam, function(result1) {   
- 
-            Host.GetHosts( device, function(retcode, result) {  
-                console.log(result.length);
-                 res.json(200 , result);
+            
+            /*
+            //GetAssignedInitiatorByDevices1(device,function(result) {
+            VMAX.GetDevices(device,function(result) {
+                res.json(200 , result);
             });
+            */
 
+            VPLEX.getVplexVirtualVolume(device, function(ret) {  
+                res.json(200 , ret);
+            });
+            
     });
 
     app.get('/api/test2', function (req, res) {

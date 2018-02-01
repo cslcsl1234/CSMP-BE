@@ -195,8 +195,8 @@ function vplexinfo(device, callback) {
                             if ( deviceItem.device == item.ProviderByDevice && deviceItem.part == item.ProviderFromObject ) {
                                 //console.log(deviceItem.device +'|' + item.ProviderByDevice +'|' + deviceItem.part +'|' +item.ProviderFromObject);
                                 item['disktype'] = deviceItem.disktype; 
-                                item['PyhsicalCapacity'] = deviceItem.Capacity; 
-                                item['PyhsicalUsedCapacity'] = deviceItem.UsedCapacity; 
+                                item['PyhsicalCapacity'] = parseFloat(deviceItem.Capacity); 
+                                item['PyhsicalUsedCapacity'] = parseFloat(deviceItem.UsedCapacity); 
                                 break;
                             }
 
