@@ -36,6 +36,8 @@ var CallGet = require('../lib/CallGet');
 var util = require('../lib/util');   
 var topos= require('../lib/topos');
 var DeviceMgmt = require('../lib/DeviceManagement');
+var Report = require('../lib/Reporting');
+
 
 var testController = function (app) {
 
@@ -230,10 +232,14 @@ var testController = function (app) {
             });
             */
 
-            VPLEX.getVplexVirtualVolume(device, function(ret) {  
+           //Report.GetArraysIncludeHisotry(device, function(ret) {  
+           // VNX.GetArraysHistory(device,function(ret) {
+            Report.E2ETopology(device, function(ret) {  
+            //Switch.getZone(device, function(ret) {
                 res.json(200 , ret);
             });
             
+
     });
 
     app.get('/api/test2', function (req, res) {
