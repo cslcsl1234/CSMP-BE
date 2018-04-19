@@ -16,8 +16,9 @@
         "SERIES_LIMITS": "500000",
         "SERIES_PERIOD": 0, 
         "METRICS_PROPERTIES_VALUE": "/metrics/properties/values",
-        "METRICS_SERIES_VALUE": "/metrics/series/values"
-    },
+        "METRICS_SERIES_VALUE": "/metrics/series/values",
+        "BASE_FILTER": "!vstatus==\\'inactive\\'"
+     },
     "SERVER": {
         "PORT": 8080
     },

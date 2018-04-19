@@ -201,7 +201,7 @@ var testController = function (app) {
         queryString = queryString + "     }  ";
 
         topos.querySparql(queryString,  function (response) {
-                        //var resultRecord = RecordFlat(response.body, keys);
+                        //var resultRecord = RecordFlat(response.raw_body, keys);
             for ( var i in response ) {
                 var item = response[i]; 
                 item["MaskingView"] = item.MaskingView.replace("topo:srm.MaskingView:"+item.arraySN+":",""); 
@@ -231,13 +231,15 @@ var testController = function (app) {
                 res.json(200 , result);
             });
             */
-
+            Report.GetStoragePorts(function(ret) {
            //Report.GetArraysIncludeHisotry(device, function(ret) {  
            // VNX.GetArraysHistory(device,function(ret) {
-            Report.E2ETopology(device, function(ret) {  
+            //VNX.GetMaskViews(function(ret) {
+           //Report.E2ETopology(device, function(ret) {  
             //Switch.getZone(device, function(ret) {
                 res.json(200 , ret);
             });
+            
             
 
     });
@@ -272,7 +274,7 @@ var testController = function (app) {
 
 
                   topos.querySparql(queryString,  function (response) {
-                                  //var resultRecord = RecordFlat(response.body, keys);
+                                  //var resultRecord = RecordFlat(response.raw_body, keys);
                                     
                       arg1["lun"] = response;
                       res.json(200 , arg1);

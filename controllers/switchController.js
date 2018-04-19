@@ -120,8 +120,8 @@ var switchController = function (app) {
                         .query({'fields': fields , 'filter':  filter }) 
                         .end(function (response) {
 
-                            //console.log(response.body);
-                            var resultJson = JSON.parse(response.body).values; 
+                            //console.log(response.raw_body);
+                            var resultJson = JSON.parse(response.raw_body).values; 
                             for ( var i in param.result ) {
                                 var swItem = param.result[i];
                                 //console.log(swItem);
@@ -388,8 +388,8 @@ function GetSwitchInfo(callback) {
                 .query({'fields': fields , 'filter':  filter }) 
                 .end(function (response) {
 
-                    //console.log(response.body);
-                    var resultJson = JSON.parse(response.body).values; 
+                    //console.log(response.raw_body);
+                    var resultJson = JSON.parse(response.raw_body).values; 
 
                     for ( var i in resultJson ) {
                         var item = resultJson[i];

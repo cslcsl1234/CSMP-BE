@@ -16,7 +16,8 @@
     "officegen": "*",
     "snmpjs": "*",
     "winston": "*",
-    "moment": "*"
+    "moment": "*",
+    "json2xls": "^0.1.2"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

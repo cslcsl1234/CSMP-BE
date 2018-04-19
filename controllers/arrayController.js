@@ -3069,7 +3069,7 @@ console.log("RULE17="+rule17);
                         console.log(response.error);
                         return response.error;
                     } else {  
-                        var result = JSON.parse(response.body).values;    
+                        var result = JSON.parse(response.raw_body).values;    
 
                         res.json(200,result);
                     }
@@ -3239,7 +3239,7 @@ console.log("RULE17="+rule17);
                                 console.log(response.error);
                                 return response.error;
                             } else {  
-                                var result = JSON.parse(response.body).values;    
+                                var result = JSON.parse(response.raw_body).values;    
 
                                 for ( var i in result ) {
                                     var item = result[i];
@@ -3288,7 +3288,7 @@ console.log("RULE17="+rule17);
                                 console.log(response.error);
                                 return response.error;
                             } else {  
-                                var result = JSON.parse(response.body).values;    
+                                var result = JSON.parse(response.raw_body).values;    
 
                                 for ( var i in result ) {
                                     var item = result[i];
@@ -3334,7 +3334,7 @@ console.log("RULE17="+rule17);
                                 return response.error;
                             } else {  
 
-                                var result = JSON.parse(response.body).values;    
+                                var result = JSON.parse(response.raw_body).values;    
 
                                 for ( var i in result ) {
                                     var item = result[i];
@@ -3693,7 +3693,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
                         console.log(response.error);
                         return response.error;
                     } else {  
-                        var result = JSON.parse(response.body).values;    
+                        var result = JSON.parse(response.raw_body).values;    
 
                         ret(200,result);
                     }
@@ -3739,7 +3739,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
                                 console.log(response.error);
                                 return response.error;
                             } else {  
-                                    var arrayCapacitys = RecordFlat.RecordFlat(response.body, keys);   
+                                    var arrayCapacitys = RecordFlat.RecordFlat(response.raw_body, keys);   
                                     var resultRecord =[];
                                     for ( var i in arrayCapacitys ) {
                                         var item = arrayCapacitys[i];

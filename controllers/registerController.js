@@ -73,8 +73,8 @@ var registerController = function (app) {
                         console.log(response.error);
                         res.json(response.error);
                     } else {
-                        console.log(response.body);
-                        var resultFinal = RecordFlat(response.body, 'serialnb'); 
+                        console.log(response.raw_body);
+                        var resultFinal = RecordFlat(response.raw_body, 'serialnb'); 
                         res.json(200, resultFinal);
 
                     }
@@ -115,8 +115,8 @@ var registerController = function (app) {
                         console.log(response.error);
                         res.json(response.error);
                     } else {
-                        //console.log(response.body);
-                        var resultFinal = RecordFlat(response.body, 'device','part'); 
+                        //console.log(response.raw_body);
+                        var resultFinal = RecordFlat(response.raw_body, 'device','part'); 
                         res.json(200, resultFinal);
 
                     }
@@ -165,7 +165,7 @@ var registerController = function (app) {
                         console.log(response.error);
                         return response.error;
                     } else {
-                        result = response.body;
+                        result = response.raw_body;
                         var aa = RecordFlat(result, 'serialnb','part');
                         res.json(200, aa);
                     }
@@ -215,7 +215,7 @@ var registerController = function (app) {
                         console.log(response.error);
                         return response.error;
                     } else {
-                        result = response.body;
+                        result = response.raw_body;
                         var aa = RecordFlat(result, 'device','part');
                         res.json(200, aa);
                     }

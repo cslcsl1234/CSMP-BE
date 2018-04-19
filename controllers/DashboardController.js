@@ -401,8 +401,8 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
                                 console.log(response.error);
                                 return response.error;
                             } else {  
-                                //console.log(response.body);   
-                                var resultRecord = response.body;
+                                //console.log(response.raw_body);   
+                                var resultRecord = response.raw_body;
                                 var r = JSON.parse(resultRecord); 
 
 
