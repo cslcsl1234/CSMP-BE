@@ -180,7 +180,6 @@ var testController = function (app) {
 
         var device;
  
-
         var queryString = "PREFIX  srm: <http://ontologies.emc.com/2013/08/srm#>  ";
         queryString = queryString + "     PREFIX  filter:<http://ontologies.emc.com/2015/mnr/topology#>   ";
         queryString = queryString + "     PREFIX  rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>   ";
@@ -225,21 +224,23 @@ var testController = function (app) {
         //console.log(eventParam);
         //GetEvents.GetEvents(eventParam, function(result1) {   
             
-            /*
-            //GetAssignedInitiatorByDevices1(device,function(result) {
-            VMAX.GetDevices(device,function(result) {
-                res.json(200 , result);
-            });
-            */
-            Report.GetStoragePorts(function(ret) {
-           //Report.GetArraysIncludeHisotry(device, function(ret) {  
-           // VNX.GetArraysHistory(device,function(ret) {
-            //VNX.GetMaskViews(function(ret) {
-           //Report.E2ETopology(device, function(ret) {  
-            //Switch.getZone(device, function(ret) {
-                res.json(200 , ret);
-            });
-            
+        /*
+        //GetAssignedInitiatorByDevices1(device,function(result) {
+        VMAX.GetDevices(device,function(result) {
+            res.json(200 , result);
+        });
+        */
+        //Report.GetStoragePorts(function(ret) {
+        //Report.GetArraysIncludeHisotry(device, function(ret) {  
+        //VNX.GetArraysHistory(device,function(ret) {
+        //VNX.GetMaskViews(function(ret) {
+        //VMAX.GetMaskViews(device, function(ret) {
+        //Report.ArrayAccessInfos(device, function(ret) {
+        Report.E2ETopology(device, function(ret) {  
+        //Switch.getZone(device, function(ret) {
+            res.json(200 , ret);
+        });
+        
             
 
     });

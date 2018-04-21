@@ -1,7 +1,7 @@
 {
     "Backend": {
         "URL" : "http://csmpcollecter:58080/APG-REST",
-        "TopoServURL" : "https://csmpcollecter:48443/Backends/Topology-Service/Default/topology/repository/sparql",
+        "TopoServURL" : "https://csmpcollecter_pb:48443/Backends/Topology-Service/Default/topology/repository/sparql",
         "USER": "admin",
         "PASSWORD": "changeme"
     },
