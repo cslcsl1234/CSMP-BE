@@ -29,6 +29,10 @@ var fs = require('fs');
 var http = require('http'); 
 
 
+
+var VMAX = require('../lib/Array_VMAX');
+
+
 var reportingController = function (app) {
 
     var config = configger.load();
@@ -510,6 +514,48 @@ var reportingController = function (app) {
     } ) ;
 
 
+    app.get('/api/reports/capacity/top20/sg', function (req, res) {
+        var beginDate = req.query.begindate; 
+        var endDate = req.query.enddate;
+        console.log("BeginDate="+beginDate+',EndDate=' + endDate);
+        VMAX.GetSGTop20ByCapacity(function(ret) {  
+
+            var finalRecord = [];
+            for ( var i in ret ) {
+                var item = ret[i];
+
+                var retItem = {};
+                retItem["device_name"] = "";
+                retItem["device_sn"] = item.device;
+                retItem["sg_name"] = item.sgname;
+                retItem["app_name"] = "";
+                retItem["sg_lun_total"] = item.SumOfLuns;
+                retItem["sg_capacity_GB"] = item.Capacity;
+                retItem["sg_capacity_last_dec_GB"] = ( item.sg_capacity_last_dec_GB === undefined ) ? 0 : item.sg_capacity_last_dec_GB ;
+
+                finalRecord.push(retItem);
+            }
+
+
+            res.json(200 ,finalRecord);
+        });
+        
+            
+
+    });
+
+
+
+
+
+
+
+
+
+
+
 };
+
+
 
 module.exports = reportingController;
