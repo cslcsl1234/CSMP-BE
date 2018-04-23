@@ -1,0 +1,20 @@
+{
+    "data":[
+        {
+            "device_group":"VMAX10K",
+            "mbps_max":986756,
+            "mbps_avg":231456,
+            "mbps_avg_last_year":178987,
+            "device_list":[
+                {
+                    "device_name":"VMAX01",
+                    "device_sn":"496604951",
+                    "mbps_max":40000,
+                    "mbps_avg":35000,
+                    "mbps_avg_last_year":31000,
+                    "mbps_avg_last_month":33000
+                }
+            ]
+        }
+    ]
+}

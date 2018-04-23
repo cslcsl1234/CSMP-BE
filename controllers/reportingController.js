@@ -31,7 +31,7 @@ var http = require('http');
 
 
 var VMAX = require('../lib/Array_VMAX');
-
+var Report = require('../lib/Reporting');
 
 var reportingController = function (app) {
 
@@ -514,6 +514,98 @@ var reportingController = function (app) {
     } ) ;
 
 
+    // CEB Report 1.1
+    app.get('/api/reports/capacity/summary', function (req, res) {
+        var beginDate = req.query.begindate; 
+        var endDate = req.query.enddate;
+        console.log("BeginDate="+beginDate+',EndDate=' + endDate);
+        var device;
+        console.log(req.header);
+        Report.GetArraysIncludeHisotry(device, function(ret) {  
+
+            var finalRecord = [];
+            
+
+
+            for ( var i in ret.data ) {
+                var item = ret.data[i];
+    
+                var isFind = false ;
+                for ( var j in finalRecord ) {
+                    var resItem = finalRecord[j];
+                    if ( resItem.type == item.type ) {
+                        resItem.quantity++;
+                        console.log(item['logical_capacity_last_year_PB']);
+                        /*
+                        resItem['logical_capacity_PB']              +=  item['logical_capacity_PB']             ;
+                        resItem['logical_capacity_last_year_PB']    +=  ( item['logical_capacity_last_year_PB'] === undefined ) ? 0 : item['logical_capacity_last_year_PB']  ;
+                        resItem['logical_capacity_last_month_PB']   +=  item['logical_capacity_last_month_PB']  ;
+                        resItem['allocated_capacity_PB']            +=  item['allocated_capacity_PB']           ;
+                        resItem['allocated_capacity_last_year_PB']  +=  (item['allocated_capacity_last_year_PB'] == null) ? 0 : item['allocated_capacity_last_year_PB']  ;
+                        resItem['allocated_capacity_last_month_PB'] +=  item['allocated_capacity_last_month_PB'];
+                        */
+                       resItem['logical_capacity_PB']              +=  item['logical_capacity_PB']             ;
+                       resItem['logical_capacity_last_year_PB']    +=  0;
+                       resItem['logical_capacity_last_month_PB']   +=  0;
+                       resItem['allocated_capacity_PB']            +=  item['allocated_capacity_PB']           ;
+                       resItem['allocated_capacity_last_year_PB']  +=  0;
+                       resItem['allocated_capacity_last_month_PB'] +=  0;
+                       isFind = true;  
+                        break;        
+                    }
+                }
+                if ( isFind == false ) {
+                    var resItem = {};
+                    resItem['type'] = item.type;
+                    resItem.quantity = 1;
+                    /*
+                    resItem['logical_capacity_PB']              =  item['logical_capacity_PB']             ;
+                    resItem['logical_capacity_last_year_PB']    =  item['logical_capacity_last_year_PB']   ;
+                    resItem['logical_capacity_last_month_PB']   =  item['logical_capacity_last_month_PB']  ;
+                    resItem['allocated_capacity_PB']            =  item['allocated_capacity_PB']           ;
+                    resItem['allocated_capacity_last_year_PB']  =  (item['allocated_capacity_last_year_PB'] == null) ? 0 : item['allocated_capacity_last_year_PB']  ;
+                    resItem['allocated_capacity_last_month_PB'] =  item['allocated_capacity_last_month_PB'];
+                    */
+                   resItem['logical_capacity_PB']              =  item['logical_capacity_PB']             ;
+                   resItem['logical_capacity_last_year_PB']    =  0   ;
+                   resItem['logical_capacity_last_month_PB']   =  0  ;
+                   resItem['allocated_capacity_PB']            =  item['allocated_capacity_PB']           ;
+                   resItem['allocated_capacity_last_year_PB']  =  0;
+                   resItem['allocated_capacity_last_month_PB'] =  ( isNaN(item['allocated_capacity_last_month_PB']) == true ) ? 100 : item['allocated_capacity_last_month_PB'] ;
+                    finalRecord.push(resItem);
+                }
+                
+                
+            }
+            for ( var i in finalRecord ) {
+                var item = finalRecord[i];
+                if ( item.type == 'High' ) item.type = '高端存储';
+                if ( item.type == 'Middle' ) item.type = '中端存储';
+            }
+
+            var ret = {};
+            ret["data"] = finalRecord;
+            res.json(200 , ret);
+
+        });
+
+    });
+
+
+    // CEB Report 1.2
+    app.get('/api/reports/capacity/details', function (req, res) {
+        var beginDate = req.query.begindate; 
+        var endDate = req.query.enddate;
+        console.log("BeginDate="+beginDate+',EndDate=' + endDate);
+        var device;
+        Report.GetArraysIncludeHisotry(device, function(ret) {  
+                res.json(200 , ret);
+            });
+
+    });
+
+
+    // CEB Report 1.3
     app.get('/api/reports/capacity/top20/sg', function (req, res) {
         var beginDate = req.query.begindate; 
         var endDate = req.query.enddate;
@@ -545,14 +637,61 @@ var reportingController = function (app) {
     });
 
 
+    // CEB Report 1.4
+    app.get('/api/reports/capacity/top20/sg', function (req, res) {
+        var beginDate = req.query.begindate; 
+        var endDate = req.query.enddate;
+        console.log("BeginDate="+beginDate+',EndDate=' + endDate);
+        VMAX.GetSGTop20ByCapacity(function(ret) {  
+
+            var finalRecord = [];
+            for ( var i in ret ) {
+                var item = ret[i];
+
+                var retItem = {};
+                retItem["device_name"] = "";
+                retItem["device_sn"] = item.device;
+                retItem["sg_name"] = item.sgname;
+                retItem["app_name"] = "";
+                retItem["sg_lun_total"] = item.SumOfLuns;
+                retItem["sg_capacity_GB"] = item.Capacity;
+                retItem["sg_capacity_last_dec_GB"] = ( item.sg_capacity_last_dec_GB === undefined ) ? 0 : item.sg_capacity_last_dec_GB ;
+
+                finalRecord.push(retItem);
+            }
 
 
+            res.json(200 ,finalRecord);
+        });
+        
+    });
 
+    app.get('/api/reports/capacity/related/', function (req, res) {
+        var ret = require("../demodata/capacityrelated");
+        res.json(200 ,ret);
+    });
+    app.get('/api/reports/performance/summary/iops/', function (req, res) {
+        var ret = require("../demodata/summary_iops");
+        res.json(200 ,ret);
+    });
+    app.get('/api/reports/performance/summary/mbps/', function (req, res) {
+        var ret = require("../demodata/summary_mbps");
+        res.json(200 ,ret);
+    });
 
+    app.get('/api/reports/performance/sg/summary/', function (req, res) {
+        var ret = require("../demodata/sg_summary");
+        res.json(200 ,ret);
+    });
+    app.get('/api/reports/performance/sg/top10/iops/', function (req, res) {
+        var ret = require("../demodata/sg_top10_iops");
+        res.json(200 ,ret);
+    });
 
-
-
-
+    app.get('/api/reports/performance/sg/top10/iops_avg_increase', function (req, res) {
+        var ret = require("../demodata/iops_avg_increase");
+        res.json(200 ,ret);
+    }); 
 
 };
 

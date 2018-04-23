@@ -1,0 +1,15 @@
+{
+    "data":[
+        {
+            "app_name":"APP01",
+            "device_name":"VMAX01",
+            "device_sn":"496604951",
+            "sg_name":"SG01",
+            "sg_lun_total":4,
+            "sg_capacity_GB":3.5,
+            "iops_limit":3.9,
+            "mbps_limits":3.9,
+            "limits":3.9
+        }
+    ]
+}

@@ -1,0 +1,26 @@
+{
+    "data":[
+        {
+            "name":"VMAX01",
+            "sn":"496604951",
+            "available_port_addr_total":40000,
+            "allocated_port_addr_total ":35000,
+            "pair":3,
+            "rdf_group":1,
+            "details":[
+                {
+                    "sg_name":"SG001",
+                    "lun":10,
+                    "capacity_GB":200,
+                    "iops_limits":8000,
+                    "iops_limits_change":20,
+                    "mbps_limits":8000,
+                    "mbps_limits_change":20,
+                    "response_time_ms":10,
+                    "response_time_increase_last_month_percent":-1,
+                    "response_time_increase_last_year_percent":-3
+                }
+            ]
+        }
+    ]
+}

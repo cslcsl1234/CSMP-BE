@@ -1,0 +1,12 @@
+{
+    "data":[
+        {
+            "app_name":"APP01",
+            "device_name":"VMAX01",
+            "device_sn":"496604951",
+            "sg_name":"SG01",
+            "iops_max":4,
+            "iops_avg":3.5
+        }
+    ]
+}

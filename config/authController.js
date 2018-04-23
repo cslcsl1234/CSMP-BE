@@ -30,7 +30,6 @@ var authController = function (app) {
      */
     app.all('/api/*', function (req, res, next) {
 
-
         //if it's login/logout API, let it go.
         if (req.method === 'POST' && req.url.indexOf('/api/log') === 0) {
             return next();
@@ -38,6 +37,7 @@ var authController = function (app) {
         var authKey = req.header('Authorization');
 
         //if request without authKey
+        
         if (!authKey) {
             res.json(403, {message: 'please provide your authKey.'});
         }
@@ -54,6 +54,7 @@ var authController = function (app) {
                 return next();
             }
         })
+       
     });
 
     /**

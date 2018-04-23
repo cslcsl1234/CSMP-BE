@@ -1,0 +1,21 @@
+      
+{
+    "data":[
+        {
+            "device_group":"VMAX10K",
+            "iops_max":986756,
+            "iops_avg":231456,
+            "iops_avg_last_year":178987,
+            "device_list":[
+                {
+                    "device_name":"VMAX01",
+                    "device_sn":"496604951",
+                    "iops_max":40000,
+                    "iops_avg":35000,
+                    "iops_avg_last_year":31000,
+                    "iops_avg_last_month":33000
+                }
+            ]
+        }
+    ]
+}
