@@ -276,7 +276,8 @@ var arrayController = function (app) {
                     item["name"] =  "Block",
                     item["value"] =  Math.round(returnData.UsedCapacityByType.BlockUsedCapacity/1024);
                     item["name2"] =  "剩余可分配";
-                    item["value2"] =  Math.round((returnData.ConfiguredUsableCapacity.PoolFreeCapacity - ( returnData.FileUsedCapacity !== undefined ? returnData.FileUsedCapacity.NASPoolFreeCapacity : 0 ))/1024);
+                    //item["value2"] =  Math.round((returnData.ConfiguredUsableCapacity.PoolFreeCapacity - ( returnData.FileUsedCapacity !== undefined ? returnData.FileUsedCapacity.NASPoolFreeCapacity : 0 ))/1024);
+                    item["value2"] =  0;
                     chartData.push(item);
 
                     item={};
@@ -293,7 +294,7 @@ var arrayController = function (app) {
                         item["value4"] = 0 ;
                     } else  {
                         item["value2"] = Math.round(returnData.UsedCapacityByType.FileUsedCapacity/1024 - returnData.NASFSCapacity.NASFSFreeCapacity/1024 - returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
-                        item["value3"] =  Math.round(returnData.NASFSCapacity.NASFSFreeCapacity/1024 +　returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
+                        item["value3"] =  Math.round(returnData.NASFSCapacity.NASFSFreeCapacity/1024);
                         item["value4"] =  Math.round(returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
 
                     }

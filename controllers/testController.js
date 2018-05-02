@@ -233,7 +233,8 @@ var testController = function (app) {
         //Report.GetStoragePorts(function(ret) {
         //Report.GetArraysIncludeHisotry(device, function(ret) {  
         
-        VMAX.GetSGTop20ByCapacity(device, function(ret) {
+        //VMAX.GetSGTop20ByCapacity(device, function(ret) {
+            Capacity.GetArrayCapacity(device, function(ret) {
         //VNX.GetArraysHistory(device,function(ret) {
         //VNX.GetMaskViews(function(ret) {
         //VMAX.GetMaskViews(device, function(ret) {

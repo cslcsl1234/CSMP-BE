@@ -519,8 +519,7 @@ var reportingController = function (app) {
         var beginDate = req.query.begindate; 
         var endDate = req.query.enddate;
         console.log("BeginDate="+beginDate+',EndDate=' + endDate);
-        var device;
-        console.log(req.header);
+        var device; 
         Report.GetArraysIncludeHisotry(device, function(ret) {  
 
             var finalRecord = [];
@@ -535,21 +534,13 @@ var reportingController = function (app) {
                     var resItem = finalRecord[j];
                     if ( resItem.type == item.type ) {
                         resItem.quantity++;
-                        console.log(item['logical_capacity_last_year_PB']);
-                        /*
-                        resItem['logical_capacity_PB']              +=  item['logical_capacity_PB']             ;
-                        resItem['logical_capacity_last_year_PB']    +=  ( item['logical_capacity_last_year_PB'] === undefined ) ? 0 : item['logical_capacity_last_year_PB']  ;
-                        resItem['logical_capacity_last_month_PB']   +=  item['logical_capacity_last_month_PB']  ;
-                        resItem['allocated_capacity_PB']            +=  item['allocated_capacity_PB']           ;
-                        resItem['allocated_capacity_last_year_PB']  +=  (item['allocated_capacity_last_year_PB'] == null) ? 0 : item['allocated_capacity_last_year_PB']  ;
-                        resItem['allocated_capacity_last_month_PB'] +=  item['allocated_capacity_last_month_PB'];
-                        */
+ 
                        resItem['logical_capacity_PB']              +=  item['logical_capacity_PB']             ;
-                       resItem['logical_capacity_last_year_PB']    +=  0;
-                       resItem['logical_capacity_last_month_PB']   +=  0;
+                       resItem['logical_capacity_last_year_PB']    +=  ( isNaN(item['logical_capacity_last_year_PB']) == true ) ? 0 : item['logical_capacity_last_year_PB'] ; 
+                       resItem['logical_capacity_last_month_PB']   +=  ( isNaN(item['logical_capacity_last_month_PB']) == true ) ? 0 : item['logical_capacity_last_month_PB'] ;
                        resItem['allocated_capacity_PB']            +=  item['allocated_capacity_PB']           ;
-                       resItem['allocated_capacity_last_year_PB']  +=  0;
-                       resItem['allocated_capacity_last_month_PB'] +=  0;
+                       resItem['allocated_capacity_last_year_PB']  +=  ( isNaN(item['allocated_capacity_last_year_PB']) == true ) ? 0 : item['allocated_capacity_last_year_PB'] ;
+                       resItem['allocated_capacity_last_month_PB'] +=   ( isNaN(item['allocated_capacity_last_month_PB']) == true ) ? 0 : item['allocated_capacity_last_month_PB'] ;
                        isFind = true;  
                         break;        
                     }
@@ -558,20 +549,14 @@ var reportingController = function (app) {
                     var resItem = {};
                     resItem['type'] = item.type;
                     resItem.quantity = 1;
-                    /*
-                    resItem['logical_capacity_PB']              =  item['logical_capacity_PB']             ;
-                    resItem['logical_capacity_last_year_PB']    =  item['logical_capacity_last_year_PB']   ;
-                    resItem['logical_capacity_last_month_PB']   =  item['logical_capacity_last_month_PB']  ;
-                    resItem['allocated_capacity_PB']            =  item['allocated_capacity_PB']           ;
-                    resItem['allocated_capacity_last_year_PB']  =  (item['allocated_capacity_last_year_PB'] == null) ? 0 : item['allocated_capacity_last_year_PB']  ;
-                    resItem['allocated_capacity_last_month_PB'] =  item['allocated_capacity_last_month_PB'];
-                    */
-                   resItem['logical_capacity_PB']              =  item['logical_capacity_PB']             ;
-                   resItem['logical_capacity_last_year_PB']    =  0   ;
-                   resItem['logical_capacity_last_month_PB']   =  0  ;
-                   resItem['allocated_capacity_PB']            =  item['allocated_capacity_PB']           ;
-                   resItem['allocated_capacity_last_year_PB']  =  0;
-                   resItem['allocated_capacity_last_month_PB'] =  ( isNaN(item['allocated_capacity_last_month_PB']) == true ) ? 100 : item['allocated_capacity_last_month_PB'] ;
+
+                    
+                   resItem['logical_capacity_PB']              =  ( isNaN(item['logical_capacity_PB']) == true ) ? 0 : item['logical_capacity_PB'] ;
+                   resItem['logical_capacity_last_year_PB']    =   ( isNaN(item['logical_capacity_last_year_PB']) == true ) ? 0 : item['logical_capacity_last_year_PB'] ;
+                   resItem['logical_capacity_last_month_PB']   =  ( isNaN(item['logical_capacity_last_month_PB']) == true ) ? 0 : item['logical_capacity_last_month_PB'] ;
+                   resItem['allocated_capacity_PB']            =   ( isNaN(item['allocated_capacity_PB']) == true ) ? 0 : item['allocated_capacity_PB'] ;
+                   resItem['allocated_capacity_last_year_PB']  =  ( isNaN(item['allocated_capacity_last_year_PB']) == true ) ? 0 : item['allocated_capacity_last_year_PB'] ;
+                   resItem['allocated_capacity_last_month_PB'] =  ( isNaN(item['allocated_capacity_last_month_PB']) == true ) ? 0 : item['allocated_capacity_last_month_PB'] ;
                     finalRecord.push(resItem);
                 }
                 
@@ -627,9 +612,10 @@ var reportingController = function (app) {
 
                 finalRecord.push(retItem);
             }
+            var newret = {};
+            newret['data'] = finalRecord;
 
-
-            res.json(200 ,finalRecord);
+            res.json(200 ,newret);
         });
         
             
@@ -638,30 +624,30 @@ var reportingController = function (app) {
 
 
     // CEB Report 1.4
-    app.get('/api/reports/capacity/top20/sg', function (req, res) {
+    app.get('/api/reports/capacity/top20/sg_increase', function (req, res) {
         var beginDate = req.query.begindate; 
-        var endDate = req.query.enddate;
-        console.log("BeginDate="+beginDate+',EndDate=' + endDate);
-        VMAX.GetSGTop20ByCapacity(function(ret) {  
-
-            var finalRecord = [];
-            for ( var i in ret ) {
+        var endDate = req.query.enddate; 
+        VMAX.GetSGTop20ByUsedCapacityIncrease(function(ret) {  
+            var retResult = [];
+            for ( var i = 0 ; i< 20 ; i++ ) {
                 var item = ret[i];
-
                 var retItem = {};
+    
                 retItem["device_name"] = "";
                 retItem["device_sn"] = item.device;
                 retItem["sg_name"] = item.sgname;
                 retItem["app_name"] = "";
                 retItem["sg_lun_total"] = item.SumOfLuns;
-                retItem["sg_capacity_GB"] = item.Capacity;
-                retItem["sg_capacity_last_dec_GB"] = ( item.sg_capacity_last_dec_GB === undefined ) ? 0 : item.sg_capacity_last_dec_GB ;
-
-                finalRecord.push(retItem);
+                retItem["sg_capacity_GB"] = item.UsedCapacity;
+                retItem["sg_capacity_last_dec_GB"] = item.UsedCapacityLastTear;
+                retItem["sg_logical_capacity_GB"] = item.Capacity;
+                retResult.push(retItem);
+    
             }
+            var newret = {};
+            newret['data'] = retResult;
 
-
-            res.json(200 ,finalRecord);
+            res.json(200 ,newret);
         });
         
     });
@@ -693,6 +679,10 @@ var reportingController = function (app) {
         res.json(200 ,ret);
     }); 
 
+    app.get('/api/reports/performance/sg/top10/iops_response_time', function (req, res) {
+        var ret = require("../demodata/report_io_response");
+        res.json(200 ,ret);
+    }); 
 };
 
 
