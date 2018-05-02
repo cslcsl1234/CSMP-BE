@@ -31,5 +31,9 @@
         "ServiceIP" : "10.188.80.33",
         "ServicePort" : 6821 ,
 	    "FlashPhoneInterval": 8640000
+    },
+    "Reporting" :{
+        "TmpDataPath": "/tmp",
+        "OutputPath" : "/csmp/reporting"
     }
 }
