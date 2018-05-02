@@ -1,0 +1,242 @@
+[
+  {
+    "storagesn": "000192606650",
+    "name": "VMAX9-SD",
+    "cabinet": "SD",
+    "type": "high"
+  },
+  {
+    "storagesn": "000192606728",
+    "name": "VMAX9-JXQ",
+    "cabinet": "JXQ",
+    "type": "high"
+  },
+  {
+    "storagesn": "000290104205",
+    "name": "DMX4-SD",
+    "cabinet": "SD",
+    "type": "high"
+  },
+  {
+    "storagesn": "000290104483",
+    "name": "DMX4-JXQ",
+    "cabinet": "JXQ",
+    "type": "high"
+  },
+  {
+    "storagesn": "000292600886",
+    "name": "VMAX-SD",
+    "cabinet": "SD",
+    "type": "high"
+  },
+  {
+    "storagesn": "000292600901",
+    "name": "VMAX-JXQ",
+    "cabinet": "JXQ",
+    "type": "high"
+  },
+  {
+    "storagesn": "000292603046",
+    "name": "VMAX3-JXQ",
+    "cabinet": "JXQ",
+    "type": "high"
+  },
+  {
+    "storagesn": "000292603793",
+    "name": "VMAX3-SD",
+    "cabinet": "SD",
+    "type": "high"
+  },
+  {
+    "storagesn": "000292604239",
+    "name": "VMAX4-JXQ",
+    "cabinet": "JXQ",
+    "type": "high"
+  },
+  {
+    "storagesn": "000292604241",
+    "name": "VMAX4-SD",
+    "cabinet": "SD",
+    "type": "high"
+  },
+  {
+    "storagesn": "000292604563",
+    "name": "VMAX5-SD",
+    "cabinet": "SD",
+    "type": "high"
+  },
+  {
+    "storagesn": "000292604567",
+    "name": "VMAX5-JXQ",
+    "cabinet": "JXQ",
+    "type": "high"
+  },
+  {
+    "storagesn": "000295700776",
+    "name": "VMAX8-JXQ",
+    "cabinet": "JXQ",
+    "type": "high"
+  },
+  {
+    "storagesn": "000295700790",
+    "name": "VMAX8-SD",
+    "cabinet": "SD",
+    "type": "high"
+  },
+  {
+    "storagesn": "000297000158",
+    "name": "VMAX11-SD",
+    "cabinet": "NULL",
+    "type": "high"
+  },
+  {
+    "storagesn": "000297000161",
+    "name": "VMAX11-JXQ",
+    "cabinet": "NULL",
+    "type": "high"
+  },
+  {
+    "storagesn": "000492600255",
+    "name": "VMAX2-JXQ",
+    "cabinet": "JXQ",
+    "type": "high"
+  },
+  {
+    "storagesn": "000492600256",
+    "name": "VMAX2-SD",
+    "cabinet": "SD",
+    "type": "high"
+  },
+  {
+    "storagesn": "000492600548",
+    "name": "VMAX6-JXQ",
+    "cabinet": "JXQ",
+    "type": "high"
+  },
+  {
+    "storagesn": "000492600549",
+    "name": "VMAX6-SD",
+    "cabinet": "SD",
+    "type": "high"
+  },
+  {
+    "storagesn": "000496700235",
+    "name": "VMAX10-SD",
+    "cabinet": "NULL",
+    "type": "high"
+  },
+  {
+    "storagesn": "000498700188",
+    "name": "VMAX7-JXQ",
+    "cabinet": "JXQ",
+    "type": "high"
+  },
+  {
+    "storagesn": "000498700189",
+    "name": "VMAX7-SD",
+    "cabinet": "SD",
+    "type": "high"
+  },
+  {
+    "storagesn": "CETV2143200049",
+    "name": "VNX5-SD",
+    "cabinet": "SD",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CETV2143200050",
+    "name": "VNX5-JXQ",
+    "cabinet": "JXQ",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CETV2144200010",
+    "name": "VNX6-SD",
+    "cabinet": "SD",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CETV2144300130",
+    "name": "VNX6-JXQ",
+    "cabinet": "JXQ",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CETV2151000084",
+    "name": "VNX-T1-SD",
+    "cabinet": "SD",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CETV2154700035",
+    "name": "VNX7-SD",
+    "cabinet": "SD",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CETV2154700036",
+    "name": "VNX7-JXQ",
+    "cabinet": "JXQ",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CETV3163400036",
+    "name": "UNITY-JXQ",
+    "cabinet": "NULL",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CKM00114601259",
+    "name": "VNX-SD",
+    "cabinet": "SD",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CKM00114601261",
+    "name": "VNX-JXQ",
+    "cabinet": "JXQ",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CKM00130600694",
+    "name": "VNX2-SD",
+    "cabinet": "SD",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CKM00130601292",
+    "name": "VNX2-JXQ",
+    "cabinet": "JXQ",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CKM00132300854",
+    "name": "VNX4-JXQ",
+    "cabinet": "JXQ",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CKM00132600606",
+    "name": "VNX4-SD",
+    "cabinet": "SD",
+    "type": "middle"
+  },
+  {
+    "storagesn": "CKM00152602952",
+    "name": "XtremIO_YZ",
+    "cabinet": "NULL",
+    "type": "XtremIO"
+  },
+  {
+    "storagesn": "FCN00132300120",
+    "name": "VNX3-SD",
+    "cabinet": "SD",
+    "type": "middle"
+  },
+  {
+    "storagesn": "FCN00132300121",
+    "name": "VNX3-JXQ",
+    "cabinet": "JXQ",
+    "type": "middle"
+  }
+]

@@ -17,7 +17,8 @@
     "snmpjs": "*",
     "winston": "*",
     "moment": "*",
-    "json2xls": "^0.1.2"
+    "json2xls": "^0.1.2",
+    "xls-to-json": "^0.5.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

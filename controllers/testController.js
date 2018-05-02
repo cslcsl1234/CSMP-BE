@@ -211,6 +211,8 @@ var testController = function (app) {
      });                       
 
     app.get('/api/test', function (req, res) {
+        res.setTimeout(1200*1000);
+        
         var device = req.query.device; 
         var period = 0; 
         var eventParam = {};
@@ -234,19 +236,60 @@ var testController = function (app) {
         //Report.GetArraysIncludeHisotry(device, function(ret) {  
         
         //VMAX.GetSGTop20ByCapacity(device, function(ret) {
-            Capacity.GetArrayCapacity(device, function(ret) {
+        //Capacity.GetArrayCapacity(device, function(ret) {
         //VNX.GetArraysHistory(device,function(ret) {
         //VNX.GetMaskViews(function(ret) {
         //VMAX.GetMaskViews(device, function(ret) {
         //Report.ArrayAccessInfos(device, function(ret) {
         //Report.E2ETopology(device, function(ret) {  
-        //Switch.getZone(device, function(ret) {
-            res.json(200 , ret);
-        });
-        
+            Report.GetApplicationInfo( function (ret) {
+                //Switch.getZone(device, function(ret) {
+                    res.json(200 , ret);
+                });
+                
             
 
     });
+
+    app.get('/api/test/apptopo', function (req, res) {
+        var device;
+        var config = configger.load(); 
+        var ReportTmpDataPath = config.Reporting.TmpDataPath;
+        var ReportOutputPath = config.Reporting.OutputPath;
+                
+        Report.GetApplicationInfo( function (apps) { 
+
+            Report.E2ETopology(device, function(topo) {
+
+                for ( var i in apps ) {
+                    var appItem = apps[i];
+
+                    for ( var j in topo ) {
+                        var topoItem = topo[j];
+                        if ( appItem.WWN == topoItem.hbawwn) {
+                            for ( var prop in topoItem ) {
+                                appItem[prop] = topoItem[prop];
+                            }
+                        }
+                    }
+                }
+
+                 var fs = require('fs');
+                 var json2xls = require('json2xls');
+        
+                 var xls = json2xls(apps);
+         
+                 fs.writeFileSync(ReportOutputPath + '//' + 'topology.xlsx', xls, 'binary');
+                 res.json(200 , apps);
+        
+        
+            });
+        });
+    });
+            
+
+
+
 
     app.get('/api/test2', function (req, res) {
         var device = req.query.device; 

@@ -33,7 +33,7 @@
 	    "FlashPhoneInterval": 8640000
     },
     "Reporting" :{
-        "TmpDataPath": "/tmp",
+        "TmpDataPath": "/csmp/reporting/tmp",
         "OutputPath" : "/csmp/reporting"
     }
 }

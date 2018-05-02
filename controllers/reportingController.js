@@ -516,8 +516,8 @@ var reportingController = function (app) {
 
     // CEB Report 1.1
     app.get('/api/reports/capacity/summary', function (req, res) {
-        var beginDate = req.query.begindate; 
-        var endDate = req.query.enddate;
+        var beginDate = req.query.from; 
+        var endDate = req.query.to;
         console.log("BeginDate="+beginDate+',EndDate=' + endDate);
         var device; 
         Report.GetArraysIncludeHisotry(device, function(ret) {  
@@ -579,8 +579,8 @@ var reportingController = function (app) {
 
     // CEB Report 1.2
     app.get('/api/reports/capacity/details', function (req, res) {
-        var beginDate = req.query.begindate; 
-        var endDate = req.query.enddate;
+        var beginDate = req.query.from; 
+        var endDate = req.query.to;
         console.log("BeginDate="+beginDate+',EndDate=' + endDate);
         var device;
         Report.GetArraysIncludeHisotry(device, function(ret) {  
@@ -592,8 +592,8 @@ var reportingController = function (app) {
 
     // CEB Report 1.3
     app.get('/api/reports/capacity/top20/sg', function (req, res) {
-        var beginDate = req.query.begindate; 
-        var endDate = req.query.enddate;
+        var beginDate = req.query.from; 
+        var endDate = req.query.to;
         console.log("BeginDate="+beginDate+',EndDate=' + endDate);
         VMAX.GetSGTop20ByCapacity(function(ret) {  
 
@@ -625,8 +625,8 @@ var reportingController = function (app) {
 
     // CEB Report 1.4
     app.get('/api/reports/capacity/top20/sg_increase', function (req, res) {
-        var beginDate = req.query.begindate; 
-        var endDate = req.query.enddate; 
+        var beginDate = req.query.from; 
+        var endDate = req.query.to; 
         VMAX.GetSGTop20ByUsedCapacityIncrease(function(ret) {  
             var retResult = [];
             for ( var i = 0 ; i< 20 ; i++ ) {
