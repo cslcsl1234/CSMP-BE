@@ -27,7 +27,7 @@ configger.load = function(defaults) {
     if ( configger.get().ProductType != "Prod" )
         configger.get().SRM_RESTAPI.BASE_FILTER = "";
     else 
-    configger.get().SRM_RESTAPI.BASE_FILTER = configger.get().SRM_RESTAPI.BASE_FILTER + "&";
+        configger.get().SRM_RESTAPI.BASE_FILTER = configger.get().SRM_RESTAPI.BASE_FILTER + "&";
 
     return configger.get();
 }

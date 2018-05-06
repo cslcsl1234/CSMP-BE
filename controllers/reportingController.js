@@ -523,8 +523,6 @@ var reportingController = function (app) {
         Report.GetArraysIncludeHisotry(device, function(ret) {  
 
             var finalRecord = [];
-            
-
 
             for ( var i in ret.data ) {
                 var item = ret.data[i];

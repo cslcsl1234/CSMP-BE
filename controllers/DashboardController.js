@@ -9,6 +9,8 @@
 const debug = require('debug')('dashboardController')  
 const name = 'dashboard'  
 var unirest = require('unirest');
+var moment = require('moment');
+
 var configger = require('../config/configger');
 var RecordFlat = require('../lib/RecordFlat');
 var util = require('../lib/util');
@@ -324,7 +326,7 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
         async.waterfall([
             function(callback){ 
                 var finalResult = [];
-                 VMAX.getArrayPerformance(  function(result) {  
+                VMAX.getArrayPerformance(  function(result) {  
 
                     var ReadIOPS = [];
                     var WriteIOPS = [];
@@ -339,6 +341,8 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
                             var value = perfItem[1];
 
                             var resultItem = {};
+                            //resultItem["DT1"] = dt;
+                            //var DT =  moment.unix(parseInt(dt)).format("MM-DD HH:mm");
                             resultItem["DT"] = dt;
                             resultItem["device"] = prop.device;
                             resultItem["value"] = value;
@@ -355,7 +359,8 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
                                 var isFind = false;
                                 for ( var x in finalResult ) {
                                     var finalItem = finalResult[x];
-                                    if ( finalItem.DT == item.DT ){
+                                    var itemDT =  moment.unix(parseInt(item.DT)).format("MM-DD HH:mm");
+                                    if ( finalItem.DT == itemDT ){
                                         finalItem[item.device] = parseFloat(item.value) + parseFloat(item1.value);
                                         isFind = true;
                                     }
@@ -363,104 +368,72 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
                                 if ( isFind == false ) {
 
                                     var newitem = {};
-                                    newitem["DT"] = item.DT;
+                                    var DT =  moment.unix(parseInt(item.DT)).format("MM-DD HH:mm");
+                                    newitem["DT"] = DT;
+
                                     newitem[item.device] = parseFloat(item.value) + parseFloat(item1.value); 
                                     finalResult.push(newitem);
                                 }
                             }
                         }
                     }
-                    callback(null , finalResult);
+                    callback(null , finalResult); 
                 })
 
             },
-
-            function(arg1,  callback){   
-                var config = configger.load(); 
-                var filterbase = 'source=\'VNXBlock-Collector\'&parttype==\'Controller\'&!vstatus==\'inactive\'';
-                   
-                if ( start === undefined ) var start = util.getPerfStartTime();
-                if ( end   === undefined ) var end = util.getPerfEndTime();
-
-                var filter = filterbase + '&(name=\'WriteThroughput\'|name=\'ReadThroughput\'|name=\'TotalThroughput\'|name=\'TotalBandwidth\'|name=\'ResponseTime\'|name=\'CurrentUtilization\')';
-
-                var fields = 'serialnb,part,ip,name';
-                var keys = ['serialnb,part'];
-
-                //var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '86400'}; 
-                var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '3600'}; 
-
-                console.log(queryString);
-
-                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
-                        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
-                        .headers({'Content-Type': 'multipart/form-data'}) 
-                        .query(queryString) 
-                        .end(function (response) { 
-                            if ( response.error ) {
-                                console.log(response.error);
-                                return response.error;
-                            } else {  
-                                //console.log(response.raw_body);   
-                                var resultRecord = response.raw_body;
-                                var r = JSON.parse(resultRecord); 
-
-
-                                var ReadIOPS = [];
-                                var WriteIOPS = [];
-                                for ( var i in r.values ) {
-                                    var item = r.values[i];
-                                    var prop = item.properties;
-                                    var perf = item.points;
-
-                                    for ( var j in perf ) {
-                                        var perfItem = perf[j];
-                                        var dt = perfItem[0];
-                                        var value = perfItem[1];
-
-                                        var resultItem = {};
-                                        resultItem["DT"] = dt;
-                                        resultItem["device"] = prop.serialnb;
-                                        resultItem["SP"] = prop.part;
-                                        resultItem["value"] = value;
-                                        if ( prop.name == 'ReadThroughput'  )  ReadIOPS.push(resultItem);
-                                        if ( prop.name == 'WriteThroughput' ) WriteIOPS.push(resultItem);
-                                    }
+            function (arg1, callback) { 
+                var device;
+                var part;
+                var start;
+                var end;
+                VNX.getSPPerformance(device, part, start, end,function(result) {  
+                    var finalResult = [];
+                    for ( var i in result ) {
+                        var item = result[i];
+                        
+                        for ( var j in item.matrics ) {
+                            var matricsItem = item.matrics[j];
+                            var isfind = false;
+                            for ( var z in finalResult ) {
+                                var resultItem = finalResult[z];
+                                var matricsItemDT = moment.unix(parseInt(matricsItem.timestamp)).format("MM-DD HH:mm");
+                                if ( resultItem.DT == matricsItemDT ) {
+                                    if ( resultItem[item.device] === undefined ) resultItem[item.device] = 0;
+                                    resultItem[item.device] += matricsItem.TotalThroughput === undefined ? 0 : matricsItem.TotalThroughput;
+                                    isfind = true;
                                 }
-
-
-                                var finalResult = arg1;
-                                for ( var j in ReadIOPS ) {
-                                    var item = ReadIOPS[j];
-                                    for ( var z in WriteIOPS ) {
-                                        var item1 = WriteIOPS[z];
-                                        if ( item.DT==item1.DT && item.device == item1.device ) {
-                                            var isFind = false;
-                                            for ( var x in finalResult ) {
-                                                var finalItem = finalResult[x];
-                                                if ( finalItem.DT == item.DT ){
-                                                    finalItem[item.device] = parseFloat(item.value) + parseFloat(item1.value);
-                                                    isFind = true;
-                                                }
-                                            }
-                                            if ( isFind == false ) {
-
-                                                var newitem = {};
-                                                newitem["DT"] = item.DT;
-                                                newitem[item.device] = parseFloat(item.value) + parseFloat(item1.value); 
-                                                finalResult.push(newitem);
-                                            }
-                                        }
-                                    }
-                                }
- 
-                                callback(null,finalResult);
-
                             }
-                        });  
+
+                            if ( isfind == false ) {
+                                var resultItem = {};
+                                var DT =  moment.unix(parseInt(matricsItem.timestamp)).format("MM-DD HH:mm");
+                                resultItem["DT"] = DT;
+                                resultItem[item.device] = matricsItem.TotalThroughput === undefined ? 0 : matricsItem.TotalThroughput;
+                                finalResult.push(resultItem);
+                            }
+                        }
+
+                    } 
+
+                    for ( var i in arg1 ) {
+                        var item = arg1[i];
+                        for ( var j in finalResult ) {
+                            var item1 = finalResult[j];
+                            if ( item.DT == item1.DT ) {
+                                var keys = Object.keys(item1);
+                                for ( var z in keys ) {
+                                    if ( keys[z] == 'DT' ) continue;
+                                    item[keys[z]] = item1[keys[z]];
+                                }
+                            }
+                        }
+                    }
+                    callback(null,arg1);
+            
+                }); 
             },
             function(arg1,  callback){ 
-
+  
                 var result = {};
 
                 var maxPerfValue = {};
@@ -471,6 +444,7 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
                     var item = arg1[i];
 
                     var maxPerfItem = {};
+                    //var DT =  moment.unix(parseInt(item.DT)).format("MM-DD HH:mm");
                     maxPerfItem["DT"] = item.DT;
                     maxPerfItem["value"] = 0;
                     for ( var key in item ) {
@@ -487,12 +461,12 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
                callback(null,result);
             }
         ], function (err, result) {
-           // result now equals 'done'
+           // result now equals 'done' 
 
             var perfdetail = result.perfdetail;
             perfdetail.sort(function (a, b) {
                 return a.DT.localeCompare(b.DT);
-            });
+            }); 
 
            res.json(200, result);
         });

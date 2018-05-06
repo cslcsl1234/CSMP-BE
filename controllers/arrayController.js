@@ -2788,10 +2788,13 @@ console.log("RULE17="+rule17);
 
                     chartData.push(chartItem);                   
                 } else {
-                    var FEDir = item.feport.split(':')[0].replace('FA-','');
-                    var FEPort = item.feport.split(':')[1];
-                    var FEDirNum = parseInt(FEDir.substring(0,FEDir.length - 1));
-                    var FEDirABC = FEDir.substring(FEDir.length - 1);
+                    if ( item.feport !== undefined ) {
+
+                        var FEDir = item.feport.split(':')[0].replace('FA-','');
+                        var FEPort = item.feport.split(':')[1];
+                        var FEDirNum = parseInt(FEDir.substring(0,FEDir.length - 1));
+                        var FEDirABC = FEDir.substring(FEDir.length - 1);
+                    }
                     //console.log(item.feport + "\t" + FEDir + "\t" + FEDirNum + "\t" + FEDirABC);
 
                     for ( var j in result ) {
@@ -2807,6 +2810,8 @@ console.log("RULE17="+rule17);
                             }
                             if ( isDone == true ) continue;
 
+                            if ( subItem.feport === undefined ) continue;
+                            
                             var subFEPort = subItem.feport.split(':')[1];
                             var subFEDir = subItem.feport.split(':')[0].replace('FA-','');
                             var subFEDirNum = parseInt(subFEDir.substring(0,subFEDir.length - 1));
@@ -3528,7 +3533,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
         var periodtype = req.query.period;   // 1d | 1w | 1m
         switch (periodtype) {
             case '1d' : 
-                var period = 0;
+                var period = 3600;
                 var start = util.getConfStartTime('1d');
                 break;
             case '1w' : 
@@ -3547,6 +3552,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
         var valuetype = req.query.valuetype;   // max | average
 
         var resultByPartgrp = {};
+
         var partgrp_FA = 'Front-End';
         var partgrp_DA = 'Back-End';
         var partgrp_RF = "RDF";
@@ -3563,13 +3569,19 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
             }, 
             function(arg1, callback) { 
                 for ( var i in arg1 ) {
-                    var item = arg1[i];
+                    var item = arg1[i]; 
+
+                    // VMAX Array
                     if ( item.partgrp == partgrp_FA ) 
                         resultByPartgrp["FrontEnd"].push(item);
                     else if ( item.partgrp == partgrp_DA ) 
                         resultByPartgrp["BackEnd"].push(item);
                     else if ( item.partgrp == partgrp_RF ) 
                         resultByPartgrp["RDF"].push(item);
+                    
+                    // VNX Array
+                    if ( item.parttype !== undefined  &&  item.parttype == 'Controller' )  // for VNX Controller
+                        resultByPartgrp["FrontEnd"].push(item);
 
                 }
                 callback(null,resultByPartgrp);           
@@ -3634,6 +3646,147 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
 
                 }
                 callback(null,finalResult1);
+            } 
+        ], function (err, result) {
+           // result now equals 'done'
+           res.json(200, result);
+        });
+
+    });  
+
+
+    app.get('/api/vnx/performance/controller/iops', function (req, res) {
+
+        var device = req.query.device;  
+        var periodtype = req.query.period;   // 1d | 1w | 1m
+        switch (periodtype) {
+            case '1d' : 
+                var period = 0;
+                var start = util.getConfStartTime('1d');
+                break;
+            case '1w' : 
+                var period = 3600;
+                var start = util.getConfStartTime('1w');
+                break;
+            case '1m' : 
+                var period = 86400;
+                var start = util.getConfStartTime('1m');
+                break;
+            default : 
+                var period = 0;
+                var start = util.getConfStartTime('1d');
+                break;
+        }
+        var valuetype = req.query.valuetype;   // max | average
+
+        var resultByPartgrp = {};
+
+        var partgrp_FA = 'Front-End';   
+        resultByPartgrp["VNXController"] = [];
+
+        async.waterfall([
+            function(callback){ 
+                var end;  
+                var part;
+               VNX.getSPPerformance(device, part, start, end , function(rest) { 
+                   /*
+                    for ( var i in rest ) {
+                        var item = rest[i]; 
+                        resultByPartgrp["VNXController"].push(item); 
+                    }
+                    */
+                   
+                    callback(null,rest);   
+               });
+            }, 
+            
+            function(arg1, callback) {
+
+               VMAX.getArrayPerformance1(  function(result) {  
+                
+                   for ( var i in result ) {
+                       var item = result[i];
+
+                       for ( var j in item.matrics ) {
+                           var matricsItem = item.matrics[j];
+
+                           matricsItem["TotalThroughput"] = matricsItem.ReadRequests + matricsItem.WriteRequests;
+
+                       }
+
+                       arg1.push(item);
+                   } 
+
+                  callback(null, arg1); 
+               })                
+
+            },
+            
+            function(arg1, callback) { 
+
+                var finalResult1 = {};
+
+                //for ( var directortype in res ) {  
+                //    var arg1 = res[directortype];
+                    var finalResult = {}; 
+
+                    for ( var i in arg1 ) {
+                        var item = arg1[i];
+
+                        if ( device === undefined )
+                            var resKey = item.device + ( item.part === undefined ? "" :  ":" + item.part);
+                        else 
+                            var resKey = item.part;
+
+                        for ( var j in item.matrics ) {
+                            var perfItem = item.matrics[j];
+
+
+                            for ( var key in perfItem ) {
+
+                                if ( key == 'timestamp' ) {  // var DT = perfItem[key]
+                                    var DT =  moment.unix(parseInt(perfItem[key])).format("MM-DD HH:mm");
+                                    //var DTOrig = perfItem[key];
+                                }
+
+                                else {
+                                    perfItem[key] = parseFloat(perfItem[key]);
+
+                                    if ( finalResult[key] === undefined ) {
+                                        finalResult[key] = [];
+                                        var resItem = {};
+                                        resItem["DT"] = DT;
+                                        //resItem["DTOrig"] = DTOrig;
+                                        resItem[resKey] = perfItem[key];
+                                        finalResult[key].push(resItem);
+                                    } else {
+                                        var isFind = false;
+                                        for ( var z in finalResult[key] ) {
+                                            var resItem = finalResult[key][z];
+                                            if ( resItem.DT == DT )  {
+                                                resItem[resKey] = perfItem[key];
+                                                isFind = true;
+                                            } 
+                                        }
+                                        if ( isFind == false ) {
+
+                                            var resItem = {};
+                                            resItem["DT"] = DT;
+                                            
+                                            //resItem["DTOrig"] = DTOrig;
+                                            resItem[resKey] = perfItem[key];
+                                            finalResult[key].push(resItem);                                        
+                                        }
+                                    }
+                                }
+
+
+                            }
+                        }
+                    } 
+
+                // }
+                callback(null,finalResult); 
             } 
         ], function (err, result) {
            // result now equals 'done'
@@ -4068,21 +4221,96 @@ app.get('/api/vnx/block/sp/perf', function ( req, res )  {
            async.waterfall([
             function(callback){ 
 
-                VNX.getSPPerformance(device, part, start, end,function(result) { 
- 
-                    finalResult["charts"] = result.charts;
+                VNX.getSPPerformance(device, part, start, end,function(result) {   
 
-                    callback(null,finalResult);
+                    callback(null,result);
                                       
                 }); 
 
          },
+         function(data,  callback){  
+              
+             var finalResult = {};
+             finalResult['charts'] = [];
 
-            function(arg1,  callback){  
+             if ( data.length > 0 ) {
 
-                callback(null, arg1);
+                  var matrics = data[0].matrics;
+                                          
+                 // -------------------------------------------------------------------- 
+                 var result = {};
+                 result['category'] = 'Utilization (%)';
+                 result['chartData'] = [];
+                 for ( var i in matrics ) {
+                     var item = matrics[i];
+                     var chartDataItem = {};
+                     chartDataItem['name'] = item.timestamp;
+                     chartDataItem['CurrentUtilization'] = item.CurrentUtilization;  
 
+                     result.chartData.push(chartDataItem);
+                     
+                 }
+
+                 finalResult.charts.push(result); 
+
+
+                  // -------------------------------------------------------------------- 
+                 var result = {};
+                 result['category'] = 'ResponseTime (ms)';
+                 result['chartData'] = [];
+                 for ( var i in matrics ) {
+                     var item = matrics[i];
+                     var chartDataItem = {};
+                     chartDataItem['name'] = item.timestamp;
+                     chartDataItem['ResponseTime'] = item.ResponseTime;  
+
+                     result.chartData.push(chartDataItem);
+                     
+                 }
+
+                 finalResult.charts.push(result); 
+
+                     
+                 // -------------------------------------------------------------------- 
+                 var result = {};
+                 result['category'] = 'Bandwidth (MBPS)';
+                 result['chartData'] = [];
+                 for ( var i in matrics ) {
+                     var item = matrics[i];
+                     var chartDataItem = {};
+                     chartDataItem['name'] = item.timestamp;
+                     chartDataItem['TotalBandwidth'] = item.TotalBandwidth;  
+
+                     result.chartData.push(chartDataItem);
+                     
+                 }
+
+                 finalResult.charts.push(result); 
+
+
+
+                 // -------------------------------------------------------------------- 
+                 var result = {};
+                 result['category'] = 'Throughput (IOPS)';
+                 result['chartData'] = [];
+                 for ( var i in matrics ) {
+                     var item = matrics[i];
+                     var chartDataItem = {};
+                     chartDataItem['name'] = item.timestamp;
+                     chartDataItem['TotalThroughput'] = item.TotalThroughput;
+                     chartDataItem['ReadThroughput'] = item.ReadThroughput;
+                     chartDataItem['WriteThroughput'] = item.WriteThroughput;
+
+                     result.chartData.push(chartDataItem);
+                     
+                 }
+                 finalResult.charts.push(result); 
+
+                 callback(null,finalResult);
             }
+
+            else callback(null,{});
+         }
         ], function (err, result) {
            // result now equals 'done'
            res.json(200, result);

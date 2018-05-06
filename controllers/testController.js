@@ -13,6 +13,8 @@ var unirest = require('unirest');
 var configger = require('../config/configger');
 var unirest1 = require('unirest');
 var async = require('async');
+var moment = require('moment');
+
  
 var RecordFlat = require('../lib/RecordFlat');
 var util = require('../lib/util');
@@ -37,6 +39,7 @@ var util = require('../lib/util');
 var topos= require('../lib/topos');
 var DeviceMgmt = require('../lib/DeviceManagement');
 var Report = require('../lib/Reporting');
+var CAPACITY = require('../lib/Array_Capacity');
 
 
 var testController = function (app) {
@@ -232,6 +235,7 @@ var testController = function (app) {
             res.json(200 , result);
         });
         */
+       //VMAX.getArrayPerformance(  function(ret) { 
         //Report.GetStoragePorts(function(ret) {
         //Report.GetArraysIncludeHisotry(device, function(ret) {  
         
@@ -242,33 +246,61 @@ var testController = function (app) {
         //VMAX.GetMaskViews(device, function(ret) {
         //Report.ArrayAccessInfos(device, function(ret) {
         //Report.E2ETopology(device, function(ret) {  
-            Report.GetApplicationInfo( function (ret) {
-                //Switch.getZone(device, function(ret) {
+        //    Report.GetApplicationInfo( function (ret) {
+                Switch.GetSwitchPorts(device, function(ret) {
                     res.json(200 , ret);
                 });
                 
-            
+                /*
+                var start = '2018-01-02T03:00:00.000Z';
+                var part,end;
+                VNX.getSPPerformance(device, part, start, end , function(rest) { 
+
+
+
+                    res.json(200 , rest);  
+                });
+                */
 
     });
 
     app.get('/api/test/apptopo', function (req, res) {
+        res.setTimeout(3600*1000);
         var device;
         var config = configger.load(); 
         var ReportTmpDataPath = config.Reporting.TmpDataPath;
         var ReportOutputPath = config.Reporting.OutputPath;
                 
+        
         Report.GetApplicationInfo( function (apps) { 
 
             Report.E2ETopology(device, function(topo) {
 
-                for ( var i in apps ) {
-                    var appItem = apps[i];
+                var finalRecords = [];
+                for ( var j in topo ) {
+                    var topoItem = topo[j];
 
-                    for ( var j in topo ) {
-                        var topoItem = topo[j];
+                    if ( topoItem.marched_type != 'find' ) continue;
+                    if ( topoItem.zname.indexOf('VPLEX') >=0 ) continue;
+
+                    finalRecords.push(topoItem);
+
+                }
+
+                for ( var j in finalRecords ) {
+                    var topoItem = finalRecords[j];
+
+                    if ( topoItem.marched_type != 'find' ) continue;
+                    if ( topoItem.zname.indexOf('VPLEX') >=0 ) continue;
+
+
+                    for ( var i in apps ) {
+                        var appItem = apps[i];
+
                         if ( appItem.WWN == topoItem.hbawwn) {
-                            for ( var prop in topoItem ) {
-                                appItem[prop] = topoItem[prop];
+                            console.log(appItem);
+                            for ( var prop in appItem ) {
+                                topoItem[prop] = appItem[prop];
                             }
                         }
                     }
@@ -277,14 +309,18 @@ var testController = function (app) {
                  var fs = require('fs');
                  var json2xls = require('json2xls');
         
-                 var xls = json2xls(apps);
+                 var xls = json2xls(finalRecords);
          
+                 
                  fs.writeFileSync(ReportOutputPath + '//' + 'topology.xlsx', xls, 'binary');
-                 res.json(200 , apps);
+
+                 res.json(200 , finalRecords.length);
         
         
             });
         });
+        
+
     });
             
 

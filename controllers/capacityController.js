@@ -73,6 +73,33 @@ var capacityController = function (app) {
         });
     });
 
+    app.get('/api/capacity/distributemapByArray1', function (req, res) {
+        var periodtype;
+        async.waterfall([
+
+            function (callback) {
+                CAPACITY.GetArrayTotalCapacity(periodtype, function (ret) {
+                    callback(null, ret.Detail);
+                })
+            },
+            function (arg1, callback) {
+
+                var result = [];
+                for (var i in arg1) {
+                    var item = arg1[i];
+                    var res = CAPACITY.CombineCapacity(item);
+                    result.push(res);
+                }
+                callback(null, result);
+            }
+        ], function (err, ret) {
+            // result now equals 'done'
+            res.json(200, ret);
+        });
+
+    });
+
+
     app.get('/api/capacity/distributemapByArray', function (req, res) {
 
         async.waterfall([
