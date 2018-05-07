@@ -414,21 +414,24 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
                         }
 
                     } 
+                    
 
-                    for ( var i in arg1 ) {
-                        var item = arg1[i];
+                    // GUOZB: NEED TO FIX BIG!!!!
+                    if ( finalResult.length > 0 ) 
                         for ( var j in finalResult ) {
                             var item1 = finalResult[j];
-                            if ( item.DT == item1.DT ) {
-                                var keys = Object.keys(item1);
-                                for ( var z in keys ) {
-                                    if ( keys[z] == 'DT' ) continue;
-                                    item[keys[z]] = item1[keys[z]];
+                            for ( var i in arg1 ) {
+                                var item = arg1[i];
+                                if ( item.DT == item1.DT ) {
+                                    var keys = Object.keys(item1);
+                                    for ( var z in keys ) {
+                                        if ( keys[z] == 'DT' ) continue;
+                                        item[keys[z]] = item1[keys[z]];
+                                    }
                                 }
                             }
                         }
-                    }
-                    callback(null,arg1);
+                    callback(null,finalResult);
             
                 }); 
             },
