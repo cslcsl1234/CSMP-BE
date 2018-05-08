@@ -247,21 +247,16 @@ var testController = function (app) {
         //Report.ArrayAccessInfos(device, function(ret) {
         //Report.E2ETopology(device, function(ret) {  
         //    Report.GetApplicationInfo( function (ret) {
-                Switch.GetSwitchPorts(device, function(ret) {
-                    res.json(200 , ret);
-                });
-                
-                /*
-                var start = '2018-01-02T03:00:00.000Z';
-                var part,end;
-                VNX.getSPPerformance(device, part, start, end , function(rest) { 
-
-
-
-                    res.json(200 , rest);  
-                });
-                */
-
+ 
+            //var device = 'CETV2172300002';
+            var part = 'SP A';
+            var start = '2018-04-07T08:36:10.984Z';
+            var end = '2018-05-07T08:36:10.986Z';
+            VNX.GetArrayTotalMemory(device, function(ret) {
+ 
+                //finalResult = finalResult.concat(ret);
+                res.json(200 , ret);
+           })        
     });
 
     app.get('/api/test/apptopo', function (req, res) {
