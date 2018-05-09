@@ -228,13 +228,20 @@ var testController = function (app) {
  
         //console.log(eventParam);
         //GetEvents.GetEvents(eventParam, function(result1) {   
+            var fabwwn;
             
-        /*
+            var config = configger.load(); 
+            var ReportTmpDataPath = config.Reporting.TmpDataPath;
         //GetAssignedInitiatorByDevices1(device,function(result) {
-        VMAX.GetDevices(device,function(result) {
-            res.json(200 , result);
-        });
-        */
+            
+           // SWITCH.getZone1(device, function(zonelist) { res.json(200 , zonelist); });
+
+           //Switch.getFabric(fabwwn,function(resultJson) {    res.json(200,resultJson);       });
+
+           Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
+
+
+
        //VMAX.getArrayPerformance(  function(ret) { 
         //Report.GetStoragePorts(function(ret) {
         //Report.GetArraysIncludeHisotry(device, function(ret) {  
@@ -249,14 +256,17 @@ var testController = function (app) {
         //    Report.GetApplicationInfo( function (ret) {
  
             //var device = 'CETV2172300002';
+
+            /*
             var part = 'SP A';
             var start = '2018-04-07T08:36:10.984Z';
             var end = '2018-05-07T08:36:10.986Z';
-            VNX.GetArrayTotalMemory(device, function(ret) {
+            Report.GetApplicationInfo( function (apps) { 
  
                 //finalResult = finalResult.concat(ret);
-                res.json(200 , ret);
+                res.json(200 , apps);
            })        
+           */
     });
 
     app.get('/api/test/apptopo', function (req, res) {
@@ -275,28 +285,27 @@ var testController = function (app) {
                 for ( var j in topo ) {
                     var topoItem = topo[j];
 
-                    if ( topoItem.marched_type != 'find' ) continue;
-                    if ( topoItem.zname.indexOf('VPLEX') >=0 ) continue;
+                  //  if ( topoItem.marched_type != 'find' ) continue;
+                  //  if ( topoItem.zname.indexOf('VPLEX') >=0 ) continue;
 
                     finalRecords.push(topoItem);
 
                 }
 
+                var finalRecords_new = [];
                 for ( var j in finalRecords ) {
                     var topoItem = finalRecords[j];
 
-                    if ( topoItem.marched_type != 'find' ) continue;
-                    if ( topoItem.zname.indexOf('VPLEX') >=0 ) continue;
+                   // if ( topoItem.marched_type != 'find' ) continue;
+                   // if ( topoItem.zname.indexOf('VPLEX') >=0 ) continue;
 
 
                     for ( var i in apps ) {
                         var appItem = apps[i];
 
-                        if ( appItem.WWN == topoItem.hbawwn) {
-                            console.log(appItem);
-                            for ( var prop in appItem ) {
-                                topoItem[prop] = appItem[prop];
-                            }
+                        if ( appItem.WWN == topoItem.hbawwn) { 
+                            topoItem["app"] = appItem["app"];
+                            topoItem["host"] = appItem["host"];   
                         }
                     }
                 }
@@ -309,7 +318,8 @@ var testController = function (app) {
                  
                  fs.writeFileSync(ReportOutputPath + '//' + 'topology.xlsx', xls, 'binary');
 
-                 res.json(200 , finalRecords.length);
+
+                 res.json(200 , "{ Records:" + finalRecords.length + "}" );
         
         
             });
