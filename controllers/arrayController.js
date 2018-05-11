@@ -3402,8 +3402,12 @@ console.log("RULE17="+rule17);
         var period = req.query.period;
  
         async.waterfall([
-            function(callback) {
-                VMAX.GetStorageGroupsPerformance(device, period, function(rest) { 
+            function(callback) {  
+                var valuetype = 'max';
+                var start = util.getConfStartTime('1d');
+                var end ;
+                VMAX.GetStorageGroupsPerformance(device, period, start,end,  valuetype, function(rest) { 
+                    
                     callback(null,rest);
                });
             }, 
@@ -3479,7 +3483,8 @@ console.log("RULE17="+rule17);
             function(callback){
                 var valuetype = 'last';
                 var start = util.getConfStartTime('1d');
-                VMAX.GetStorageGroupsPerformance(device, period, start, valuetype, function(rest) { 
+                var end;
+                VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) { 
                     callback(null,rest);
                });
             }, 

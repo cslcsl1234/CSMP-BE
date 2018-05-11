@@ -217,7 +217,7 @@ var testController = function (app) {
         res.setTimeout(1200*1000);
         
         var device = req.query.device; 
-        var period = 0; 
+        var period = 86400; 
         var eventParam = {};
         if (typeof device !== 'undefined') { 
             eventParam['filter'] = 'device=\''+device + '\'&!acknowledged&active=\'1\'';
@@ -238,17 +238,29 @@ var testController = function (app) {
 
            //Switch.getFabric(fabwwn,function(resultJson) {    res.json(200,resultJson);       });
 
-           Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
+           //Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
+
+          // VMAX.getArrayPerformance1( function(result) {            res.json(200,result);       }); 
+          // VMAX.GetCapacity(device, function(result) {            res.json(200,result);       }); 
+          var device;
+          var sgname;
+          var period = 604800;
+          var valuetype = 'average';
+          var end = util.getLastYear().lastDay;
+          var start  = util.getLastYear().firstDay ;
+          //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
 
 
-
-       //VMAX.getArrayPerformance(  function(ret) { 
+        // VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
+        //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
+       //VMAX.GetArrays(  function(ret) { 
         //Report.GetStoragePorts(function(ret) {
         //Report.GetArraysIncludeHisotry(device, function(ret) {  
         
         //VMAX.GetSGTop20ByCapacity(device, function(ret) {
         //Capacity.GetArrayCapacity(device, function(ret) {
-        //VNX.GetArraysHistory(device,function(ret) {
+        VNX.GetBlockStorageGroup(device, sgname, function(ret) {           res.json(200,ret);        });
+        //VNX.GetBlockDevices(device,  function(result) {   res.json(200,result);   }); 
         //VNX.GetMaskViews(function(ret) {
         //VMAX.GetMaskViews(device, function(ret) {
         //Report.ArrayAccessInfos(device, function(ret) {

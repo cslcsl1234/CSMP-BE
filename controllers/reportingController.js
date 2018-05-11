@@ -27,7 +27,8 @@ var docx = officegen('docx');
 var path = require('path');
 var fs = require('fs');
 var http = require('http'); 
-
+var util = require('../lib/util');
+var sortBy = require('sort-by');
 
 
 var VMAX = require('../lib/Array_VMAX');
@@ -651,36 +652,899 @@ var reportingController = function (app) {
     });
 
     app.get('/api/reports/capacity/related/', function (req, res) {
-        var ret = require("../demodata/capacityrelated");
-        res.json(200 ,ret);
+        //var ret = require("../demodata/capacityrelated");
+        var device;
+
+        async.waterfall(
+            [
+                function(callback){
+                    var arrayInfo = require("../config/StorageInfo");
+                    callback(null,arrayInfo);
+                }, 
+                function(param,  callback){ 
+                    var finalRecords = [];
+                    VMAX.GetArrays(device, function(result) {         
+                        for ( var i in result ) {
+                            var item = result[i];
+            
+                            var retItem = {};
+                            // Search the array custimized name
+                            var isfind = false;
+                            for ( var j in param) {
+                                var arrayinfoItem = param[j];
+                                if ( arrayinfoItem.storagesn == item.device ) {
+                                    isfind = true;
+                                    retItem.device_name = arrayinfoItem.name;
+
+                                }
+                            }
+                            if ( isfind = false ) {
+                                retItem.device_name = "";
+                            }
+
+                            // Combine anothers field
+                            retItem.device_sn = item.device;
+                            retItem.available_port_addr_total = 0;
+                            retItem.allocated_port_addr_total = 0;
+                            retItem.pair = 0;
+                            retItem.rdf_group = 0;
+                            retItem.details = [];
+
+
+
+                            finalRecords.push(retItem);
+                        }
+            
+                        callback(null,finalRecords);
+                    
+                    }); 
+                },
+                function(param,  callback){ 
+                    VMAX.GetStorageGroups(device, function(result) {            
+                        for ( var i in result ) {
+                            var sgItem = result[i];
+
+                            var sgRetItem = {};
+                            sgRetItem.sg_name = sgItem.sgname;
+                            sgRetItem.lun = sgItem.SumOfLuns;
+                            sgRetItem.capacity_GB = sgItem.Capacity;
+                            sgRetItem.iops_limits = sgItem.iolimit;
+                            sgRetItem.iops_limits_change = 0;
+                            sgRetItem.mbps_limits = 0;
+                            sgRetItem.mbps_limits_change = 0;
+                            sgRetItem.response_time_ms = 0;
+                            sgRetItem.response_time_increase_last_month_percent = 0;
+                            sgRetItem.response_time_increase_last_year_percent = 0;
+
+                            var isfind = false;
+                            for ( var j in param) {
+                                var item = param[j];
+                                if ( sgItem.device == item.device_sn ) {
+                                    item.details.push(sgRetItem);
+                                    isfind = true;
+                                    break;
+                                }
+                            }
+                        }     
+                    
+                        callback(null,param);
+                    }); 
+
+                }
+            ], function (err, result) {
+                  // result now equals 'done'
+                  var ret = {}
+                  ret.data = result 
+                  res.json(200 ,ret);
+            });
+    
+       
     });
     app.get('/api/reports/performance/summary/iops/', function (req, res) {
-        var ret = require("../demodata/summary_iops");
-        res.json(200 ,ret);
-    });
+        //var ret = require("../demodata/summary_iops");
+        var device;
+
+        async.waterfall(
+            [
+                function(callback){
+                    var arrayInfo = require("../config/StorageInfo");
+                    callback(null,arrayInfo);
+                },
+                // Get All Localtion Records
+                function(param,  callback){ 
+                    var deviceList = [];
+                    VMAX.getArrayPerformance1( function(result) {         
+                        for ( var i in result ) {
+                            var item = result[i];
+            
+                            var retItem = {};
+                            // Search the array custimized name
+                            var isfind = false;
+                            for ( var j in param) {
+                                var arrayinfoItem = param[j];
+                                if ( arrayinfoItem.storagesn == item.device ) {
+                                    isfind = true;
+                                    retItem.device_name = arrayinfoItem.name;
+
+                                }
+                            }
+                            if ( isfind = false ) {
+                                retItem.device_name = "";
+                            }
+
+                            // Combine anothers field
+                            retItem.device_sn = item.device; 
+                            retItem.iops_max = item.matricsStat.ReadRequests.max + item.matricsStat.WriteRequests.max;
+                            retItem.iops_avg = item.matricsStat.ReadRequests.avg + item.matricsStat.WriteRequests.avg;
+                            retItem.iops_avg_last_year = 0;
+                            retItem.iops_avg_last_month = 0;
+                                                          
+                            deviceList.push(retItem);
+                        }
+            
+                        callback(null,deviceList);
+                    
+                    }); 
+                },
+                function(devlist, callback ) {
+                    var groups = [];
+                    for ( var i in devlist ) {
+                        var item = devlist[i];
+                        if ( item.device_name === undefined ) continue;
+                        var nameGroup = item.device_name.split("-")[0]; 
+
+                        var isfind=false;
+                        for ( var j in groups ) {
+                            var groupItem = groups[j];
+                            if ( nameGroup == groupItem.device_group ) {
+                                isfind = true;
+                                groupItem.iops_max += item.iops_max;
+                                groupItem.iops_avg += item.iops_avg;
+                                groupItem.iops_avg_last_year += 0;
+                                groupItem.device_list.push(item);
+
+                            }
+                        }
+
+                        if ( isfind == false ) {
+                            var groupItem = {};
+                            groupItem.device_group = nameGroup;
+                            groupItem.iops_max = item.iops_max;
+                            groupItem.iops_avg = item.iops_avg;
+                            groupItem.iops_avg_last_year = 0;
+                            groupItem.device_list = [];
+                            groupItem.device_list.push(item);
+
+                            groups.push(groupItem);
+                            
+                        }
+
+                    }
+                    callback(null,groups)
+                }
+            ], function (err, result) {
+                  // result now equals 'done'
+                  var ret = {}
+                  ret.data = result 
+                  res.json(200 ,ret);
+            });
+    
+    
+    }); 
+
     app.get('/api/reports/performance/summary/mbps/', function (req, res) {
-        var ret = require("../demodata/summary_mbps");
-        res.json(200 ,ret);
+        //var ret = require("../demodata/summary_mbps");
+        var device;
+
+        async.waterfall(
+            [
+                function(callback){
+                    var arrayInfo = require("../config/StorageInfo");
+                    callback(null,arrayInfo);
+                },
+                // Get All Localtion Records
+                function(param,  callback){ 
+                    var deviceList = [];
+                    VMAX.getArrayPerformance1( function(result) {         
+                        for ( var i in result ) {
+                            var item = result[i];
+            
+                            var retItem = {};
+                            // Search the array custimized name
+                            var isfind = false;
+                            for ( var j in param) {
+                                var arrayinfoItem = param[j];
+                                if ( arrayinfoItem.storagesn == item.device ) {
+                                    isfind = true;
+                                    retItem.device_name = arrayinfoItem.name;
+
+                                }
+                            }
+                            if ( isfind = false ) {
+                                retItem.device_name = "";
+                            }
+
+                            // Combine anothers field
+                            retItem.device_sn = item.device;  
+                            retItem.mbps_max = item.matricsStat.ReadThroughput.max + item.matricsStat.WriteThroughput.max;
+                            retItem.mbps_avg = item.matricsStat.ReadThroughput.avg + item.matricsStat.WriteThroughput.avg;
+                            retItem.mbps_avg_last_year = 0;
+                            retItem.mbps_avg_last_month = 0;
+                                                          
+                            deviceList.push(retItem);
+                        }
+            
+                        callback(null,deviceList);
+                    
+                    }); 
+                },
+                function(devlist, callback ) {
+                    var groups = [];
+                    for ( var i in devlist ) {
+                        var item = devlist[i];
+                        if ( item.device_name === undefined ) continue;
+                        var nameGroup = item.device_name.split("-")[0]; 
+
+                        var isfind=false;
+                        for ( var j in groups ) {
+                            var groupItem = groups[j];
+                            if ( nameGroup == groupItem.device_group ) {
+                                isfind = true;
+                                groupItem.mbps_max += item.mbps_max;
+                                groupItem.mbps_avg += item.mbps_avg;
+                                groupItem.mbps_avg_last_year += 0;
+                                groupItem.device_list.push(item);
+
+                            }
+                        }
+
+                        if ( isfind == false ) {
+                            var groupItem = {};
+                            groupItem.device_group = nameGroup;
+                            groupItem.mbps_max = item.mbps_max;
+                            groupItem.mbps_avg = item.mbps_avg;
+                            groupItem.mbps_avg_last_year = 0;
+                            groupItem.device_list = [];
+                            groupItem.device_list.push(item);
+
+                            groups.push(groupItem);
+                            
+                        }
+
+                    }
+                    callback(null,groups)
+                }
+            ], function (err, result) {
+                  // result now equals 'done'
+                  var ret = {}
+                  ret.data = result 
+                  res.json(200 ,ret);
+            });
+    
+    
     });
 
+
     app.get('/api/reports/performance/sg/summary/', function (req, res) {
-        var ret = require("../demodata/sg_summary");
-        res.json(200 ,ret);
+        //var ret = require("../demodata/sg_summary");
+        var device;
+        async.waterfall(
+            [
+                function(callback){
+                    var arrayInfo = require("../config/StorageInfo");
+                    callback(null,arrayInfo);
+                },
+                function ( param, callback ) {
+
+                    var rets = [];
+                    VMAX.GetStorageGroups(device, function(result) {            
+
+                        for ( var i in result ) {
+                            var item = result[i];
+
+                            var retItem = {};
+
+                            retItem.app_name = "";
+
+                            // Search the array custimized name
+                            var isfind = false;
+                            for ( var j in param) {
+                                var arrayinfoItem = param[j];
+                                if ( arrayinfoItem.storagesn == item.device ) {
+                                    isfind = true;
+                                    retItem.device_name = arrayinfoItem.name;
+
+                                }
+                            }
+                            if ( isfind = false ) {
+                                retItem.device_name = "";
+                            }
+
+                            retItem.device_sn = item.device;
+                            retItem.sg_name = item.sgname;
+                            retItem.sg_lun_total = item.SumOfLuns;
+                            retItem.sg_capacity_GB = item.Capacity;
+                            retItem.iops_limit = 0;
+                            retItem.mbps_limits = 0;
+                            retItem.limits = 0; 
+                            rets.push(retItem);
+                        }
+                        callback(null,rets);
+
+                    }); 
+                },
+                function(arg1, callback ) {
+
+                    arg1.sort(sortBy("-sg_capacity_GB"));
+                    
+                    callback(null,arg1);
+                }
+            ], function (err, result) {
+                  // result now equals 'done'
+
+                  var ret = {}
+                  ret.data = result;
+
+                  res.json(200 ,ret);
+            });
+
+
     });
+
+
     app.get('/api/reports/performance/sg/top10/iops/', function (req, res) {
-        var ret = require("../demodata/sg_top10_iops");
-        res.json(200 ,ret);
+
+        async.waterfall(
+            [
+                function(callback){
+                    var arrayInfo = require("../config/StorageInfo");
+                    callback(null,arrayInfo);
+                },
+                // Get All Localtion Records
+                function(param,  callback){ 
+                    //var ret = require("../demodata/sg_top10_iops");
+                    var device;
+                    var period = 604800;
+                    var valuetype = 'last';
+                    var start = util.getConfStartTime('1m');
+                    var end ;
+                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) { 
+                        var rets = [];
+                        for ( var i in rest ) {
+                            var item = rest[i]; 
+
+                            var retItem = {};
+
+                            retItem.app_name = "";
+
+                            // Search the array custimized name
+                            var isfind = false;
+                            for ( var j in param) {
+                                var arrayinfoItem = param[j];
+                                if ( arrayinfoItem.storagesn == item.device ) {
+                                    isfind = true;
+                                    retItem.device_name = arrayinfoItem.name;
+
+                                }
+                            }
+                            if ( isfind = false ) {
+                                retItem.device_name = "";
+                            }
+
+
+                            retItem.device_sn = item.device;
+                            retItem.sg_name = item.sgname;
+                            retItem.iops_max = item.matricsStat.ReadRequests.max + item.matricsStat.WriteRequests.max ;
+                            retItem.iops_avg = item.matricsStat.ReadRequests.avg + item.matricsStat.WriteRequests.avg ;
+                            retItem.response_time_ms = item.matricsStat.ResponseTime.max;
+                            rets.push(retItem);
+                        }
+                        callback(null,rets);  
+                    });
+                },
+                function(arg1, callback ) {
+
+                    arg1.sort(sortBy("-iops_avg"));
+                    
+                    callback(null,arg1);
+                }
+            ], function (err, result) {
+                  // result now equals 'done'
+
+                  var ret = {}
+                  ret.data = []; 
+                  for ( var i=0; i<10; i++ ) {
+                      ret.data.push(result[i]);
+                  }
+
+                  res.json(200 ,ret);
+            });
+    
+    });
+
+    app.get('/api/reports/performance/sg/top10/middle_iops/', function (req, res) {
+
+        async.waterfall(
+            [
+                function(callback){
+                    var arrayInfo = require("../config/StorageInfo");
+                    callback(null,arrayInfo);
+                },
+                // Get All Localtion Records
+                function(arg1,  callback){ 
+                    var param = {};  
+                    param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
+                    param['filter_name'] = '(name=\'TotalThroughput\'|name=\'TotalBandwidth\')';
+               
+                    param['keys'] = ['serialnb','part'];
+                    param['fields'] = ['device','sgname'];
+                    param['period'] = 86400;
+                    param['type'] = 'max';
+                    param['valuetype'] = 'MAX';
+                    CallGet.CallGet(param, function(param) {
+                        callback(null,param.result);
+                    });
+    
+ 
+                }, 
+                function(arg1, callback) {
+                    var result = [];
+                    for ( var i in arg1){
+                        var item = arg1[i];
+                        var isfind = false ;
+                        for ( var j in result ) {
+                            var sgItem = result[j];
+                            if ( item.sgname == sgItem.sg_name ) {
+                                isfind = true; 
+                                if ( item.TotalThroughput >= sgItem.iops_max ) sgItem.iops_max = item.TotalThroughput;
+                                break;
+                            }
+                        }
+
+                        if ( isfind == false ) {
+                            var sgItem = {};
+                            sgItem.device_name = item.device;
+                            sgItem.device_sn = item.serialnb;
+                            sgItem.sg_name = item.sgname; 
+                            sgItem.iops_max = item.TotalThroughput;
+                            result.push(sgItem);
+                        }
+                    }
+                    callback(null,result);
+                },
+                function(arg1,  callback){ 
+                    var param = {};  
+                    param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
+                    param['filter_name'] = '(name=\'TotalThroughput\'|name=\'TotalBandwidth\')';
+               
+                    param['keys'] = ['serialnb','part'];
+                    param['fields'] = ['device','sgname'];
+                    param['period'] = 86400;
+                    param['type'] = 'average';
+                    param['valuetype'] = 'MAX';
+                    CallGet.CallGet(param, function(param) { 
+                        var result = [];
+                        for ( var i in param.result){
+                            var item = param.result[i];
+                            var isfind = false ;
+                            for ( var j in result ) {
+                                var sgItem = result[j];
+                                if ( item.sgname == sgItem.sg_name ) {
+                                    isfind = true;
+                                    if ( item.TotalThroughput >= sgItem.iops_avg ) sgItem.iops_avg = item.TotalThroughput; 
+                                    break;
+                                }
+                            }
+    
+                            if ( isfind == false ) {
+                                var sgItem = {};
+                                sgItem.device_name = item.device;
+                                sgItem.device_sn = item.serialnb;
+                                sgItem.sg_name = item.sgname; 
+                                sgItem.iops_avg = item.TotalThroughput;
+                                result.push(sgItem);
+                            }
+                        }  
+
+                        for ( var i in arg1 ) {
+                            var item1 = arg1[i];
+                            for ( var j in result ) {
+                                var item2 = result[j];
+                                if ( item1.device == item2.device && item1.sg_name == item2.sg_name ) {
+                                    item1.iops_avg = item2.iops_avg;
+                                }
+
+                            }
+                        }
+                        
+                        callback(null,arg1);
+
+
+                    });
+    
+ 
+                },
+                function(arg1, callback ) {
+
+                    arg1.sort(sortBy("-iops_avg"));
+                    
+                    callback(null,arg1);
+                }
+            ], function (err, result) {
+                  // result now equals 'done'
+
+                  var ret = {}
+                  ret.data = []; 
+                  for ( var i=0; i<10; i++ ) {
+                      ret.data.push(result[i]);
+                  }
+
+                  res.json(200 ,ret);
+            });
+    
     });
 
     app.get('/api/reports/performance/sg/top10/iops_avg_increase', function (req, res) {
-        var ret = require("../demodata/iops_avg_increase");
-        res.json(200 ,ret);
+        //var ret = require("../demodata/iops_avg_increase");
+
+        async.waterfall(
+            [
+                function(callback){
+                    var arrayInfo = require("../config/StorageInfo");
+                    callback(null,arrayInfo);
+                },
+                // Get All Localtion Records
+                function(param,  callback){ 
+                    //var ret = require("../demodata/sg_top10_iops");
+                    var device;
+                    var period = 604800;
+                    var valuetype = 'last';
+                    var start = util.getConfStartTime('1m');
+                    var end ;
+                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) { 
+                        var rets = [];
+                        for ( var i in rest ) {
+                            var item = rest[i]; 
+
+                            var retItem = {};
+
+                            retItem.app_name = "";
+
+                            // Search the array custimized name
+                            var isfind = false;
+                            for ( var j in param) {
+                                var arrayinfoItem = param[j];
+                                if ( arrayinfoItem.storagesn == item.device ) {
+                                    isfind = true;
+                                    retItem.device_name = arrayinfoItem.name;
+
+                                }
+                            }
+                            if ( isfind = false ) {
+                                retItem.device_name = "";
+                            }
+
+
+                            retItem.device_sn = item.device;
+                            retItem.sg_name = item.sgname;
+                            retItem.iops_max = item.matricsStat.ReadRequests.max + item.matricsStat.WriteRequests.max ;
+                            retItem.iops_avg = item.matricsStat.ReadRequests.avg + item.matricsStat.WriteRequests.avg ;
+                            rets.push(retItem);
+                        }
+                        callback(null,rets);  
+                    });
+                },
+                function(arg1, callback ) {
+
+                    arg1.sort(sortBy("-iops_avg"));
+                    var ret = []; 
+                    for ( var i=0; i<10; i++ ) {
+                        ret.push(arg1[i]);
+                    }
+  
+                    callback(null,ret);
+                },
+                // Get The last year performance 
+                function(param,  callback){ 
+                    //var ret = require("../demodata/sg_top10_iops");
+                    var device;
+                    var period = 604800;
+                    var valuetype = 'average';
+                    var start = util.getLastYear().lastDay;
+                    var end = util.getLastYear().firstDay ;
+                    VMAX.GetStorageGroupsPerformance(device, period, start,end,  valuetype, function(rest) { 
+                        var rets = [];
+                        for ( var i in rest ) {
+                            var item = rest[i]; 
+
+                            for ( var j in param ) {
+                                var top10Item = param[j];
+                                console.log( top10Item.device_sn +"\t" + item.device +"\t" + top10Item.sg_name +"\t" + item.sgname);
+                                if ( top10Item.device_sn == item.device && top10Item.sg_name == item.sgname ) {
+                                    top10Item.iops_avg_lastyear = item.matricsStat.ReadRequests.avg + item.matricsStat.WriteRequests.avg ;
+                                    top10Item.iops_avg_increase = top10Item.iops_avg_lastyear > 0 ? ( top10Item.iops_avg - top10Item.iops_avg_lastyear ) /top10Item.iops_avg_lastyear : 100;
+                                    break;
+                                }
+                            }
+
+                        }
+                        callback(null,param);  
+                    });
+                } 
+            ], function (err, result) {
+                  // result now equals 'done'
+
+                  var ret = {}
+                  ret.data = result; 
+
+                  res.json(200 ,ret);
+            });
+    }); 
+
+
+    app.get('/api/reports/performance/sg/top10/middle_iops_avg_increase', function (req, res) {
+        //var ret = require("../demodata/iops_avg_increase");
+
+        async.waterfall(
+            [
+                function(  callback){ 
+                    var param = {};  
+                    param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
+                    param['filter_name'] = '(name=\'TotalThroughput\'|name=\'TotalBandwidth\')';
+               
+                    param['keys'] = ['serialnb','part'];
+                    param['fields'] = ['device','sgname'];
+                    param['period'] = 86400;
+                    param['type'] = 'average';
+                    param['valuetype'] = 'MAX';
+                    var start = util.getConfStartTime('1m'); 
+                    CallGet.CallGet(param, function(param) { 
+                        var result = [];
+                        for ( var i in param.result){
+                            var item = param.result[i];
+                            var isfind = false ;
+                            for ( var j in result ) {
+                                var sgItem = result[j];
+                                if ( item.sgname == sgItem.sg_name ) {
+                                    isfind = true;
+                                    if ( item.TotalThroughput >= sgItem.iops_avg ) sgItem.iops_avg = item.TotalThroughput; 
+                                    break;
+                                }
+                            }
+    
+                            if ( isfind == false ) {
+                                var sgItem = {};
+                                sgItem.device_name = item.device;
+                                sgItem.device_sn = item.serialnb;
+                                sgItem.sg_name = item.sgname; 
+                                sgItem.iops_avg = item.TotalThroughput;
+                                result.push(sgItem);
+                            }
+                        }  
+
+
+                        callback(null,result);
+
+
+                    });
+    
+ 
+                },
+                function( arg1, callback){ 
+                    var param = {};  
+                    param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
+                    param['filter_name'] = '(name=\'TotalThroughput\'|name=\'TotalBandwidth\')';
+               
+                    param['keys'] = ['serialnb','part'];
+                    param['fields'] = ['device','sgname'];
+                    param['period'] = 86400;
+                    param['type'] = 'average';
+                    param['valuetype'] = 'MAX';
+                    var start = util.getLastYear().lastDay;
+                    var end = util.getLastYear().firstDay ;
+                    CallGet.CallGet(param, function(param) { 
+                        var result = [];
+                        for ( var i in param.result){
+                            var item = param.result[i];
+                            var isfind = false ;
+                            for ( var j in result ) {
+                                var sgItem = result[j];
+                                if ( item.sgname == sgItem.sg_name ) {
+                                    isfind = true;
+                                    if ( item.TotalThroughput >= sgItem.iops_avg ) sgItem.iops_avg = item.TotalThroughput; 
+                                    break;
+                                }
+                            }
+    
+                            if ( isfind == false ) {
+                                var sgItem = {};
+                                sgItem.device_name = item.device;
+                                sgItem.device_sn = item.serialnb;
+                                sgItem.sg_name = item.sgname; 
+                                sgItem.iops_avg = item.TotalThroughput;
+                                result.push(sgItem);
+                            }
+                        }  
+ 
+                        for ( var i in arg1 ) {
+                            var item1 = arg1[i];
+                            for ( var j in result ) {
+                                var item2 = result[j];
+                                if ( item1.device == item2.device && item1.sg_name == item2.sg_name ) {
+                                    item1.iops_avg_lastyear = item2.iops_avg;
+                                    item1.iops_avg_increase = item1.iops_avg - item1.iops_avg_lastyear;
+                                }
+
+                            }
+                        }
+                        
+                        callback(null,arg1);
+
+
+                    });
+    
+ 
+                },
+                function(arg1, callback ) {
+
+                    arg1.sort(sortBy("-iops_avg"));
+  
+                    callback(null,arg1);
+                }
+            ], function (err, result) {
+                  // result now equals 'done'
+
+
+                  var ret = {}
+                  ret.data = []; 
+                  for ( var i=0; i<10; i++ ) {
+                      ret.data.push(result[i]);
+                  }
+
+                  res.json(200 ,ret);
+            });
     }); 
 
     app.get('/api/reports/performance/sg/top10/iops_response_time', function (req, res) {
-        var ret = require("../demodata/report_io_response");
-        res.json(200 ,ret);
+        //var ret = require("../demodata/report_io_response");
+        async.waterfall(
+            [
+                function(callback){
+                    var arrayInfo = require("../config/StorageInfo");
+                    callback(null,arrayInfo);
+                },
+                // Get All Localtion Records
+                function(param,  callback){ 
+                    //var ret = require("../demodata/sg_top10_iops");
+                    var device;
+                    var period = 604800;
+                    var valuetype = 'last';
+                    var start = util.getConfStartTime('1m');
+                    var end ;
+                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) { 
+                        var rets = [];
+                        for ( var i in rest ) {
+                            var item = rest[i]; 
+
+                            var retItem = {};
+
+                            retItem.app_name = "";
+
+                            // Search the array custimized name
+                            var isfind = false;
+                            for ( var j in param) {
+                                var arrayinfoItem = param[j];
+                                if ( arrayinfoItem.storagesn == item.device ) {
+                                    isfind = true;
+                                    retItem.device_name = arrayinfoItem.name;
+
+                                }
+                            }
+                            if ( isfind = false ) {
+                                retItem.device_name = "";
+                            }
+
+
+                            retItem.device_sn = item.device;
+                            retItem.sg_name = item.sgname;
+                           // retItem.iops_max = item.matricsStat.ReadRequests.max + item.matricsStat.WriteRequests.max ;
+                            retItem.iops_avg = item.matricsStat.ReadRequests.avg + item.matricsStat.WriteRequests.avg ;
+                            retItem.response_time_ms = item.matricsStat.ResponseTime.max;
+                            rets.push(retItem);
+                        }
+                        callback(null,rets);  
+                    });
+                },
+                function(arg1, callback ) {
+
+                    arg1.sort(sortBy("-response_time_ms"));
+                    
+                    callback(null,arg1);
+                }
+            ], function (err, result) {
+                  // result now equals 'done'
+
+                  var ret = {}
+                  ret.data = []; 
+                  for ( var i=0; i<10; i++ ) {
+                      ret.data.push(result[i]);
+                  }
+
+                  res.json(200 ,ret);
+            });
     }); 
+
+
+
+    app.get('/api/reports/performance/sg/top10/middle_iops_response_time', function (req, res) { 
+
+        async.waterfall(
+            [
+                function(  callback){ 
+                    var param = {};  
+                    param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
+                    param['filter_name'] = '(name=\'TotalThroughput\'|name=\'TotalBandwidth\'|name=\'ResponseTime\')';
+               
+                    param['keys'] = ['serialnb','part'];
+                    param['fields'] = ['device','sgname'];
+                    param['period'] = 86400;
+                    param['type'] = 'average';
+                    param['valuetype'] = 'MAX';
+                    var start = util.getConfStartTime('1m'); 
+                    CallGet.CallGet(param, function(param) { 
+                        var result = [];
+                        for ( var i in param.result){
+                            var item = param.result[i];
+                            var isfind = false ;
+                            for ( var j in result ) {
+                                var sgItem = result[j];
+                                if ( item.sgname == sgItem.sg_name ) {
+                                    isfind = true;
+                                    if ( item.TotalThroughput >= sgItem.iops_avg ) sgItem.iops_avg = item.TotalThroughput; 
+                                    if ( item.ResponseTime >= sgItem.response_time_ms ) sgItem.response_time_ms = item.ResponseTime; 
+                                    break;
+                                }
+                            }
+    
+                            if ( isfind == false ) {
+                                var sgItem = {};
+                                sgItem.device_name = item.device;
+                                sgItem.device_sn = item.serialnb;
+                                sgItem.sg_name = item.sgname; 
+                                sgItem.iops_avg = item.TotalThroughput;
+                                sgItem.response_time_ms = item.ResponseTime;
+                                result.push(sgItem);
+                            }
+                        }  
+
+
+                        callback(null,result);
+
+
+                    });
+    
+ 
+                },
+                function(arg1, callback ) {
+
+                    arg1.sort(sortBy("-response_time_ms"));
+                    
+                    callback(null,arg1);
+                }
+            ], function (err, result) {
+                  // result now equals 'done'
+
+                  var ret = {}
+                  ret.data = []; 
+                  for ( var i=0; i<10; i++ ) {
+                      ret.data.push(result[i]);
+                  }
+
+                  res.json(200 ,ret);
+            });
+    }); 
+
+
 };
 
 
