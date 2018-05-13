@@ -10,11 +10,15 @@ const debug = require('debug')('topologyController')
 const name = 'my-app'  
 var unirest = require('unirest');
 var configger = require('../config/configger');  
-    
+var util = require('../lib/util');
+var mongoose = require('mongoose');
 
 var App = require('../lib/App'); 
 var topos = require('../lib/topos.js');
- 
+var Report = require('../lib/Reporting');
+var CAPACITY = require('../lib/Array_Capacity');
+
+var AppTopologyObj = mongoose.model('AppTopology');
  
 
 var topologyController = function (app) {
@@ -107,7 +111,106 @@ var topologyController = function (app) {
  
 
 
+    app.get('/api/topology/app', function (req, res) {
+        res.setTimeout(3600*1000);
+        var device;
+        var config = configger.load(); 
+        var ReportTmpDataPath = config.Reporting.TmpDataPath;
+        var ReportOutputPath = config.Reporting.OutputPath;
+                
+        
+        Report.GetApplicationInfo( function (apps) { 
 
+            //Report.E2ETopology(device, function(topoAll) {
+            Report.E2ETopologyTest(device, function(topoAll) {
+                var masking = topoAll.masking;
+                var zone = topoAll.zone;
+                var nomarched_zone = topoAll.nomarched_zone;
+                var nomarched_masking = topoAll.nomarched;
+                var topo = topoAll.marched;
+
+                var finalRecords = [];
+                for ( var j in topo ) {
+                    var topoItem = topo[j];
+
+                  //  if ( topoItem.marched_type != 'find' ) continue;
+                  //  if ( topoItem.zname.indexOf('VPLEX') >=0 ) continue;
+
+                    finalRecords.push(topoItem);
+
+                }
+
+                var finalRecords_new = [];
+                for ( var j in finalRecords ) {
+                    var topoItem = finalRecords[j];
+
+                   // if ( topoItem.marched_type != 'find' ) continue;
+                   // if ( topoItem.zname.indexOf('VPLEX') >=0 ) continue;
+
+                    var retItem = {};
+                    retItem.app = "";
+                    retItem.host = "";
+                    for ( var z in topoItem ) {
+                        retItem[z] = topoItem[z];
+                    }
+
+                    for ( var i in apps ) {
+                        var appItem = apps[i];
+
+                        if ( appItem.WWN == topoItem.hbawwn) { 
+                            retItem["app"] = appItem["app"];
+                            retItem["host"] = appItem["host"];   
+                        }
+                    }
+
+                    finalRecords_new.push(retItem);
+
+
+                }
+
+                 var fs = require('fs');
+                 var json2xls = require('json2xls');
+        
+                 var xls = json2xls(finalRecords_new);
+         
+                 var outputFilename = ReportOutputPath + '//' + 'topology.xlsx';
+                 fs.writeFileSync(outputFilename, xls, 'binary');
+
+                var ret = {};
+                ret.filename = outputFilename;
+                ret.generateDatetime = util.CurrentDateTime();
+                ret.NumberOfRecord = finalRecords_new.length;
+
+
+                // Insert the all of record into MongoDB 
+                var appTopologyRecord = {};
+                appTopologyRecord.metadata =  ret ;
+                appTopologyRecord.data = finalRecords_new ;
+                appTopologyRecord.nomached_zone = nomarched_zone ;
+                //appTopologyRecord.nomarched_masking = topoAll.nomarched;
+                //appTopologyRecord.zone = zone ; 
+                //appTopologyRecord.masking = masking ;
+
+                var newRecord = new AppTopologyObj(appTopologyRecord);
+                 
+                newRecord.save(function(err, thor) {
+                    //console.log(err);
+                    //console.log(thor);
+                    if (err)  {
+                        console.dir(thor);
+                        return res.json(400 , err);
+                    } else 
+                        res.json(200 , ret  );
+                });
+    
+        
+            });
+        });
+        
+
+    });
+            
+ 
 
 
 };

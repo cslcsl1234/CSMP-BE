@@ -240,26 +240,29 @@ var testController = function (app) {
 
            //Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
 
-          // VMAX.getArrayPerformance1( function(result) {            res.json(200,result);       }); 
+          //VMAX.getArrayPerformance1( function(result) {            res.json(200,result);       }); 
           // VMAX.GetCapacity(device, function(result) {            res.json(200,result);       }); 
           var device;
           var sgname;
-          var period = 604800;
-          var valuetype = 'average';
-          var end = util.getLastYear().lastDay;
-          var start  = util.getLastYear().firstDay ;
+          var period = 3600;
+          
+          var valuetype = 'max';
+          var start  = util.getPerfStartTime();
+          var end;
           //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
+          //function GetFCSwitchPart(devtype,parttype,callback) { 
 
 
         // VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
+        VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
        //VMAX.GetArrays(  function(ret) { 
         //Report.GetStoragePorts(function(ret) {
         //Report.GetArraysIncludeHisotry(device, function(ret) {  
         
         //VMAX.GetSGTop20ByCapacity(device, function(ret) {
         //Capacity.GetArrayCapacity(device, function(ret) {
-        VNX.GetBlockStorageGroup(device, sgname, function(ret) {           res.json(200,ret);        });
+         //   DeviceMgmt.GetArrayAliasName(function(ret) {           res.json(200,ret);        });
         //VNX.GetBlockDevices(device,  function(result) {   res.json(200,result);   }); 
         //VNX.GetMaskViews(function(ret) {
         //VMAX.GetMaskViews(device, function(ret) {
@@ -280,67 +283,6 @@ var testController = function (app) {
            })        
            */
     });
-
-    app.get('/api/test/apptopo', function (req, res) {
-        res.setTimeout(3600*1000);
-        var device;
-        var config = configger.load(); 
-        var ReportTmpDataPath = config.Reporting.TmpDataPath;
-        var ReportOutputPath = config.Reporting.OutputPath;
-                
-        
-        Report.GetApplicationInfo( function (apps) { 
-
-            Report.E2ETopology(device, function(topo) {
-
-                var finalRecords = [];
-                for ( var j in topo ) {
-                    var topoItem = topo[j];
-
-                  //  if ( topoItem.marched_type != 'find' ) continue;
-                  //  if ( topoItem.zname.indexOf('VPLEX') >=0 ) continue;
-
-                    finalRecords.push(topoItem);
-
-                }
-
-                var finalRecords_new = [];
-                for ( var j in finalRecords ) {
-                    var topoItem = finalRecords[j];
-
-                   // if ( topoItem.marched_type != 'find' ) continue;
-                   // if ( topoItem.zname.indexOf('VPLEX') >=0 ) continue;
-
-
-                    for ( var i in apps ) {
-                        var appItem = apps[i];
-
-                        if ( appItem.WWN == topoItem.hbawwn) { 
-                            topoItem["app"] = appItem["app"];
-                            topoItem["host"] = appItem["host"];   
-                        }
-                    }
-                }
-
-                 var fs = require('fs');
-                 var json2xls = require('json2xls');
-        
-                 var xls = json2xls(finalRecords);
-         
-                 
-                 fs.writeFileSync(ReportOutputPath + '//' + 'topology.xlsx', xls, 'binary');
-
-
-                 res.json(200 , "{ Records:" + finalRecords.length + "}" );
-        
-        
-            });
-        });
-        
-
-    });
-            
-
 
 
 

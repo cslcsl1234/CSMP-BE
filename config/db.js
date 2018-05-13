@@ -31,6 +31,9 @@ require('./../models/datacenter');
 require('./../models/eventModel');
 
 require('./../models/reportingModel');
+require('./../models/appTopologyModel');
+require('./../models/arraySGRedoVolumeModel');
+
 
 //connect to db.
 mongoose.connect(dbUrl, function (err, res) {

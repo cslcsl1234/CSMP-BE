@@ -21,6 +21,8 @@ var util = require('../lib/util');
 
 var mongoose = require('mongoose');
 var ArrayObj = mongoose.model('Array');
+var ArraySGRedoVolumeObj = mongoose.model('ArraySGRedoVolume');
+
 var CallGet = require('../lib/CallGet'); 
 
 var App = require('../lib/App'); 
@@ -4095,6 +4097,143 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
 
 
     });
+
+
+
+/* 
+*  Create a redo vol list in a storage gorup 
+*/
+app.put('/api/array/redovol', function (req, res) { 
+    var redovol = req.body;
+
+    ArraySGRedoVolumeObj.findOne({"storage_sn" : redovol.storage_sn, "sg_name" : redovol.sg_name }, function (err, doc) {
+        //system error.
+        if (err) {
+            return   done(err);
+        }
+        if (!doc) { //user doesn't exist.
+            console.log("redo volumes is not exist. insert it."); 
+
+            var newredovol = new ArraySGRedoVolumeObj(redovol);
+            newredovol.save(function(err, thor) {
+              if (err)  {
+
+                console.dir(thor);
+                return res.json(400 , err);
+              } else 
+                return res.json(200, {status: "The redo volumes insert is succeeds!"});
+            });
+        }
+        else {  
+            doc.update(redovol, function(error, course) {
+                if(error) return next(error);
+            });
+            return  res.json(200 , {status: "The redo volumes has exist! Update it."});
+        }
+    });
+});
+
+
+
+app.get('/api/array/redovol', function (req, res) {  
+    var storage_sn = req.query.storage_sn;
+    var sg = req.query.sg;
+
+    if ( storage_sn === undefined ) {
+        res.json(400, 'Must be special a storage!');
+        return;
+    };
+
+    if ( sg === undefined ) {
+        res.json(400, 'Must be special a storage group!');
+        return;
+    };
+    
+console.log(storage_sn+"|"+sg+"|");
+
+    async.waterfall([
+        function(callback){ 
+
+            ArraySGRedoVolumeObj.findOne({"storage_sn" : storage_sn , "sg_name" : sg }, {"storage_sn":1, "sg_name":1, "redo_volume":1, "_id": 0 },  function (err, doc) {
+                //system error.
+                if (err) {
+                    return   done(err);
+                }
+                if (!doc) { //user doesn't exist.
+                    console.log("redo volumes is not exist. insert it.");         
+                    res.json(500, 'redo volumes is not exist.'); 
+                }
+                else {  
+                    callback(null,doc);
+                }
+            });
+            
+        }, 
+        function(arg1,  callback){   
+ 
+            var device = arg1.storage_sn;
+            var sgname = arg1.sg_name;
+            var redovol = arg1.redo_volume.toString().split(",");
+
+            for ( var i in redovol ) { 
+                if ( partFilter === undefined ) {
+                    var partFilter = 'part=\''+redovol[i]+'\'';
+                } else {
+                    partFilter = partFilter +'|' + 'part=\''+redovol[i]+'\'';
+                }	               
+            }		 
+ 
+            var param = {};
+            param['device'] = device;
+            param['period'] = 86400;
+            param['start'] = util.getPerfStartTime(); 
+            param['type'] = 'max';
+            //param['filter_name'] = '(name==\'ReadRequests\'|name==\'ReadResponseTime\'|name==\'ReadThroughput\'|name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
+            param['filter_name'] = '(name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
+            param['keys'] = ['device','part'];
+            param['fields'] = ['name'];  
+            param['filter'] =  '('+ partFilter+')&parttype==\'LUN\'';
+
+    
+            CallGet.CallGetPerformance(param, function(param) {  
+                callback(null, param ); 
+            });             
+        }, 
+        function(arg1,  callback){ 
+            var newRes = [] ; 
+            for ( var i in arg1 ) {
+                var item = arg1[i];
+
+                if ( i == 0 ) 
+                    newRes = item.matrics;
+                else {
+                    for ( var j in item.matrics ) {
+                        var matricsItem = item.matrics[j];
+                        for ( var z in newRes ) {
+                            var newItem = newRes[z];
+                            if ( newItem.timestamp == matricsItem.timestamp ) { 
+                                newItem.WriteThroughput   = newItem.WriteThroughput + matricsItem.WriteThroughput;
+                                newItem.WriteRequests     = newItem.WriteRequests    + matricsItem.WriteRequests     ;
+                                newItem.WriteResponseTime = newItem.WriteResponseTime+ matricsItem.WriteResponseTime ;
+                                //newItem.ReadRequests      = newItem.ReadRequests     + matricsItem.ReadRequests      ;
+                                //newItem.ReadThroughput    = newItem.ReadThroughput   + matricsItem.ReadThroughput    ;
+                                //newItem.ReadResponseTime  = newItem.ReadResponseTime + matricsItem.ReadResponseTime  ;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+            }
+            callback(null,newRes);
+
+        }
+    ], function (err, result) { 
+
+        res.json(200, result );
+    }); 
+
+});
 
 
 /*
