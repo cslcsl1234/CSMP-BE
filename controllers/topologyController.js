@@ -121,8 +121,8 @@ var topologyController = function (app) {
         
         Report.GetApplicationInfo( function (apps) { 
 
-            //Report.E2ETopology(device, function(topoAll) {
-            Report.E2ETopologyTest(device, function(topoAll) {
+            Report.E2ETopology(device, function(topoAll) {
+            //Report.E2ETopologyTest(device, function(topoAll) {
                 var masking = topoAll.masking;
                 var zone = topoAll.zone;
                 var nomarched_zone = topoAll.nomarched_zone;

@@ -241,8 +241,7 @@ var testController = function (app) {
            //Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
 
           //VMAX.getArrayPerformance1( function(result) {            res.json(200,result);       }); 
-          // VMAX.GetCapacity(device, function(result) {            res.json(200,result);       }); 
-          var device;
+          // VMAX.GetCapacity(device, function(result) {            res.json(200,result);       });  
           var sgname;
           var period = 3600;
           
@@ -251,11 +250,12 @@ var testController = function (app) {
           var end;
           //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
           //function GetFCSwitchPart(devtype,parttype,callback) { 
-
-
-        // VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
+        
+        //SWITCH.GetSwitchPorts(device, function(rest) {             res.json(200,rest);        });
+        //SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
+        //VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
-        VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
+        //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
        //VMAX.GetArrays(  function(ret) { 
         //Report.GetStoragePorts(function(ret) {
         //Report.GetArraysIncludeHisotry(device, function(ret) {  
@@ -265,7 +265,7 @@ var testController = function (app) {
          //   DeviceMgmt.GetArrayAliasName(function(ret) {           res.json(200,ret);        });
         //VNX.GetBlockDevices(device,  function(result) {   res.json(200,result);   }); 
         //VNX.GetMaskViews(function(ret) {
-        //VMAX.GetMaskViews(device, function(ret) {
+        VMAX.GetMaskViews(device, function(ret) {     res.json(200,ret);        });
         //Report.ArrayAccessInfos(device, function(ret) {
         //Report.E2ETopology(device, function(ret) {  
         //    Report.GetApplicationInfo( function (ret) {
@@ -286,41 +286,80 @@ var testController = function (app) {
 
 
 
-    app.get('/api/test2', function (req, res) {
+    app.get('/api/test2', function (req, restu) {
+        
         var device = req.query.device; 
-        var period = 0;
-        var arg1={};
-                var queryString = " PREFIX  srm: <http://ontologies.emc.com/2013/08/srm#>  ";
-                queryString = queryString + " PREFIX  filter:<http://ontologies.emc.com/2015/mnr/topology#>      ";
-                queryString = queryString + " PREFIX  rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  ";
-                queryString = queryString + " SELECT distinct ?init_wwn ?arrayName ?poolName ?lunName ?lunRaid ?volumeWWN  ";
-                queryString = queryString + " WHERE {   ";
-             
-                queryString = queryString + "        ?initiator rdf:type srm:ProtocolEndpoint .      ";
-                queryString = queryString + "        ?initiator  srm:Identifier ?www .        ";
-                queryString = queryString + "        BIND(replace(?www , 'topo:srm.ProtocolEndpoint:', '', 'i') as ?init_wwn) .    ";
-                queryString = queryString + "        ?initiator srm:maskedTo ?mv .";
-                queryString = queryString + "         ?mv srm:maskedToDisk ?disk .    ";          
+        async.waterfall(
+            [
 
-                 queryString = queryString + "        ?disk srm:displayName ?lunName .    ";               
-
-                queryString = queryString + "       ?disk srm:isUsed ?lunisused .  ";
-                queryString = queryString + "       ?disk srm:raid ?lunRaid .  ";
-                queryString = queryString + "       ?disk srm:lunTagId ?lunTagId .  ";
-                queryString = queryString + "       ?disk srm:volumeWWN ?volumeWWN .  ";
-                queryString = queryString + "       ?disk srm:residesOnStoragePool ?pool .  ";
-                queryString = queryString + "       ?disk srm:residesOnStorageEntity ?array .  ";
-                queryString = queryString + "       ?pool srm:displayName ?poolName .  ";
-                queryString = queryString + "       ?array srm:displayName ?arrayName .  ";
-                queryString = queryString + " }  ";
+                function(callback){
+                    var param = {};
+                    //param['filter'] = '(parttype=\'MetaMember\'|parttype=\'LUN\')';
+                    param['filter'] = '(parttype=\'StorageGroupToLUN\')';
+                    //param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'PoolUsedCapacity\')';
+                    param['keys'] = ['device','sgname','lunname'];
+            
+                    if (  device !==  undefined ) { 
+                        param['filter'] = 'device=\''+device+'\'&' + param['filter'];
+                    } 
 
 
-                  topos.querySparql(queryString,  function (response) {
-                                  //var resultRecord = RecordFlat(response.raw_body, keys);
-                                    
-                      arg1["lun"] = response;
-                      res.json(200 , arg1);
-                  }); 
+                    CallGet.CallGet(param, function(param) {  
+                        var res = param.result;
+
+                        callback(null,res);
+
+                    });
+
+                }, 
+                function ( arg1, callback) { 
+        
+                    var param = {};
+                    //param['filter'] = '(parttype=\'MetaMember\'|parttype=\'LUN\')';
+                    param['filter'] = '(parttype=\'LUN\')';
+                    //param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'PoolUsedCapacity\')';
+                    param['keys'] = ['device','part'];
+                    param['fields'] = ['model','parttype','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked','vmaxtype','disktype'];
+                    param['period'] = 604800;
+                    param['start'] = util.getConfStartTime('1d');
+            
+                    if (  device !==  undefined ) { 
+                        param['filter'] = 'device=\''+device+'\'&' + param['filter'];
+                    } 
+
+
+                    CallGet.CallGet(param, function(param) {  
+                        var luns = param.result;
+
+                        var res1 = {};
+                        for ( var i in arg1 ) {
+                            var item = arg1[i];
+                            if ( res1[item.device] === undefined ) 
+                                res1[item.device] = {};   
+                                if ( res1[item.device][item.sgname] === undefined )
+                                    res1[item.device][item.sgname] = []; 
+                                
+                                for ( var luni in luns ) {
+                                    var lunItem = luns[luni];
+                                    //console.log(item.device +","+lunItem.device +"\t"+ item.lunname +","+ item.part);
+                                    if ( item.device == lunItem.device && item.lunname == lunItem.part )
+                                        res1[item.device][item.sgname].push(lunItem); 
+                                }
+                                
+                        }
+            
+                        callback(null,res1);
+
+                    });
+                } ,  
+                    function(arg1, callback) {
+                        callback(null,arg1);
+                    } 
+                ], function (err, result) { 
+                    restu.json(200 , result );
+                });
+    
+
 });
 
     app.get('/api/test/list', function (req, res) {

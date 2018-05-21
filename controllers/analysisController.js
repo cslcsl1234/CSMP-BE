@@ -209,7 +209,7 @@ var analysisController = function (app) {
                 // result now equals 'done'
                 var finalReturn = {};
                 finalReturn.data = result
-                res.json(500 , finalReturn );
+                res.json(200 , finalReturn );
             });
 
         
