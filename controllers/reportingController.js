@@ -13,6 +13,7 @@ var configger = require('../config/configger');
 var CallGet = require('../lib/CallGet'); 
 var getTopos = require('../lib/topos'); 
 var async = require('async'); 
+var moment = require('moment');
 
 var Reporting = require('../lib/Reporting');
 
@@ -586,11 +587,12 @@ var reportingController = function (app) {
         var endDate = req.query.to;
         console.log("BeginDate="+beginDate+',EndDate=' + endDate);
         var device;
-
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString(); 
         async.waterfall([
             function(callback) { 
 
-                Report.GetArraysIncludeHisotry(device,beginDate, endDate, function(ret1) {  
+                Report.GetArraysIncludeHisotry(device,start, end, function(ret1) {  
                     DeviceMgmt.GetArrayAliasName(function(arrayinfo) {     
 
                         var ret = ret1;

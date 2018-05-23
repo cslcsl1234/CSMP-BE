@@ -251,6 +251,8 @@ var testController = function (app) {
           //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
           //function GetFCSwitchPart(devtype,parttype,callback) { 
         
+        Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
+
         //SWITCH.GetSwitchPorts(device, function(rest) {             res.json(200,rest);        });
         //SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
         //VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
