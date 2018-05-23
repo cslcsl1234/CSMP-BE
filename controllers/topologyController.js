@@ -163,9 +163,10 @@ var topologyController = function (app) {
                         }
                     }
 
-                    finalRecords_new.push(retItem);
-
-
+                    if ( retItem.marched_type == 'find' ) {
+                        delete retItem.marched_type;
+                        finalRecords_new.push(retItem);
+                    }
                 }
 
                  var fs = require('fs');
@@ -194,8 +195,8 @@ var topologyController = function (app) {
                 var newRecord = new AppTopologyObj(appTopologyRecord);
                  
                 newRecord.save(function(err, thor) {
-                    //console.log(err);
-                    //console.log(thor);
+                    console.log(err);
+                    console.log(thor);
                     if (err)  {
                         console.dir(thor);
                         return res.json(400 , err);

@@ -19,7 +19,7 @@ var Reporting = require('../lib/Reporting');
 var mongoose = require('mongoose');   
 var ReportInfoObj = mongoose.model('ReportInfo');
 var ReportStatusObj = mongoose.model('ReportStatus');
-
+var DeviceMgmt = require('../lib/DeviceManagement');
 
 var tempfile = require('tempfile');
 var officegen = require('officegen');
@@ -517,12 +517,15 @@ var reportingController = function (app) {
 
     // CEB Report 1.1
     app.get('/api/reports/capacity/summary', function (req, res) {
+        res.setTimeout(1200*1000);
+
         var beginDate = req.query.from; 
         var endDate = req.query.to;
         console.log("BeginDate="+beginDate+',EndDate=' + endDate);
         var device; 
         Report.GetArraysIncludeHisotry(device, function(ret) {  
-
+            console.log(ret);
+        //var ret = require("../demodata/test");
             var finalRecord = [];
 
             for ( var i in ret.data ) {
@@ -534,10 +537,10 @@ var reportingController = function (app) {
                     if ( resItem.type == item.type ) {
                         resItem.quantity++;
  
-                       resItem['logical_capacity_PB']              +=  item['logical_capacity_PB']             ;
+                       resItem['logical_capacity_PB']              +=  ( isNaN(item['logical_capacity_PB']) == true ) ? 0 : item['logical_capacity_PB'] ;;
                        resItem['logical_capacity_last_year_PB']    +=  ( isNaN(item['logical_capacity_last_year_PB']) == true ) ? 0 : item['logical_capacity_last_year_PB'] ; 
                        resItem['logical_capacity_last_month_PB']   +=  ( isNaN(item['logical_capacity_last_month_PB']) == true ) ? 0 : item['logical_capacity_last_month_PB'] ;
-                       resItem['allocated_capacity_PB']            +=  item['allocated_capacity_PB']           ;
+                       resItem['allocated_capacity_PB']            +=  ( isNaN(item['allocated_capacity_PB']) == true ) ? 0 : item['allocated_capacity_PB'] ;          ;
                        resItem['allocated_capacity_last_year_PB']  +=  ( isNaN(item['allocated_capacity_last_year_PB']) == true ) ? 0 : item['allocated_capacity_last_year_PB'] ;
                        resItem['allocated_capacity_last_month_PB'] +=   ( isNaN(item['allocated_capacity_last_month_PB']) == true ) ? 0 : item['allocated_capacity_last_month_PB'] ;
                        isFind = true;  
@@ -578,81 +581,189 @@ var reportingController = function (app) {
 
     // CEB Report 1.2
     app.get('/api/reports/capacity/details', function (req, res) {
+        res.setTimeout(1200*1000);
         var beginDate = req.query.from; 
         var endDate = req.query.to;
         console.log("BeginDate="+beginDate+',EndDate=' + endDate);
         var device;
-        Report.GetArraysIncludeHisotry(device, function(ret) {  
-                res.json(200 , ret);
-            });
+
+        async.waterfall([
+            function(callback) { 
+
+                Report.GetArraysIncludeHisotry(device,beginDate, endDate, function(ret1) {  
+                    DeviceMgmt.GetArrayAliasName(function(arrayinfo) {     
+
+                        var ret = ret1;
+                        for ( var i in ret  ) {
+                            var item = ret[i];
+                            for ( var j in arrayinfo ) {
+                                var arrayItem = arrayinfo[j];
+                                //console.log(item.sn + '\t' + arrayItem.storagesn);
+                                if  ( item.sn == arrayItem.storagesn )  {
+                                    item.name = arrayItem.name
+                                }
+                            }
+                        }
+                        callback(null,ret);
+
+                    });
+                });
+            }, 
+            function( arg, callback ) {   
+                var ret = util.JsonSort(arg,"name");      
+                callback(null,ret);
+            } 
+        ], function (err, result) {
+            var newret = {};
+            newret['data'] = result; 
+
+            // result now equals 'done'
+            res.json(200 ,newret);
+        });
 
     });
 
-
     // CEB Report 1.3
     app.get('/api/reports/capacity/top20/sg', function (req, res) {
+        res.setTimeout(1200*1000);
         var beginDate = req.query.from; 
         var endDate = req.query.to;
         console.log("BeginDate="+beginDate+',EndDate=' + endDate);
-        VMAX.GetSGTop20ByCapacity(function(ret) {  
 
-            var finalRecord = [];
-            for ( var i in ret ) {
-                var item = ret[i];
+                
+        async.waterfall([
+            function(callback) { 
 
-                var retItem = {};
-                retItem["device_name"] = "";
-                retItem["device_sn"] = item.device;
-                retItem["sg_name"] = item.sgname;
-                retItem["app_name"] = "";
-                retItem["sg_lun_total"] = item.SumOfLuns;
-                retItem["sg_capacity_GB"] = item.Capacity;
-                retItem["sg_capacity_last_dec_GB"] = ( item.sg_capacity_last_dec_GB === undefined ) ? 0 : item.sg_capacity_last_dec_GB ;
+                VMAX.GetSGTop20ByCapacity(function(ret) {  
 
-                finalRecord.push(retItem);
-            }
-            var newret = {};
-            newret['data'] = finalRecord;
+                    var finalRecord = [];
+                    for ( var i in ret ) {
+                        var item = ret[i];
 
-            res.json(200 ,newret);
-        });
-        
+                        var retItem = {};
+                        retItem["device_name"] = "";
+                        retItem["device_sn"] = item.device;
+                        retItem["sg_name"] = item.sgname;
+                        retItem["app_name"] = "";
+                        retItem["sg_lun_total"] = item.SumOfLuns;
+                        retItem["sg_capacity_GB"] = item.Capacity;
+                        retItem["sg_capacity_last_dec_GB"] = ( item.sg_capacity_last_dec_GB === undefined ) ? 0 : item.sg_capacity_last_dec_GB ;
+
+                        finalRecord.push(retItem);
+                    }
+
+
+                    callback(null,finalRecord);
+                });
             
+                
+            }, 
+            function (arg, callback) {
+                Report.getAppStorageRelation( function (result )  {   
+                    
+                    for (var i in arg ) {
+                        var item = arg[i];
+                        for ( var j in result ) {
+                            var appItem = result[j];
+                            if (  appItem.array == item.device_sn )
+                                item.device_name = appItem.array_name;
+                            if ( appItem.array == item.device_sn && appItem.SG == item.sg_name ) {
+                                if ( item.app_name == ""  ) 
+                                    item.app_name = appItem.app;
+                                else 
+                                    item.app_name = item.app_name +"," + appItem.app
+                            }
+                        }
+                    }
+                    callback(null,arg);
+
+
+                }); 
+
+            }
+            ], function (err, result) {
+                var newret = {};
+                newret['data'] = result; 
+
+                // result now equals 'done'
+                res.json(200 ,newret);
+            });
 
     });
 
 
     // CEB Report 1.4
     app.get('/api/reports/capacity/top20/sg_increase', function (req, res) {
+        res.setTimeout(1200*1000);
         var beginDate = req.query.from; 
         var endDate = req.query.to; 
-        VMAX.GetSGTop20ByUsedCapacityIncrease(function(ret) {  
-            var retResult = [];
-            for ( var i = 0 ; i< 20 ; i++ ) {
-                var item = ret[i];
-                var retItem = {};
-    
-                retItem["device_name"] = "";
-                retItem["device_sn"] = item.device;
-                retItem["sg_name"] = item.sgname;
-                retItem["app_name"] = "";
-                retItem["sg_lun_total"] = item.SumOfLuns;
-                retItem["sg_capacity_GB"] = item.UsedCapacity;
-                retItem["sg_capacity_last_dec_GB"] = item.UsedCapacityLastTear;
-                retItem["sg_logical_capacity_GB"] = item.Capacity;
-                retResult.push(retItem);
-    
-            }
-            var newret = {};
-            newret['data'] = retResult;
 
-            res.json(200 ,newret);
-        });
-        
+        async.waterfall([
+            function(callback) { 
+
+                VMAX.GetSGTop20ByUsedCapacityIncrease(function(ret) {  
+                    var retResult = [];
+                    for ( var i = 0 ; i< 20 ; i++ ) {
+                        var item = ret[i];
+                        var retItem = {};
+            
+                        retItem["device_name"] = "";
+                        retItem["device_sn"] = item.device;
+                        retItem["sg_name"] = item.sgname;
+                        retItem["app_name"] = "";
+                        retItem["sg_lun_total"] = item.SumOfLuns;
+                        retItem["sg_capacity_GB"] = item.UsedCapacity;
+                        retItem["sg_capacity_last_dec_GB"] = item.UsedCapacityLastTear;
+                        retItem["sg_logical_capacity_GB"] = item.Capacity;
+                        retResult.push(retItem);
+            
+                    } 
+                    callback ( null,retResult);
+                });
+            
+                               
+                
+            }, 
+            function (arg, callback) {
+                Report.getAppStorageRelation( function (result )  {   
+                    
+                    for (var i in arg ) {
+                        var item = arg[i];
+                        for ( var j in result ) {
+                            var appItem = result[j];
+                            if (  appItem.array == item.device_sn )
+                                item.device_name = appItem.array_name;
+                            if ( appItem.array == item.device_sn && appItem.SG == item.sg_name ) {
+                                if ( item.app_name == ""  ) 
+                                    item.app_name = appItem.app;
+                                else 
+                                    item.app_name = item.app_name +"," + appItem.app
+                            }
+                        }
+                    }
+                    callback(null,arg);
+
+
+                }); 
+
+            }
+            ], function (err, result) {
+                var newret = {};
+                newret['data'] = result; 
+
+                // result now equals 'done'
+                res.json(200 ,newret);
+            });
+
+
     });
+
+
+    // CEB Report 1.5
 
     app.get('/api/reports/capacity/related/', function (req, res) {
         //var ret = require("../demodata/capacityrelated");
+        res.setTimeout(1200*1000);
         var device;
 
         async.waterfall(
@@ -740,8 +851,11 @@ var reportingController = function (app) {
     
        
     });
+
+        // CEB Report 2.1
     app.get('/api/reports/performance/summary/iops/', function (req, res) {
         //var ret = require("../demodata/summary_iops");
+        res.setTimeout(1200*1000);
         var device;
 
         async.waterfall(
@@ -832,8 +946,11 @@ var reportingController = function (app) {
     
     }); 
 
+
+    // CEB Report 2.1 - MBPS
     app.get('/api/reports/performance/summary/mbps/', function (req, res) {
         //var ret = require("../demodata/summary_mbps");
+        res.setTimeout(1200*1000);
         var device;
 
         async.waterfall(
@@ -924,9 +1041,10 @@ var reportingController = function (app) {
     
     });
 
-
+    // CEB Report 2.2
     app.get('/api/reports/performance/sg/summary/', function (req, res) {
         //var ret = require("../demodata/sg_summary");
+        res.setTimeout(1200*1000);
         var device;
         async.waterfall(
             [
@@ -959,7 +1077,7 @@ var reportingController = function (app) {
                             if ( isfind = false ) {
                                 retItem.device_name = "";
                             }
-
+                            retItem.app_name = ""; 
                             retItem.device_sn = item.device;
                             retItem.sg_name = item.sgname;
                             retItem.sg_lun_total = item.SumOfLuns;
@@ -978,6 +1096,29 @@ var reportingController = function (app) {
                     arg1.sort(sortBy("-sg_capacity_GB"));
                     
                     callback(null,arg1);
+                }, 
+                function (arg, callback) {
+                    Report.getAppStorageRelation( function (result )  {   
+                        
+                        for (var i in arg ) {
+                            var item = arg[i];
+                            for ( var j in result ) {
+                                var appItem = result[j];
+                                if (  appItem.array == item.device_sn )
+                                    item.device_name = appItem.array_name;
+                                if ( appItem.array == item.device_sn && appItem.SG == item.sg_name ) {
+                                    if ( item.app_name == ""  ) 
+                                        item.app_name = appItem.app;
+                                    else 
+                                        item.app_name = item.app_name +"," + appItem.app
+                                }
+                            }
+                        }
+                        callback(null,arg);
+    
+    
+                    }); 
+    
                 }
             ], function (err, result) {
                   // result now equals 'done'
@@ -992,8 +1133,9 @@ var reportingController = function (app) {
     });
 
 
+        // CEB Report 2.2.1
     app.get('/api/reports/performance/sg/top10/iops/', function (req, res) {
-
+        res.setTimeout(1200*1000);
         async.waterfall(
             [
                 function(callback){
@@ -1047,6 +1189,29 @@ var reportingController = function (app) {
                     arg1.sort(sortBy("-iops_avg"));
                     
                     callback(null,arg1);
+                },
+                function (arg, callback) {
+                    Report.getAppStorageRelation( function (result )  {   
+                        
+                        for (var i in arg ) {
+                            var item = arg[i];
+                            for ( var j in result ) {
+                                var appItem = result[j];
+                                if (  appItem.array == item.device_sn )
+                                    item.device_name = appItem.array_name;
+                                if ( appItem.array == item.device_sn && appItem.SG == item.sg_name ) {
+                                    if ( item.app_name == ""  ) 
+                                        item.app_name = appItem.app;
+                                    else 
+                                        item.app_name = item.app_name +"," + appItem.app
+                                }
+                            }
+                        }
+                        callback(null,arg);
+    
+    
+                    }); 
+    
                 }
             ], function (err, result) {
                   // result now equals 'done'
@@ -1063,7 +1228,7 @@ var reportingController = function (app) {
     });
 
     app.get('/api/reports/performance/sg/top10/middle_iops/', function (req, res) {
-
+        res.setTimeout(1200*1000);
         async.waterfall(
             [
                 function(callback){
@@ -1169,6 +1334,29 @@ var reportingController = function (app) {
                     arg1.sort(sortBy("-iops_avg"));
                     
                     callback(null,arg1);
+                },
+                function (arg, callback) {
+                    Report.getAppStorageRelation( function (result )  {   
+                        
+                        for (var i in arg ) {
+                            var item = arg[i];
+                            for ( var j in result ) {
+                                var appItem = result[j];
+                                if (  appItem.array == item.device_sn )
+                                    item.device_name = appItem.array_name;
+                                if ( appItem.array == item.device_sn && appItem.SG == item.sg_name ) {
+                                    if ( item.app_name == ""  ) 
+                                        item.app_name = appItem.app;
+                                    else 
+                                        item.app_name = item.app_name +"," + appItem.app
+                                }
+                            }
+                        }
+                        callback(null,arg);
+    
+    
+                    }); 
+    
                 }
             ], function (err, result) {
                   // result now equals 'done'
@@ -1186,7 +1374,7 @@ var reportingController = function (app) {
 
     app.get('/api/reports/performance/sg/top10/iops_avg_increase', function (req, res) {
         //var ret = require("../demodata/iops_avg_increase");
-
+        res.setTimeout(1200*1000);
         async.waterfall(
             [
                 function(callback){
@@ -1259,7 +1447,7 @@ var reportingController = function (app) {
 
                             for ( var j in param ) {
                                 var top10Item = param[j];
-                                console.log( top10Item.device_sn +"\t" + item.device +"\t" + top10Item.sg_name +"\t" + item.sgname);
+                                //console.log( top10Item.device_sn +"\t" + item.device +"\t" + top10Item.sg_name +"\t" + item.sgname);
                                 if ( top10Item.device_sn == item.device && top10Item.sg_name == item.sgname ) {
                                     top10Item.iops_avg_lastyear = item.matricsStat.ReadRequests.avg + item.matricsStat.WriteRequests.avg ;
                                     top10Item.iops_avg_increase = top10Item.iops_avg_lastyear > 0 ? ( top10Item.iops_avg - top10Item.iops_avg_lastyear ) /top10Item.iops_avg_lastyear : 100;
@@ -1270,7 +1458,30 @@ var reportingController = function (app) {
                         }
                         callback(null,param);  
                     });
-                } 
+                } ,
+                function (arg, callback) {
+                    Report.getAppStorageRelation( function (result )  {   
+                        
+                        for (var i in arg ) {
+                            var item = arg[i];
+                            for ( var j in result ) {
+                                var appItem = result[j];
+                                if (  appItem.array == item.device_sn )
+                                    item.device_name = appItem.array_name;
+                                if ( appItem.array == item.device_sn && item.sg_name.indexOf(appItem.SG) >= 0  ) {
+                                    if ( item.app_name == ""  ) 
+                                        item.app_name = appItem.app;
+                                    else 
+                                        item.app_name = item.app_name +"," + appItem.app
+                                }
+                            }
+                        }
+                        callback(null,arg);
+    
+    
+                    }); 
+    
+                }
             ], function (err, result) {
                   // result now equals 'done'
 
@@ -1284,7 +1495,7 @@ var reportingController = function (app) {
 
     app.get('/api/reports/performance/sg/top10/middle_iops_avg_increase', function (req, res) {
         //var ret = require("../demodata/iops_avg_increase");
-
+        res.setTimeout(1200*1000);
         async.waterfall(
             [
                 function(  callback){ 
@@ -1390,6 +1601,29 @@ var reportingController = function (app) {
                     arg1.sort(sortBy("-iops_avg"));
   
                     callback(null,arg1);
+                },
+                function (arg, callback) {
+                    Report.getAppStorageRelation( function (result )  {   
+                        
+                        for (var i in arg ) {
+                            var item = arg[i];
+                            for ( var j in result ) {
+                                var appItem = result[j];
+                                if (  appItem.array == item.device_sn )
+                                    item.device_name = appItem.array_name;
+                                if ( appItem.array == item.device_sn && appItem.SG == item.sg_name ) {
+                                    if ( item.app_name == ""  ) 
+                                        item.app_name = appItem.app;
+                                    else 
+                                        item.app_name = item.app_name +"," + appItem.app
+                                }
+                            }
+                        }
+                        callback(null,arg);
+    
+    
+                    }); 
+    
                 }
             ], function (err, result) {
                   // result now equals 'done'
@@ -1407,6 +1641,8 @@ var reportingController = function (app) {
 
     app.get('/api/reports/performance/sg/top10/iops_response_time', function (req, res) {
         //var ret = require("../demodata/report_io_response");
+        res.setTimeout(1200*1000);
+
         async.waterfall(
             [
                 function(callback){
@@ -1460,6 +1696,29 @@ var reportingController = function (app) {
                     arg1.sort(sortBy("-response_time_ms"));
                     
                     callback(null,arg1);
+                },
+                function (arg, callback) {
+                    Report.getAppStorageRelation( function (result )  {   
+                        
+                        for (var i in arg ) {
+                            var item = arg[i];
+                            for ( var j in result ) {
+                                var appItem = result[j];
+                                if (  appItem.array == item.device_sn )
+                                    item.device_name = appItem.array_name;
+                                if ( appItem.array == item.device_sn && appItem.SG == item.sg_name ) {
+                                    if ( item.app_name == ""  ) 
+                                        item.app_name = appItem.app;
+                                    else 
+                                        item.app_name = item.app_name +"," + appItem.app
+                                }
+                            }
+                        }
+                        callback(null,arg);
+    
+    
+                    }); 
+    
                 }
             ], function (err, result) {
                   // result now equals 'done'
@@ -1477,6 +1736,7 @@ var reportingController = function (app) {
 
 
     app.get('/api/reports/performance/sg/top10/middle_iops_response_time', function (req, res) { 
+        res.setTimeout(1200*1000);
 
         async.waterfall(
             [

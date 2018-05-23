@@ -12,8 +12,10 @@ var unirest = require('unirest');
 var configger = require('../config/configger');  
 var util = require('../lib/util');
 var mongoose = require('mongoose');
+var moment = require('moment');
 
 var async = require('async');
+var CallGet = require('../lib/CallGet');
 var App = require('../lib/App'); 
 var topos = require('../lib/topos.js');
 var Report = require('../lib/Reporting');
@@ -52,7 +54,7 @@ var analysisController = function (app) {
             [
 
                 function(callback){
-                
+                    console.log(moment.utc(Date.now()).format() + "TEST1");
                     var query = AppTopologyObj.find({}).select({ "metadata": 1, "data": 1,  "_id": 0});
                     query.exec(function (err, doc) {
                         //system error.
@@ -84,11 +86,14 @@ var analysisController = function (app) {
                     });
 
                 },  
-                function(param,  callback){ 
+                function(param,  callback) { 
+                    console.log(moment.utc(Date.now()).format() + "TEST1");
                     var res = [];
                     DeviceMgmt.GetArrayAliasName(function(arrayinfo) {     
+                        console.log(moment.utc(Date.now()).format() + "TEST1.1"); 
                         for ( var i in param ) {
                             var item = param[i];
+                            if ( item.array === undefined ) continue; 
 
                             var isfind = false;
                             for ( var j in res ) {
@@ -105,27 +110,34 @@ var analysisController = function (app) {
                                 resItem.array = item.array;
                                 resItem.SG = item.SG;
                                 resItem.array_name = "";
-
+/*
+                                var arrayinfoItem = arrayinfo[resItem.array]; 
+                                resItem.array_name = arrayinfoItem.name;
+                                resItem.array_level = arrayinfoItem.type;
+*/
                                 for ( var z in arrayinfo ) {
                                     if ( resItem.array == arrayinfo[z].storagesn ) {
                                         resItem.array_name = arrayinfo[z].name;
                                         resItem.array_level = arrayinfo[z].type;
                                         break;
                                     }
-                                }
+                                } 
                                 if ( resItem.array_level == 'high')
                                     res.push(resItem);
                             }
                         }
+                        console.log(moment.utc(Date.now()).format() + "TEST1.2");
 
                         for ( var i in res ) {
                             if ( res[i].app == "" ) res[i].app = res[i].SG ;
                         }
+                        console.log(moment.utc(Date.now()).format() + "TEST1.4");
                         callback(null,res);
                                    
                     });
                 },
                 function(param,  callback){ 
+                    console.log(moment.utc(Date.now()).format() + "TEST1");
                     var res = [];
                      
                     for ( var i in  param ) {
@@ -203,6 +215,7 @@ var analysisController = function (app) {
                     //callback(null,param);
                 },  
                 function(arg1, callback) {
+                    console.log(moment.utc(Date.now()).format() + "TEST1");
                     callback(null,arg1);
                 } 
             ], function (err, result) {
@@ -217,26 +230,39 @@ var analysisController = function (app) {
             
  
 
-    app.get('/api/analysis/app/workload', function (req, res) {  
+    app.get('/api/analysis/app/workload', function (req, res) { 
+        res.setTimeout(3600*1000); 
         var device = req.query.storage_sn;
         var sgname = req.query.sg;
 
-        if ( device === undefined ) {
+
+        if ( device === undefined || device == '' ) {
             res.json(400, 'Must be special a storage!');
             return;
         };
 
-        if ( sgname === undefined ) {
+        if ( sgname === undefined || sgname == '' ) {
             res.json(400, 'Must be special a storage group!');
             return;
         }; 
 
+        if ( req.query.from === undefined ||  !moment(req.query.from).isValid() ) {
+            res.json(400, 'Must be special a valid start time!');
+            return;            
+        }
+
+        if ( req.query.to === undefined ||  !moment(req.query.to).isValid() ) {
+            res.json(400, 'Must be special a valid end time!');
+            return;            
+        }
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString();
+
+
         async.waterfall([
             function(callback){ 
                 var period = 86400;
-                var valuetype = 'max';
-                var start  = util.getPerfStartTime();
-                var end;
+                var valuetype = 'max'; 
                 VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) { 
                     
                     for ( var i in rest)   {
@@ -275,8 +301,8 @@ var analysisController = function (app) {
 
     app.get('/api/analysis/part/workload', function (req, res) {  
         var device = req.query.storage_sn; 
-        var start = req.query.from;
-        var end = req.query.end;
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString(); 
 
         if ( device === undefined ) {
             res.json(400, 'Must be special a storage!');
@@ -285,7 +311,17 @@ var analysisController = function (app) {
 
         async.waterfall([
             function(callback){  
-                VMAX.getArrayPerformance1( function(result) {
+                var param = {}; 
+                param['keys'] = ['device'];
+                param['fields'] = ['name'];
+                param['period'] = 86400;
+                param['start'] = start;
+                param['end'] = end;
+                param['filter'] = '!parttype&source=\'VMAX-Collector\'';
+                param['filter_name'] = '(name==\'HitPercent\'|name==\'ReadRequests\'|name==\'WriteRequests\'|name==\'ReadThroughput\'|name==\'WriteThroughput\')';
+
+        
+                CallGet.CallGetPerformance(param, function(result) {   
 
                     for ( var i in result)   {
                         var item = result[i];
@@ -311,9 +347,7 @@ var analysisController = function (app) {
             },  
             function(arg1, callback ) { 
                 var period = 86400;
-                var valuetype = 'max';
-                var start  = util.getPerfStartTime();
-                var end;
+                var valuetype = 'max'; 
                 VMAX.GetDirectorPerformance(device, period, start, valuetype, function(result) { 
                     var resultFA = [];
                     for ( var j in result){
@@ -428,6 +462,88 @@ var analysisController = function (app) {
 
     });
 
+    app.get('/api/analysis/storage/volume/top10', function (req, res) {  
+        var device = req.query.storage_sn; 
+        var sgname = req.query.sg;
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString(); 
+
+        if ( device === undefined ) {
+            res.json(400, 'Must be special a storage!');
+            return;
+        };
+
+        if ( sgname === undefined ) {
+            res.json(400, 'Must be special a storage group!');
+            return;
+        }; 
+
+        async.waterfall([
+            
+            function( callback ) { 
+                var param = {};  
+                param['keys'] = ['device','sgname','lunname']; 
+                param['field'] = ['sgcount','iolimit']; 
+                param['filter'] = '(source=\'VMAX-Collector\'&parttype=\'StorageGroupToLUN\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&sgname==\''+sgname+'\'&'+param.filter;
+                }  
+                
+                CallGet.CallGet(param, function(param) {
+                    var luns = [];
+                    for ( var i in param.result ) {
+                        var item = param.result[i];
+                        luns.push(item.lunname);
+                    }
+                    callback(null,luns);
+                } );
+
+            },
+            function(arg1,callback) {
+                var lunlist;
+                for ( var i in arg1 ) { 
+                    var lun = arg1[i];
+                    if ( lunlist === undefined ) 
+                        lunlist = 'part==\''+lun + '\'';
+                    else 
+                        lunlist = lunlist + '|part==\''+lun + '\'';
+                }
+                var param = {}; 
+                param['keys'] = ['device','part'];
+                param['fields'] = ['name'];
+                param['period'] = 86400;
+                param['start'] = start;
+                param['end'] = end;
+                param['filter'] =  'device==\''+device+'\'&(' + lunlist + ')&(parttype==\'LUN\'|parttype==\'MetaMember\')';
+                param['filter_name'] = '(name==\'HitPercent\'|name==\'ReadRequests\'|name==\'WriteRequests\'|name==\'ReadThroughput\'|name==\'WriteThroughput\')';
+
+                CallGet.CallGetPerformance(param, function(param) {  
+                    callback(null, param ); 
+                }); 
+            },
+            function(arg,  callback){ 
+                for ( var i in arg ) {
+                    var item = arg[i];
+                    for ( var j=0; j<arg.length-1-i;j++) {
+                        var item1 = arg[j];
+                        if ( ( arg[j].matricsStat.ReadRequests.max + arg[j].matricsStat.WriteRequests.max )  < ( arg[j+1].matricsStat.ReadRequests.max + arg[j+1].matricsStat.WriteRequests.max ) ) {
+                            var temp = arg[j+1];
+                            arg[j+1] = arg[j];
+                            arg[j] = temp;
+                        }
+                    }
+    
+                }
+
+                callback(null,arg);
+    
+            } 
+        ], function (err, result) { 
+
+            res.json(200, result );
+        }); 
+
+    });
 
 };
 
