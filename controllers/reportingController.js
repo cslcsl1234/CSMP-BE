@@ -519,18 +519,17 @@ var reportingController = function (app) {
     // CEB Report 1.1
     app.get('/api/reports/capacity/summary', function (req, res) {
         res.setTimeout(1200*1000);
-
-        var beginDate = req.query.from; 
-        var endDate = req.query.to;
-        console.log("BeginDate="+beginDate+',EndDate=' + endDate);
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString();  
+        console.log("BeginDate="+start+',EndDate=' + end);
         var device; 
-        Report.GetArraysIncludeHisotry(device, function(ret) {  
+        Report.GetArraysIncludeHisotry(device,start,end, function(ret) {  
             console.log(ret);
         //var ret = require("../demodata/test");
             var finalRecord = [];
 
-            for ( var i in ret.data ) {
-                var item = ret.data[i];
+            for ( var i in ret ) {
+                var item = ret[i];
     
                 var isFind = false ;
                 for ( var j in finalRecord ) {
@@ -582,10 +581,7 @@ var reportingController = function (app) {
 
     // CEB Report 1.2
     app.get('/api/reports/capacity/details', function (req, res) {
-        res.setTimeout(1200*1000);
-        var beginDate = req.query.from; 
-        var endDate = req.query.to;
-        console.log("BeginDate="+beginDate+',EndDate=' + endDate);
+        res.setTimeout(1200*1000);  
         var device;
         var start = moment(req.query.from).toISOString(); 
         var end = moment(req.query.to).toISOString(); 
@@ -628,34 +624,124 @@ var reportingController = function (app) {
     // CEB Report 1.3
     app.get('/api/reports/capacity/top20/sg', function (req, res) {
         res.setTimeout(1200*1000);
-        var beginDate = req.query.from; 
-        var endDate = req.query.to;
-        console.log("BeginDate="+beginDate+',EndDate=' + endDate);
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString(); 
+        console.log("BeginDate="+start+',EndDate=' + end);
 
                 
         async.waterfall([
-            function(callback) { 
+            function( callback ) {
 
-                VMAX.GetSGTop20ByCapacity(function(ret) {  
+                var param = {};  
+                param['keys'] = ['device','sgname','lunname'];  
+                param['filter'] = '(source=\'VMAX-Collector\'&datagrp=\'VMAX-STORAGE-GROUPS\'&parttype=\'StorageGroupToLUN\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&'+param.filter;
+                }  
+    
+                var resItem = {};
+                CallGet.CallGet(param, function(param) {    
+                    for ( var i in param.result ) {  
+                        var item = param.result[i];
+                            if ( resItem[item.device] === undefined ) resItem[item.device] = {};
+                            if ( resItem[item.device][item.sgname] === undefined ) resItem[item.device][item.sgname]= {};
+                            if ( resItem[item.device][item.sgname]["devcount"] === undefined ) resItem[item.device][item.sgname]["devcount"] = 1
+                            else 
+                                resItem[item.device][item.sgname]["devcount"]  += 1;
+                        
+                    }
+                    callback(null,resItem);
+                });
 
+            },
+            function(arg1, callback) {  
+                var param = {}; 
+                param['filter_name'] = '(name=\'Capacity\')';
+                param['keys'] = ['device','sgname','lunname']; 
+                param['fields'] = ['devcount','sgcount','iolimit','parttype'];
+                param['period'] = 86400; 
+                param['type'] = 'last';
+                param['start'] = start;
+                param['end'] = end;
+                param['filter'] = '(source=\'VMAX-Collector\'&datagrp=\'VMAX-STORAGE-GROUPS\'&parttype=\'Storage Group\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&'+param.filter;
+                }  
+    
+                
+                CallGet.CallGet(param, function(param) {                
+                //VMAX.GetSGTop20ByCapacity(function(ret) {  
+                    var ret = param.result;
                     var finalRecord = [];
                     for ( var i in ret ) {
                         var item = ret[i];
+                        item.Capacity = parseFloat(parseFloat(item.Capacity).toFixed(3));
 
                         var retItem = {};
                         retItem["device_name"] = "";
                         retItem["device_sn"] = item.device;
                         retItem["sg_name"] = item.sgname;
                         retItem["app_name"] = "";
-                        retItem["sg_lun_total"] = item.SumOfLuns;
-                        retItem["sg_capacity_GB"] = item.Capacity;
-                        retItem["sg_capacity_last_dec_GB"] = ( item.sg_capacity_last_dec_GB === undefined ) ? 0 : item.sg_capacity_last_dec_GB ;
+                        if ( arg1[item.device] !== undefined ) 
+                            if ( arg1[item.device][item.sgname] !== undefined )
+                                retItem["sg_lun_total"] =arg1[item.device][item.sgname].devcount === undefined ? 0 : arg1[item.device][item.sgname].devcount;
+                            else 
+                                retItem["sg_lun_total"] = 0;
+                        else 
+                            retItem["sg_lun_total"] = 0;
 
+                        retItem["sg_capacity_GB"] = item.Capacity;
+                        retItem["sg_capacity_last_dec_GB"] =  item.Capacity ;
                         finalRecord.push(retItem);
                     }
 
 
                     callback(null,finalRecord);
+                });
+            
+                
+            }, 
+            function(arg1, callback) {  
+
+                //var lastYear = util.getlastYearByDate(start); 
+
+                var lastYear = util.getlastMonthByDate(start); 
+                
+                var param = {}; 
+                param['filter_name'] = '(name=\'Capacity\')';
+                param['keys'] = ['device','sgname','lunname']; 
+                param['fields'] = ['devcount','sgcount','iolimit','parttype'];
+                param['period'] = 86400; 
+                param['type'] = 'last';
+                param['start'] = lastYear.firstDay;
+                param['end'] = lastYear.lastDay;
+                param['filter'] = '(source=\'VMAX-Collector\'&datagrp=\'VMAX-STORAGE-GROUPS\'&parttype=\'Storage Group\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&'+param.filter;
+                }  
+    
+                
+                CallGet.CallGet(param, function(param) {                
+                //VMAX.GetSGTop20ByCapacity(function(ret) {  
+                    var ret = param.result; 
+                    for ( var i in ret ) {
+                        var item = ret[i];
+                        item.Capacity = parseFloat(parseFloat(item.Capacity).toFixed(3));
+
+                        for ( var j in arg1 ) {
+                            var retItem = arg1[j];
+                            if ( retItem.device_sn == item.device && retItem.sg_name == item.sgname ) {
+                                if ( item.Capacity == 'n/a' )
+                                retItem["sg_capacity_last_dec_GB"] = 0;
+                            else 
+                                retItem["sg_capacity_last_dec_GB"] =  item.Capacity ;
+                            }
+                        }
+  
+                    }
+
+
+                    callback(null,arg1);
                 });
             
                 
@@ -684,8 +770,14 @@ var reportingController = function (app) {
 
             }
             ], function (err, result) {
+                result.sort(sortBy("-sg_capacity_GB"));
+                     
                 var newret = {};
-                newret['data'] = result; 
+                var result1=[];
+                for ( var i=0;i<20;i++) {
+                    result1.push(result[i]);
+                }
+                newret['data'] = result1; 
 
                 // result now equals 'done'
                 res.json(200 ,newret);
@@ -697,33 +789,127 @@ var reportingController = function (app) {
     // CEB Report 1.4
     app.get('/api/reports/capacity/top20/sg_increase', function (req, res) {
         res.setTimeout(1200*1000);
-        var beginDate = req.query.from; 
-        var endDate = req.query.to; 
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString(); 
+        console.log("BeginDate="+start+',EndDate=' + end);
 
+                
         async.waterfall([
-            function(callback) { 
+            function( callback ) {
 
-                VMAX.GetSGTop20ByUsedCapacityIncrease(function(ret) {  
-                    var retResult = [];
-                    for ( var i = 0 ; i< 20 ; i++ ) {
+                var param = {};  
+                param['keys'] = ['device','sgname','lunname'];  
+                param['filter'] = '(source=\'VMAX-Collector\'&datagrp=\'VMAX-STORAGE-GROUPS\'&parttype=\'StorageGroupToLUN\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&'+param.filter;
+                }  
+    
+                var resItem = {};
+                CallGet.CallGet(param, function(param) {    
+                    for ( var i in param.result ) {  
+                        var item = param.result[i];
+                            if ( resItem[item.device] === undefined ) resItem[item.device] = {};
+                            if ( resItem[item.device][item.sgname] === undefined ) resItem[item.device][item.sgname]= {};
+                            if ( resItem[item.device][item.sgname]["devcount"] === undefined ) resItem[item.device][item.sgname]["devcount"] = 1
+                            else 
+                                resItem[item.device][item.sgname]["devcount"]  += 1;
+                        
+                    }
+                    callback(null,resItem);
+                });
+
+            },
+            function(arg1, callback) {  
+                var param = {}; 
+                param['filter_name'] = '(name=\'Capacity\')';
+                param['keys'] = ['device','sgname','lunname']; 
+                param['fields'] = ['devcount','sgcount','iolimit','parttype'];
+                param['period'] = 86400; 
+                param['type'] = 'last';
+                param['start'] = start;
+                param['end'] = end;
+                param['filter'] = '(source=\'VMAX-Collector\'&datagrp=\'VMAX-STORAGE-GROUPS\'&parttype=\'Storage Group\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&'+param.filter;
+                }  
+    
+                
+                CallGet.CallGet(param, function(param) {                
+                //VMAX.GetSGTop20ByCapacity(function(ret) {  
+                    var ret = param.result;
+                    var finalRecord = [];
+                    for ( var i in ret ) {
                         var item = ret[i];
+                        item.Capacity = parseFloat(parseFloat(item.Capacity).toFixed(3));
+
                         var retItem = {};
-            
                         retItem["device_name"] = "";
                         retItem["device_sn"] = item.device;
                         retItem["sg_name"] = item.sgname;
                         retItem["app_name"] = "";
-                        retItem["sg_lun_total"] = item.SumOfLuns;
-                        retItem["sg_capacity_GB"] = item.UsedCapacity;
-                        retItem["sg_capacity_last_dec_GB"] = item.UsedCapacityLastTear;
-                        retItem["sg_logical_capacity_GB"] = item.Capacity;
-                        retResult.push(retItem);
-            
-                    } 
-                    callback ( null,retResult);
+                        if ( arg1[item.device] !== undefined ) 
+                            if ( arg1[item.device][item.sgname] !== undefined )
+                                retItem["sg_lun_total"] =arg1[item.device][item.sgname].devcount === undefined ? 0 : arg1[item.device][item.sgname].devcount;
+                            else 
+                                retItem["sg_lun_total"] = 0;
+                        else 
+                            retItem["sg_lun_total"] = 0;
+
+                        retItem["sg_capacity_GB"] = item.Capacity;
+                        retItem["sg_capacity_last_dec_GB"] =  item.Capacity ;
+                        retItem["sg_logical_capacity_GB"] =  item.Capacity ;
+                        finalRecord.push(retItem);
+                    }
+
+
+                    callback(null,finalRecord);
                 });
             
-                               
+                
+            }, 
+            function(arg1, callback) {  
+
+                //var lastYear = util.getlastYearByDate(start); 
+
+                var lastYear = util.getlastMonthByDate(start); 
+                
+                var param = {}; 
+                param['filter_name'] = '(name=\'Capacity\')';
+                param['keys'] = ['device','sgname','lunname']; 
+                param['fields'] = ['devcount','sgcount','iolimit','parttype'];
+                param['period'] = 86400; 
+                param['type'] = 'last';
+                param['start'] = lastYear.firstDay;
+                param['end'] = lastYear.lastDay;
+                param['filter'] = '(source=\'VMAX-Collector\'&datagrp=\'VMAX-STORAGE-GROUPS\'&parttype=\'Storage Group\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&'+param.filter;
+                }  
+    
+                
+                CallGet.CallGet(param, function(param) {                
+                //VMAX.GetSGTop20ByCapacity(function(ret) {  
+                    var ret = param.result; 
+                    for ( var i in ret ) {
+                        var item = ret[i];
+                        item.Capacity = parseFloat(parseFloat(item.Capacity).toFixed(3));
+
+                        for ( var j in arg1 ) {
+                            var retItem = arg1[j];
+                            if ( retItem.device_sn == item.device && retItem.sg_name == item.sgname ) {
+                                if ( item.Capacity == 'n/a' )
+                                retItem["sg_capacity_last_dec_GB"] = 0;
+                            else 
+                                retItem["sg_capacity_last_dec_GB"] =  item.Capacity ;
+                            }
+                        }
+  
+                    }
+
+
+                    callback(null,arg1);
+                });
+            
                 
             }, 
             function (arg, callback) {
@@ -748,25 +934,309 @@ var reportingController = function (app) {
 
                 }); 
 
+            }, 
+            function (arg1, callback ) {
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+
+                    item["increase"] = item.sg_capacity_GB - item.sg_capacity_last_dec_GB;
+
+                }
+                callback(null,arg1);
             }
             ], function (err, result) {
+                result.sort(sortBy("-increase"));
+                     
                 var newret = {};
-                newret['data'] = result; 
+                var result1=[];
+                for ( var i=0;i<20;i++) {
+                    result1.push(result[i]);
+                }
+                newret['data'] = result1; 
 
                 // result now equals 'done'
                 res.json(200 ,newret);
             });
 
+    });
+
+ 
+    app.get('/api/reports/capacity/related/', function (req, res) {
+        res.setTimeout(1200*1000);
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString(); 
+        console.log("BeginDate="+start+',EndDate=' + end);
+        var device;
+
+                
+        async.waterfall([
+            function(callback){
+                var arrayInfo = require("../config/StorageInfo");
+                callback(null,arrayInfo);
+            }, 
+            function(param,  callback){ 
+                var finalRecords = [];
+                VMAX.GetArrays(device, function(result) {         
+                    for ( var i in result ) {
+                        var item = result[i];
+        
+                        var retItem = {};
+                        // Search the array custimized name
+                        var isfind = false;
+                        for ( var j in param) {
+                            var arrayinfoItem = param[j];
+                            if ( arrayinfoItem.storagesn == item.device ) {
+                                isfind = true;
+                                retItem.device_name = arrayinfoItem.name;
+
+                            }
+                        }
+                        if ( isfind = false ) {
+                            retItem.device_name = "";
+                        }
+
+                        // Combine anothers field
+                        retItem.device_sn = item.device;
+                        retItem.available_port_addr_total = 0;
+                        retItem.allocated_port_addr_total = 0;
+                        retItem.pair = 0;
+                        retItem.rdf_group = 0;
+                        retItem.details = [];
+
+
+
+                        finalRecords.push(retItem);
+                    }
+        
+                    callback(null,finalRecords);
+                
+                }); 
+            },            
+            function( arg1,  callback ) { 
+                var param = {};  
+                param['keys'] = ['device','sgname','lunname'];  
+                param['filter'] = '(source=\'VMAX-Collector\'&datagrp=\'VMAX-STORAGE-GROUPS\'&parttype=\'StorageGroupToLUN\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&'+param.filter;
+                }  
+    
+                var resItem = {};
+                CallGet.CallGet(param, function(param) {    
+                    for ( var i in param.result ) {  
+                        var item = param.result[i];
+
+                        for ( var j in arg1 ) {
+                            var arrayItem =arg1[j];
+                            if ( item.device == arrayItem.device_sn ) {
+                                if ( arrayItem.details.length == 0 ) {
+                                    var detailItem = {};
+                                    detailItem.sg_name = item.sgname;
+                                    detailItem.lun = 1;
+                                    arrayItem.details.push(detailItem);
+                                } else {
+                                    var isfind = false;
+                                    for ( var z in arrayItem.details ) {
+                                        var sgItem = arrayItem.details[z];
+                                        if ( sgItem.sg_name == item.sgname )  {
+                                            isfind = true;
+                                            sgItem.lun++;
+                                        }
+                                    }
+                                    if ( isfind == false ) {
+                                        var detailItem = {};
+                                        detailItem.sg_name = item.sgname;
+                                        detailItem.lun = 1;
+                                        arrayItem.details.push(detailItem); 
+                                    }
+                                }
+                            }
+                      
+                        } 
+                        
+                    }
+                    callback(null,arg1);
+                });
+
+            },
+            function(arg1, callback) {   
+                var param = {}; 
+                param['filter_name'] = '(name=\'Capacity\'|name=\'ResponseTime\')';
+                param['keys'] = ['device','sgname']; 
+                param['fields'] = ['devcount','sgcount','iolimit','bwlimit','parttype'];
+                param['period'] = 86400; 
+                param['type'] = 'max';
+                param['start'] = start;
+                param['end'] = end;
+                param['filter'] = '(source=\'VMAX-Collector\'&parttype=\'Storage Group\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&'+param.filter;
+                }  
+    
+                
+                CallGet.CallGet(param, function(param) {       
+                    var ret = param.result;
+                    var finalRecord = [];
+                    for ( var i in ret ) {
+                        var item = ret[i];
+                        item.Capacity = parseFloat(parseFloat(item.Capacity).toFixed(3));
+                        item.ResponseTime = parseFloat(parseFloat(item.ResponseTime).toFixed(3));
+
+                        for ( var j in arg1 ) {
+                            var arrayItem = arg1[j];
+                            if ( arrayItem.device_sn == item.device ) {
+                                for ( var z in arrayItem.details ) {
+                                    var sgItem = arrayItem.details[z];
+                                    if ( sgItem.sg_name == item.sgname ) {
+                                        sgItem.capacity_GB = item.Capacity;
+                                        sgItem.iops_limits = item.iolimit;
+                                        sgItem.iops_limits_change = ( item.iolimit == 'N/A' ) ? 'N/A' : 0 ;
+                                        sgItem.mbps_limits = item.bwlimit;
+                                        sgItem.mbps_limits_change = ( item.bwlimit == 'N/A' ) ? 'N/A' : 0 ;
+                                        sgItem.response_time_ms = item.ResponseTime;
+                                        sgItem.response_time_increase_last_month_percent = 0;
+                                        sgItem.response_time_increase_last_year_percent = 0;
+                                    }
+                                }
+                            }
+
+                        }
+                        
+                    }
+
+
+                    callback(null,arg1);
+                });
+            
+                
+            }, 
+            function(arg1, callback) {   
+                //var lastYear = util.getlastYearByDate(start); 
+
+                var lastYear = util.getlastMonthByDate(start); 
+                
+                var param = {}; 
+                param['filter_name'] = '(name=\'Capacity\'|name=\'ResponseTime\')';
+                param['keys'] = ['device','sgname']; 
+                param['fields'] = ['devcount','sgcount','iolimit','bwlimit','parttype'];
+                param['period'] = 86400; 
+                param['type'] = 'max'; 
+                param['start'] = lastYear.firstDay;
+                param['end'] = lastYear.lastDay;
+                param['filter'] = '(source=\'VMAX-Collector\'&parttype=\'Storage Group\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&'+param.filter;
+                }  
+    
+                
+                CallGet.CallGet(param, function(param) {                
+                //VMAX.GetSGTop20ByCapacity(function(ret) {  
+                    var ret = param.result; 
+                    for ( var i in ret ) {
+                        var item = ret[i];
+                        item.Capacity = parseFloat(parseFloat(item.Capacity).toFixed(3));
+                        item.ResponseTime = parseFloat(parseFloat(item.ResponseTime).toFixed(3));
+
+                        for ( var j in arg1 ) {
+                            var arrayItem = arg1[j];
+                            if ( arrayItem.device_sn == item.device ) {
+                                for ( var z in arrayItem.details ) {
+                                    var sgItem = arrayItem.details[z];
+                                    if ( sgItem.sg_name == item.sgname ) {
+                                        sgItem.response_time_last_month = item.ResponseTime; 
+                                        sgItem.response_time_increase_last_month_percent = parseFloat((( sgItem.response_time_ms - sgItem.response_time_last_month) / sgItem.response_time_ms * 100 ).toFixed(2)); 
+                                               
+                                    }
+
+                                }
+
+                            }
+
+                        }
+  
+                    }
+
+
+                    callback(null,arg1);
+                });
+            
+                
+            }, 
+            function(arg1, callback) {   
+                var lastYear = util.getlastYearByDate(start);  
+                var param = {}; 
+                param['filter_name'] = '(name=\'Capacity\'|name=\'ResponseTime\')';
+                param['keys'] = ['device','sgname']; 
+                param['fields'] = ['devcount','sgcount','iolimit','bwlimit','parttype'];
+                param['period'] = 86400; 
+                param['type'] = 'max'; 
+                param['start'] = lastYear.firstDay;
+                param['end'] = lastYear.lastDay;
+                param['filter'] = '(source=\'VMAX-Collector\'&parttype=\'Storage Group\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&'+param.filter;
+                }  
+    
+                
+                CallGet.CallGet(param, function(param) {                
+                //VMAX.GetSGTop20ByCapacity(function(ret) {  
+                    var ret = param.result; 
+                    for ( var i in ret ) {
+                        var item = ret[i];
+                        item.Capacity = parseFloat(parseFloat(item.Capacity).toFixed(3));
+                        item.ResponseTime = parseFloat(parseFloat(item.ResponseTime).toFixed(3));
+
+                        for ( var j in arg1 ) {
+                            var arrayItem = arg1[j];
+                            if ( arrayItem.device_sn == item.device ) {
+                                for ( var z in arrayItem.details ) {
+                                    var sgItem = arrayItem.details[z];
+                                    if ( sgItem.sg_name == item.sgname ) {
+                                        sgItem.response_time_last_year = item.ResponseTime; 
+                                        sgItem.response_time_increase_last_year_percent = parseFloat((( sgItem.response_time_ms - sgItem.response_time_last_year) / sgItem.response_time_ms * 100 ).toFixed(2)); 
+                                               
+                                    }
+
+                                }
+
+                            }
+
+                        }
+  
+                    }
+
+
+                    callback(null,arg1);
+                });
+            
+                
+            },
+            function (arg1, callback ) {
+                callback(null,arg1);
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+
+                    item["increase"] = item.sg_capacity_GB - item.sg_capacity_last_dec_GB;
+
+                }
+                callback(null,arg1);
+            }
+            ], function (err, result) { 
+                // result now equals 'done'
+
+                var res1 = {};
+                res1.data = result;
+                res.json(200 ,res1);
+            });
 
     });
 
 
     // CEB Report 1.5
 
-    app.get('/api/reports/capacity/related/', function (req, res) {
+    app.get('/api/reports/capacity/related1/', function (req, res) {
         //var ret = require("../demodata/capacityrelated");
         res.setTimeout(1200*1000);
-        var device;
+        var device = '000492600255'; 
 
         async.waterfall(
             [
@@ -1048,50 +1518,87 @@ var reportingController = function (app) {
         //var ret = require("../demodata/sg_summary");
         res.setTimeout(1200*1000);
         var device;
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString(); 
+ 
+ 
         async.waterfall(
             [
                 function(callback){
                     var arrayInfo = require("../config/StorageInfo");
                     callback(null,arrayInfo);
                 },
-                function ( param, callback ) {
+                function( arg, callback ) {
 
-                    var rets = [];
-                    VMAX.GetStorageGroups(device, function(result) {            
-
-                        for ( var i in result ) {
-                            var item = result[i];
-
-                            var retItem = {};
-
-                            retItem.app_name = "";
-
-                            // Search the array custimized name
-                            var isfind = false;
-                            for ( var j in param) {
-                                var arrayinfoItem = param[j];
-                                if ( arrayinfoItem.storagesn == item.device ) {
-                                    isfind = true;
-                                    retItem.device_name = arrayinfoItem.name;
-
-                                }
-                            }
-                            if ( isfind = false ) {
-                                retItem.device_name = "";
-                            }
-                            retItem.app_name = ""; 
-                            retItem.device_sn = item.device;
-                            retItem.sg_name = item.sgname;
-                            retItem.sg_lun_total = item.SumOfLuns;
-                            retItem.sg_capacity_GB = item.Capacity;
-                            retItem.iops_limit = 0;
-                            retItem.mbps_limits = 0;
-                            retItem.limits = 0; 
-                            rets.push(retItem);
+                    var param = {};  
+                    param['keys'] = ['device','sgname','lunname'];  
+                    param['filter'] = '(source=\'VMAX-Collector\'&datagrp=\'VMAX-STORAGE-GROUPS\'&parttype=\'StorageGroupToLUN\')';
+                    if (typeof device !== 'undefined') { 
+                        param['filter'] = 'device=\''+device+'\'&'+param.filter;
+                    }  
+        
+                    var resItem = {};
+                    CallGet.CallGet(param, function(param) {    
+                        for ( var i in param.result ) {  
+                            var item = param.result[i];
+                                if ( resItem[item.device] === undefined ) resItem[item.device] = {};
+                                if ( resItem[item.device][item.sgname] === undefined ) resItem[item.device][item.sgname]= {};
+                                if ( resItem[item.device][item.sgname]["devcount"] === undefined ) resItem[item.device][item.sgname]["devcount"] = 1
+                                else 
+                                    resItem[item.device][item.sgname]["devcount"]  += 1;
+                            
                         }
-                        callback(null,rets);
-
-                    }); 
+                        callback(null,resItem);
+                    });
+    
+                },
+                function(arg1, callback) {  
+                    var param = {}; 
+                    param['filter_name'] = '(name=\'Capacity\')';
+                    param['keys'] = ['device','sgname','lunname']; 
+                    param['fields'] = ['devcount','sgcount','iolimit','bwlimit','parttype'];
+                    param['period'] = 86400; 
+                    param['type'] = 'last';
+                    param['start'] = start;
+                    param['end'] = end;
+                    param['filter'] = '(source=\'VMAX-Collector\'&datagrp=\'VMAX-STORAGE-GROUPS\'&parttype=\'Storage Group\')';
+                    if (typeof device !== 'undefined') { 
+                        param['filter'] = 'device=\''+device+'\'&'+param.filter;
+                    }  
+        
+                    
+                    CallGet.CallGet(param, function(param) {        
+                        var ret = param.result;
+                        var finalRecord = [];
+                        for ( var i in ret ) {
+                            var item = ret[i];
+                            item.Capacity = parseFloat(parseFloat(item.Capacity).toFixed(3));
+    
+                            var retItem = {};
+                            retItem.app_name = ""; 
+                            retItem["device_name"] = "";
+                            retItem["device_sn"] = item.device;
+                            retItem["sg_name"] = item.sgname;
+                            if ( arg1[item.device] !== undefined ) 
+                                if ( arg1[item.device][item.sgname] !== undefined )
+                                    retItem["sg_lun_total"] =arg1[item.device][item.sgname].devcount === undefined ? 0 : arg1[item.device][item.sgname].devcount;
+                                else 
+                                    retItem["sg_lun_total"] = 0;
+                            else 
+                                retItem["sg_lun_total"] = 0;
+    
+                            retItem["sg_capacity_GB"] = item.Capacity;
+                            retItem["iops_limit"] =  item.iolimit ;
+                            retItem["mbps_limits"] =  item.bwlimit ;
+                            retItem["limits"] =  0 ;
+                            finalRecord.push(retItem);
+                        }
+    
+    
+                        callback(null,finalRecord);
+                    });
+                
+                    
                 },
                 function(arg1, callback ) {
 
