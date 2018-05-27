@@ -6,7 +6,7 @@
         "PASSWORD": "changeme"
     },
     "BackendMgmt": {
-        "URL" : "http://csmpcollecter:58080/centralized-management",
+        "URL" : "https://csmpcollecter:58443/centralized-management",
         "USER": "admin",
         "PASSWORD": "changeme"
     },
