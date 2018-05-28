@@ -12,14 +12,18 @@
     "mongoose": "~3.5.5",
     "nconf": "*",
     "node-uuid": "*",
+    "numeral": "^2.0.6",
     "officegen": "*",
     "snmpjs": "*",
+    "sort-by": "^1.2.0",
     "sort-json-array": "^0.1.7",
     "synchronize": "*",
     "tempfile": "*",
     "unirest": "*",
+    "urlencode": "^1.1.0",
     "winston": "*",
-    "xls-to-json": "^0.5.0"
+    "xls-to-json": "^0.5.0",
+    "xml2json": "^0.11.2"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
