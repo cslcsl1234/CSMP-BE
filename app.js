@@ -4,6 +4,40 @@ var express = require('express')
 , configger = require('./config/configger')
 , mongoose = require('mongoose');
 var os = require('os');
+var path = require('path');
+
+var swaggerJSDoc = require('swagger-jsdoc');
+
+// swagger definition
+var swaggerDefinition = {
+  info: {
+    title: 'CSMP API',
+    version: '1.0.0',
+    description: 'RESTful API for Storage Management Platform',
+  },
+  host: 'localhost:8080',
+  basePath: '/',
+};
+
+// options for the swagger docs
+var options = {
+  // import swaggerDefinitions
+  swaggerDefinition: swaggerDefinition,
+  // path to the API docs
+  apis: ['./controllers/*.js'],
+};
+
+// initialize swagger-jsdoc
+var swaggerSpec = swaggerJSDoc(options);
+
+app.get('/swagger.json', function(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+app.use("/api-docs", express.static(path.join(__dirname,'api-docs')));
+
+
 
 var interfaces = os.networkInterfaces();
 var addresses = [];
