@@ -41,6 +41,19 @@ var appController = function (app) {
     });
 
 
+/**
+ * @swagger
+ * /api/application:
+ *   get:
+ *     tags:
+ *       - Puppies
+ *     description: Returns all puppies
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: An array of puppies
+ */
     app.get('/api/application', function (req, res) {
 
 
