@@ -794,16 +794,52 @@ var reportingController = function (app) {
 
                 }
                 callback(null,arg1);
-            }
-            ], function (err, result) {
-                result.sort(sortBy("-sg_capacity_GB"));
-                     
-                var newret = {};
-                var result1=[];
-                for ( var i=0;i<20;i++) {
-                    result1.push(result[i]);
+            }, 
+            function ( arg1, callback ) {
+                // Get Capacity Top20 by App-name
+                var appCapacity = [];
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+                    var appCapacityItem = {};
+                    // Only need one side DC.
+                    if ( item.device_name.indexOf('-SD') >= 0 ) {
+                        var isfind = false ;
+                        for ( var j in appCapacity ) {
+                            var appCapacityItem = appCapacity[j];
+                            if ( appCapacityItem.app_name == item.app_name ) {
+                                isfind = true;
+                                appCapacityItem.sg_capacity_GB += item.sg_capacity_GB;
+                                break;
+                            }
+
+                        }
+                        if ( isfind ==false ) {
+                            var appCapacityItem = {};
+                            appCapacityItem["app_name"] = item.app_name;
+                            appCapacityItem["sg_capacity_GB"] = item.sg_capacity_GB;
+                            appCapacity.push(appCapacityItem);
+                        }
+                    }
                 }
-                newret['data'] = result1; 
+
+                appCapacity.sort(sortBy("-sg_capacity_GB"));
+                var result = [];
+                for ( var i=0;i<20;i++) {
+                    var appCapacityItem = appCapacity[i];
+                    for ( var j in arg1 ) {
+                        var item = arg1[j];
+                        if ( item.device_name.indexOf('-SD') >=0 && item.app_name == appCapacityItem.app_name )  {
+                            result.push(item);
+                        }
+                    }
+                }
+
+                callback(null,result);
+
+            }
+            ], function (err, result) { 
+                var newret = {}; 
+                newret['data'] = result; 
 
                 // result now equals 'done'
                 res.json(200 ,newret);
@@ -960,26 +996,62 @@ var reportingController = function (app) {
                 }); 
 
             }, 
-            function (arg1, callback ) {
+            function ( arg1, callback ) {
+                // Get Capacity Top20 by App-name
+                var appCapacity = [];
                 for ( var i in arg1 ) {
                     var item = arg1[i];
+                    var appCapacityItem = {};
+                    // Only need one side DC.
+                    if ( item.device_name.indexOf('-SD') >= 0 ) {
+                        var isfind = false ;
+                        for ( var j in appCapacity ) {
+                            var appCapacityItem = appCapacity[j];
+                            if ( appCapacityItem.app_name == item.app_name ) {
+                                isfind = true;
+                                appCapacityItem.sg_capacity_GB += item.sg_capacity_GB;
+                                appCapacityItem.sg_capacity_last_dec_GB += item.sg_capacity_last_dec_GB;
+                                break;
+                            }
 
-                    item["increase"] = numeral((( item.sg_capacity_GB - item.sg_capacity_last_dec_GB ) / item.sg_capacity_last_dec_GB * 100)).format("0,0") + " %";
-                    //for test.
-                    item["sg_logical_capacity_GB"] =  item["sg_capacity_last_dec_GB"];
-                    item["sg_capacity_last_dec_GB"] =  item["increase"] ;
+                        }
+                        if ( isfind ==false ) {
+                            var appCapacityItem = {};
+                            appCapacityItem["app_name"] = item.app_name;
+                            appCapacityItem["sg_capacity_GB"] = item.sg_capacity_GB;
+                            appCapacityItem["sg_capacity_last_dec_GB"] = item.sg_capacity_last_dec_GB;
+                            
+                            appCapacity.push(appCapacityItem);
+                        }
+                    }
                 }
-                callback(null,arg1);
-            }
-            ], function (err, result) {
-                result.sort(sortBy("-increase"));
-                     
-                var newret = {};
-                var result1=[];
+                var appCapacityIncrease = [];
+                for ( var i in appCapacity ) {
+                    var item = appCapacity[i];
+                    item["increase"] = ( item.sg_capacity_GB - item.sg_capacity_last_dec_GB ) / item.sg_capacity_last_dec_GB * 100;
+                    if ( item.increase > 0 ) 
+                        appCapacityIncrease.push(item);
+                }
+
+                appCapacityIncrease.sort(sortBy("-increase"));
+                var result = [];
                 for ( var i=0;i<20;i++) {
-                    result1.push(result[i]);
+                    var appCapacityItem = appCapacityIncrease[i];
+                    if ( appCapacityItem === undefined ) continue;
+                    for ( var j in arg1 ) {
+                        var item = arg1[j];
+                        if ( item.device_name.indexOf('-SD') >=0 && item.app_name == appCapacityItem.app_name )  {
+                            result.push(item);
+                        }
+                    }
                 }
-                newret['data'] = result1; 
+
+                callback(null,result);
+
+            }
+            ], function (err, result) { 
+                var newret = {}; 
+                newret['data'] = result; 
 
                 // result now equals 'done'
                 res.json(200 ,newret);
