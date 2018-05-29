@@ -78,15 +78,16 @@ var BackendMgmtController = function (app) {
                                 object: true 
                             };
                             var json = xml2json.toJson(xmlstr,options);
-                            var jsontab = json.div.div.table.tbody.tr;
+                           
                             //res1.json(200 , jsontab);
-                            callback(null,jsontab);
+                            callback(null,json);
                         });
                     });
                     
                 },
-                function(arg, callback) {
+                function(json, callback) {
 
+                    var arg = json.div.div.table.tbody.tr;
                     var tabResult = [];
                     for ( var i in arg ) {
                         var item = arg[i];
@@ -96,12 +97,40 @@ var BackendMgmtController = function (app) {
                             var inputItem = input[j];
                             tabResultItem[inputItem.name] = inputItem.value;
                         }
+                        tabResultItem['DevCount'] = item.td[3];
                         tabResult.push(tabResultItem);
 
 
                     }
                     callback(null,tabResult);
-                } 
+                } ,
+                function(arg, callback) {
+
+                    var filtered = [];
+                    for ( var i in arg ) {
+                        var item = arg[i];
+                        switch ( item["device-name"] ) {
+                            case 'Host configuration' :
+
+                                break;
+                            case 'EMC VMAX':
+                                item["collecter-name"] = 'EMC VMAX 采集器 (DMX/VMAX/VMAX2)';
+                                filtered.push(item);
+                                break;
+                            case 'EMC VMAX HYPERMAX' :
+                                item["collecter-name"] = 'EMC VMAX3 采集器 (VMAX3)';
+                                filtered.push(item);
+                                
+                                break;
+                            
+                            default :
+
+                                break;
+                        }
+                    }
+                    callback(null,filtered);
+                }
+
             ], function (err, result) {
                   // result now equals 'done'
  
@@ -140,11 +169,12 @@ var BackendMgmtController = function (app) {
                             req.end(function (res) {
                                 if (res.error) console.log(res.error);
                                 var xmlstr = res.body;
-                                 
+                                var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.=\"]*)(">)/g,'$1"\/>');
+             
                                 var options = {
                                     object: true 
                                 };
-                                var json = xml2json.toJson(xmlstr,options); 
+                                var json = xml2json.toJson(newdata,options); 
                                 //res1.json(200 , jsontab);
                                 callback(null,json);
                             });

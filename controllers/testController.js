@@ -384,6 +384,80 @@ var testController = function (app) {
     });
 
 
+    app.get('/api/test12', function (req, res) {
+
+        var fs = require('fs');
+        var parser = require('xml2json');
+
+        async.waterfall(
+            [
+                function(callback){       
+                fs.readFile( './demodata/backmgmt-get.xml', 'utf-8', function(err, data) {
+                    if ( err ) res.json(500,err);
+                    else {
+                        console.log("----"); 
+                        var options = {
+                            object: true 
+                        }; 
+                        var newdata = data.replace(/(<input[ a-zA-Z{}0-9.=\"]*)(">)/g,'$1"\/>');
+                    
+                        var json = parser.toJson(newdata,options);
+                        callback(null,json);
+                    }
+
+                });
+                        
+            },
+            function(arg, callback) {
+                var headerdata = arg.div.div.table.thead.tr.th
+                var tbody = arg.div.div.table.tbody.tr;
+
+                var tab = [];
+                var header = {};
+                for ( var i in headerdata  ) {
+                    var item = headerdata[i];
+
+                    if ( i >= 0 & i <= 3 ) 
+                        header[i] = item;
+                    else 
+                        header[i] = item.input.value;
+                }
+
+                for ( var i in tbody) {
+                    var tbodyItem = tbody[i].td;
+
+                    var recordItem = {}; 
+                    for ( var j in tbodyItem ) {
+                        var itemvalue = tbodyItem[j]; 
+
+                        if ( j >= 1 & j <= 3 ) { 
+                            switch ( j ) {
+                                case '3' :  
+                                    recordItem[header[j]] = itemvalue;
+                                    break;
+                                case '1' : 
+                                    recordItem[header[j]] = itemvalue.span;
+                                    break;
+                                case '2' : 
+                                    recordItem[header[j]] = itemvalue.input.value
+                                    break;                               
+                            } 
+                                
+                        } else {
+                            recordItem[header[j]] = itemvalue.input.value
+                        }
+                    }
+                    tab.push(recordItem);
+                }
+ 
+                callback(null,tab);
+            } 
+        ], function (err, result) {
+            // result now equals 'done'
+
+            res.json(200 ,result);
+        });
+    }); 
 
 
 

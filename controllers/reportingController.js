@@ -2400,7 +2400,10 @@ var reportingController = function (app) {
                                     sgItem.device_sn = item.serialnb;
                                     sgItem.sg_name = item.sgname; 
                                     sgItem.iops_avg = item.matricsStat.TotalThroughput.avg;
-                                    sgItem.response_time_ms = item.matricsStat.ResponseTime.avg;
+                                    if ( item.matricsStat.ResponseTime !== undefined ) 
+                                        sgItem.response_time_ms = item.matricsStat.ResponseTime.avg;
+                                    else 
+                                        sgItem.response_time_ms = 0;
 
                                     result.push(sgItem);
                                 }

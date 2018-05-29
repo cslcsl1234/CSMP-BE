@@ -1,0 +1,2345 @@
+<div id="devices-content" class="ui-widget-box">
+    <p class="info">
+		List of known EMC VMAX Device by installed location. Click on a row to edit the values.</p>
+    <p class="pending-changes-warning hidden">
+        <span class="ui-icon ui-icon-info"></span>
+        <span class="info">
+			You currently have unsaved modifications.</span>
+    </p>
+    <div class="disco-center checklist">
+        <table class="content-table " id="devices-running">
+            <thead>
+                <tr>
+                    <th/>
+                    <th>Status</th>
+                    <th>Server</th>
+                    <th>Instance</th>
+                    <th>
+		Type of array to collect
+                        <input type="hidden" name="question-id" value="vmax.vmax_device_type"/>
+                    </th>
+                    <th>
+		Array full serial number
+                        <input type="hidden" name="question-id" value="vmax.serialnb"/>
+                    </th>
+                    <th>
+		Type of performance collection (excluding LUN)
+                        <input type="hidden" name="question-id" value="vmax.collect_other_perf"/>
+                    </th>
+                    <th>
+		Type of performance collection for LUN
+                        <input type="hidden" name="question-id" value="vmax.collect_lun_perf"/>
+                    </th>
+                    <th>
+		Enable SRDF groups collection
+                        <input type="hidden" name="question-id" value="vmax.srdfCollection"/>
+                    </th>
+                    <th>
+		Solutions Enabler bin directory
+                        <input type="hidden" name="question-id" value="vmax.symcli.path"/>
+                    </th>
+                    <th>
+		SYMCLI connection type
+                        <input type="hidden" name="question-id" value="vmax.symcli.connect_type"/>
+                    </th>
+                    <th>
+		SYMCLI connection name
+                        <input type="hidden" name="question-id" value="vmax.symcli.connect"/>
+                    </th>
+                    <th>
+		Use SYMCLI -offline mode
+                        <input type="hidden" name="question-id" value="vmax.symcli.offline"/>
+                    </th>
+                    <th>
+		SMI-S Provider/CIMOM host
+                        <input type="hidden" name="question-id" value="vmax.smi.host"/>
+                    </th>
+                    <th>
+		SMI-S Provider username
+                        <input type="hidden" name="question-id" value="vmax.smi.username"/>
+                    </th>
+                    <th>
+		SMI-S Provider password
+                        <input type="hidden" name="question-id" value="vmax.smi.password"/>
+                    </th>
+                    <th>
+		Use advanced settings
+                        <input type="hidden" name="question-id" value="vmax.smi.useAdvancedSettings"/>
+                    </th>
+                    <th>
+		SMI-S Provider/CIMOM port (leave empty if set to default 5988/5989)
+                        <input type="hidden" name="question-id" value="vmax.smi.port"/>
+                    </th>
+                    <th>
+		SMI-S Provider enable secure connection (SSL)
+                        <input type="hidden" name="question-id" value="vmax.smi.usesecure"/>
+                    </th>
+                    <th>
+		Unisphere hostname or IP address
+                        <input type="hidden" name="question-id" value="vmax.unisphere.host"/>
+                    </th>
+                    <th>
+		Unisphere username
+                        <input type="hidden" name="question-id" value="vmax.unisphere.username"/>
+                    </th>
+                    <th>
+		Unisphere password
+                        <input type="hidden" name="question-id" value="vmax.unisphere.password"/>
+                    </th>
+                    <th>
+		Use advanced settings
+                        <input type="hidden" name="question-id" value="vmax.unisphere.useAdvancedSettings"/>
+                    </th>
+                    <th>
+		Unisphere network port
+                        <input type="hidden" name="question-id" value="vmax.unisphere.port"/>
+                    </th>
+                    <th>
+		Collect MAX values from Unisphere
+                        <input type="hidden" name="question-id" value="vmax.unisphere.maxValues"/>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.41:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.9
+Detected SMI-S Provider version V8.4.0.3
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000295700790 was found on SMI-S Provider
+Detected 000295700790 microcode version: 5876.251.161
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000295700790 is LOCAL to SMI-S provider 10.1.228.41
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.41:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.4.0.15 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated Uni..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="May 25, 2018 9:31:59 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s5"/>
+				srm-collect-1 - Collector
+                    </td>
+                    <td>emc-vmax-sd</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000295700790">
+			000295700790
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.41">
+			10.1.228.41
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{80BB6833E01684F3FC1E92FCF22F91031EA8242267A122290AC20B0F7741E5FEB1FBA274943BC0984FAA99D696666A97}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.41">
+			10.1.228.41
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{F14A7B0DED1BB560421238310C2ADCF76F59371C6AAC13BAB4CEA1C28944A80A7418BA52C982FAA72AFE5B66E703A103}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.41:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.9
+Detected SMI-S Provider version V8.4.0.3
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000192606650 was found on SMI-S Provider
+Detected 000192606650 microcode version: 5876.286.194
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000192606650 is LOCAL to SMI-S provider 10.1.228.41
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.41:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.4.0.15 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated Uni..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="May 25, 2018 9:33:18 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s5"/>
+				srm-collect-1 - Collector
+                    </td>
+                    <td>emc-vmax-sd</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000192606650">
+			000192606650
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.41">
+			10.1.228.41
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{D4537774608C6EB58BC02364C1D7ACD34A403B65E73BC86F7D1CBA9744B9D82EDA477CE03C862156E8C0A4F1D2603271}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.41">
+			10.1.228.41
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{93668C7C4B03C126CA494B2298EF68AF0D75C06DCCB467FC3C95D2D11D811C52A143D323851620AEFDBDF5A535BB50C3}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.41:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.9
+Detected SMI-S Provider version V8.4.0.3
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000492600549 was found on SMI-S Provider
+Detected 000492600549 microcode version: 5876.288.195
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000492600549 is LOCAL to SMI-S provider 10.1.228.41
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.41:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.4.0.15 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated Uni..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="May 25, 2018 9:32:40 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s5"/>
+				srm-collect-1 - Collector
+                    </td>
+                    <td>emc-vmax-sd</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000492600549">
+			000492600549
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.41">
+			10.1.228.41
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{0CCEEC45327A5FD1800A8FFE2E709DF992DDA054B5CDF90B76D6160DAB1EE904F01A41127E16AE0A940528DC1163747D}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.41">
+			10.1.228.41
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{A611F308CA3B23925FB7F9DBCA7324C43802BF194D8C8548A96B60284F1D5039F23D03E5C7D7C89CAC2618286A210349}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.41:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.9
+Detected SMI-S Provider version V8.4.0.3
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000498700189 was found on SMI-S Provider
+Detected 000498700189 microcode version: 5876.288.195
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000498700189 is LOCAL to SMI-S provider 10.1.228.41
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.41:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.4.0.15 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated Uni..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="May 25, 2018 9:33:00 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s5"/>
+				srm-collect-1 - Collector
+                    </td>
+                    <td>emc-vmax-sd</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000498700189">
+			000498700189
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.41">
+			10.1.228.41
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{5122C923F4499D2656F335576BB8C6E0CF31853273FE3BFCA02FACA4EED6B21D93935DFEFC5D76D3CF38BD5A2C2F9F62}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.41">
+			10.1.228.41
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{8E220501B1E11485457F7DF74ABCCB00103149103656B25FB3A3E404CFD2BFFD38D2C3EF0A594E3EB8F9884B758BAECF}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.40:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.9
+Detected SMI-S Provider version V8.4.0.3
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000292604241 was found on SMI-S Provider
+Detected 000292604241 microcode version: 5876.309.196
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000292604241 is LOCAL to SMI-S provider 10.1.228.40
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.40:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.4.0.15 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated Uni..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="May 25, 2018 9:33:33 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s5"/>
+				srm-collect-1 - Collector
+                    </td>
+                    <td>emc-vmax-sd</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000292604241">
+			000292604241
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.40">
+			10.1.228.40
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{0BA97652F59066CD4FA9D7C5D17FDF1395BA3A437227C017B9754E365411ABEEDA756854E239CDDDC4F49446AEEB6DCC}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.40">
+			10.1.228.40
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{19746203EBE24A7EAE0BBEF07F0E0FBD87672E126C55ECA458D72703FA607B40616AE61277A7C9E0B606D830F75EB158}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.40:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.9
+Detected SMI-S Provider version V8.4.0.3
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000292604563 was found on SMI-S Provider
+Detected 000292604563 microcode version: 5876.268.174
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000292604563 is LOCAL to SMI-S provider 10.1.228.40
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.40:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.4.0.15 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated Uni..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="May 25, 2018 9:32:23 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s5"/>
+				srm-collect-1 - Collector
+                    </td>
+                    <td>emc-vmax-sd</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000292604563">
+			000292604563
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.40">
+			10.1.228.40
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{CD98BE3F590EC490496E8CA88E975262538BF22EDEB9624ABFB2155B0BF9269F34935C82EF82360519C076E2F12AC8F0}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.40">
+			10.1.228.40
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{0C82BF29D4B68F958C90FD265F2BF7A39291F3385301294F7A4C64D5DA45835E4AF7EC5E7E88D47DEDEC4AE77E594123}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.40:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.9
+Detected SMI-S Provider version V8.4.0.3
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000492600256 was found on SMI-S Provider
+Detected 000492600256 microcode version: 5876.268.174
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000492600256 is LOCAL to SMI-S provider 10.1.228.40
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.40:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.4.0.15 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated Uni..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="May 25, 2018 9:33:56 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s5"/>
+				srm-collect-1 - Collector
+                    </td>
+                    <td>emc-vmax-sd</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000492600256">
+			000492600256
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.40">
+			10.1.228.40
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{596031C7C740A0DFD43133855ACF0B4EC7737DD640F7060522EDAA76DFA17FB3B60422E6DBCDF69F146F1B93E5F58E58}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.40">
+			10.1.228.40
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{7003C14DAD6AF31B5CA66D23E01E6D89EE108D5C2ADD55C1AA7AF4D065701974CBE1EEAC6FD1E05122D56B96AA705F12}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="FAILED"
+					data-test-result-output="line 103: fail: command returned with a non-zero status (status: 1) !
+
+
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.43:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.7
+Detected SMI-S Provider version V8.4.0.2
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000292600886 was found on SMI-S Provider
+Detected 000292600886 microcode version: 5876.268.174
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000292600886 is LOCAL to SMI-S provider 10.1.228.43
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.209:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.2.0.5 registered with Unisphere
+Valida..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed WITH ERROR(S). See details in full result.&quot;]"
+					data-test-result-date="May 25, 2018 10:05:46 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s5"/>
+				srm-collect-1 - Collector
+                    </td>
+                    <td>emc-vmax-sd</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000292600886">
+			000292600886
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.43">
+			10.1.228.43
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{9DAA55CC671FD78BF087DE97540E029003B919DDE0A87151065B4764D160766D10931500AE218D73C5DFD7584C8BAF95}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.209">
+			10.1.228.209
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{D95E75BF40AA5D1F80FDDEE4F580B32D474D39AEC71DFBC57621471770EEC7D0974DD705967B39399A085B4D806CE3F6}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="FAILED"
+					data-test-result-output="line 103: fail: command returned with a non-zero status (status: 1) !
+
+
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.43:5989/cimom
+&gt;&gt;&gt;ERROR: Could not connect to SMI-S provider at https://10.1.228.43:5989/cimom.
+Verify the SMI-S configuration.
+http-post: command returned with a non-zero status (status: 5) !
+java.net.SocketTimeoutException: Read timed out
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.93:8443/univmax
+&gt;&gt;&gt;ERROR: Could not connect to Unisphere at https://10.1.228.93:8443/univmax.
+Verify the Unisphere configuration. Also ensure that the Unisphere Performance Analysis has been licensed and enabled.
+http-get: command returned with a non-zero status (status: 5) !
+java.net.SocketTimeoutException: Read timed out
+"
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Testing Unisphere connection&quot;,&quot;Tests completed WITH ERROR(S). See details in full result.&quot;]"
+					data-test-result-date="May 25, 2018 9:41:53 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s5"/>
+				srm-collect-1 - Collector
+                    </td>
+                    <td>emc-vmax-sd</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000292603793">
+			000292603793
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.43">
+			10.1.228.43
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{38EE15ADDE058BA9E7DC63C30FA8C5C1A6FD59BC59B22D731100FA308AC6B13C0AF7BDBD9710F8A5D6FDA0D5BD86BFEE}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.209">
+			10.1.228.209
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{980CE2B5920B3D8FF60EC43EBBBDEE0C061FAEA415BC9B5500D25DCD3ED39AF16E4FCFCEA9F2F531DF8B922A70CD8CB7}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.145:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.7
+Detected SMI-S Provider version V8.4.0.2
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000492600548 was found on SMI-S Provider
+Detected 000492600548 microcode version: 5876.288.195
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000492600548 is LOCAL to SMI-S provider 10.1.228.145
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.141:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.4.0.15 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated ..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="May 25, 2018 8:34:53 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s6"/>
+				srm-collect-2 - Collector
+                    </td>
+                    <td>emc-vmax-jxq</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000492600548">
+			000492600548
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.145">
+			10.1.228.145
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{8C5A78A65D65624FDE41B7D9FE11B3A3124934B7DAD2C495289D2E2A7B7FC75E81918EE8660E2FB7F0395C475FCFE45F}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.141">
+			10.1.228.141
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{A1EA4407739F02FCA0272C57F1C8B9CA3FF90816F428A42656FBB5A474A6CD375E62BF736A593CB37E1EF07B50C0D6CA}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.145:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.7
+Detected SMI-S Provider version V8.4.0.2
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000498700188 was found on SMI-S Provider
+Detected 000498700188 microcode version: 5876.288.195
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000498700188 is LOCAL to SMI-S provider 10.1.228.145
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.141:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.4.0.15 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated ..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="Mar 22, 2018 9:10:02 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s6"/>
+				srm-collect-2 - Collector
+                    </td>
+                    <td>emc-vmax-jxq</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000498700188">
+			000498700188
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.145">
+			10.1.228.145
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{A9C45EA85F4EBB761E778E5A47098CF837D712B9D8F91DACE8AB17A9C267F805FBE2366F61A11C61B80776D89EE4F68B}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.141">
+			10.1.228.141
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{D855D10D2B98E04882117AD8A90C07F246469D1CAC2F469274CDE32B2C62730F9E83DB1310D6619E4F315FB572E459FA}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.145:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.7
+Detected SMI-S Provider version V8.4.0.2
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000295700776 was found on SMI-S Provider
+Detected 000295700776 microcode version: 5876.251.161
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000295700776 is LOCAL to SMI-S provider 10.1.228.145
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.141:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.4.0.15 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated ..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="Mar 22, 2018 9:10:43 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s6"/>
+				srm-collect-2 - Collector
+                    </td>
+                    <td>emc-vmax-jxq</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000295700776">
+			000295700776
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.145">
+			10.1.228.145
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{1CEFD828FB0AF5A3C5992D1681A2541082FC94397CBD53793345B4E504CC20ED6736D4CA8EC193137096E007AD7534B3}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.141">
+			10.1.228.141
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{3778C5CEECDD6612036DA0224278B4CCA96B89DF6B6AC0C8F5B139D1C716C0319457917BC6379CCE4D25762B999CAD4A}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.229:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.7
+Detected SMI-S Provider version V8.4.0.2
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000192606728 was found on SMI-S Provider
+Detected 000192606728 microcode version: 5876.286.194
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000192606728 is LOCAL to SMI-S provider 10.1.228.229
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.141:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.4.0.15 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated ..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="Mar 22, 2018 9:11:19 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s6"/>
+				srm-collect-2 - Collector
+                    </td>
+                    <td>emc-vmax-jxq</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000192606728">
+			000192606728
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.229">
+			10.1.228.229
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{A351FA031BF996C9B79827097CDA5DCD3D42B6129C4E30134144BEFAF9B42930137F8BD6D2D880DDF3CF0937AAE342F6}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.141">
+			10.1.228.141
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{5375AC2C774227198AAA583EF0F3FD52CD66E03DF0F581C37C76C1CD759D89AF9EA4FB8AE8CBCA97D7CF3C3512FE772E}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.229:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.7
+Detected SMI-S Provider version V8.4.0.2
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000492600255 was found on SMI-S Provider
+Detected 000492600255 microcode version: 5876.268.174
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000492600255 is LOCAL to SMI-S provider 10.1.228.229
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.140:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.2.0.5 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated U..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="Mar 23, 2018 6:53:38 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s6"/>
+				srm-collect-2 - Collector
+                    </td>
+                    <td>emc-vmax-jxq</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000492600255">
+			000492600255
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.229">
+			10.1.228.229
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{C63AEC018B55A825EC7478903A235D635829A0100CE20EFF1AA8E163BF4D299EFB5652A409D9EC93C2AB3B23B07CB120}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.140">
+			10.1.228.140
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{CDCB648C09749B6A9ECB6CD15118549F53D8289D8EC33DB06817F522D47620628DAF0AAC3199BF60B1DC364660F8F1C0}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.229:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.7
+Detected SMI-S Provider version V8.4.0.2
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000292600901 was found on SMI-S Provider
+Detected 000292600901 microcode version: 5876.268.174
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000292600901 is LOCAL to SMI-S provider 10.1.228.229
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.143:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.2.0.5 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated U..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="Mar 22, 2018 8:29:07 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s6"/>
+				srm-collect-2 - Collector
+                    </td>
+                    <td>emc-vmax-jxq</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000292600901">
+			000292600901
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.229">
+			10.1.228.229
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{2717BAE1449092E7B732177E444353A9B904F6F0C327343D41EE8E8DC12D27542D7E7C435D2D052BA28632866BB20A5F}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.143">
+			10.1.228.143
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{28B72A3B9651992A1F1339574E90ABAAB6A4662A11E63FF0E9CFA0A4CBFEDF57DEFB35F82C4A0463FCCA5AF8A40B16D1}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.229:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.7
+Detected SMI-S Provider version V8.4.0.2
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000292603046 was found on SMI-S Provider
+Detected 000292603046 microcode version: 5876.268.174
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000292603046 is LOCAL to SMI-S provider 10.1.228.229
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.143:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.2.0.5 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated U..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="Mar 22, 2018 8:29:54 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s6"/>
+				srm-collect-2 - Collector
+                    </td>
+                    <td>emc-vmax-jxq</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000292603046">
+			000292603046
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.229">
+			10.1.228.229
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{25C43E393F4A574197572403F2F7CF88BBD77228B8FDF19B618BBDF07799BB754D21E54B4B396FB1B7F0AE7D295594A0}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.143">
+			10.1.228.143
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{EBA10CA90858FAB367A8BAE35D01C22F75B240B88FEF5C6991742310D86FB6D2033DBBC5D3E796022A2ABEEB8EB5E3F5}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.145:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.7
+Detected SMI-S Provider version V8.4.0.2
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000292604567 was found on SMI-S Provider
+Detected 000292604567 microcode version: 5876.268.174
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000292604567 is LOCAL to SMI-S provider 10.1.228.145
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.140:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.2.0.5 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated U..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="Mar 22, 2018 8:00:01 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s6"/>
+				srm-collect-2 - Collector
+                    </td>
+                    <td>emc-vmax-jxq</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000292604567">
+			000292604567
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.145">
+			10.1.228.145
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{55BEA19708A12ECFBEA5B36BD2669BEECBADED868F16881548792A985708EF137FCCDDA67BE4BD109A582F96B44D8633}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.140">
+			10.1.228.140
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{91744F8DB49260095B5AB61EAC78E1B90F67039C3325C6D3AD862FED29169544CC6428A7DB2E7AE945314A1A6AF9715F}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+                <tr class=" ">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td class="status history">
+                        <span class="test-result" 
+					data-test-result-status="SUCCESS"
+					data-test-result-output="
+
+SYMCLI tests skipped: SYMCLI not configured on the selected instance
+
+Testing SMI-S configuration
+Trying to connect to SMI-S provider at https://10.1.228.229:5989/cimom
+Successfully connected to SMI-S provider and verified it is an ECOM SMI-S Provider
+Detected Solutions Enabler version V8.4.0.7
+Detected SMI-S Provider version V8.4.0.2
+Validated SMI-S/SE version meets Required version requirement.
+Validated SMI-S/SE version meets Recommended version requirement.
+Retrieved all array instance names
+Validated serial number 000292604239 was found on SMI-S Provider
+Detected 000292604239 microcode version: 5876.309.196
+Detected VMAX/VMAX2 based on microcode &gt;= 5874 and &lt; 5977
+Serial number 000292604239 is LOCAL to SMI-S provider 10.1.228.229
+
+Testing Unisphere configuration(s)
+Trying to connect to Unisphere at https://10.1.228.140:8443/univmax
+Successfully connected to Unisphere
+Found UNIVMAXPA version V8.2.0.5 registered with Unisphere
+Validated Unisphere version meets Required version requirement.
+Validated U..."
+					data-test-result-steps="[&quot;Testing SMI-S connection&quot;,&quot;Checking SMI-S version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Testing Unisphere connection&quot;,&quot;Checking Unisphere version&quot;,&quot;Validating serial numbers to collect&quot;,&quot;Tests completed successfully. See details in full result.&quot;]"
+					data-test-result-date="Mar 22, 2018 8:28:39 PM">
+				</span>
+                    </td>
+                    <td class="info">
+                        <input type="hidden" name="server-id" value="s6"/>
+				srm-collect-2 - Collector
+                    </td>
+                    <td>emc-vmax-jxq</td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="000292604239">
+			000292604239
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="3">
+			Unisphere for VMAX
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="2">
+			SMI-S
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="true">
+			Yes
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.229">
+			10.1.228.229
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="admin">
+			admin
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{A55DCCBF172D845F1EA06D08DD5A16063B4E80AE909A2285E87CF4FB583462FB57BB64B666DC147F826803E097AC0475}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="10.1.228.140">
+			10.1.228.140
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="smc">
+			smc
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="{7A3AE1294D45525D79EB89EB8AD7C58FE429AD38CAF2F4878F3710180FB9B172B21C73A8445E14B188125FCCEF3EB9DF}">
+			********
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="false">
+			No
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                    <td>
+                        <input type="hidden" name="answer" value="">
+			
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="right-actions">
+            <button type="button" class="add" >Add...</button>
+            <button type="button" class="import">Import...</button>
+            <button type="button" class="export">Export</button>
+            <button type="button" class="template">Export Template</button>
+            <button type="button" class="save">Save</button>
+        </div>
+        <div class="clear"></div>
+    </div>
+</div>
