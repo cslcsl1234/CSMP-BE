@@ -17,6 +17,63 @@ var async = require('async');
 var moment = require('moment');
 var urlencode = require('urlencode');
 
+/**
+ * @swagger
+ * definitions:
+ *   collecter:
+ *     properties:
+ *       export-id:
+ *         type: string
+ *         example: vmax
+ *       device-name:
+ *         type: string
+ *         example: EMC VMAX
+ *         description: A name of collecter. it is an unique name of the list.
+ *       sp-id:
+ *         type: string
+ *         example: emc-vmax-4.1.1
+ *       spb-id:        
+ *         type: string
+ *         example: emc-vmax-collect
+ *       spb-version:
+ *         type: string
+ *         example: 4.1.1
+ *       collecter-name:
+ *         type: string
+ *         example: EMC VMAX 采集器 (DMX/VMAX/VMAX2) 
+ *       DevCount:
+ *         type: integer
+ *         description: the number of devices managered by collecter. 
+ */
+
+
+/**
+ * @swagger
+ * definitions:
+ *   DeviceInfoItem:
+ *     properties:
+ *       export-id:
+ *         type: string
+ *         example: vmax
+ *       device-name:
+ *         type: string
+ *         example: EMC VMAX
+ *         description: A name of collecter. it is an unique name of the list.
+ *       sp-id:
+ *         type: string
+ *         example: emc-vmax-4.1.1
+ *       spb-id:        
+ *         type: string
+ *         example: emc-vmax-collect
+ *       spb-version:
+ *         type: string
+ *         example: 4.1.1 
+ *       detailinfo:
+ *         type: string
+ *         
+ */
+
+
 var BackendMgmtController = function (app) {
 
     var config = configger.load();
@@ -48,7 +105,21 @@ var BackendMgmtController = function (app) {
 
 
  
- 
+/**
+ * @swagger
+ * /api/backendmgmt/discocenter/devicemgmt/list:
+ *   get:
+ *     tags:
+ *       - Backendmgmt
+ *     description: Returns collecter list 
+ *     produces:
+ *       - application/json 
+ *     responses:
+ *       200:
+ *         description: An array of collecter list
+ *         schema:
+ *            $ref: '#/definitions/collecter'
+ */ 
    
     app.get('/api/backendmgmt/discocenter/devicemgmt/list', function (req, res1) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -122,6 +193,22 @@ var BackendMgmtController = function (app) {
                                 filtered.push(item);
                                 
                                 break;
+                            case 'EMC XtremIO' :
+                                item["collecter-name"] = "EMC XtremIO 采集器";
+                                filtered.push(item);
+                            
+                                break;
+                            case 'EMC Unity/VNX/VNXe' :
+                                item["collecter-name"] = "EMC Unity/VNX/VNXe 采集器";
+                                filtered.push(item);
+
+                                break;
+                            
+                            case 'Brocade SMI Provider': 
+                                item["collecter-name"] = "Brocade SMI Provider 采集器";
+                                filtered.push(item);
+
+                                break;
                             
                             default :
 
@@ -138,10 +225,67 @@ var BackendMgmtController = function (app) {
             });
         });
 
-  
-   
+
+/**
+ * @swagger
+ * /api/backendmgmt/discocenter/devicemgmt/get:
+ *   get:
+ *     tags:
+ *       - Backendmgmt
+ *     description: Returns collecter list 
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: sp-id
+ *         description: sp-id
+ *         required: true
+ *         type: string
+ *       - in: query
+ *         name: spb-id
+ *         description: spb-id
+ *         required: true
+ *         type: string
+ *       - in: query
+ *         name: spb-version
+ *         description: spb-version
+ *         required: true
+ *         type: string
+ *       - in: query
+ *         name:  export-id
+ *         description:  export-id
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: 返回所有该采集类型管理下的设备信息列表 
+ */ 
+         
         app.get('/api/backendmgmt/discocenter/devicemgmt/get', function (req, res1) {
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+            var query = {};
+            if ( req.query["sp-id"] === undefined ) {
+                res1.json(400, 'Must be have sp-id!')
+                return;
+            }
+            if (  req.query["spb-id"] === undefined ) {
+                res1.json(400, 'Must be have spb-id!')
+                return;
+            }
+            if ( req.query["spb-version"] === undefined ) {
+                res1.json(400, 'Must be have spb-version!')
+                return;
+            }
+            if ( req.query["export-id"] === undefined ) {
+                res1.json(400, 'Must be have export-id!')
+                return;
+            }
+            query.spId = req.query["sp-id"];
+            query.spbId = req.query["spb-id"];
+            query.spbVersion = req.query["spb-version"];
+            query.exportId = req.query["export-id"];
+ 
+ 
             var config = configger.load();
     
             var REQUIRE_URL = config.BackendMgmt.URL+"/discocenter/devicemgmt/get";
@@ -151,14 +295,9 @@ var BackendMgmtController = function (app) {
                     function(callback){
                         backendMgmt.BackEndLogin(function(sso_token) { 
                 
-                            var req = unirest("GET", REQUIRE_URL );
+                            var req = unirest( "GET", REQUIRE_URL );
 
-                            req.query({
-                                "spId": "emc-vmax-4.1.1",
-                                "spbId": "emc-vmax-collect",
-                                "spbVersion": "4.1.1",
-                                "exportId": "vmax"
-                              });
+                            req.query(query);
 
                             req.headers({ 
                             "content-type": "application/x-www-form-urlencoded",
@@ -169,21 +308,63 @@ var BackendMgmtController = function (app) {
                             req.end(function (res) {
                                 if (res.error) console.log(res.error);
                                 var xmlstr = res.body;
-                                var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.=\"]*)(">)/g,'$1"\/>');
-             
+                                var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.\-=\"]*)(">)/g,'$1"\/>');
+                                
                                 var options = {
                                     object: true 
-                                };
+                                }; 
                                 var json = xml2json.toJson(newdata,options); 
-                                //res1.json(200 , jsontab);
+                                
                                 callback(null,json);
+
+                                //res1.json(200 ,newdata);
                             });
                         });
                         
                     },
                     function(arg, callback) {
-                        var data = arg.div.div.table.thead.tr.th;
-                        callback(null,arg);
+                        var headerdata = arg.div.div.table.thead.tr.th
+                        var tbody = arg.div.div.table.tbody.tr;
+        
+                        var tab = [];
+                        var header = {};
+                        for ( var i in headerdata  ) {
+                            var item = headerdata[i];
+        
+                            if ( i >= 0 & i <= 3 ) 
+                                header[i] = item;
+                            else 
+                                header[i] = item.input.value;
+                        }
+        
+                        for ( var i in tbody) {
+                            var tbodyItem = tbody[i].td;
+        
+                            var recordItem = {}; 
+                            for ( var j in tbodyItem ) {
+                                var itemvalue = tbodyItem[j]; 
+        
+                                if ( j >= 1 & j <= 3 ) { 
+                                    switch ( j ) {
+                                        case '3' :  
+                                            recordItem[header[j]] = itemvalue;
+                                            break;
+                                        case '1' : 
+                                            recordItem[header[j]] = itemvalue.span;
+                                            break;
+                                        case '2' : 
+                                            recordItem[header[j]] = itemvalue.input.value
+                                            break;                               
+                                    } 
+                                        
+                                } else {
+                                    recordItem[header[j]] = itemvalue.input.value
+                                }
+                            }
+                            tab.push(recordItem);
+                        }
+         
+                        callback(null,tab);
                     } 
                 ], function (err, result) {
                       // result now equals 'done'
@@ -193,76 +374,256 @@ var BackendMgmtController = function (app) {
             });
 
 
-
-  
-            app.get('/api/backendmgmt/discocenter/devicemgmt/test', function (req, res1) {
-                process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-                var config = configger.load();
-        
-        
-                backendMgmt.BackEndLogin(function(sso_token) { 
+/**
+ * @swagger
+ * /api/backendmgmt/discocenter/devicemgmt/add:
+ *   get:
+ *     tags:
+ *       - Backendmgmt
+ *     description: Returns Device Location info
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: sp-id
+ *         description: sp-id
+ *         required: true
+ *         type: string
+ *       - in: query
+ *         name: spb-id
+ *         description: spb-id
+ *         required: true
+ *         type: string
+ *       - in: query
+ *         name: spb-version
+ *         description: spb-version
+ *         required: true
+ *         type: string
+ *       - in: query
+ *         name:  export-id
+ *         description:  export-id
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: 返回所有该采集类型采集器信息 
+ */ 
          
-                    var req = unirest("POST", config.BackendMgmt.URL+"/discocenter/devicemgmt/test");
-                    
+app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+    var query = {};
+    if ( req.query["sp-id"] === undefined ) {
+        res1.json(400, 'Must be have sp-id!')
+        return;
+    }
+    if (  req.query["spb-id"] === undefined ) {
+        res1.json(400, 'Must be have spb-id!')
+        return;
+    }
+    if ( req.query["spb-version"] === undefined ) {
+        res1.json(400, 'Must be have spb-version!')
+        return;
+    }
+    if ( req.query["export-id"] === undefined ) {
+        res1.json(400, 'Must be have export-id!')
+        return;
+    }
+    query.spId = req.query["sp-id"];
+    query.spbId = req.query["spb-id"];
+    query.spbVersion = req.query["spb-version"];
+    query.exportId = req.query["export-id"];
+
+
+    var config = configger.load();
+
+    var REQUIRE_URL = config.BackendMgmt.URL+"/discocenter/devicemgmt/edit";
+
+    async.waterfall(
+        [
+            function(callback){
+                backendMgmt.BackEndLogin(function(sso_token) { 
+        
+                    var req = unirest( "GET", REQUIRE_URL );
+
+                    req.query(query);
+
                     req.headers({ 
                     "content-type": "application/x-www-form-urlencoded",
                     "referer": config.BackendMgmt.URL,
                     "cookie": "JSESSIONIDSSO="+sso_token
                     });
                     
-                    var smiinfo = {};
-                    smiinfo.host = "1.1.1.1";
-                    smiinfo.username = "admin";
-                    smiinfo.password = "#1Password";
-                    smiinfo.useAdvancedSettings = false;
-
-                    var unisphereInfo = {};
-                    unisphereInfo.host = "1.1.1.1";
-                    unisphereInfo.username = "smc";
-                    unisphereInfo.password = "smc";
-                    unisphereInfo.useAdvancedSettings = false;
-                    
-                    var requreData = {};
-                    requreData.server = "sc20a5214";
-                    requreData.inEdit = false;
-                    
-                    requreData.instance = "emc-vmax";
-                    var jsonAnswers = {};
-                    jsonAnswers.smi = smiinfo;
-                    jsonAnswers.unisphere = unisphereInfo;
-                    jsonAnswers.vmax_device_type = "2"
-                    jsonAnswers.serialnb = "1234567";
-                    jsonAnswers.collect_other_perf = "3";
-                    jsonAnswers.collect_lun_perf = "2";
-                    jsonAnswers.srdfCollection = true
-
-                    var requreDataStr = JSON.stringify(jsonAnswers);
-                    requreData.jsonAnswers = requreDataStr;
-                    var requreData1 = [];
-                    requreData1.push(requreData);
-                    var b = JSON.stringify(requreData1);
-                    var a = urlencode(b);
-                    console.log(a);
-
-                    req.form({
-                    "id": "emc-vmax-4.1.1",
-                    "block": "emc-vmax-collect",
-                    "version": "4.1.1",
-                    "spId": "emc-vmax-4.1.1",
-                    "spbId": "emc-vmax-collect",
-                    "exportId": "vmax",
-                    "spbVersion": "4.1.1",
-                    //"jsonRows": "[{\"server\":\"sc20a5214\",\"inEdit\":false,\"instance\":\"emc-vmax\",\"jsonAnswers\":\"{\\\"smi\\\":{\\\"host\\\":\\\"1.2.3.4\\\",\\\"username\\\":\\\"admin\\\",\\\"password\\\":\\\"#1Password\\\",\\\"useAdvancedSettings\\\":false},\\\"unisphere\\\":{\\\"host\\\":\\\"5.6.7.8\\\",\\\"username\\\":\\\"smc\\\",\\\"password\\\":\\\"smc\\\",\\\"useAdvancedSettings\\\":false},\\\"vmax_device_type\\\":\\\"2\\\",\\\"serialnb\\\":\\\"1234567890\\\",\\\"collect_other_perf\\\":\\\"3\\\",\\\"collect_lun_perf\\\":\\\"2\\\",\\\"srdfCollection\\\":true}\"}]"
-                    "jsonRows" : "%5B%7B%22server%22%3A%22sc20a5214%22%2C%22inEdit%22%3Afalse%2C%22instance%22%3A%22emc-vmax%22%2C%22jsonAnswers%22%3A%22%7B%5C%22smi%5C%22%3A%7B%5C%22host%5C%22%3A%5C%221.2.1.1%5C%22%2C%5C%22username%5C%22%3A%5C%22admin%5C%22%2C%5C%22password%5C%22%3A%5C%22%231Password%5C%22%2C%5C%22useAdvancedSettings%5C%22%3Afalse%7D%2C%5C%22unisphere%5C%22%3A%7B%5C%22host%5C%22%3A%5C%222.2.2.2%5C%22%2C%5C%22username%5C%22%3A%5C%22smc%5C%22%2C%5C%22password%5C%22%3A%5C%22smc%5C%22%2C%5C%22useAdvancedSettings%5C%22%3Afalse%7D%2C%5C%22vmax_device_type%5C%22%3A%5C%222%5C%22%2C%5C%22serialnb%5C%22%3A%5C%2212345%5C%22%2C%5C%22collect_other_perf%5C%22%3A%5C%223%5C%22%2C%5C%22collect_lun_perf%5C%22%3A%5C%222%5C%22%2C%5C%22srdfCollection%5C%22%3Atrue%7D%22%7D%5D"
-                    });
-                    
                     req.end(function (res) {
-                    if (res.error) console.log(res.error);
-                    
-                    console.log(res.body);
-                        res1.json(200 , res.body);
+                        if (res.error) console.log(res.error);
+                        var xmlstr = "<div>" + res.body + "</div>";
+                        var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.\-=\"]*)(">)/g,'$1"\/>').replace("\"data-default=\"","\" data-default=\"");
+                        
+                        var options = {
+                            object: true 
+                        }; 
+                        var json = xml2json.toJson(newdata,options);  
+                        callback(null,json);
+
+                        //res1.json(200 ,newdata);
                     });
+                });
+                
+            },
+            function(arg, callback) {
+                var tbody = arg.div.div.form.div.div.div.div.div;
+                var device_localtion = {};
+                for ( var i in tbody ) {
+                    var item = tbody[i];
+                    if ( item.class == "device-location") {
+                        for ( var j in item.div ) {
+                            var itemLocaltion = item.div[j];
+                            device_localtion[itemLocaltion.input.name] = itemLocaltion.input.value;
+                        } 
+                    }
+                }
+ 
+                callback(null,device_localtion);
+            } 
+        ], function (err, result) {
+              // result now equals 'done'
+
+              res1.json(200 ,result);
+        });
+    });
+
+
+
+/**
+ * @swagger
+ * /api/backendmgmt/discocenter/devicemgmt/test:
+ *   post:
+ *     tags:
+ *       - Backendmgmt
+ *     description: 测试设备采集有效性. 
+ *     operationId: devicemgmt_test
+ *     consumes:
+ *       - application/json
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: deviceinfoItem
+ *         description: 需要测试的设备信息.
+ *         schema:
+ *            $ref: '#/definitions/DeviceInfoItem'
+ *     responses:
+ *       200:
+ *         description: 设备测试成功通过. 
+ */ 
+
+  
+            app.post('/api/backendmgmt/discocenter/devicemgmt/test', function (req, res1) {
+                process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+                var config = configger.load();
+
+                var testBody = req.body; 
+                var query = testBody.collecter; 
+                var exeType = testBody.exe_type;
+
+               switch ( query["export-id"] ) {
+                   case "vmax" :
+                        var jsonAnswersStr = combineRequestAnswer_vmax(testBody.deviceinfo);
+                        break;
+                    case "unisphere" :
+                        var jsonAnswersStr = combineRequestAnswer_unisphere(testBody.deviceinfo);
+                        break;
+                    case "vnx" :
+
+                        var jsonAnswersStr = combineRequestAnswer_vnx(testBody.deviceinfo);
+
+                        break;
+                    case "emcxtremio" :
+                        var jsonAnswersStr = combineRequestAnswer_xtremio(testBody.deviceinfo);
+                        break;
+
+                    case "smiprovider" :
+                        var jsonAnswersStr = combineRequestAnswer_brocade(testBody.deviceinfo);
+                        break;
+                   
                     
+                }
+                 
+
+                backendMgmt.BackEndLogin(function(sso_token) { 
+         
+                    var req = unirest("POST", config.BackendMgmt.URL+"/discocenter/devicemgmt/test");
+                    
+                    req.headers({ 
+                        "content-type": "application/x-www-form-urlencoded",
+                        "referer": config.BackendMgmt.URL,
+                        "cookie": "JSESSIONIDSSO="+sso_token
+                    });
+
+                    if ( exeType == 'delete' ) {
+                        var isSave = false;
+                        devicemgmt_modify(testBody, isSave, function(save_response) {
+        
+                            var saveJson = JSON.parse(save_response);
+
+                            res1.json(200, saveJson); 
+                        })
+                    } else {
+                        var requreDataItem = {};
+                        requreDataItem.server = testBody.deviceinfo["Server"];
+                        requreDataItem.inEdit = true;
+                        requreDataItem.instance = testBody.deviceinfo["Instance"];
+                        requreDataItem.jsonAnswers = jsonAnswersStr;
+                        
+                        var requreData = [];
+                        requreData.push(requreDataItem);
+                         
+                        var requreDataStr = JSON.stringify(requreData);
+                      
+    
+                        var requireForm = {}
+                        requireForm.id = query['sp-id'];
+                        requireForm.block = query['spb-id'];
+                        requireForm.version = query['spb-version'];
+                        requireForm.spId = query['sp-id'];
+                        requireForm.spbId = query['spb-id'];
+                        requireForm.exportId = query['export-id'];
+                        requireForm.spbVersion = query['spb-version'];
+                        requireForm.jsonRows = requreDataStr ; 
+    
+                        console.log(requireForm); 
+    
+                        req.form(requireForm);
+    
+                        req.end(function (res) {
+                        if (res.error) console.log(res.error);  
+                            var resbody = res.raw_body;
+                            var resbodyJson = JSON.parse(resbody);
+                            console.log(resbodyJson.testResult.status);
+                            if ( exeType == "testonly" ) {
+                                res1.json(200,resbodyJson);
+                            } else  { 
+                                var isSave = true; 
+                                if  ( resbodyJson.testResult.status == 'SUCCESS' ) {
+                                    devicemgmt_modify(testBody, isSave, function(save_response) {
+        
+                                        var saveJson = JSON.parse(save_response);
+                                        var errCount = saveJson.saveErrors.length;
+                                        var warnCount = saveJson.saveWarnings.length;
+        
+                                        if ( errCount == 0 && warnCount == 0 ) {
+                                            res1.json(200, resbodyJson);
+                                        } else 
+                                            res1.json(200 , resbodyJson);
+                                    })
+                                }
+                            }
+    
+                            
+                        });
+                        
+                    }
+
+
                 });
         
          
@@ -271,5 +632,199 @@ var BackendMgmtController = function (app) {
         
 
 };
+
+
+/*
+*   Functions 
+*/
+function devicemgmt_modify ( testBody , isSave ,  callback ) {
+    var config = configger.load();
+
+    var query = testBody.collecter; 
+
+
+   switch ( query["export-id"] ) {
+       case "vmax" :
+            var jsonAnswersStr = combineRequestAnswer_vmax(testBody.deviceinfo);
+            break;
+        case "unisphere" :
+            var jsonAnswersStr = combineRequestAnswer_unisphere(testBody.deviceinfo);
+            break;
+        case "vnx" :
+
+            var jsonAnswersStr = combineRequestAnswer_vnx(testBody.deviceinfo);
+
+            break;
+        case "emcxtremio" :
+            var jsonAnswersStr = combineRequestAnswer_xtremio(testBody.deviceinfo);
+            break;
+
+        case "smiprovider" :
+            var jsonAnswersStr = combineRequestAnswer_brocade(testBody.deviceinfo);
+            break;
+       
+        
+    }
+     
+
+    backendMgmt.BackEndLogin(function(sso_token) { 
+
+        var req = unirest("POST", config.BackendMgmt.URL+"/discocenter/devicemgmt/save");
+        
+        req.headers({ 
+            "content-type": "application/x-www-form-urlencoded",
+            "referer": config.BackendMgmt.URL,
+            "cookie": "JSESSIONIDSSO="+sso_token
+        });
+
+
+
+        var requreDataItem = {};
+        requreDataItem.server = testBody.deviceinfo["Server"];
+        requreDataItem.instance = testBody.deviceinfo["Instance"];
+        
+        if ( isSave == true ) {
+            requreDataItem.isDeleted = false;
+            requreDataItem.isModified = true;
+        } else {
+            requreDataItem.isDeleted = true;
+            requreDataItem.isModified = false;
+        }
+
+        requreDataItem.jsonAnswers = jsonAnswersStr;
+        
+        var requreData = [];
+        requreData.push(requreDataItem);
+         
+        var requreDataStr = JSON.stringify(requreData);
+      
+
+        var requireForm = {}   
+        requireForm.spId = query['sp-id'];
+        requireForm.spbId = query['spb-id'];
+        requireForm.exportId = query['export-id'];
+        requireForm.spbVersion = query['spb-version'];
+        requireForm.jsonRows = requreDataStr ; 
+
+        console.log(requireForm); 
+
+        req.form(requireForm);
+
+        req.end(function (res) {
+        if (res.error) console.log(res.error);  
+            var resbody = res.raw_body;
+            console.log(resbody);
+            //var resbodyJson = JSON.parse(resbody); 
+            callback(resbody);
+        });
+        
+    });
+
+};
+ 
+
+
+function combineRequestAnswer_vmax( deviceinfo ) {
+
+    
+    var smiinfo = {};
+    smiinfo.host = deviceinfo["vmax.smi.host"] ;
+    smiinfo.username = deviceinfo["vmax.smi.username"] ;
+    smiinfo.password = deviceinfo["vmax.smi.password"] ;
+    smiinfo.useAdvancedSettings = "false" ;
+
+    var unisphereInfo = {};
+    unisphereInfo.host = deviceinfo["vmax.unisphere.host"] ;
+    unisphereInfo.username = deviceinfo["vmax.unisphere.username"] ;
+    unisphereInfo.password = deviceinfo["vmax.unisphere.password"] ;
+    unisphereInfo.useAdvancedSettings = "false" ;
+
+    var jsonAnswers = {};
+    jsonAnswers.smi = smiinfo;
+    jsonAnswers.unisphere = unisphereInfo;
+    jsonAnswers.vmax_device_type = deviceinfo["vmax.vmax_device_type"] ;
+    jsonAnswers.serialnb = deviceinfo["vmax.serialnb"] ;
+    jsonAnswers.collect_other_perf = "3" ;
+    jsonAnswers.collect_lun_perf = "2" ;
+    jsonAnswers.srdfCollection = "true" ;
+
+    var jsonAnswersStr = JSON.stringify(jsonAnswers);
+    return jsonAnswersStr;
+}
+
+
+function combineRequestAnswer_vnx( deviceinfo ) {
+
+    var block = {};
+    block.spa = deviceinfo["vnx.block.spa"];
+    block.spb = deviceinfo["vnx.block.spb"];
+    block.use_secfile = deviceinfo["vnx.block.use_secfile"]; 
+    block.userscope = deviceinfo["vnx.block.userscope"];
+    block.username = deviceinfo["vnx.block.username"];
+    block.password = deviceinfo["vnx.block.password"];
+
+    var file = {};
+    file.csprimary = deviceinfo["vnx.file.csprimary"];
+    file.userscope = deviceinfo["vnx.file.userscope"];
+    file.username = deviceinfo["vnx.file.username"];
+    file.password = deviceinfo["vnx.file.password"];
+
+    var jsonAnswers = {};
+    jsonAnswers.block = block;
+    jsonAnswers.file = file;
+    jsonAnswers.type = deviceinfo["vnx.type"];
+    jsonAnswers.friendlyname = deviceinfo["vnx.friendlyname"];
+
+    var jsonAnswersStr = JSON.stringify(jsonAnswers);
+    return jsonAnswersStr;
+}
+
+
+
+function combineRequestAnswer_unisphere( deviceinfo ) {
+
+    var jsonAnswers = {};
+    jsonAnswers.host = deviceinfo["unisphere.host"]; 
+    jsonAnswers.port = deviceinfo["unisphere.port"];
+    jsonAnswers.username = deviceinfo["unisphere.username"];
+    jsonAnswers.password = deviceinfo["unisphere.password"];
+    jsonAnswers.serialnbIncludeList = deviceinfo["unisphere.serialnbIncludeList"];
+
+    var jsonAnswersStr = JSON.stringify(jsonAnswers);
+    return jsonAnswersStr;
+}
+
+
+
+function combineRequestAnswer_xtremio( deviceinfo ) {
+
+    var jsonAnswers = {};
+    jsonAnswers.host = deviceinfo["emcxtremio.host"];  
+    jsonAnswers.username = deviceinfo["emcxtremio.username"];
+    jsonAnswers.password = deviceinfo["emcxtremio.password"];
+    jsonAnswers.timezone = deviceinfo["emcxtremio.timezone"];
+    jsonAnswers.version = deviceinfo["emcxtremio.version"];
+
+    var jsonAnswersStr = JSON.stringify(jsonAnswers);
+    return jsonAnswersStr;
+}
+
+
+function combineRequestAnswer_brocade( deviceinfo ) {
+
+    var jsonAnswers = {};
+    jsonAnswers.host = deviceinfo["smiprovider.host"];  
+    jsonAnswers.username = deviceinfo["smiprovider.username"];
+    jsonAnswers.password = deviceinfo["smiprovider.password"];
+    jsonAnswers.usesecure = deviceinfo["smiprovider.usesecure"];
+    jsonAnswers.port = deviceinfo["smiprovider.port"];
+
+    var jsonAnswersStr = JSON.stringify(jsonAnswers);
+ 
+
+    return jsonAnswersStr;
+}
+
+
 
 module.exports = BackendMgmtController;

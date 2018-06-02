@@ -1,6 +1,5 @@
 "use strict";
- 
-const swaggerUi = require('swagger-ui-express');
+  
 const debug = require('debug')('swaggerController')  
  
 
@@ -31,7 +30,7 @@ var swaggerController = function (app) {
         version: '1.0.0',
         description: 'RESTful API for Storage Management Platform',
     },
-    host: 'localhost:8080',
+    host: 'csmpserver:8080',
     basePath: '/',
     };
 
