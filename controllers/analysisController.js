@@ -24,7 +24,7 @@ var DeviceMgmt = require('../lib/DeviceManagement');
 var VMAX = require('../lib/Array_VMAX');
 
 var AppTopologyObj = mongoose.model('AppTopology');
- 
+var ArraySGRedoVolumeObj = mongoose.model('ArraySGRedoVolume');
 
 var analysisController = function (app) {
 
@@ -43,9 +43,28 @@ var analysisController = function (app) {
         else  next();
     });
 
+
  
-
-
+/**
+ * @swagger
+ * /api/analysis/app/info:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     description: 返回应用系统及其相关的存储相关资源信息 
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json 
+ *     responses:
+ *       200:
+ *         description: return an array of application list
+ *         schema:
+ *            type: array
+ *            items:
+ *                $ref: '#/definitions/ApplicationInfoItem'
+ */ 
+   
     app.get('/api/analysis/app/info', function (req, res) {
         res.setTimeout(3600*1000);
         var device;
@@ -75,26 +94,51 @@ var analysisController = function (app) {
                                     var lastRecordgenerateDT = new Date(lastRecord.metadata.generateDatetime);
                                     if ( generateDT > lastRecordgenerateDT ) 
                                         lastRecord = item;
-                                }
+                                } 
+                            } 
 
-                            }
+                            //console.log(lastRecord.data);
 
-                            callback(null,lastRecord.data);
-                            
-                        }
-
-                    });
-
+                            callback(null,lastRecord.data); 
+                        } 
+                    }); 
                 },  
+                function( param, callback ) {  
+ 
+                    ArraySGRedoVolumeObj.find( {} , {"appname":1, "device":1, "devicesn":1, "sgname":1, "redovol":1, "_id": 0 },  function (err, doc) {
+                        //system error.
+                        if (err) {
+                            return   done(err);
+                        }
+                        if (!doc) { //user doesn't exist. 
+                            console.log("is not exits!");
+                        }
+                        else {   
+                            for ( var i in param ) {
+                                var item = param[i];
+                                if ( item.array === undefined ) continue;
+                                for ( var j in doc ) {
+                                    var redoItem = doc[j];
+                                    if ( item.array == redoItem.devicesn && item.SG == redoItem.sgname ) {
+                                        
+                                    console.log(item.array +"|"+ redoItem.devicesn +"|"+ item.SG +"|"+ redoItem.sgname+"\t" +redoItem.redovol);
+                                    item.redovol = redoItem.redovol;
+                                    }
+                                }
+                            }  
+                            callback(null, param); 
+                        }
+                    });   
+                }, 
                 function(param,  callback) { 
                     console.log(moment.utc(Date.now()).format() + "TEST1");
                     var res = [];
-                    DeviceMgmt.GetArrayAliasName(function(arrayinfo) {     
-                        console.log(moment.utc(Date.now()).format() + "TEST1.1"); 
+ 
+                    DeviceMgmt.GetArrayAliasName(function(arrayinfo) {      
                         for ( var i in param ) {
                             var item = param[i];
                             if ( item.array === undefined ) continue; 
-
+ 
                             var isfind = false;
                             for ( var j in res ) {
                                 var resItem = res[j];
@@ -109,12 +153,9 @@ var analysisController = function (app) {
                                 resItem.app = item.app;
                                 resItem.array = item.array;
                                 resItem.SG = item.SG;
-                                resItem.array_name = "";
-/*
-                                var arrayinfoItem = arrayinfo[resItem.array]; 
-                                resItem.array_name = arrayinfoItem.name;
-                                resItem.array_level = arrayinfoItem.type;
-*/
+                                resItem.array_name = ""; 
+                                resItem.redovol = (item.redovol===undefined?[]:item.redovol);
+                                
                                 for ( var z in arrayinfo ) {
                                     if ( resItem.array == arrayinfo[z].storagesn ) {
                                         resItem.array_name = arrayinfo[z].name;
@@ -132,14 +173,14 @@ var analysisController = function (app) {
                             if ( res[i].app == "" ) res[i].app = res[i].SG ;
                         }
                         console.log(moment.utc(Date.now()).format() + "TEST1.4");
+ 
                         callback(null,res);
                                    
                     });
                 },
                 function(param,  callback){ 
                     console.log(moment.utc(Date.now()).format() + "TEST1");
-                    var res = [];
-                     
+                    var res = []; 
                     for ( var i in  param ) {
                         var item = param[i];
 
@@ -169,7 +210,7 @@ var analysisController = function (app) {
                                         if ( sgIsFind == true ) {
                                             var sgItemNew = {};
                                             sgItemNew.name = item.SG;
-                                            sgItemNew.redo = "";
+                                            sgItemNew.redovol = item.redovol;
                                             arrayItem.sg.push(sgItemNew);
                                         }
                                     }
@@ -182,14 +223,14 @@ var analysisController = function (app) {
 
                                     var sgItemNew = {};
                                     sgItemNew.name = item.SG;
-                                    sgItemNew.redo = "";
+                                    sgItemNew.redovol = item.redovol;
                                     arrayItemNew.sg.push(sgItemNew);
 
                                     resItem.device.push(arrayItemNew);
                                 }
                             }
                         }
-                        if ( appIsFind == false  ){
+                        if ( appIsFind == false  ) {
                             var appItemNew = {};
                             appItemNew.name = item.app;
                             appItemNew.device = [];
@@ -201,28 +242,47 @@ var analysisController = function (app) {
 
                             var sgItemNew = {};
                             sgItemNew.name = item.SG;
-                            sgItemNew.redo = "";
+                            sgItemNew.redovol = item.redovol;
                             arrayItemNew.sg.push(sgItemNew);
 
                             appItemNew.device.push(arrayItemNew);  
                             
                             res.push(appItemNew);
                         } 
-
                     }
-
-                    callback(null,res);
-                    //callback(null,param);
+                    callback(null,res); 
                 },  
                 function(arg1, callback) {
                     console.log(moment.utc(Date.now()).format() + "TEST1");
-                    callback(null,arg1);
+
+                    var result = [];
+                    for ( var i in arg1 ) {
+                        var item1 = arg1[i]; 
+                        
+                        for ( var j in item1.device ) {
+                            var item2 = item1.device[j]; 
+
+                            for ( var z in item2.sg ) {
+                                var item3 = item2.sg[z];
+ 
+                                var resultItem = {};
+                                resultItem["appname"] = item1.name;
+                                resultItem["device"] = item2.name;
+                                resultItem["devicesn"] = item2.sn;
+                                resultItem["sgname"] = item3.name;
+                                resultItem["redovol"] = item3.redovol;
+
+                                result.push(resultItem);
+                                
+                            }
+                        }
+
+                    }
+
+                    callback(null,result);
                 } 
-            ], function (err, result) {
-                // result now equals 'done'
-                var finalReturn = {};
-                finalReturn.data = result
-                res.json(200 , finalReturn );
+            ], function (err, result) { 
+                res.json(200 , result );
             });
 
         
@@ -366,8 +426,7 @@ var analysisController = function (app) {
                         for ( var z in item.matrics ) {
                             item.matrics[z]["MBTransferred"] = ( item.matrics[z]["KBytesTransferred"] !== undefined ? item.matrics[z].KBytesTransferred / 1024 : 0 );
                             if (item.matrics[z].KBytesTransferred !== undefined )
-                                delete item.matrics[z].KBytesTransferred;
-                            item.matrics[z]["Syscall"] = 30;
+                                delete item.matrics[z].KBytesTransferred; 
                         }
                     };
                     arg1["FA-Director"] = resultFA;
@@ -406,7 +465,138 @@ var analysisController = function (app) {
             }
         ], function (err, result) { 
 
-            res.json(200, result );
+
+            var CacheHit = result.data.CacheHit;
+            var CacheHitResult = {};            
+
+            for ( var i in CacheHit ) {
+                var item = CacheHit[i]; 
+                for ( var fieldName in item ) {  
+                    var isfind = false ;
+                    for ( var fieldName1 in CacheHitResult ) { 
+                        if ( fieldName1 == fieldName ) {
+                            CacheHitResult[fieldName1].push(item[fieldName]);
+                            isfind = true;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var CacheHitResultItem = [];  
+                        CacheHitResultItem.push(item[fieldName]);
+                        CacheHitResult[fieldName] = CacheHitResultItem; 
+
+                    }
+                }
+            }
+
+            var DirectorIOPS = result.data["FA-Director"];
+
+            var DirectorIOPS1 = [];
+            for ( var i in DirectorIOPS ) {
+                var item = DirectorIOPS[i]; 
+
+                for ( var j in item.matrics ) {
+                    var item1 = item.matrics[j];
+
+                    var isfind = false;
+                    for ( var z in DirectorIOPS1 ) {
+                        var itemResult = DirectorIOPS1[z];
+                        if ( itemResult.timestamp == item1.timestamp ) {
+                            isfind = true;
+                            itemResult[item.part+"_ReadRequests"] = item1.ReadRequests;
+                            itemResult[item.part+"_WriteRequests"] = item1.WriteRequests;
+                            itemResult[item.part+"_MBTransferred"] = item1.MBTransferred;
+                            
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var DirectorIOPSItem = {};
+                        DirectorIOPSItem["timestamp"] = item1.timestamp;
+    
+                        DirectorIOPS1.push(DirectorIOPSItem);
+                    }
+                }
+            }
+            var DirectorIOPSResult = {}; 
+            var DirectorMBPSResult = {}; 
+  
+            var DirectorSysCallResult = {}; 
+
+            
+            for ( var i in DirectorIOPS1 ) {
+                var item = DirectorIOPS1[i]; 
+                for ( var fieldName in item ) { 
+                    if ( fieldName.indexOf("Requests") < 0 && fieldName.indexOf("timestamp")) continue; 
+
+                    var isfind = false ;
+                    for ( var fieldName1 in DirectorIOPSResult ) { 
+                        if ( fieldName1 == fieldName ) {
+                            DirectorIOPSResult[fieldName1].push(item[fieldName]);
+                            isfind = true;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var DirectorIOPSResultItem = [];  
+                        DirectorIOPSResultItem.push(item[fieldName]);
+                        DirectorIOPSResult[fieldName] = DirectorIOPSResultItem; 
+                    }
+                }
+            }
+ 
+            for ( var i in DirectorIOPS1 ) {
+                var item = DirectorIOPS1[i]; 
+                for ( var fieldName in item ) { 
+                    if ( fieldName.indexOf("MBTransferred") < 0  && fieldName.indexOf("timestamp") ) continue; 
+
+                    var isfind = false ;
+                    for ( var fieldName1 in DirectorMBPSResult ) { 
+                        if ( fieldName1 == fieldName ) {
+                            DirectorMBPSResult[fieldName1].push(item[fieldName]);
+                            isfind = true;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var DirectorMBPSResultItem = [];  
+                        DirectorMBPSResultItem.push(item[fieldName]);
+                        DirectorMBPSResult[fieldName] = DirectorMBPSResultItem; 
+                    }
+                }
+            }
+ 
+ 
+            for ( var i in DirectorIOPS1 ) {
+                var item = DirectorIOPS1[i]; 
+                for ( var fieldName in item ) { 
+                    if ( fieldName.indexOf("SysCallCount") < 0  && fieldName.indexOf("timestamp") ) continue; 
+
+                    var isfind = false ;
+                    for ( var fieldName1 in DirectorSysCallResult ) { 
+                        if ( fieldName1 == fieldName ) {
+                            DirectorSysCallResult[fieldName1].push(item[fieldName]);
+                            isfind = true;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var DirectorSysCallResultItem = [];  
+                        DirectorSysCallResultItem.push(item[fieldName]);
+                        DirectorSysCallResult[fieldName] = DirectorSysCallResultItem; 
+                    }
+                }
+            }
+ 
+            var ret = {};
+            ret.dataset = {};
+            ret.dataset["CacheHit"] = CacheHitResult;
+            ret.dataset["DirectorIOPS"] = DirectorIOPSResult;
+            ret.dataset["DirectorMBPS"] = DirectorMBPSResult;
+            ret.dataset["SysCall"] = DirectorSysCallResult;
+            res.json(200, ret );
+
+
         }); 
 
     });
@@ -442,17 +632,179 @@ var analysisController = function (app) {
                             }
                             resultNew[item.partgrp].push(item);
                         }
+                        //res.json(200, resultNew );
                     callback(null,resultNew);
                 });
             },
             function(arg1,callback) {
+                var FAUtilSource = arg1["Front-End"];
 
-                callback(null,arg1);
+                var FAUtils = [];
+                for ( var i in FAUtilSource ) {
+                    var item = FAUtilSource[i]; 
+    
+                    for ( var j in item.matrics ) {
+                        var item1 = item.matrics[j];
+    
+                        var isfind = false;
+                        for ( var z in FAUtils ) {
+                            var itemResult = FAUtils[z];
+                            if ( itemResult.timestamp == item1.timestamp ) {
+                                isfind = true;
+                                itemResult[item.part+"_ReadRequests"] = item1.CurrentUtilization;
+                                itemResult[item.part+"_WriteRequests"] = item1.WriteRequests;
+                                itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
+                                
+                                break;
+                            }
+                        }
+                        if ( isfind == false ) {
+                            var DirectorIOPSItem = {};
+                            DirectorIOPSItem["timestamp"] = item1.timestamp;
+        
+                            FAUtils.push(DirectorIOPSItem);
+                        }
+                    }
+                } 
+
+                var RDFUtilSource = arg1["RDF"];
+
+                var RDFUtils = [];
+                for ( var i in RDFUtilSource ) {
+                    var item = RDFUtilSource[i]; 
+    
+                    for ( var j in item.matrics ) {
+                        var item1 = item.matrics[j];
+    
+                        var isfind = false;
+                        for ( var z in RDFUtils ) {
+                            var itemResult = RDFUtils[z];
+                            if ( itemResult.timestamp == item1.timestamp ) {
+                                isfind = true;
+                                itemResult[item.part+"_ReadRequests"] = item1.CurrentUtilization;
+                                itemResult[item.part+"_WriteRequests"] = item1.WriteRequests;
+                                itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
+                                
+                                break;
+                            }
+                        }
+                        if ( isfind == false ) {
+                            var DirectorIOPSItem = {};
+                            DirectorIOPSItem["timestamp"] = item1.timestamp;
+        
+                            RDFUtils.push(DirectorIOPSItem);
+                        }
+                    }
+                } 
+
+                
+                var BEUtilSource = arg1["Back-End"]; 
+                var BEUtils = [];
+                for ( var i in BEUtilSource ) {
+                    var item = BEUtilSource[i]; 
+    
+                    for ( var j in item.matrics ) {
+                        var item1 = item.matrics[j];
+    
+                        var isfind = false;
+                        for ( var z in BEUtils ) {
+                            var itemResult = BEUtils[z];
+                            if ( itemResult.timestamp == item1.timestamp ) {
+                                isfind = true;  
+                                itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
+                                
+                                break;
+                            }
+                        }
+                        if ( isfind == false ) {
+                            var DirectorIOPSItem = {};
+                            DirectorIOPSItem["timestamp"] = item1.timestamp;
+        
+                            BEUtils.push(DirectorIOPSItem);
+                        }
+                    }
+                } 
+
+                var result = {};
+                result["FA"] = FAUtils;
+                result["RDF"] = RDFUtils;
+                result["BE"] = BEUtils;
+                callback(null,result);
             },
-            function(arg1,  callback){
-                var ret = {};
-                ret.data = arg1; 
-                callback(null,ret);
+            function(arg1,  callback){ 
+
+                var FAUtilResult = {}; 
+
+                for ( var i in arg1.FA ) {
+                    var item = arg1.FA[i]; 
+                    for ( var fieldName in item ) { 
+                        if ( fieldName.indexOf("CurrentUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
+    
+                        var isfind = false ;
+                        for ( var fieldName1 in FAUtilResult ) { 
+                            if ( fieldName1 == fieldName ) {
+                                FAUtilResult[fieldName1].push(item[fieldName]);
+                                isfind = true;
+                                break;
+                            }
+                        }
+                        if ( isfind == false ) {
+                            var FAUtilResultItem = [];  
+                            FAUtilResultItem.push(item[fieldName]);
+                            FAUtilResult[fieldName] = FAUtilResultItem; 
+                        }
+                    }
+                }
+
+                var RDFUtilResult = {}; 
+                for ( var i in arg1.RDF ) {
+                    var item = arg1.RDF[i]; 
+                    for ( var fieldName in item ) { 
+                        if ( fieldName.indexOf("CurrentUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
+    
+                        var isfind = false ;
+                        for ( var fieldName1 in RDFUtilResult ) { 
+                            if ( fieldName1 == fieldName ) {
+                                RDFUtilResult[fieldName1].push(item[fieldName]);
+                                isfind = true;
+                                break;
+                            }
+                        }
+                        if ( isfind == false ) {
+                            var FAUtilResultItem = [];  
+                            FAUtilResultItem.push(item[fieldName]);
+                            RDFUtilResult[fieldName] = FAUtilResultItem; 
+                        }
+                    }
+                }
+
+                var BEUtilResult = {}; 
+                for ( var i in arg1.RDF ) {
+                    var item = arg1.RDF[i]; 
+                    for ( var fieldName in item ) { 
+                        if ( fieldName.indexOf("CurrentUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
+    
+                        var isfind = false ;
+                        for ( var fieldName1 in BEUtilResult ) { 
+                            if ( fieldName1 == fieldName ) {
+                                BEUtilResult[fieldName1].push(item[fieldName]);
+                                isfind = true;
+                                break;
+                            }
+                        }
+                        if ( isfind == false ) {
+                            var FAUtilResultItem = [];  
+                            FAUtilResultItem.push(item[fieldName]);
+                            BEUtilResult[fieldName] = FAUtilResultItem; 
+                        }
+                    }
+                }
+                var result = {};
+                result["Front-End"] = FAUtilResult;
+                result["RDF"] = RDFUtilResult;
+                result["Back-End"] = BEUtilResult;
+
+                callback(null,result);
     
             }
         ], function (err, result) { 

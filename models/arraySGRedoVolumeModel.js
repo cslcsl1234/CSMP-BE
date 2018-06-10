@@ -15,17 +15,53 @@ var mongoose = require('mongoose')
  * @type {Schema}
  */
 
+ 
+/**
+ * @swagger
+ * definitions:
+ *   ApplicationInfoItem:
+ *     properties:
+ *       appname:
+ *         type: string 
+ *         example: 金融IC卡系统（EBIC）
+ *         description: 应用系统名称
+ *       device:
+ *         type: string
+ *         example: DC1-VMAX1
+ *         description: 关联存储名称
+ *       devicesn:
+ *         type: string
+ *         example: 000292600886
+ *         description: 关联存储序列号
+ *       sgname:        
+ *         type: string
+ *         example: EBIC_P7509P1_SG
+ *         description: 关联存储SG
+ *       redovol:
+ *         type: array
+ *         example: ["vol1","vol2"]
+ *         description: Redo卷  
+ */
+
+
 ArraySGRedoVolumeSchema = new Schema({ 
-        storage_sn: {
+        appname: {
             type: String,
-            required: true,
-            unique: true
+            required: true
         },
-        sg_name: {
+        device: {
+            type: String,
+            required: true
+        },  
+        devicesn: {
+            type: String,
+            required: true
+        },  
+        sgname: {
             type: String,
             required: true 
         },
-        redo_volume: {
+        redovol: {
             type: Array 
         }
 });

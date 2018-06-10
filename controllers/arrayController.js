@@ -4100,13 +4100,78 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
 
 
 
-/* 
-*  Create a redo vol list in a storage gorup 
-*/
-app.put('/api/array/redovol', function (req, res) { 
+/**
+ * @swagger
+ * /api/array/redovolume:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     description: 返回与应用,存储和SG相关的Redo卷列表 
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: appname
+ *         description: 应用名称
+ *         required: true
+ *         type: string
+ *         example: 金融IC卡系统（EBIC）
+ *       - in: query
+ *         name: device
+ *         description: 存储名称
+ *         required: true
+ *         type: string    
+ *         example: DC1-VMAX1
+ *       - in: query
+ *         name: devicesn
+ *         description: 存储序列号
+ *         required: true
+ *         type: string
+ *         example: 000292600886
+ *       - in: query
+ *         name: sg
+ *         description: Storage Group名称
+ *         required: true
+ *         type: string 
+ *         example: EBIC_P7509P1_SG
+ *     responses:
+ *       200:
+ *         description: return an array of application list
+ *         schema:
+ *            type: array
+ *            items:
+ *                $ref: '#/definitions/ApplicationInfoItem' 
+ *   post:
+ *     tags:
+ *       - analysis
+ *     description: 创建与应用,存储和SG相关的Redo卷列表  
+ *     security:
+ *       - Bearer: []
+ *     consumes:
+ *       - application/json 
+ *     parameters:
+ *       - in: body
+ *         name: item
+ *         require: true
+ *         schema:
+ *             type: object
+ *             $ref: '#/definitions/ApplicationInfoItem'
+ *     responses:
+ *       200:
+ *         description: return an application item
+ *         schema:
+ *            type: Object
+ *            $ref: '#/definitions/ApplicationInfoItem'
+ */ 
+
+
+app.post('/api/array/redovolume', function (req, res) { 
     var redovol = req.body;
 
-    ArraySGRedoVolumeObj.findOne({"storage_sn" : redovol.storage_sn, "sg_name" : redovol.sg_name }, function (err, doc) {
+    console.log("|"+ redovol + "|");
+    ArraySGRedoVolumeObj.findOne({"devicesn" : redovol.devicesn, "sgname" : redovol.sgname }, function (err, doc) {
         //system error.
         if (err) {
             return   done(err);
@@ -4117,7 +4182,6 @@ app.put('/api/array/redovol', function (req, res) {
             var newredovol = new ArraySGRedoVolumeObj(redovol);
             newredovol.save(function(err, thor) {
               if (err)  {
-
                 console.dir(thor);
                 return res.json(400 , err);
               } else 
@@ -4133,11 +4197,22 @@ app.put('/api/array/redovol', function (req, res) {
     });
 });
 
-
-
-app.get('/api/array/redovol', function (req, res) {  
-    var storage_sn = req.query.storage_sn;
+ 
+app.get('/api/array/redovolume', function (req, res) {  
+    var appname = req.query.appname;
+    var device = req.query.device;
+    var storage_sn = req.query.devicesn;
     var sg = req.query.sg;
+
+    if ( appname === undefined ) {
+        res.json(400, 'Must be special a appname!');
+        return;
+    };
+
+    if ( device === undefined ) {
+        res.json(400, 'Must be special a device!');
+        return;
+    };
 
     if ( storage_sn === undefined ) {
         res.json(400, 'Must be special a storage!');
@@ -4154,79 +4229,25 @@ console.log(storage_sn+"|"+sg+"|");
     async.waterfall([
         function(callback){ 
 
-            ArraySGRedoVolumeObj.findOne({"storage_sn" : storage_sn , "sg_name" : sg }, {"storage_sn":1, "sg_name":1, "redo_volume":1, "_id": 0 },  function (err, doc) {
+            ArraySGRedoVolumeObj.findOne({"devicesn" : storage_sn , "sgname" : sg }, {"appname":1, "device":1, "devicesn":1, "sgname":1, "redovol":1, "_id": 0 },  function (err, doc) {
                 //system error.
                 if (err) {
                     return   done(err);
                 }
                 if (!doc) { //user doesn't exist.
-                    console.log("redo volumes is not exist. insert it.");         
-                    res.json(500, 'redo volumes is not exist.'); 
+                    var ret = {};
+                    ret.appname = appname;
+                    ret.device = device;
+                    ret.devicesn = storage_sn;
+                    ret.sgname = sg;
+                    ret.redovol = [];         
+                    res.json(200, ret); 
                 }
                 else {  
                     callback(null,doc);
                 }
             });
             
-        }, 
-        function(arg1,  callback){   
- 
-            var device = arg1.storage_sn;
-            var sgname = arg1.sg_name;
-            var redovol = arg1.redo_volume.toString().split(",");
-
-            for ( var i in redovol ) { 
-                if ( partFilter === undefined ) {
-                    var partFilter = 'part=\''+redovol[i]+'\'';
-                } else {
-                    partFilter = partFilter +'|' + 'part=\''+redovol[i]+'\'';
-                }	               
-            }		 
- 
-            var param = {};
-            param['device'] = device;
-            param['period'] = 86400;
-            param['start'] = util.getPerfStartTime(); 
-            param['type'] = 'max';
-            //param['filter_name'] = '(name==\'ReadRequests\'|name==\'ReadResponseTime\'|name==\'ReadThroughput\'|name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
-            param['filter_name'] = '(name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
-            param['keys'] = ['device','part'];
-            param['fields'] = ['name'];  
-            param['filter'] =  '('+ partFilter+')&parttype==\'LUN\'';
-
-    
-            CallGet.CallGetPerformance(param, function(param) {  
-                callback(null, param ); 
-            });             
-        }, 
-        function(arg1,  callback){ 
-            var newRes = [] ; 
-            for ( var i in arg1 ) {
-                var item = arg1[i];
-
-                if ( i == 0 ) 
-                    newRes = item.matrics;
-                else {
-                    for ( var j in item.matrics ) {
-                        var matricsItem = item.matrics[j];
-                        for ( var z in newRes ) {
-                            var newItem = newRes[z];
-                            if ( newItem.timestamp == matricsItem.timestamp ) { 
-                                newItem.WriteThroughput   = newItem.WriteThroughput + matricsItem.WriteThroughput;
-                                newItem.WriteRequests     = newItem.WriteRequests    + matricsItem.WriteRequests     ;
-                                newItem.WriteResponseTime = newItem.WriteResponseTime+ matricsItem.WriteResponseTime ;
-                                //newItem.ReadRequests      = newItem.ReadRequests     + matricsItem.ReadRequests      ;
-                                //newItem.ReadThroughput    = newItem.ReadThroughput   + matricsItem.ReadThroughput    ;
-                                //newItem.ReadResponseTime  = newItem.ReadResponseTime + matricsItem.ReadResponseTime  ;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-            }
-            callback(null,newRes);
-
         }
     ], function (err, result) { 
 

@@ -157,6 +157,32 @@ var authController = function (app) {
      *      http://localhost:8080/api/login
      * @return authKey, each time when this user accesses other APIs of the site, this authKey should be provided.
      */
+
+
+
+/**
+ * @swagger
+ * /api/login: 
+ *   post:
+ *     tags:
+ *       - Auth
+ *     description: Get the api key.  
+ *     consumes:
+ *       - application/x-www-form-urlencoded 
+ *     parameters:
+ *       - in: formData
+ *         name: username
+ *         type: string
+ *         example: admin
+ *       - in: formData
+ *         name: password
+ *         type: string
+ *         example: password  
+ *     responses:
+ *       200:
+ *         description: return an api key 
+ */ 
+         
     app.post('/api/login', function (req, res) {
         var user = {
             username: req.body.username,

@@ -25,21 +25,28 @@ var swaggerController = function (app) {
 
     // swagger definition
     var swaggerDefinition = {
-    info: {
-        title: 'CSMP API',
-        version: '1.0.0',
-        description: 'RESTful API for Storage Management Platform',
-    },
-    host: 'csmpserver:8080',
-    basePath: '/',
+        info: {
+            title: 'CSMP API',
+            version: '1.0.0',
+            description: 'RESTful API for Storage Management Platform',
+        },
+        host: 'csmpserver:8080',
+        basePath: '/',
+        securityDefinitions: {
+            Bearer: {
+                type: 'apiKey',
+                name: 'Authorization',
+                in: 'header'
+            }
+        }
     };
 
     // options for the swagger docs
     var options = {
-    // import swaggerDefinitions
-    swaggerDefinition: swaggerDefinition,
-    // path to the API docs
-    apis: ['./controllers/*.js'],
+        // import swaggerDefinitions
+        swaggerDefinition: swaggerDefinition,
+        // path to the API docs
+        apis: ['./controllers/*.js','./models/*.js','./config/*.js'],
     };
 
     // initialize swagger-jsdoc

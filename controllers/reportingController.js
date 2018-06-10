@@ -709,7 +709,11 @@ var reportingController = function (app) {
                         //retItem["sg_capacity_GB"] = parseFloat(numeral(item.Capacity).format("0,0.00"));
                         retItem["sg_capacity_GB"] = item.Capacity ;
                         retItem["sg_capacity_last_dec_GB"] =  item.Capacity ;
-                        finalRecord.push(retItem);
+
+                        
+                        // 20180608: filter the Storage Group that for GateKeeper;
+                        if ( retItem.sg_capacity_GB >= 1 ) 
+                            finalRecord.push(retItem);
                     }
 
 
@@ -815,7 +819,8 @@ var reportingController = function (app) {
                         }
                         if ( isfind ==false ) {
                             var appCapacityItem = {};
-                            appCapacityItem["app_name"] = item.app_name;
+                            appCapacityItem["app_name"] = (item.app_name == "") ? item.sgname : item.app_name; 
+                            appCapacityItem["nameflag"] = (item.app_name == "") ? 'sgname' : 'appname'; 
                             appCapacityItem["sg_capacity_GB"] = item.sg_capacity_GB;
                             appCapacity.push(appCapacityItem);
                         }
@@ -828,8 +833,14 @@ var reportingController = function (app) {
                     var appCapacityItem = appCapacity[i];
                     for ( var j in arg1 ) {
                         var item = arg1[j];
-                        if ( item.device_name.indexOf('-SD') >=0 && item.app_name == appCapacityItem.app_name )  {
-                            result.push(item);
+                        if ( appCapacityItem.nameflag == "sgname" ) {
+                            if ( item.device_name.indexOf('-SD') >=0 && item.sgname == appCapacityItem.app_name )  {
+                                result.push(item);
+                            }                           
+                        } else {
+                            if ( item.device_name.indexOf('-SD') >=0 && item.app_name == appCapacityItem.app_name )  {
+                                result.push(item);
+                            }
                         }
                     }
                 }
@@ -1102,7 +1113,7 @@ var reportingController = function (app) {
                         retItem.device_sn = item.device;
                         retItem.available_port_addr_total = 0;
                         retItem.allocated_port_addr_total = 0;
-                        retItem.allocated_port_addr_percent = 0;
+                        retItem.allocated_addr_percent = 0;
                         retItem.pair = 0;
                         retItem.rdf_group = 0;
                         retItem.details = [];
@@ -1153,7 +1164,7 @@ var reportingController = function (app) {
                             if ( arrayListItem.device_sn == dirItem.device ) {
                                 arrayListItem["available_port_addr_total"] = dirItem.maxAvailableAddress;
                                 arrayListItem["allocated_port_addr_total"] = dirItem.maxAvailableAddress - dirItem.availableAddress;
-                                arrayListItem["allocated_port_addr_percent"] = parseFloat(((dirItem.maxAvailableAddress - dirItem.availableAddress) / dirItem.maxAvailableAddress * 100).toFixed(3));
+                                arrayListItem["allocated_addr_percent"] = parseFloat(((dirItem.maxAvailableAddress - dirItem.availableAddress) / dirItem.maxAvailableAddress * 100).toFixed(0)) + " %";
                                                                
                             }
                         }
