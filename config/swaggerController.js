@@ -30,7 +30,7 @@ var swaggerController = function (app) {
             version: '1.0.0',
             description: 'RESTful API for Storage Management Platform',
         },
-        host: 'csmpserver:8080',
+        host: '10.62.38.238:8080',
         basePath: '/',
         securityDefinitions: {
             Bearer: {

@@ -4106,6 +4106,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
  *   get:
  *     tags:
  *       - analysis
+ *     summary: 应用Redo卷查询
  *     description: 返回与应用,存储和SG相关的Redo卷列表 
  *     security:
  *       - Bearer: []
@@ -4146,6 +4147,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
  *   post:
  *     tags:
  *       - analysis
+ *     summary: 应用Redo卷创建及更新
  *     description: 创建与应用,存储和SG相关的Redo卷列表  
  *     security:
  *       - Bearer: []
@@ -4170,7 +4172,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
 app.post('/api/array/redovolume', function (req, res) { 
     var redovol = req.body;
 
-    console.log("|"+ redovol + "|");
+    console.log("|"+ redovol.toString() + "|");
     ArraySGRedoVolumeObj.findOne({"devicesn" : redovol.devicesn, "sgname" : redovol.sgname }, function (err, doc) {
         //system error.
         if (err) {
@@ -4185,14 +4187,14 @@ app.post('/api/array/redovolume', function (req, res) {
                 console.dir(thor);
                 return res.json(400 , err);
               } else 
-                return res.json(200, {status: "The redo volumes insert is succeeds!"});
+                return res.json(200, {status:"SUCCESS", info: "The redo volumes insert is succeeds!"});
             });
         }
         else {  
             doc.update(redovol, function(error, course) {
                 if(error) return next(error);
             });
-            return  res.json(200 , {status: "The redo volumes has exist! Update it."});
+            return  res.json(200 , {status:"SUCCESS", info: "The redo volumes has exist! Update it."});
         }
     });
 });

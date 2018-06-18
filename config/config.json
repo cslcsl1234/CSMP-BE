@@ -26,7 +26,7 @@
     "ProductTypeDesc": ["Prod","Dev","Test"],  
     "SRMDevLastDT-DLBank": "2018-01-25T14:00:00+08:00",
     "SRMDevLastDT-AirChina": "2017-11-27T08:00:00+08:00", 
-    "SRMDevLastDT": "2018-02-01T11:00:00+08:00", 
+    "SRMDevLastDT": "2018-06-167T11:00:00+08:00", 
     "SMS" : {
         "ServiceIP" : "10.188.80.33",
         "ServicePort" : 6821 ,

@@ -37,6 +37,10 @@ var mongoose = require('mongoose')
  *         type: string
  *         example: EBIC_P7509P1_SG
  *         description: 关联存储SG
+ *       volumes:        
+ *         type: string
+ *         example: 014B,014C,014D,014E,014F,0150,0151,0152
+ *         description: Storage Group中的卷列表
  *       redovol:
  *         type: array
  *         example: ["vol1","vol2"]

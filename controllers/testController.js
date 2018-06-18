@@ -215,6 +215,7 @@ var testController = function (app) {
 
     app.get('/api/test', function (req, res) {
         res.setTimeout(1200*1000);
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         
         var device = req.query.device; 
         var period = 86400; 
@@ -246,18 +247,22 @@ var testController = function (app) {
           var period = 3600;
           
           var valuetype = 'max';
-          var start  = util.getPerfStartTime();
-          var end;
+          //var start  = util.getPerfStartTime(); 
+          var start = '2018-05-27T03:00:00.000Z';
+          var end ;
+          var part;
           //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
           //function GetFCSwitchPart(devtype,parttype,callback) { 
         
         //Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
+        //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
+
         //SWITCH.GetSwitchPorts(device, function(rest) {             res.json(200,rest);        });
         //SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
-        VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
+        //VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
-        //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
+        VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
        //VMAX.GetArrays(  function(ret) { 
         //Report.GetStoragePorts(function(ret) {
         //Report.GetArraysIncludeHisotry(device, function(ret) {  
@@ -267,7 +272,7 @@ var testController = function (app) {
          //   DeviceMgmt.GetArrayAliasName(function(ret) {           res.json(200,ret);        });
         //VNX.GetBlockDevices(device,  function(result) {   res.json(200,result);   }); 
         //VNX.GetMaskViews(function(ret) {
-        VMAX.GetMaskViews(device, function(ret) {     res.json(200,ret);        });
+        //VMAX.GetMaskViews(device, function(ret) {     res.json(200,ret);        });
         //Report.ArrayAccessInfos(device, function(ret) {
         //Report.E2ETopology(device, function(ret) {  
         //    Report.GetApplicationInfo( function (ret) {
