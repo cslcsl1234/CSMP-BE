@@ -35,13 +35,15 @@
     <div id="swagger-ui"></div>
 
     <script src="./api-docs/swagger-ui-bundle.js"> </script>
-    <script src="./api-docs/swagger-ui-standalone-preset.js"> </script>
-    <script>
+    <script src="./api-docs/swagger-ui-standalone-preset.js"> </script>  
+    
+    <script>  
     window.onload = function() {
-
+      var csmpserver = document.location.host;  
       // Build a system
       const ui = SwaggerUIBundle({
-        url: "http://10.62.38.238:8080/swagger.json",
+        url: "http://" + csmpserver + "/swagger.json",
+
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [

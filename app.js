@@ -24,6 +24,12 @@ for (var k2 in interfaces[k]) {
 require('./config/db');
 
 var config = configger.load();
+var SERVERHOST_OLD = configger.get('SERVER:HOST')
+configger.set('SERVER:HOST',addresses[0]);
+var SERVERHOST  = configger.get('SERVER:HOST') 
+if ( SERVERHOST_OLD != SERVERHOST ) 
+    configger.save();
+
 
 //express config.
 app.use(express.logger('dev'));
@@ -62,12 +68,15 @@ require('./controllers/analysisController')(app);
 
 
 
-app.listen(config.SERVER.PORT, function () {
-console.log('=== The Backend server listening on [' + config.Backend.URL + '] ===');
-console.log('=== The MongoDB server listening on [' + config.MongoDBURL + '] ===')
+const server = app.listen(config.SERVER.PORT, function () {
+    console.log('=== The Backend server listening on [' + config.Backend.URL + '] ===');
+    console.log('=== The MongoDB server listening on [' + config.MongoDBURL + '] ===')
 
-console.log('=== The NodeJS server ip addresses is [' + addresses + '] ===');
-console.log('=== Then App server listening on port '+config.SERVER.PORT +' ===');
+    console.log('=== The NodeJS server ip addresses is [' + addresses + '] ===');
+    console.log('=== Then App server listening on port '+config.SERVER.PORT +' ===');
+ 
+
+ 
 });
 
 

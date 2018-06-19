@@ -1,5 +1,6 @@
 "use strict";
-  
+var configger = require('../config/configger');
+
 const debug = require('debug')('swaggerController')  
  
 
@@ -22,15 +23,16 @@ var swaggerController = function (app) {
 
  
     var swaggerJSDoc = require('swagger-jsdoc');
-
-    // swagger definition
+    var config = configger.load();  
+    
+    // swagger definition 
     var swaggerDefinition = {
         info: {
             title: 'CSMP API',
             version: '1.0.0',
             description: 'RESTful API for Storage Management Platform',
         },
-        host: '10.62.38.238:8080',
+        host: config.SERVER.HOST + ":" + config.SERVER.PORT,
         basePath: '/',
         securityDefinitions: {
             Bearer: {
@@ -41,7 +43,7 @@ var swaggerController = function (app) {
         }
     };
 
-    // options for the swagger docs
+    // options for the swagger docs  
     var options = {
         // import swaggerDefinitions
         swaggerDefinition: swaggerDefinition,

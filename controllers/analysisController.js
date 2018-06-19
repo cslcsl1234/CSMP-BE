@@ -281,7 +281,24 @@ var analysisController = function (app) {
 
                     }
 
-                    callback(null,result);
+                    var finalResult = [];
+
+                    for ( var i in result ) {
+                        var item = result[i];
+                        var isfind = false;
+                        for ( var j in finalResult ) {
+                            var item1 = finalResult[j];
+                            if ( item.devicesn == item1.devicesn && item.sgname == item1.sgname ) {
+                                isfind = true;
+                                break;
+                            } 
+                        }
+                        if ( isfind == false ) {
+                            finalResult.push(item);
+                        }
+                    }
+
+                    callback(null,finalResult);
                 } 
             ], function (err, result) { 
                 res.json(200 , result );
@@ -1972,10 +1989,6 @@ app.get('/api/analysis/storage/volume', function (req, res) {
 
 }); 
 
-
-
-
 };
-
 
 module.exports = analysisController;
