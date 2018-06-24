@@ -67,6 +67,11 @@ require('./controllers/testController')(app);
 require('./controllers/analysisController')(app);
 
 
+// ---- CEB Project ------
+require('./controllers/cebPerformanceProviderController')(app);
+
+
+
 
 const server = app.listen(config.SERVER.PORT, function () {
     console.log('=== The Backend server listening on [' + config.Backend.URL + '] ===');

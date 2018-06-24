@@ -548,21 +548,22 @@ var analysisController = function (app) {
                                 var itemResult = VolumePerf[z];
                                 if ( itemResult.timestamp == item1.timestamp ) {
                                     isfind = true;
-                                    itemResult[item.part+"_ReadRequests"] = item1.ReadRequests;
+                                    //itemResult[item.part+"_ReadRequests"] = item1.ReadRequests;
                                     itemResult[item.part+"_WriteRequests"] = item1.WriteRequests; 
-                                    itemResult[item.part+"_ReadThroughput"] = item1.ReadThroughput;
+                                    //itemResult[item.part+"_ReadThroughput"] = item1.ReadThroughput;
                                     itemResult[item.part+"_WriteThroughput"] = item1.WriteThroughput; 
-                                                                        
+                                    itemResult[item.part+"_WriteResponseTime"] = item1.WriteResponseTime;                                                                         
                                     break;
                                 }
                             }
                             if ( isfind == false ) {
                                 var itemResult = {};
                                 itemResult["timestamp"] = item1.timestamp;
-                                itemResult[item.part+"_ReadRequests"] = item1.ReadRequests;
+                               // itemResult[item.part+"_ReadRequests"] = item1.ReadRequests;
                                 itemResult[item.part+"_WriteRequests"] = item1.WriteRequests; 
-                                itemResult[item.part+"_ReadThroughput"] = item1.ReadThroughput;
+                                //itemResult[item.part+"_ReadThroughput"] = item1.ReadThroughput;
                                 itemResult[item.part+"_WriteThroughput"] = item1.WriteThroughput; 
+                                itemResult[item.part+"_WriteResponseTime"] = item1.WriteResponseTime;                                                                         
                                                                
                                 VolumePerf.push(itemResult);
                             }
@@ -651,7 +652,7 @@ var analysisController = function (app) {
     app.get('/api/analysis/part/workload', function (req, res) {  
         var device = req.query.devicesn;  
 
-        if ( device === undefined ) {
+        if ( device === undefined | device == null ) {
             res.json(400, 'Must be special a storage!');
             return;
         }; 
@@ -722,14 +723,8 @@ var analysisController = function (app) {
                         delete item.model;
                         delete item.device;
 
-                        // Front-End Syscall
-                        for ( var z in item.matrics ) {
-                            item.matrics[z]["MBTransferred"] = ( item.matrics[z]["KBytesTransferred"] !== undefined ? item.matrics[z].KBytesTransferred / 1024 : 0 );
-                            if (item.matrics[z].KBytesTransferred !== undefined )
-                                delete item.matrics[z].KBytesTransferred; 
-                        }
-                    };
- 
+
+                    }; 
                     arg1["FA-Director"] = resultFA; 
                     callback(null,arg1);
                 });
@@ -766,9 +761,7 @@ var analysisController = function (app) {
                         delete item.device;
  
                     }; 
-                    arg1["RDF"] = resultRDF;
-                    //res.json(200, arg1 );
-
+                    arg1["RDF"] = resultRDF; 
                     callback(null, arg1 ); 
                 });
             },
@@ -819,24 +812,57 @@ var analysisController = function (app) {
                     for ( var disktype in resultDisk ) {
                         resultDisk[disktype].sort(sortBy("-MaxUtil"));
                     } 
-   
+    
                     var count = 0;
                     for ( var i=0; i< 10; i++ ){
 
 
                         if ( resultDisk === undefined ) break;
                         if ( resultDisk.EFD === undefined ) continue;
-                        if ( i<5 ) {
+                        if ( resultDisk.SAS === undefined ) {
                             resultDisk.EFD[i].matrics.part = resultDisk.EFD[i].matrics.part + "(EFD)";
                             top10Disk.push(resultDisk.EFD[i].matrics); 
+                        } else {
+                            if ( i<5 ) {
+                            resultDisk.EFD[i].matrics.part = resultDisk.EFD[i].matrics.part + "(EFD)";
+                            top10Disk.push(resultDisk.EFD[i].matrics); 
+                            }
+                            else top10Disk.push(resultDisk.SAS[i].matrics);
                         }
-                        else top10Disk.push(resultDisk.SAS[i].matrics);
                     }
 
                     arg["DISK_TOP10"] = top10Disk;
+                    console.log(top10Disk);
                     callback(null,arg);
                 });
                 //callback(null,arg);
+            },
+            function ( arg1, callback ) {
+
+                // VMAX3's Initiator HostIOs
+                var param = {};
+                param['device'] = device;
+                param['period'] = period;
+                param['start'] = start;
+                param['end'] = end;
+                param['type'] = valuetype;
+                param['filter_name'] = '(name=\'HostIOs\')';
+                param['keys'] = ['device','part'];
+                param['fields'] = ['name'];  
+                param['filter'] = 'datagrp=\'VMAX-Initiator\'';
+        
+                CallGet.CallGetPerformance(param, function(result) {    
+                    var resultInitiator = [];
+                    for ( var j in result){ 
+                        var item = result[j];
+
+                        delete item.matricsStat;  
+                        delete item.device;
+                        resultInitiator.push(item);
+                    }
+                    arg1["Initiator"] = resultInitiator; 
+                    callback(null, arg1 ); 
+                });
             },
             function(arg1,  callback){
                 var ret = {};
@@ -885,7 +911,7 @@ var analysisController = function (app) {
                             isfind = true;
                             itemResult[item.part+"_ReadRequests"] = item1.ReadRequests;
                             itemResult[item.part+"_WriteRequests"] = item1.WriteRequests;
-                            itemResult[item.part+"_MBTransferred"] = item1.MBTransferred;
+                            itemResult[item.part+"_HostMBperSec"] = item1.HostMBperSec;
                             itemResult[item.part+"_SysCallCount"] = item1.SysCallCount;                            
                             itemResult[item.part+"_QueueDepthCountRange0"] = item1.QueueDepthCountRange0;                            
                             itemResult[item.part+"_QueueDepthCountRange1"] = item1.QueueDepthCountRange1;                            
@@ -906,7 +932,7 @@ var analysisController = function (app) {
                         itemResult["timestamp"] = item1.timestamp;
                         itemResult[item.part+"_ReadRequests"] = item1.ReadRequests;
                         itemResult[item.part+"_WriteRequests"] = item1.WriteRequests;
-                        itemResult[item.part+"_MBTransferred"] = item1.MBTransferred;
+                        itemResult[item.part+"_HostMBperSec"] = item1.HostMBperSec;
                         itemResult[item.part+"_SysCallCount"] = item1.SysCallCount;
                         itemResult[item.part+"_QueueDepthCountRange0"] = item1.QueueDepthCountRange0;                            
                         itemResult[item.part+"_QueueDepthCountRange1"] = item1.QueueDepthCountRange1;                            
@@ -957,19 +983,52 @@ var analysisController = function (app) {
                 }
             }
 
-            
-            var RDF = result.data["DISK_TOP10"];
+ 
+            var Initiator = result.data["Initiator"];
 
-            var RDF_MBPS = [];
-            for ( var i in RDF ) {
-                var item = RDF[i]; 
+            var Initiator_HostIOs = [];
+            for ( var i in Initiator ) {
+                var item = Initiator[i]; 
 
                 for ( var j in item.matrics ) {
                     var item1 = item.matrics[j];
 
                     var isfind = false;
-                    for ( var z in RDF_MBPS ) {
-                        var itemResult = RDF_MBPS[z];
+                    for ( var z in Initiator_HostIOs ) {
+                        var itemResult = Initiator_HostIOs[z];
+                        if ( itemResult.timestamp == item1.timestamp ) {
+                            isfind = true;
+                            itemResult[item.part+"_HostIOs"] = item1.HostIOs  ;                          
+
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var itemResult = {};
+                        itemResult["timestamp"] = item1.timestamp; 
+                        
+                        itemResult[item.part+"_HostIOs"] = item1.HostIOs  ;                               
+
+                        Initiator_HostIOs.push(itemResult);
+                    }
+                }
+            }
+
+            
+            
+
+            var DISK = result.data["DISK_TOP10"];
+
+            var DISK_MBPS = [];
+            for ( var i in DISK ) {
+                var item = DISK[i]; 
+ 
+                for ( var j in item.matrics ) {
+                    var item1 = item.matrics[j];
+
+                    var isfind = false;
+                    for ( var z in DISK_MBPS ) {
+                        var itemResult = DISK_MBPS[z];
                         if ( itemResult.timestamp == item1.timestamp ) {
                             isfind = true;
                             itemResult[item.part+"_MBPS"] = item1.ReadThroughput + item1.WriteThroughput;
@@ -985,11 +1044,12 @@ var analysisController = function (app) {
                         itemResult[item.part+"_MBPS"] = item1.ReadThroughput + item1.WriteThroughput;
                         itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;                               
 
-                        RDF_MBPS.push(itemResult);
+                        DISK_MBPS.push(itemResult);
                     }
                 }
             }
 
+            console.log(DISK_MBPS);
             // -------------------------------------
             var DirectorIOPSResult = {}; 
             var DirectorMBPSResult = {}; 
@@ -1021,7 +1081,7 @@ var analysisController = function (app) {
             for ( var i in DirectorIOPS1 ) {
                 var item = DirectorIOPS1[i]; 
                 for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("MBTransferred") < 0  && fieldName.indexOf("timestamp") ) continue; 
+                    if ( fieldName.indexOf("HostMBperSec") < 0  && fieldName.indexOf("timestamp") ) continue; 
 
                     var isfind = false ;
                     for ( var fieldName1 in DirectorMBPSResult ) { 
@@ -1134,6 +1194,54 @@ var analysisController = function (app) {
                 }
             }
 
+
+            var InitiatorResult = {};  
+            for ( var i in Initiator_HostIOs ) {
+                var item = Initiator_HostIOs[i]; 
+                for ( var fieldName in item ) { 
+                    if ( fieldName.indexOf("HostIOs") < 0 && fieldName.indexOf("timestamp")) continue; 
+
+                    var isfind = false ;
+                    for ( var fieldName1 in InitiatorResult ) { 
+                        if ( fieldName1 == fieldName ) {
+                            InitiatorResult[fieldName1].push(item[fieldName]);
+                            isfind = true;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var ResultItem = [];  
+                        ResultItem.push(item[fieldName]);
+                        InitiatorResult[fieldName] = ResultItem; 
+                    }
+                }
+            } 
+            
+
+
+            var DiskResult = {};  
+            for ( var i in DISK_MBPS ) {
+                var item = DISK_MBPS[i]; 
+                for ( var fieldName in item ) { 
+                    if ( fieldName.indexOf("CurrentUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
+
+                    var isfind = false ;
+                    for ( var fieldName1 in DiskResult ) { 
+                        if ( fieldName1 == fieldName ) {
+                            DiskResult[fieldName1].push(item[fieldName]);
+                            isfind = true;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var ResultItem = [];  
+                        ResultItem.push(item[fieldName]);
+                        DiskResult[fieldName] = ResultItem; 
+                    }
+                }
+            } 
+
+            
             var ret = {};
             ret.dataset = {};
             ret.dataset["ARRAY_CacheHit"] = CacheHitResult;
@@ -1143,6 +1251,8 @@ var analysisController = function (app) {
             ret.dataset["FA_QueueDepth"] = QueueDepthCountResult;
             ret.dataset["RDF_MBPS"] = RDFMBPSResult;
             ret.dataset["RDF_Utilization"] = RDFUTILResult;
+            ret.dataset["Initiator_HostIOs"] = InitiatorResult;
+            ret.dataset["Disk_Utilization"] = DiskResult;
             res.json(200, ret );
 
 
@@ -1197,20 +1307,30 @@ var analysisController = function (app) {
     app.get('/api/analysis/part/deepwater', function (req, res) {  
         var device = req.query.devicesn; 
         var start = req.query.from;
-        var end = req.query.end;
+        var end = req.query.to;
 
-        if ( device === undefined ) {
+        if ( device === undefined | device == null ) {
             res.json(400, 'Must be special a storage!');
             return;
         }; 
 
+        
+        if ( start === undefined  | start == null ) {
+            res.json(400, 'Must be special a from ( begintime )!');
+            return;
+        }; 
+
+        if ( end === undefined  | end == null) {
+            res.json(400, 'Must be special a to ( endtime ) !' + end);
+            return;
+        }; 
+        var period = 86400;
+        var valuetype = 'max'; 
+
         async.waterfall([
             
             function( callback ) { 
-                var period = 86400;
-                var valuetype = 'max';
-                var start  = util.getPerfStartTime();
-                var end;
+
                 VMAX.GetDirectorPerformance(device, period, start, valuetype, function(result) { 
                         // Group by partgrp
                         var resultNew = {};
@@ -1223,7 +1343,7 @@ var analysisController = function (app) {
                             }
                             resultNew[item.partgrp].push(item);
                         }
-                       // res.json(200, resultNew );
+                    //res.json(200, resultNew );
                     callback(null,resultNew);
                 });
             },
@@ -1252,7 +1372,10 @@ var analysisController = function (app) {
                         if ( isfind == false ) {
                             var DirectorIOPSItem = {};
                             DirectorIOPSItem["timestamp"] = item1.timestamp;
-        
+                            DirectorIOPSItem[item.part+"_ReadRequests"] = item1.CurrentUtilization;
+                            DirectorIOPSItem[item.part+"_WriteRequests"] = item1.WriteRequests;
+                            DirectorIOPSItem[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
+                                    
                             FAUtils.push(DirectorIOPSItem);
                         }
                     }
@@ -1282,7 +1405,10 @@ var analysisController = function (app) {
                         if ( isfind == false ) {
                             var DirectorIOPSItem = {};
                             DirectorIOPSItem["timestamp"] = item1.timestamp;
-        
+                            DirectorIOPSItem[item.part+"_ReadRequests"] = item1.CurrentUtilization;
+                            DirectorIOPSItem[item.part+"_WriteRequests"] = item1.WriteRequests;
+                            DirectorIOPSItem[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
+                                    
                             RDFUtils.push(DirectorIOPSItem);
                         }
                     }
@@ -1310,7 +1436,10 @@ var analysisController = function (app) {
                         if ( isfind == false ) {
                             var DirectorIOPSItem = {};
                             DirectorIOPSItem["timestamp"] = item1.timestamp;
-        
+                            DirectorIOPSItem[item.part+"_ReadRequests"] = item1.CurrentUtilization;
+                            DirectorIOPSItem[item.part+"_WriteRequests"] = item1.WriteRequests;
+                            DirectorIOPSItem[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
+                                    
                             BEUtils.push(DirectorIOPSItem);
                         }
                     }
@@ -1428,8 +1557,8 @@ var analysisController = function (app) {
                 }
 
                 var BEUtilResult = {}; 
-                for ( var i in arg1.RDF ) {
-                    var item = arg1.RDF[i]; 
+                for ( var i in arg1.BE ) {
+                    var item = arg1.BE[i]; 
                     for ( var fieldName in item ) { 
                         if ( fieldName.indexOf("CurrentUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
     
@@ -1506,7 +1635,141 @@ var analysisController = function (app) {
 
                 callback(null,result);
     
+            },
+            function ( arg1, callback ) {
+                // ---------------------------
+                // Get Disk performance
+                // ---------------------- 
+                var param = {};
+                param['device'] = device;
+                param['period'] = period;
+                param['start'] = start;
+                param['end'] = end;
+                param['type'] = valuetype;
+                param['limit'] = 1000000;
+                //param['filter_name'] = '(name=\'CurrentUtilization\'|name=\'ReadResponseTime\'|name=\'WriteResponseTime\'|name=\'ReadRequests\'|name=\'WriteRequests\'|name=\'ReadThroughput\'|name=\'WriteThroughput\')';
+                param['filter_name'] = '(name=\'CurrentUtilization\')';
+                param['keys'] = ['device','part'];
+                param['fields'] = ['name','disktype'];  
+                param['filter'] = 'parttype=\'Disk\'';
+
+
+                CallGet.CallGetPerformance(param, function(result) { 
+                    var resultDisk = {}; 
+                    for ( var j in result){ 
+                        var item = result[j]; 
+
+                        delete item.matricsStat; 
+                        delete item.model;
+                        delete item.device;
+ 
+
+                        if ( item.disktype == 'Enterprise Flash Drive' ) {
+                            var disktype = 'EFD'; 
+                        } else {
+                            var disktype = 'SAS'; 
+                        }
+                        if ( resultDisk[disktype] === undefined  ) resultDisk[disktype] = [];
+                        resultDisk[disktype].push(item);
+                        
+                    }
+                    var DiskResult = [];
+                    var DiskSASResultTmp = {}
+                    var DiskEFDResultTmp = {}
+                    for ( var i in resultDisk.SAS ) {
+                        var item = resultDisk.SAS[i];
+                        var itemMatrics = item.matrics;
+
+                        for ( var j in itemMatrics ) {
+                            var matricsItem = itemMatrics[j];
+                            if ( DiskSASResultTmp[matricsItem.timestamp] === undefined ) DiskSASResultTmp[matricsItem.timestamp] = [];
+                            DiskSASResultTmp[matricsItem.timestamp].push(matricsItem.CurrentUtilization);
+                        }
+
+                    }
+                    for ( var i in resultDisk.EFD ) {
+                        var item = resultDisk.EFD[i];
+                        var itemMatrics = item.matrics;
+
+                        for ( var j in itemMatrics ) {
+                            var matricsItem = itemMatrics[j];
+                            if ( DiskEFDResultTmp[matricsItem.timestamp] === undefined ) DiskEFDResultTmp[matricsItem.timestamp] = [];
+                            DiskEFDResultTmp[matricsItem.timestamp].push(matricsItem.CurrentUtilization);
+                        }
+
+                    } 
+                    
+                    if ( JSON.stringify(DiskEFDResultTmp) == "{}"   ) { 
+                        var DiskResultTmp = DiskSASResultTmp;
+                    }
+                    else  { 
+                        var DiskResultTmp = DiskEFDResultTmp;
+                    }
+ 
+
+                    for ( var ts in DiskResultTmp ) {
+                        var sumNumber = 0;
+                        for ( var i in DiskSASResultTmp[ts] ) {
+                            var item = DiskSASResultTmp[ts][i];
+                            sumNumber += item;
+                        }
+
+                        var sumNumberEFD = 0;
+                        for ( var i in DiskEFDResultTmp[ts] ) {
+                            var item = DiskEFDResultTmp[ts][i];
+                            sumNumberEFD += item;
+                        }
+
+
+                        var resItem = {};
+                        resItem["timestamp"] = ts;
+
+
+                        
+                        if ( DiskSASResultTmp[ts] === undefined ) 
+                            resItem["SAS_AvgUtilization"] = 0 ;
+                        else 
+                            resItem["SAS_AvgUtilization"] = sumNumber / DiskSASResultTmp[ts].length;
+                        
+                        if ( DiskEFDResultTmp[ts] === undefined ) 
+                            resItem["EFD_AvgUtilization"] = 0 ;
+                        else 
+                            resItem["EFD_AvgUtilization"] = sumNumberEFD / DiskEFDResultTmp[ts].length;
+
+                        DiskResult.push(resItem);
+                    } 
+
+
+                    var DiskUtilResult = {}; 
+                    for ( var i in DiskResult ) {
+                        var item = DiskResult[i]; 
+                        for ( var fieldName in item ) { 
+                            if ( fieldName.indexOf("AvgUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
+        
+                            var isfind = false ;
+                            for ( var fieldName1 in DiskUtilResult ) { 
+                                if ( fieldName1 == fieldName ) {
+                                    DiskUtilResult[fieldName1].push(item[fieldName]);
+                                    isfind = true;
+                                    break;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var FAUtilResultItem = [];  
+                                FAUtilResultItem.push(item[fieldName]);
+                                DiskUtilResult[fieldName] = FAUtilResultItem; 
+                            }
+                        }
+                    }
+    
+
+
+                    arg1.dataset["Disk"] = DiskUtilResult;
+
+                    callback(null,arg1);
+                });
             }
+
         ], function (err, result) { 
 
             res.json(200, result );
@@ -1588,22 +1851,22 @@ var analysisController = function (app) {
             var redovols = "";
  
 
-        if ( device === undefined ) {
+        if ( device === undefined  | device == null) {
             res.json(400, 'Must be special a storage!');
             return;
         };
 
-        if ( sgname === undefined ) {
+        if ( sgname === undefined  | sgname == null) {
             res.json(400, 'Must be special a storage group!');
             return;
         }; 
 
-        if ( start === undefined ) {
+        if ( start === undefined  | start == null ) {
             res.json(400, 'Must be special a from ( begintime )!');
             return;
         }; 
 
-        if ( end === undefined ) {
+        if ( end === undefined  | end == null) {
             res.json(400, 'Must be special a to ( endtime ) !');
             return;
         }; 
@@ -1828,22 +2091,22 @@ app.get('/api/analysis/storage/volume', function (req, res) {
     var end = moment(req.query.to).toISOString(); 
 
 
-    if ( device === undefined ) {
+    if ( device === undefined | device == null) {
         res.json(400, 'Must be special a storage!');
         return;
     };
 
-    if ( volume === undefined ) {
+    if ( volume === undefined | volume == null ) {
         res.json(400, 'Must be special a volume!');
         return;
     }; 
 
-    if ( start === undefined ) {
+    if ( start === undefined | start == null ) {
         res.json(400, 'Must be special a from ( begintime )!');
         return;
     }; 
 
-    if ( end === undefined ) {
+    if ( end === undefined | end == null ) {
         res.json(400, 'Must be special a to ( endtime ) !');
         return;
     }; 
@@ -1858,7 +2121,17 @@ app.get('/api/analysis/storage/volume', function (req, res) {
             param['start'] = start;
             param['end'] = end;
             param['filter'] =  'device==\''+device+'\'&part==\''+volume+'\'&(parttype==\'LUN\')';
-            param['filter_name'] = '(name==\'ReadThroughput\'|name==\'WriteThroughput\'|name==\'ReadResponseTime\'|name==\'WriteResponseTime\'|name==\'ReadRequests\'|name==\'WriteRequests\')';
+            param['filter_name'] = '(name==\'ReadThroughput\'|'+
+                                    'name==\'WriteThroughput\'|'+
+                                    'name==\'ReadResponseTime\'|'+
+                                    'name==\'WriteResponseTime\'|'+
+                                    'name==\'SequentialReadRequestsPercent\'|'+
+                                    'name==\'RandomReadHitRequestsPercent\'|'+
+                                    'name==\'RandomReadMissRequestsPercent\'|'+
+                                    'name==\'ReadHitIOsRate\'|'+
+                                                                        
+                                    'name==\'ReadRequests\'|'+
+                                    'name==\'WriteRequests\')';
             param['type'] = 'max'; 
     
             CallGet.CallGetPerformance(param, function(lunperf) {  
@@ -1869,7 +2142,7 @@ app.get('/api/analysis/storage/volume', function (req, res) {
                     item["ReadIOSize"]  = (item.ReadThroughput / item.ReadRequests).toFixed(2);
                     item["WriteIOSize"]  = (item.WriteThroughput / item.WriteRequests).toFixed(2);
 
-                    item["WriteIOPercent"] = ( item.WriteRequests / (item.WriteRequests + item.ReadRequests) ).toFixed(2);
+                    item["WriteIOPercent"] = ( item.WriteRequests / (item.WriteRequests + item.ReadRequests) * 100 );
                 }
                 
                 callback(null, lunperf);

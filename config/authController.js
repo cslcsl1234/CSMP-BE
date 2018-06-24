@@ -12,7 +12,7 @@ var roleFunc = require('../lib/Role');
 
 var authController = function (app) {
 
-    app.all('*', function(req, res, next) {
+    app.all('*', function(req, res, next) {  
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,Keep-Alive,X-Requested-With,If-Modified-Since");
         res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
@@ -301,6 +301,14 @@ var authController = function (app) {
         });
     });
 
+    app.get('/health', function (req, res) {
+
+            res.json(200, {"status":"UP"});
+    });
+    app.get('/ceb/perf/getPerfDeviceList', function(req,res){
+        console.log(req);
+        res.json(200, {"return":"OKUP"});
+    });
 
 /*
 *  modify a user password
