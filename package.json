@@ -10,6 +10,7 @@
     "memory-cache": "^0.1.6",
     "moment": "*",
     "mongoose": "~3.5.5",
+    "mysql": "^2.15.0",
     "nconf": "*",
     "node-uuid": "*",
     "numeral": "^2.0.6",

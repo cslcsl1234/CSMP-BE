@@ -27,6 +27,12 @@ var HBALIST = require('../demodata/host_hba_list');
 var VMAX = require('../lib/Array_VMAX');
 var SWITCH = require('../lib/Switch');
 
+
+var CAPACITY = require('../lib/Array_Capacity');
+
+
+var mysql = require('../lib/MySQLDBFunction');
+
 var cebPerformanceProviderController = function (app) {
 
     var config = configger.load();
@@ -357,9 +363,30 @@ var cebPerformanceProviderController = function (app) {
     */
    app.get('/ceb/dashboard/getEquipmentCount', function (req, res) {
     
-        var result = {"appCount":458,"fabrics":74,"hostCount":3204,"storageCount":38,"switchsCount":92};
 
-        res.json(200,result);
+        var param = {}; 
+        param['keys'] = ['device'];
+        param['fields'] = ['devtype'];
+        param['filter'] = '!parttype';  
+ 
+        CallGet.CallGet(param, function(param) {
+            var resTmp = {};
+            for ( var i in param.result ) {
+                var item = param.result[i];
+
+                if ( resTmp[item.devtype] === undefined  ) {
+                    resTmp[item.devtype] = 0;
+                }
+
+                resTmp[item.devtype] ++;
+            }
+            var result = {"appCount":458,"fabrics":74,"hostCount":3204,"storageCount":38,"switchsCount":92};
+            result.storageCount = resTmp.Array;
+            result.switchsCount = resTmp.FabricSwitch;
+
+
+            res.json(200,result);
+        });
 
 
     });
@@ -383,9 +410,33 @@ var cebPerformanceProviderController = function (app) {
     */
    app.get('/ceb/dashboard/getStorageCapacity', function (req, res) {
     
-        var result = {"vnxCap":{"sum":3782676.16,"allot":2142185.5100000002},"vmaxCap":{"sum":3376127.1999999997,"allot":2042201.5}};
+        CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   
+            var resItem = {};
+            for ( var i in result.Detail ) {
+                var item = result.Detail[i];  
+                if ( resItem[item.arraytyp] === undefined ) {
+                    
+                    resItem[item.arraytyp] = {};
+                    resItem[item.arraytyp]["sum"] = 0;
+                    resItem[item.arraytyp]["allot"] = 0; 
+                } 
+                resItem[item.arraytyp]["sum"] += item.RawCapacity.ConfiguredUsableCapacity;
+                resItem[item.arraytyp]["allot"] += item.ConfiguredUsableCapacity.UsedCapacity;
 
-        res.json(200,result);
+            }
+
+            var finalResult = {};
+            finalResult.vnxCap = {};
+            finalResult.vnxCap.sum = resItem.VNX.sum   ;
+            finalResult.vnxCap.allot = resItem.VNX.allot   ;
+
+            finalResult.vmaxCap = {};
+            finalResult.vmaxCap.sum = resItem.Symmetrix.sum  ;
+            finalResult.vmaxCap.allot = resItem.Symmetrix.allot   ;
+            
+            res.json(200,finalResult);   
+        
+        });  
 
 
    });
@@ -397,30 +448,23 @@ var cebPerformanceProviderController = function (app) {
         return: 0
 
     */
-   app.get('/ceb/thresholdEvent/count', function (req, res) {
-       var thresholdType = req.query.thresholdType;
-       var result = 0;
-       if ( thresholdType === undefined ) result = 300;
-       else 
-            switch ( thresholdType ) {
-                    case "vmax_perf" :
-                        result = 200;
-                        break;
-                    case "vnx_perf" :  
-                        result = 100;
-                        break;
-                    default : 
-                        result = 0;
-                        break;
-            }
-                
-       res.json(200,result);
-
+   app.get('/ceb/thresholdEvent/count', function (req, res) { 
+    var thresholdType = req.query.thresholdType;
+        var result = {};
+        result.data = 0;
+        mysql.yesterdayEventCount(function(count) { 
+            for ( var i in count ) {
+                if ( count[i].type == thresholdType )  {
+                    result.data = count[i].eventCount;
+                    res.json(200,result);
+                }
+                   
+            } 
+            res.json(200,result);
+            
+        }); 
 
     });
- 
-
-
 
 };
 
