@@ -181,35 +181,188 @@ var testController = function (app) {
 
     app.get('/api/test1', function (req, res) {
 
-        var device;
  
-        var queryString = "PREFIX  srm: <http://ontologies.emc.com/2013/08/srm#>  ";
-        queryString = queryString + "     PREFIX  filter:<http://ontologies.emc.com/2015/mnr/topology#>   ";
-        queryString = queryString + "     PREFIX  rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>   ";
 
-        queryString = queryString + "     SELECT distinct  ?arraySN ?deviceName ?deviceWWN ?MaskingView  ?initEndPoint  ?FEName ";
-        queryString = queryString + "     WHERE {    ";
-        queryString = queryString + "       ?arrayEntity rdf:type srm:StorageEntity .     ";
-        queryString = queryString + "       ?arrayEntity srm:serialNumber ?arraySN .    ";
-        queryString = queryString + "       ?arrayEntity srm:containsStorageVolume ?device .    ";
-        queryString = queryString + "       ?device srm:displayName ?deviceName .   ";
-        queryString = queryString + "       ?device srm:volumeWWN ?deviceWWN .    ";
-        queryString = queryString + "       ?device srm:maskedTo ?MaskingView .   ";
-        queryString = queryString + "       ?MaskingView srm:maskedToInitiator ?initEndPoint .    "; 
-        queryString = queryString + "       ?MaskingView srm:maskedToTarget ?FEEndPoint .    "; 
-        queryString = queryString + "       ?FEEndPoint srm:Identifier ?FEName .    "; 
-         if ( device !== undefined )
-            queryString = queryString + "     FILTER  (?arraySN = '" + device + "' ) .  ";      
-        queryString = queryString + "     }  ";
+           
+        async.waterfall([
+            function(callback) { 
+    
+                var queryString = " PREFIX  srm: <http://ontologies.emc.com/2013/08/srm#> ";
+                queryString = queryString + " PREFIX  filter:<http://ontologies.emc.com/2015/mnr/topology#> ";
+                queryString = queryString + " PREFIX  rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> ";
+                queryString = queryString + " SELECT distinct ?MV ?MVName ?TARGET ?TARGET_ID ?TARGET_WWN ?INIT ?SGName ";
+                queryString = queryString + " WHERE {  ";
+                queryString = queryString + "     ?MV rdf:type srm:MaskingView .   "; 
+                queryString = queryString + "     ?MV srm:Identifier ?MVID  .  ";
+            
+                queryString = queryString + "     ?MV srm:maskedToStorageVolumeGroup ?SG  .  "; 
+                queryString = queryString + "     ?SG srm:displayName ?SGName  .  "; 
 
-        topos.querySparql(queryString,  function (response) {
-                        //var resultRecord = RecordFlat(response.raw_body, keys);
-            for ( var i in response ) {
-                var item = response[i]; 
-                item["MaskingView"] = item.MaskingView.replace("topo:srm.MaskingView:"+item.arraySN+":",""); 
-           }
-           res.json(200 , response);
-        }); 
+                
+                queryString = queryString + "     ?MV srm:maskedToInitiator ?INIT  .  ";
+                queryString = queryString + "     ?MV srm:maskedToTarget ?TARGET  .  ";
+                queryString = queryString + "     ?TARGET srm:Identifier ?TARGET_ID  .  ";
+                queryString = queryString + "     ?TARGET srm:containsProtocolEndpoint ?TARGET_WWN  .  ";
+                queryString = queryString + "     ?MV srm:viewName ?MVName  .  "; 
+             
+                queryString = queryString + "  }  ";
+    
+
+                var viewResult = [];
+                topos.querySparql(queryString, function(result) {
+                    
+                    for ( var i in result ) {
+                        var item = result[i]; 
+                        var viewItem = {};
+
+                        viewItem["sgname"] = item.SGName; 
+                        viewItem["initgrp"] = item.INIT.split(':')[2];
+                        viewItem["portgrp"] = (item.TARGET.split(':')[3]).replace("~20","");
+                        viewItem["part"] = item.MVName;
+                        viewItem["device"] = item.MV.split(':')[2];
+                        var initgrp_member = [];
+                        initgrp_member.push( item.INIT.split(':')[2] );
+
+ 
+
+                        var portgrp_member = [];
+                        var portgrp_member_item={}; 
+                        portgrp_member_item["device"] = item.TARGET_ID.split(':')[2];
+                        portgrp_member_item["feport"] = (item.TARGET_ID.split(':')[3]).replace("~20","")+":"+item.TARGET_ID.split(':')[4];
+                        portgrp_member_item["portwwn"] = item.TARGET_WWN.split(':')[2];
+                        portgrp_member.push(portgrp_member_item);
+
+                        viewItem["initgrp_member"] = initgrp_member;
+                        viewItem["portgrp_member"] = portgrp_member;
+                        
+                        viewResult.push(viewItem);
+                        //console.log(viewItem);
+                    } 
+                    callback(null,viewResult);
+                })
+        
+            },
+ 
+            function(arg, callback) {  
+ 
+                var param={};
+                param['filter'] = '!parttype&(source==\'VNXBlock-Collector\'|source==\'VNXUnity-Collector\')';
+                param['filter_name'] = '(name=\'UsedCapacity\'|name=\'ConfiguredUsableCapacity\')';
+                param['keys'] = ['serialnb'];
+                param['fields'] = ['device','devdesc','model']; 
+    
+    
+                CallGet.CallGet(param, function(param) {
+                    var arrayinfo = {};
+                    for ( var i in param.result ) {
+                        var item = param.result[i];
+
+                        if ( arrayinfo[item.device] === undefined ) arrayinfo[item.device] = item;
+
+                    }
+                    for ( var j in arg ) {
+                        var item = arg[j];
+                        item["array_model"] = arrayinfo[item.device].model;
+                        item["sn"] = arrayinfo[item.device].serialnb;
+                    }
+                    callback(null,arg);
+                });
+                
+    
+            }, 
+
+            function(arg, callback) { 
+                    
+                
+                    var filterbase = 'datagrp=\'VNXBlock-LUN\'&!vstatus==\'inactive\'';
+                    
+                    if ( start === undefined ) var start = util.getConfStartTime();
+                    if ( end   === undefined ) var end = util.getPerfEndTime();
+            
+            
+                    var param = {}; 
+                    param['period'] = '3600';
+                    param['start'] = start;
+                    param['end'] = end;
+                    param['type'] = 'max';
+                    param['limit'] = 10000000;
+                    param['keys'] = ['serialnb,part']; 
+                    param['fields'] = ['device','partdesc','partsn','partid','sgname'];   
+                    param['filter'] = filterbase;
+                    param['filter_name'] = '(name=\'AssignableCapacity\')';
+                    
+            
+                    CallGet.CallGetPerformance(param, function(ret) {  
+                        var result1 = {};
+                        var resultCapacity = {};
+                        for ( var i in ret ) { 
+                            var item = ret[i];
+                            delete item.matrics;
+                            item["Capacity"] = item.matricsStat.AssignableCapacity.max;
+                            delete item.matricsStat;
+            
+                            // ------------
+                            var device = item.device;
+                            var serialnb = item.serialnb;
+                            var vol = item.partid; 
+            
+                            if ( result1[device] === undefined ) result1[device] = {};
+                            if ( resultCapacity[device] === undefined ) resultCapacity[device] = {};
+                        
+                            var SGNames = item.sgname.split('|'); 
+                            
+                            for ( var j in SGNames ) {
+                                var SGName = SGNames[j];
+                                if ( result1[device][SGName] === undefined ) 
+                                    result1[device][SGName] = [];
+
+
+                                if ( resultCapacity[device][SGName] === undefined ) 
+                                    resultCapacity[device][SGName] = item.Capacity;
+                                else 
+                                    resultCapacity[device][SGName] += item.Capacity;
+
+
+
+                                var sgItem = {};
+                                sgItem["device"] = device;
+                                sgItem["serialnb"] = serialnb;
+                                sgItem["part"] = vol;
+                                sgItem["sgname"] = SGName;
+                                sgItem["Capacity"] = item.Capacity;
+                                sgItem["lunwwn"] = item.partsn;
+                                sgItem["lunname"] = item.partdesc;
+                
+                
+                                result1[device][SGName].push(sgItem);
+
+                            }
+
+                        }
+
+                        for ( var j in arg ) {
+                            var item = arg[j];
+
+                            if ( result1[item.device] !== undefined )
+                                if ( result1[item.device][item.sgname] !== undefined ) { 
+                                     
+                                     item["sg_member"] = result1[item.device][item.sgname];
+                                     item["Capacity"] = resultCapacity[item.device][item.sgname];
+
+                                }
+                                else {
+                                    item["sg_member"] = [];
+                                    item["Capacity"] = 0;
+                                } 
+                        }
+                        callback(null,arg); 
+                    });
+            }
+            
+        ], function (err, result) {
+
+            res.json(200,result);
+         });
 
      });                       
 
@@ -244,17 +397,17 @@ var testController = function (app) {
           //VMAX.getArrayPerformance1( function(result) {            res.json(200,result);       }); 
           // VMAX.GetCapacity(device, function(result) {            res.json(200,result);       });  
           var sgname;
-          var period = 3600;
+          var period = 86400;
           
           var valuetype = 'max';
           //var start  = util.getPerfStartTime(); 
-          var start = '2018-05-27T03:00:00.000Z';
-          var end ;
+          var start = '2018-05-30T16:00:00.000Z';
+          var end = '2018-06-29T16:00:00.000Z';;
           var part;
-          //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
+         // VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
           //function GetFCSwitchPart(devtype,parttype,callback) { 
-        
-            CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
+            Report.getAppStorageRelation( function (result )  {  res.json(200,result) });
+            //CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
         //Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
@@ -264,7 +417,7 @@ var testController = function (app) {
        // VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
         //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
-       //VMAX.GetArrays(  function(ret) { 
+        //VMAX.GetArrays(  function(ret) {  res.json(200,ret);   }); 
         //Report.GetStoragePorts(function(ret) {
         //Report.GetArraysIncludeHisotry(device, function(ret) {  
         
@@ -272,10 +425,10 @@ var testController = function (app) {
         //Capacity.GetArrayCapacity(device, function(ret) {
          //   DeviceMgmt.GetArrayAliasName(function(ret) {           res.json(200,ret);        });
         //VNX.GetBlockDevices(device,  function(result) {   res.json(200,result);   }); 
-        //VNX.GetMaskViews(function(ret) {
+        //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
         //VMAX.GetMaskViews(device, function(ret) {     res.json(200,ret);        });
-        //Report.ArrayAccessInfos(device, function(ret) {
-        //Report.E2ETopology(device, function(ret) {  
+        //Report.ArrayAccessInfos(device, function(ret) {  res.json(200,ret);        });
+        //Report.E2ETopology(device, function(ret) {   res.json(200,ret);        });
         //    Report.GetApplicationInfo( function (ret) {
  
             //var device = 'CETV2172300002';
@@ -296,76 +449,65 @@ var testController = function (app) {
 
     app.get('/api/test2', function (req, restu) {
         
-        var device = req.query.device; 
-        async.waterfall(
-            [
-
-                function(callback){
-                    var param = {};
-                    //param['filter'] = '(parttype=\'MetaMember\'|parttype=\'LUN\')';
-                    param['filter'] = '(parttype=\'StorageGroupToLUN\')';
-                    //param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'PoolUsedCapacity\')';
-                    param['keys'] = ['device','sgname','lunname'];
-            
-                    if (  device !==  undefined ) { 
-                        param['filter'] = 'device=\''+device+'\'&' + param['filter'];
-                    } 
-
-
-                    CallGet.CallGet(param, function(param) {  
-                        var res = param.result;
-
-                        callback(null,res);
-
-                    });
-
-                }, 
-                function ( arg1, callback) { 
+        var device = req.query.device;
+        if ( device !== undefined ) 
+            var filterbase = 'serialnb=\''+device+'\'&datagrp=\'VNXBlock-LUN\'&!vstatus==\'inactive\'';
+        else 
+            var filterbase = 'datagrp=\'VNXBlock-LUN\'&!vstatus==\'inactive\'';
         
-                    var param = {};
-                    //param['filter'] = '(parttype=\'MetaMember\'|parttype=\'LUN\')';
-                    param['filter'] = '(parttype=\'LUN\')';
-                    //param['filter_name'] = '(name=\'UsedCapacity\'|name=\'Capacity\'|name=\'ConsumedCapacity\'|name=\'PoolUsedCapacity\')';
-                    param['keys'] = ['device','part'];
-                    param['fields'] = ['model','parttype','config','poolemul','purpose','dgstype','poolname','partsn','sgname','ismasked','vmaxtype','disktype'];
-                    param['period'] = 604800;
-                    param['start'] = util.getConfStartTime('1d');
-            
-                    if (  device !==  undefined ) { 
-                        param['filter'] = 'device=\''+device+'\'&' + param['filter'];
-                    } 
+        if ( start === undefined ) var start = util.getConfStartTime();
+        if ( end   === undefined ) var end = util.getPerfEndTime();
 
 
-                    CallGet.CallGet(param, function(param) {  
-                        var luns = param.result;
+        var param = {}; 
+        param['period'] = '3600';
+        param['start'] = start;
+        param['end'] = end;
+        param['type'] = 'max';
 
-                        var res1 = {};
-                        for ( var i in arg1 ) {
-                            var item = arg1[i];
-                            if ( res1[item.device] === undefined ) 
-                                res1[item.device] = {};   
-                                if ( res1[item.device][item.sgname] === undefined )
-                                    res1[item.device][item.sgname] = []; 
-                                
-                                for ( var luni in luns ) {
-                                    var lunItem = luns[luni];
-                                    //console.log(item.device +","+lunItem.device +"\t"+ item.lunname +","+ item.part);
-                                    if ( item.device == lunItem.device && item.lunname == lunItem.part )
-                                        res1[item.device][item.sgname].push(lunItem); 
-                                }
-                                
-                        }
-            
-                        callback(null,res1);
+        param['keys'] = ['serialnb,part']; 
+        param['fields'] = ['device','partdesc','partsn','partid','sgname'];   
+        param['filter'] = filterbase;
+        param['limit'] = 10000000;
+        param['filter_name'] = '(name=\'AssignableCapacity\')';
+        
 
-                    });
-                } ,  
-                    function(arg1, callback) {
-                        callback(null,arg1);
-                    } 
-                ], function (err, result) { 
-                    restu.json(200 , result );
-                });
+        CallGet.CallGetPerformance(param, function(ret) {  
+            var result1 = {};
+            for ( var i in ret ) {
+                var item = ret[i];
+                delete item.matrics;
+                item["Capacity"] = item.matricsStat.AssignableCapacity.max;
+                delete item.matricsStat;
+
+                // ------------
+                var device = item.device;
+                var serialnb = item.serialnb;
+                var vol = item.partid; 
+
+                if ( result1[device] === undefined ) result1[device] = {};
+
+                var SGNames = item.sgname.split('|');
+                for ( var j in SGNames ) {
+                    var SGName = SGNames[j];
+                    if ( result1[device][SGName] === undefined ) result1[device][SGName] = [];
+                    var sgItem = {};
+                    sgItem["device"] = device;
+                    sgItem["serialnb"] = serialnb;
+                    sgItem["part"] = vol;
+                    sgItem["sgname"] = SGName;
+                    sgItem["Capacity"] = item.Capacity;
+                    sgItem["lunwwn"] = item.partsn;
+                    sgItem["lunname"] = item.partdesc;
+    
+    
+                    result1[device][SGName].push(sgItem);
+                }
+
+            }
+            restu.json(200,result1); 
+        });
+
     
 
 });

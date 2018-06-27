@@ -466,6 +466,182 @@ var cebPerformanceProviderController = function (app) {
 
     });
 
+
+
+    /*
+        Page: 容量信息:存储容量
+
+    */ 
+    app.get('/rest/capacity/array', function (req, res) {
+    
+
+        async.waterfall([
+            function(callback){
+                var arrayInfo = require("../config/StorageInfo");
+                callback(null,arrayInfo);
+            }, 
+            function ( arrayInfo, callback ) {
+                var finalResult = {};
+                CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   
+                    var resItem = {};
+                    for ( var i in result.Detail ) {
+                        var item = result.Detail[i];  
+                        var resultItem = {};
+                        resultItem["viewCapacity"] = item.ConfiguredUsableCapacity.UsedCapacity; 
+                        resultItem["rawCapacity"] = item.RawCapacity.RawCapacity;
+                        resultItem["maxCapacity"] = 0;
+                        resultItem["viewCapacityPercent"] = item.RawCapacity.ConfiguredUsableCapacity == 0 ? 0 : ((item.ConfiguredUsableCapacity.UsedCapacity/item.RawCapacity.ConfiguredUsableCapacity) * 100).toFixed(2) + "%";
+                        resultItem["plannedCapacity"] = 0
+                        resultItem["storageSn"] = item.device;
+ 
+                        resultItem["storageName"] = "";
+                        for ( var j in arrayInfo ) {
+                            var arrItem = arrayInfo[j];
+                            if ( arrItem.storagesn == item.device ) {
+                                resultItem["storageName"] = arrItem.name; 
+                                break;
+                            }
+                        }  
+                        resultItem["logicCapacity"] =  item.RawCapacity.ConfiguredUsableCapacity;
+        
+                        switch ( item.arraytyp ) {
+                            case "Symmetrix" :
+                                if ( finalResult["VMAX"] === undefined ) finalResult["VMAX"] = [];
+                                finalResult["VMAX"].push(resultItem);
+                                break;
+                            case "VNX" :
+                                if ( finalResult["VNX"] === undefined ) finalResult["VNX"] = [];
+                                finalResult["VNX"].push(resultItem);
+                                break;
+        
+                            case "XtremIO" :
+                                if ( finalResult["XtremIO"] === undefined ) finalResult["XtremIO"] = [];
+                                finalResult["XtremIO"].push(resultItem);
+                                break;
+        
+                            case "Unity/VNXe2" :
+                                if ( finalResult["Unity"] === undefined ) finalResult["Unity"] = [];
+                                finalResult["Unity"].push(resultItem);
+                                break;
+        
+                            default : 
+        
+                        }
+                        
+                    }
+        
+                    /*
+                    {
+                        "viewCapacity":"1756.0",
+                        "rawCapacity":"117576.4",
+                        "maxCapacity":"0",
+                        "viewCapacityPercent":"2.99%",
+                        "plannedCapacity":"0",
+                        "storageSn":"000292600901",
+                        "storageName":"VMAX-JXQ",
+                        "logicCapacity":"58709.5"
+                    }
+                    */
+                    
+                    res.json(200,finalResult);   
+                
+                });  
+            }
+        ], function (err, result) {  
+            res.json(200 ,result);
+        });
+    
+    
+    });
+    
+
+    
+    /*
+        Page: 容量信息:主机容量
+
+    */ 
+   app.get('/rest/capacity/host', function (req, res) {
+        var result = [{"hostName":"##BL685-631","totalSize":"0","useSize":"0","plannedSize":"0.0"}];
+        async.waterfall([
+            function(callback){
+                var arrayInfo = require("../config/StorageInfo");
+                callback(null,arrayInfo);
+            }, 
+            function ( arrayInfo, callback ) {
+                var finalResult = {};
+                CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   
+                    var resItem = {};
+                    for ( var i in result.Detail ) {
+                        var item = result.Detail[i];  
+                        var resultItem = {};
+                        resultItem["viewCapacity"] = item.ConfiguredUsableCapacity.UsedCapacity; 
+                        resultItem["rawCapacity"] = item.RawCapacity.RawCapacity;
+                        resultItem["maxCapacity"] = 0;
+                        resultItem["viewCapacityPercent"] = item.RawCapacity.ConfiguredUsableCapacity == 0 ? 0 : ((item.ConfiguredUsableCapacity.UsedCapacity/item.RawCapacity.ConfiguredUsableCapacity) * 100).toFixed(2) + "%";
+                        resultItem["plannedCapacity"] = 0
+                        resultItem["storageSn"] = item.device;
+
+                        resultItem["storageName"] = "";
+                        for ( var j in arrayInfo ) {
+                            var arrItem = arrayInfo[j];
+                            if ( arrItem.storagesn == item.device ) {
+                                resultItem["storageName"] = arrItem.name; 
+                                break;
+                            }
+                        }  
+                        resultItem["logicCapacity"] =  item.RawCapacity.ConfiguredUsableCapacity;
+        
+                        switch ( item.arraytyp ) {
+                            case "Symmetrix" :
+                                if ( finalResult["VMAX"] === undefined ) finalResult["VMAX"] = [];
+                                finalResult["VMAX"].push(resultItem);
+                                break;
+                            case "VNX" :
+                                if ( finalResult["VNX"] === undefined ) finalResult["VNX"] = [];
+                                finalResult["VNX"].push(resultItem);
+                                break;
+        
+                            case "XtremIO" :
+                                if ( finalResult["XtremIO"] === undefined ) finalResult["XtremIO"] = [];
+                                finalResult["XtremIO"].push(resultItem);
+                                break;
+        
+                            case "Unity/VNXe2" :
+                                if ( finalResult["Unity"] === undefined ) finalResult["Unity"] = [];
+                                finalResult["Unity"].push(resultItem);
+                                break;
+        
+                            default : 
+        
+                        }
+                        
+                    }
+        
+                    /*
+                    {
+                        "viewCapacity":"1756.0",
+                        "rawCapacity":"117576.4",
+                        "maxCapacity":"0",
+                        "viewCapacityPercent":"2.99%",
+                        "plannedCapacity":"0",
+                        "storageSn":"000292600901",
+                        "storageName":"VMAX-JXQ",
+                        "logicCapacity":"58709.5"
+                    }
+                    */
+                    
+                    res.json(200,finalResult);   
+                
+                });  
+            }
+        ], function (err, result) {  
+            res.json(200 ,result);
+        });
+
+
+    });
+
+ 
 };
 
 module.exports = cebPerformanceProviderController;

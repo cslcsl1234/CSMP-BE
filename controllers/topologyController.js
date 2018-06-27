@@ -194,11 +194,8 @@ var topologyController = function (app) {
 
                 var newRecord = new AppTopologyObj(appTopologyRecord);
                  
-                newRecord.save(function(err, thor) {
-                    console.log(err);
-                    console.log(thor);
-                    if (err)  {
-                        console.dir(thor);
+                newRecord.save(function(err, thor) { 
+                    if (err)  { 
                         return res.json(400 , err);
                     } else 
                         res.json(200 , ret  );

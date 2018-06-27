@@ -100,11 +100,14 @@ var appTopologyItemSchema = new Schema({
     arrayport  :String,
     arrayport_wwn  :String,
     array  :String,
+    arrayname :String,
+    arraytype :String,
     devices  :String,
     maskingview  :String,
     IG  :String,
     PG  :String,
     SG  :String,
+    Capacity : Number,
     marched_type  :String
     
 },{ _id : false });

@@ -2151,9 +2151,9 @@ var reportingController = function (app) {
 
                             retItem.device_sn = item.device;
                             retItem.sg_name = item.sgname;
-                            retItem.iops_max = item.matricsStat.ReadRequests.max + item.matricsStat.WriteRequests.max ;
-                            retItem.iops_avg = item.matricsStat.ReadRequests.avg + item.matricsStat.WriteRequests.avg ;
-                            retItem.response_time_ms = item.matricsStat.ResponseTime.max;
+                            retItem.iops_max = (item.matricsStat.WriteRequests===undefined | item.matricsStat.WriteRequests === undefined ) ? 0 : item.matricsStat.ReadRequests.max + item.matricsStat.WriteRequests.max ;
+                            retItem.iops_avg = (item.matricsStat.WriteRequests===undefined | item.matricsStat.WriteRequests === undefined ) ? 0 : item.matricsStat.ReadRequests.avg + item.matricsStat.WriteRequests.avg ;
+                            retItem.response_time_ms = item.matricsStat.ResponseTime===undefined ? 0 : item.matricsStat.ResponseTime.max;
                             rets.push(retItem);
                         }
                         callback(null,rets);  
@@ -2307,6 +2307,9 @@ var reportingController = function (app) {
     
     });
 
+    //
+    // CEB-REPORT-MONTHLY: 2.2.1.2  IOPS均值增幅 TOP 10
+    // 
     app.get('/api/reports/performance/sg/top10/iops_avg_increase', function (req, res) {
         //var ret = require("../demodata/iops_avg_increase");
         res.setTimeout(1200*1000);
@@ -2387,7 +2390,7 @@ var reportingController = function (app) {
                                 //console.log( top10Item.device_sn +"\t" + item.device +"\t" + top10Item.sg_name +"\t" + item.sgname);
                                 if ( top10Item.device_sn == item.device && top10Item.sg_name == item.sgname ) {
                                     top10Item.iops_avg_lastyear = item.matricsStat.ReadRequests.avg + item.matricsStat.WriteRequests.avg ;
-                                    top10Item.iops_avg_increase = top10Item.iops_avg_lastyear > 0 ? ( top10Item.iops_avg - top10Item.iops_avg_lastyear ) /top10Item.iops_avg_lastyear : 100;
+                                    top10Item.iops_avg_increase = top10Item.iops_avg_lastyear > 0 ? ( top10Item.iops_avg - top10Item.iops_avg_lastyear ) /top10Item.iops_avg_lastyear : 0 ;
                                     break;
                                 }
                             }
@@ -2594,6 +2597,131 @@ var reportingController = function (app) {
             });
     }); 
 
+
+    //
+    // CEB-REPORT-MONTHY: 2.2.1.4 "HOST IO LIMIT 情况统计"
+    //
+    app.get('/api/reports/performance/sg/iolimit', function (req, res) {
+        //var ret = require("../demodata/report_io_response");
+        res.setTimeout(1200*1000);
+        var device;
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString(); 
+ 
+
+        async.waterfall(
+            [
+                function(callback){
+                    var arrayInfo = require("../config/StorageInfo");
+                    callback(null,arrayInfo);
+                },
+                // Get All Localtion Records
+                function(param,  callback){ 
+                    //var ret = require("../demodata/sg_top10_iops");
+                    var device;
+                    var period = 3600;
+                    var valuetype = 'max'; 
+ 
+                    
+                    var param = {};
+                    param['device'] = device;
+                    param['period'] = period;
+                    param['start'] = start;
+                    param['end'] = end;
+                    param['type'] = valuetype;
+                    param['filter_name'] = '(name=\'HostIOLimitExceededPercent\')';
+                    param['keys'] = ['device','part'];
+                    param['fields'] = ['name','sgname','parttype','iolmstat','iolimit'];  
+                    param['filter'] = '(datagrp=\'VMAX-StorageGroup\'&parttype=\'Storage Group\'&iolmstat=\'Defined\')';
+                    param['limit'] = 100000;
+     
+                    CallGet.CallGetPerformance(param, function(rest) { 
+                        callback(null, rest ); 
+                    });
+    
+                },
+                function(arg1, callback ) {
+                    var rets = [];
+                    for ( var i in arg1 ) {
+                        var item = arg1[i];
+
+                        var retsItem = {};
+                        retsItem["appname"] = "";
+                        retsItem["arrayname"] = "";
+                        retsItem["device"] = item.device;
+                        retsItem["sgname"] = item.sgname;
+                        retsItem["iolimit"] = item.iolimit; 
+                        retsItem["exceed_80_workingtime"] = 0;
+                        retsItem["exceed_80_noworkingtime"] = 0;
+                        retsItem["exceed_100_workingtime"] = 0;
+                        retsItem["exceed_100_noworkingtime"] = 0;
+                        
+
+                        for ( var j in item.matrics ) {
+                            var matricsItem = item.matrics[j];
+                            if ( matricsItem.HostIOLimitExceededPercent === undefined ) continue;
+ 
+                            var isWorkingTime = util.isWorkingTime(matricsItem.timestamp)
+
+                            // exceed 80%
+                            if ( matricsItem.HostIOLimitExceededPercent >= 80 & matricsItem.HostIOLimitExceededPercent < 100  ) {
+                                if ( isWorkingTime == true )
+                                    retsItem.exceed_80_workingtime++;
+                                else 
+                                    retsItem.exceed_80_noworkingtime++;
+
+                            } else if  ( matricsItem.HostIOLimitExceededPercent >= 100 ) {
+                                if ( isWorkingTime == true )
+                                    retsItem.exceed_100_workingtime++;
+                                else 
+                                    retsItem.exceed_100_noworkingtime++;
+
+                            }
+
+
+                        }
+                                                
+                        rets.push(retsItem);
+                    }
+                    //arg1.sort(sortBy("-response_time_ms"));
+                    
+                    callback(null,rets);
+                },
+                function (arg, callback) {
+
+                    Report.getAppStorageRelation( function (result )  {  
+                       
+                        for (var i in arg ) {
+                            var item = arg[i];
+                            for ( var j in result ) {
+                                var appItem = result[j];
+                                if (  appItem.array == item.device )
+                                    item["arrayname"] = appItem.array_name;
+                                if ( appItem.array == item.device && appItem.SG == item.sgname ) {
+                                    if ( item["appname"] == ""  ) 
+                                        item.appname = appItem.app;
+                                    else 
+                                        item.appname = item.appname +"," + appItem.app
+                                }
+                            }
+                        }
+                        callback(null,arg);
+    
+    
+                    });  
+    
+                }
+            ], function (err, result) {
+                  // result now equals 'done'
+ 
+                  res.json(200 ,result);
+            });
+    }); 
+
+
+    //
+    // CEB-REPORT-MONTHY: 2.2.1.3 响应时间 TOP 10
+    //
     app.get('/api/reports/performance/sg/top10/iops_response_time', function (req, res) {
         //var ret = require("../demodata/report_io_response");
         res.setTimeout(1200*1000);
