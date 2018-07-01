@@ -2119,7 +2119,7 @@ var reportingController = function (app) {
                     var arrayInfo = require("../config/StorageInfo");
                     callback(null,arrayInfo);
                 },
-                // Get All Localtion Records
+                // Get IOPS peak value 
                 function(param,  callback){ 
                     //var ret = require("../demodata/sg_top10_iops");
                     var device;
@@ -2152,11 +2152,35 @@ var reportingController = function (app) {
                             retItem.device_sn = item.device;
                             retItem.sg_name = item.sgname;
                             retItem.iops_max = (item.matricsStat.WriteRequests===undefined | item.matricsStat.WriteRequests === undefined ) ? 0 : item.matricsStat.ReadRequests.max + item.matricsStat.WriteRequests.max ;
-                            retItem.iops_avg = (item.matricsStat.WriteRequests===undefined | item.matricsStat.WriteRequests === undefined ) ? 0 : item.matricsStat.ReadRequests.avg + item.matricsStat.WriteRequests.avg ;
                             retItem.response_time_ms = item.matricsStat.ResponseTime===undefined ? 0 : item.matricsStat.ResponseTime.max;
                             rets.push(retItem);
                         }
                         callback(null,rets);  
+                    });
+                },
+                // Get IOPS average value 
+                function(param,  callback){  
+                    var device;
+                    var period = 86400;
+                    var valuetype = 'average'; 
+                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {  
+                        for ( var i in rest ) {
+                            var item = rest[i];  
+ 
+                            for (var j in param ) {
+                                var item1 = param[j];
+
+                                if ( item.device == item1.device_sn & item.sgname == item1.sg_name ) {
+                                    item1["iops_avg"] = (item.matricsStat.WriteRequests===undefined | item.matricsStat.WriteRequests === undefined ) ? 0 : item.matricsStat.ReadRequests.avg + item.matricsStat.WriteRequests.avg ;
+                                    break;
+                                }
+
+                            }
+                        }
+
+
+                        
+                        callback(null,param);  
                     });
                 },
                 function(arg1, callback ) {
@@ -2713,8 +2737,9 @@ var reportingController = function (app) {
                 }
             ], function (err, result) {
                   // result now equals 'done'
- 
-                  res.json(200 ,result);
+                var retData = {};
+                retData.data = result;
+                  res.json(200 ,retData);
             });
     }); 
 
@@ -2741,7 +2766,7 @@ var reportingController = function (app) {
                     //var ret = require("../demodata/sg_top10_iops");
                     var device;
                     var period = 86400;
-                    var valuetype = 'max'; 
+                    var valuetype = 'average'; 
                     VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) { 
                         var rets = [];
                         for ( var i in rest ) {

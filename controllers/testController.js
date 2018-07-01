@@ -39,6 +39,7 @@ var util = require('../lib/util');
 var topos= require('../lib/topos');
 var DeviceMgmt = require('../lib/DeviceManagement');
 var Report = require('../lib/Reporting');
+
 var CAPACITY = require('../lib/Array_Capacity');
 
 
@@ -183,186 +184,10 @@ var testController = function (app) {
         res.setTimeout(1200*1000);
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         
-        var fabwwn;
-        async.waterfall(
-            [
-        
-                function(callback){
-                    console.log("TEST1");
-
-                    var deviceid;
-                    SWITCH.GetSwitchPorts(deviceid, function(result) {  
-                        callback(null,result); 
-                    });
-                      
-                },
-        
-                // Get All Localtion Records
-                function(param,  callback){ 
-                    console.log("TEST2");
-                    var zoneResult = [];
-                    SWITCH.getFabric(fabwwn,function(resultJson) {
-                        console.log("TEST2.1");
-                        for ( var i in resultJson ) {
-                            var item = resultJson[i];
-                            var zoneItem = {};
-                            var zoneMemberItem = {};
-                            zoneMemberItem['zmemid'] = item.zmemid;
-                            zoneMemberItem['zmemtype'] = item.zmemtype; 
-        
-                            // Search connected to the switch and switch port 
-                            for ( var j in param ) {
-                                var swport = param[j];
-                                //console.log(swport.connectedToWWN +'\t' + item.zmemid);
-                                switch (item.zmemtype) {
-                                    case "Switch Port ID":
-                                        if ( swport.fabwwn == item.pswwn && (swport.domainid+':'+swport.partid) == item.zmemid ) {
-                                            zoneMemberItem['switch'] = swport.device;
-                                            zoneMemberItem['switchport'] = swport.part; 
-                                            zoneMemberItem['switchportwwn'] = swport.partwwn; 
-                                            zoneMemberItem['switchportstate'] = swport.partstat; 
-                                            zoneMemberItem['switchportConnectedWWN'] = swport.portwwn; 
-                                              
-                                            break;  
-                                        }
-                                        break;
-                                    case "Permanent Address":
-                                        if ( swport.connectedToWWN == item.zmemid ) {
-                                            zoneMemberItem['switch'] = swport.device;
-                                            zoneMemberItem['switchport'] = swport.part; 
-                                            zoneMemberItem['switchportwwn'] = swport.partwwn; 
-                                            zoneMemberItem['switchportstate'] = swport.partstat; 
-                                            zoneMemberItem['switchportConnectedWWN'] = swport.portwwn; 
-          
-                                            break;  
-                                        }                            
-                                        break;
-                                }
-        
-                            }
-        
-                            zoneItem["fabricwwn"] = item.pswwn;
-                            zoneItem['device'] = item.device;
-                            zoneItem['zsetname'] = item.zsetname;
-                            zoneItem['zname'] = item.zname;
-                            zoneItem['zonemembers'] = [];
-                            zoneItem.zonemembers.push(zoneMemberItem);
-        
-                            if ( zoneResult.length == 0 ) {
-                                zoneResult.push(zoneItem);
-                            } else {
-                                var isFind = false;
-                                for ( var j in zoneResult) {
-                                    var item1 = zoneResult[j];
-                                    if ( item1.device == item.device &&  
-                                        item1.zsetname == item.zsetname && 
-                                        item1.zname == item.zname 
-                                        ) {
-                                        item1.zonemembers.push(zoneMemberItem);
-                                        isFind = true;
-                                    }
-                                }
-                                if ( ! isFind ) {
-                                    zoneResult.push(zoneItem);
-                                }
-                            }
-        
-                        }
-        
-                       console.log('The number of Zones = ' + zoneResult.length);
-                       callback(null,zoneResult);
-        
-                    })
-        
-                },
-                function(zoneResult, callback){
-                    console.log("TEST3");
-                    var fields = 'part,psname,device,lsname,pswwn';
-                    if ( fabwwn !== undefined )
-                        var filter = 'pswwn=\''+fabwwn+'\'&parttype==\'Fabric\'|parttype==\'VSAN\'';
-                    else 
-                        var filter = 'parttype==\'Fabric\'|parttype==\'VSAN\'';
-                    
-                    
-                    unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
-                            .auth(config.Backend.USER, config.Backend.PASSWORD, true)
-                            .headers({'Content-Type': 'multipart/form-data'}) 
-                            .query({'fields': fields , 'filter':  filter }) 
-                            .end(function (response) {
-        
-                                var resultJson = JSON.parse(response.raw_body).values; 
-        
-                                for ( var i in zoneResult ) {
-                                    var item = zoneResult[i];
-                                    for ( var j in resultJson) {
-                                        var fabricItem = resultJson[j];
-                                        if ( fabricItem.pswwn == item.fabricwwn ) {
-                                            item["fabricname"] = fabricItem.psname;
-                                            break;
-                                        }
-                                    }
-                                    
-        
-                                    var zonemembers = item.zonemembers;
-                                    for ( var j in zonemembers ) {
-                                        var zoneitem = zonemembers[j];
-                                        for ( var z in resultJson ) {
-                                            var switem = resultJson[z];
-                                            if ( zoneitem.switch == switem.device ) {
-                                                var switchid = zoneitem.switch;
-                                                zoneitem["switch"] = switem.lsname;
-                                                zoneitem["switch_oriname"] = switchid;
-                                            }
-                                        }
-                                        
-                                    }
-        
-                                }
-        
-                                callback(null,zoneResult);
-                            });
-                      
-                } ,               
-                function(arg1,  callback){ 
-                    res.json
-                    console.log("TEST4");
-                    
-                    var param = {}; 
-                    param['filter'] = 'parttype==\'ZoneAlias\'';
-                    param['fields'] = ['pswwn','alias','zmemid'];
-                    param['keys'] = ['pswwn','alias','zmemid'];
-        
-                    CallGet.CallGet(param, function(param) { 
-                        for ( var i in arg1 ) {
-                            var zoneitem = arg1[i];
-                            
-        
-                            for ( var z in zoneitem.zonemembers ) {
-                                var item = zoneitem.zonemembers[z];
-                                item['alias'] = '';
-                                if ( item.zmemid != '' ) {
-        
-                                    for ( var j in param.result ) {
-                                        var aliasItem = param.result[j];
-        
-                                        if ( zoneitem.fabricwwn == aliasItem.pswwn & item.zmemid == aliasItem.zmemid ) {
-                                            if ( item.alias == '' )
-                                                item['alias'] = aliasItem.alias;
-                                            else 
-                                                item['alias'] = item.alias + ',' + aliasItem.alias;
-                                        }
-                                    }
-        
-                                }
-                            }
-                        }
-                        callback(null,arg1);
-                    });                 
-                } 
-            ], function (err, result) {
-                  // result now equals 'done'
-                  res.json(200,result);
-            });       
+        var deviceid;
+        SWITCH.getZone(deviceid, function(result) {  
+            res.json(200,result); 
+        });
 
      });     
      
@@ -413,14 +238,14 @@ var testController = function (app) {
           var sgname;
           var period = 86400;
           
-          var valuetype = 'max';
+          var valuetype = 'average';
           //var start  = util.getPerfStartTime(); 
           var start = '2018-05-30T16:00:00.000Z';
           var end = '2018-06-29T16:00:00.000Z';;
           var part;
-         // VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
+         //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
           //function GetFCSwitchPart(devtype,parttype,callback) { 
-            Report.getAppStorageRelation( function (result )  {  res.json(200,result) });
+          //  Report.getAppStorageRelation( function (result )  {  res.json(200,result) });
             //CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
         //Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
@@ -442,21 +267,15 @@ var testController = function (app) {
         //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
         //VMAX.GetMaskViews(device, function(ret) {     res.json(200,ret);        });
         //Report.ArrayAccessInfos(device, function(ret) {  res.json(200,ret);        });
-        //Report.E2ETopology(device, function(ret) {   res.json(200,ret);        });
-        //    Report.GetApplicationInfo( function (ret) {
- 
-            //var device = 'CETV2172300002';
+        //VMAX.GetAssignedHosts(device, function(rest) {             res.json(200,rest);        });
 
-            /*
-            var part = 'SP A';
-            var start = '2018-04-07T08:36:10.984Z';
-            var end = '2018-05-07T08:36:10.986Z';
-            Report.GetApplicationInfo( function (apps) { 
+        //Report.E2ETopology(device, function(ret) {   res.json(200,ret);        });
+        //Report.GetApplicationInfo( function (ret) {  res.json(200,ret);        });
  
-                //finalResult = finalResult.concat(ret);
-                res.json(200 , apps);
-           })        
-           */
+
+        var apps = Report.ApplicationCapacityAnalysis("","");
+        res.json(200,apps);
+
     });
 
 

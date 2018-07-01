@@ -28,7 +28,12 @@ var VMAX = require('../lib/Array_VMAX');
 var SWITCH = require('../lib/Switch');
 var CAPACITY = require('../lib/Array_Capacity');
 var mysql = require('../lib/MySQLDBFunction');
+var AppTopologyObj = mongoose.model('AppTopology');
 
+var Report = require('../lib/Reporting');
+
+
+ 
 var cebPerformanceProviderController = function (app) {
 
     var config = configger.load();
@@ -74,8 +79,9 @@ var cebPerformanceProviderController = function (app) {
         var finalResult = {};
         finalResult["vmaxIOPS"] = [];
 
-        var start = '2018-06-17T00:00:00.000Z';
-        var end = '2018-06-17T23:59:59.999Z';
+        var realtimeDatetime = util.getRealtimeDateTimeByDay(-1); 
+        var start = realtimeDatetime.begin;
+        var end = realtimeDatetime.end;
 
         var config = configger.load(); 
 
@@ -557,82 +563,109 @@ var cebPerformanceProviderController = function (app) {
 
     */ 
    app.get('/rest/capacity/host', function (req, res) {
-        var result = [{"hostName":"##BL685-631","totalSize":"0","useSize":"0","plannedSize":"0.0"}];
+        
         async.waterfall([
             function(callback){
-                var arrayInfo = require("../config/StorageInfo");
-                callback(null,arrayInfo);
-            }, 
-            function ( arrayInfo, callback ) {
-                var finalResult = {};
-                CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   
-                    var resItem = {};
-                    for ( var i in result.Detail ) {
-                        var item = result.Detail[i];  
-                        var resultItem = {};
-                        resultItem["viewCapacity"] = item.ConfiguredUsableCapacity.UsedCapacity; 
-                        resultItem["rawCapacity"] = item.RawCapacity.RawCapacity;
-                        resultItem["maxCapacity"] = 0;
-                        resultItem["viewCapacityPercent"] = item.RawCapacity.ConfiguredUsableCapacity == 0 ? 0 : ((item.ConfiguredUsableCapacity.UsedCapacity/item.RawCapacity.ConfiguredUsableCapacity) * 100).toFixed(2) + "%";
-                        resultItem["plannedCapacity"] = 0
-                        resultItem["storageSn"] = item.device;
-
-                        resultItem["storageName"] = "";
-                        for ( var j in arrayInfo ) {
-                            var arrItem = arrayInfo[j];
-                            if ( arrItem.storagesn == item.device ) {
-                                resultItem["storageName"] = arrItem.name; 
-                                break;
+                var query = AppTopologyObj.find({}).select({ "metadata": 1, "data": 1,  "_id": 0});
+                query.exec(function (err, doc) {
+                    //system error.
+                    if (err) { 
+                        res.json(500 , {status: err})
+                    }
+                    if (!doc) { //user doesn't exist.
+                        res.json(200 , []); 
+                    }
+                    else {
+                        var lastRecord ;
+                        for ( var i in doc ) {
+                            var item = doc[i];
+                            var generateDT = new Date(item.metadata.generateDatetime);
+                            if ( lastRecord === undefined ) {
+                                var lastRecord = item;
+                            } else {
+                                var lastRecordgenerateDT = new Date(lastRecord.metadata.generateDatetime);
+                                if ( generateDT > lastRecordgenerateDT ) 
+                                    lastRecord = item;
                             }
-                        }  
-                        resultItem["logicCapacity"] =  item.RawCapacity.ConfiguredUsableCapacity;
-        
-                        switch ( item.arraytyp ) {
-                            case "Symmetrix" :
-                                if ( finalResult["VMAX"] === undefined ) finalResult["VMAX"] = [];
-                                finalResult["VMAX"].push(resultItem);
-                                break;
-                            case "VNX" :
-                                if ( finalResult["VNX"] === undefined ) finalResult["VNX"] = [];
-                                finalResult["VNX"].push(resultItem);
-                                break;
-        
-                            case "XtremIO" :
-                                if ( finalResult["XtremIO"] === undefined ) finalResult["XtremIO"] = [];
-                                finalResult["XtremIO"].push(resultItem);
-                                break;
-        
-                            case "Unity/VNXe2" :
-                                if ( finalResult["Unity"] === undefined ) finalResult["Unity"] = [];
-                                finalResult["Unity"].push(resultItem);
-                                break;
-        
-                            default : 
-        
+
                         }
+
+                        callback(null,lastRecord.data);
                         
                     }
-        
-                    /*
-                    {
-                        "viewCapacity":"1756.0",
-                        "rawCapacity":"117576.4",
-                        "maxCapacity":"0",
-                        "viewCapacityPercent":"2.99%",
-                        "plannedCapacity":"0",
-                        "storageSn":"000292600901",
-                        "storageName":"VMAX-JXQ",
-                        "logicCapacity":"58709.5"
+
+                }); 
+            },
+            function ( appinfo , callback) {
+                var res = [];
+                for ( var i in appinfo ) {
+                    var item = appinfo[i];
+                    if ( item.array === undefined ) continue; 
+
+                    var isfind = false;
+                    for ( var j in res ) {
+                        var resItem = res[j];
+                        if ( resItem.host == item.host && resItem.array == item.array && resItem.SG == item.SG ) {
+                            isfind = true;
+                            break;
+                        }
                     }
-                    */
-                    
-                    res.json(200,finalResult);   
+
+                    if ( isfind == false ) {
+                        var resItem = {}; 
+                        resItem.host = item.host == "" ? "(SG)"+item.SG : item.host;
+                        resItem.array = item.array;
+                        resItem.SG = item.SG;
+                        resItem.Capacity = item.Capacity;  
+                        res.push(resItem);
+                    }
+                }
                 
-                });  
+                var hostCapacity = [];
+                for ( var i in res ) {
+                    var item = res[i];
+
+                    var isfind = false;
+                    for ( var j in hostCapacity ) {
+                        hostItem = hostCapacity[j];
+                        if ( item.host == hostItem.hostName ) {
+                            hostItem.totalSize += item.Capacity;
+                            isfind = true;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var hostItem = {};
+                        hostItem.hostName = item.host;
+                        hostItem.totalSize = item.Capacity; 
+                        hostItem.useSize = 0;
+                        hostItem.plannedSize = 0;
+                        hostCapacity.push(hostItem);
+                    }
+                }
+                //var result = [{"hostName":"##BL685-631","totalSize":"0","useSize":"0","plannedSize":"0.0"}];
+                callback(null,hostCapacity);
             }
         ], function (err, result) {  
+            for ( var i in result ) {
+                var item = result[i];
+                item.totalSize = Math.round(item.totalSize*100)/100;
+            }
             res.json(200 ,result);
         });
+
+
+    });
+
+
+        
+    /*
+        Page: 容量信息:应用容量分析
+    */ 
+   app.get('/ceb/rest/capacity/app', function (req, res) {
+
+        var retData = require("../data/ApplicationCapacityAnalysis")
+        res.json(200,retData);
 
 
     });

@@ -129,6 +129,25 @@ var topologyController = function (app) {
                 var nomarched_masking = topoAll.nomarched;
                 var topo = topoAll.marched;
 
+                console.log("===== Begin execute application capacity analysis ======");
+                console.log("========================================================");
+                var applicationCapacity = Report.ApplicationCapacityAnalysis(masking,apps);
+                var fs = require('fs');
+                 var wstream = fs.createWriteStream("./data/ApplicationCapacityAnalysis.json");  
+                          
+                 wstream.write('[');
+                 for ( var i in applicationCapacity ) {
+                     var item = applicationCapacity[i];
+                     if ( i == 0 ) wstream.write(JSON.stringify(item) +'\n');
+                     else wstream.write(', ' + JSON.stringify(item) +'\n');
+                 }
+                 wstream.write(']\n');
+                 wstream.end();    
+                 console.log("===== End  execute application capacity analysis ======");
+                 console.log("========================================================");
+        
+
+                 
                 var finalRecords = [];
                 for ( var j in topo ) {
                     var topoItem = topo[j];

@@ -1,4 +1,16 @@
-[
+[ 
+  {
+    "storagesn": "000496700236",
+    "name": "VMAX10-JXQ",
+    "cabinet": "JXQ",
+    "type": "high"
+  },
+  {
+    "storagesn": "000497000436",
+    "name": "VMAX12-SD",
+    "cabinet": "SD",
+    "type": "high"
+  },  
   {
     "storagesn": "000192606650",
     "name": "VMAX9-SD",
