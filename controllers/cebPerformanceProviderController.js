@@ -175,7 +175,7 @@ var cebPerformanceProviderController = function (app) {
 
                 param['keys'] = ['serialnb,part']; 
                 param['fields'] = ['serialnb','device','part','name'];   
-                param['filter'] = 'source=\'VNXBlock-Collector\'&parttype==\'Controller\'&!vstatus==\'inactive\'';
+                param['filter'] = 'source=\'VNXBlock-Collector\'&parttype==\'Controller\'';
                 param['filter_name'] = '(name=\'WriteThroughput\'|name=\'ReadThroughput\'|name=\'TotalThroughput\')';
         
         
@@ -311,7 +311,7 @@ var cebPerformanceProviderController = function (app) {
 
                 param['keys'] = ['serialnb,part']; 
                 param['fields'] = ['serialnb','device','part','name'];   
-                param['filter'] = 'source=\'VNXBlock-Collector\'&parttype==\'Controller\'&!vstatus==\'inactive\'';
+                param['filter'] = 'source=\'VNXBlock-Collector\'&parttype==\'Controller\'';
                 param['filter_name'] = '(name=\'WriteThroughput\'|name=\'ReadThroughput\'|name=\'TotalThroughput\'|name=\'ReadBandwidth\'|name=\'WriteBandwidth\'|name=\'TotalBandwidth\')';
         
                 CallGet.CallGetPerformance(param, function(param) {  

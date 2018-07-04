@@ -247,7 +247,7 @@ var testController = function (app) {
           //function GetFCSwitchPart(devtype,parttype,callback) { 
           //  Report.getAppStorageRelation( function (result )  {  res.json(200,result) });
             //CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
-        //Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
+        Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
 
@@ -273,74 +273,38 @@ var testController = function (app) {
         //Report.GetApplicationInfo( function (ret) {  res.json(200,ret);        });
  
 
-        var apps = Report.ApplicationCapacityAnalysis("","");
-        res.json(200,apps);
+        //var apps = Report.ApplicationCapacityAnalysis("","");
+        //res.json(200,apps);
 
     });
 
 
 
     app.get('/api/test2', function (req, restu) {
-        
-        var device = req.query.device;
-        if ( device !== undefined ) 
-            var filterbase = 'serialnb=\''+device+'\'&datagrp=\'VNXBlock-LUN\'&!vstatus==\'inactive\'';
-        else 
-            var filterbase = 'datagrp=\'VNXBlock-LUN\'&!vstatus==\'inactive\'';
-        
-        if ( start === undefined ) var start = util.getConfStartTime();
-        if ( end   === undefined ) var end = util.getPerfEndTime();
+        var device = req.query.device; 
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString(); 
+        var param = {};
+        if (typeof device !== 'undefined') {  
+            param['filter'] = 'device=\''+device+'\'&!parttype&(source=\'VMAX-Collector\'|source==\'VNXBlock-Collector\'|source==\'VNXUnity-Collector\')';
+        } else { 
+            //param['filter'] = '!parttype&(source=\'VMAX-Collector\'|source==\'VNXBlock-Collector\'|source==\'VNXUnity-Collector\')';
+            param['filter'] = '!parttype&(source=\'VMAX-Collector\'|source==\'VNXBlock-Collector\')';
+        } 
 
-
-        var param = {}; 
-        param['period'] = '3600';
+        param['filter_name'] = '(name=\'ConfiguredUsableCapacity\'|name=\'UsedCapacity\'|name=\'FreeCapacity\')';
+        param['keys'] = ['serialnb'];
+        param['fields'] = ['sstype','device','model','vendor','devdesc'];
+        param['period'] = 86400;
         param['start'] = start;
         param['end'] = end;
         param['type'] = 'max';
 
-        param['keys'] = ['serialnb,part']; 
-        param['fields'] = ['device','partdesc','partsn','partid','sgname'];   
-        param['filter'] = filterbase;
-        param['limit'] = 10000000;
-        param['filter_name'] = '(name=\'AssignableCapacity\')';
-        
-
-        CallGet.CallGetPerformance(param, function(ret) {  
-            var result1 = {};
-            for ( var i in ret ) {
-                var item = ret[i];
-                delete item.matrics;
-                item["Capacity"] = item.matricsStat.AssignableCapacity.max;
-                delete item.matricsStat;
-
-                // ------------
-                var device = item.device;
-                var serialnb = item.serialnb;
-                var vol = item.partid; 
-
-                if ( result1[device] === undefined ) result1[device] = {};
-
-                var SGNames = item.sgname.split('|');
-                for ( var j in SGNames ) {
-                    var SGName = SGNames[j];
-                    if ( result1[device][SGName] === undefined ) result1[device][SGName] = [];
-                    var sgItem = {};
-                    sgItem["device"] = device;
-                    sgItem["serialnb"] = serialnb;
-                    sgItem["part"] = vol;
-                    sgItem["sgname"] = SGName;
-                    sgItem["Capacity"] = item.Capacity;
-                    sgItem["lunwwn"] = item.partsn;
-                    sgItem["lunname"] = item.partdesc;
-    
-    
-                    result1[device][SGName].push(sgItem);
-                }
-
-            }
-            restu.json(200,result1); 
+        CallGet.CallGet(param,function(result) {
+        //CallGet.CallGetPerformance(param, function(result) {
+            restu.json(200,result);
         });
-
+        
     
 
 });
