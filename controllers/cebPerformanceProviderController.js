@@ -161,8 +161,9 @@ var cebPerformanceProviderController = function (app) {
         var finalResult = {};
         finalResult["vnxIOPS"] = [];
 
-        var start = '2018-06-17T00:00:00.000Z';
-        var end = '2018-06-17T23:59:59.999Z';
+        var realtimeDatetime = util.getRealtimeDateTimeByDay(-1); 
+        var start = realtimeDatetime.begin;
+        var end = realtimeDatetime.end;
 
 
         async.waterfall([ 
@@ -227,8 +228,10 @@ var cebPerformanceProviderController = function (app) {
     var config = configger.load(); 
     var finalResult = {}; 
 
-    var start = '2018-06-17T00:00:00.000Z';
-    var end = '2018-06-17T23:59:59.999Z';
+    var realtimeDatetime = util.getRealtimeDateTimeByDay(-1); 
+    var start = realtimeDatetime.begin;
+    var end = realtimeDatetime.end;
+
 
     async.waterfall([ 
 
@@ -298,8 +301,10 @@ var cebPerformanceProviderController = function (app) {
         var config = configger.load(); 
         var finalResult = {}; 
 
-        var start = '2018-06-17T00:00:00.000Z';
-        var end = '2018-06-17T23:59:59.999Z';
+        var realtimeDatetime = util.getRealtimeDateTimeByDay(-1); 
+        var start = realtimeDatetime.begin;
+        var end = realtimeDatetime.end;
+
 
         async.waterfall([ 
 
