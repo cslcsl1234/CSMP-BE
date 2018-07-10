@@ -123,107 +123,11 @@ var BackendMgmtController = function (app) {
    
     app.get('/api/backendmgmt/discocenter/devicemgmt/list', function (req, res1) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-        var config = configger.load();
 
-        var REQUIRE_URL = config.BackendMgmt.URL+"/discocenter/devicemgmt/list";
-
-        async.waterfall(
-            [
-                function(callback){
-                    backendMgmt.BackEndLogin(function(sso_token) { 
-            
-                        var req = unirest("GET", REQUIRE_URL );
-                        
-                        req.headers({ 
-                        "content-type": "application/x-www-form-urlencoded",
-                        "referer": config.BackendMgmt.URL,
-                        "cookie": "JSESSIONIDSSO="+sso_token
-                        });
-                        
-                        req.end(function (res) {
-                        if (res.error) console.log(res.error);
-                        
-                        console.log(res.body);
-                            var xmlstr = "<div>" + res.body + "</div>";
-                            var options = {
-                                object: true 
-                            };
-                            var json = xml2json.toJson(xmlstr,options);
-                           
-                            //res1.json(200 , jsontab);
-                            callback(null,json);
-                        });
-                    });
-                    
-                },
-                function(json, callback) {
-
-                    var arg = json.div.div.table.tbody.tr;
-                    var tabResult = [];
-                    for ( var i in arg ) {
-                        var item = arg[i];
-                        var input = item.td[0].input;
-                        var tabResultItem = {};
-                        for ( var j in input ) {
-                            var inputItem = input[j];
-                            tabResultItem[inputItem.name] = inputItem.value;
-                        }
-                        tabResultItem['DevCount'] = item.td[3];
-                        tabResult.push(tabResultItem);
-
-
-                    }
-                    callback(null,tabResult);
-                } ,
-                function(arg, callback) {
-
-                    var filtered = [];
-                    for ( var i in arg ) {
-                        var item = arg[i];
-                        switch ( item["device-name"] ) {
-                            case 'Host configuration' :
-
-                                break;
-                            case 'EMC VMAX':
-                                item["collecter-name"] = 'EMC VMAX 采集器 (DMX/VMAX/VMAX2)';
-                                filtered.push(item);
-                                break;
-                            case 'EMC VMAX HYPERMAX' :
-                                item["collecter-name"] = 'EMC VMAX3 采集器 (VMAX3)';
-                                filtered.push(item);
-                                
-                                break;
-                            case 'EMC XtremIO' :
-                                item["collecter-name"] = "EMC XtremIO 采集器";
-                                filtered.push(item);
-                            
-                                break;
-                            case 'EMC Unity/VNX/VNXe' :
-                                item["collecter-name"] = "EMC Unity/VNX/VNXe 采集器";
-                                filtered.push(item);
-
-                                break;
-                            
-                            case 'Brocade SMI Provider': 
-                                item["collecter-name"] = "Brocade SMI Provider 采集器";
-                                filtered.push(item);
-
-                                break;
-                            
-                            default :
-
-                                break;
-                        }
-                    }
-                    callback(null,filtered);
-                }
-
-            ], function (err, result) {
-                  // result now equals 'done'
- 
-                  res1.json(200 ,result);
-            });
-        });
+        backendMgmt.getCollectCatalogs( function (result ) {
+            res1.json(200,result);
+        })
+    });
 
 
 /**
@@ -233,7 +137,9 @@ var BackendMgmtController = function (app) {
  *     tags:
  *       - Backendmgmt
  *     description: Returns collecter list 
- *     produces:
+  *     security:
+ *       - Bearer: []
+*     produces:
  *       - application/json
  *     parameters:
  *       - in: query
@@ -285,93 +191,10 @@ var BackendMgmtController = function (app) {
             query.spbVersion = req.query["spb-version"];
             query.exportId = req.query["export-id"];
  
- 
-            var config = configger.load();
-    
-            var REQUIRE_URL = config.BackendMgmt.URL+"/discocenter/devicemgmt/get";
-    
-            async.waterfall(
-                [
-                    function(callback){
-                        backendMgmt.BackEndLogin(function(sso_token) { 
-                
-                            var req = unirest( "GET", REQUIRE_URL );
-
-                            req.query(query);
-
-                            req.headers({ 
-                            "content-type": "application/x-www-form-urlencoded",
-                            "referer": config.BackendMgmt.URL,
-                            "cookie": "JSESSIONIDSSO="+sso_token
-                            });
-                            
-                            req.end(function (res) {
-                                if (res.error) console.log(res.error);
-                                var xmlstr = res.body;
-                                var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.\-=\"]*)(">)/g,'$1"\/>');
-                                
-                                var options = {
-                                    object: true 
-                                }; 
-                                var json = xml2json.toJson(newdata,options); 
-                                
-                                callback(null,json);
-
-                                //res1.json(200 ,newdata);
-                            });
-                        });
-                        
-                    },
-                    function(arg, callback) {
-                        var headerdata = arg.div.div.table.thead.tr.th
-                        var tbody = arg.div.div.table.tbody.tr;
-        
-                        var tab = [];
-                        var header = {};
-                        for ( var i in headerdata  ) {
-                            var item = headerdata[i];
-        
-                            if ( i >= 0 & i <= 3 ) 
-                                header[i] = item;
-                            else 
-                                header[i] = item.input.value;
-                        }
-        
-                        for ( var i in tbody) {
-                            var tbodyItem = tbody[i].td;
-        
-                            var recordItem = {}; 
-                            for ( var j in tbodyItem ) {
-                                var itemvalue = tbodyItem[j]; 
-        
-                                if ( j >= 1 & j <= 3 ) { 
-                                    switch ( j ) {
-                                        case '3' :  
-                                            recordItem[header[j]] = itemvalue;
-                                            break;
-                                        case '1' : 
-                                            recordItem[header[j]] = itemvalue.span;
-                                            break;
-                                        case '2' : 
-                                            recordItem[header[j]] = itemvalue.input.value
-                                            break;                               
-                                    } 
-                                        
-                                } else {
-                                    recordItem[header[j]] = itemvalue.input.value
-                                }
-                            }
-                            tab.push(recordItem);
-                        }
-         
-                        callback(null,tab);
-                    } 
-                ], function (err, result) {
-                      // result now equals 'done'
-     
-                      res1.json(200 ,result);
-                });
-            });
+            backendMgmt.getCollectObjects(query,function(result ) {
+                res1.json(200,result);
+            })
+        });
 
 
 /**
@@ -629,9 +452,423 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
          
         
             });
+
+            
+
+
+
+
+        /**
+         * @swagger
+         * /api/backendmgmt/monitoring/serverstatus:
+         *   get:
+         *     tags:
+         *       - Backendmgmt
+         *     description: 获取Backend后台服务器信息列表
+         *     produces:
+         *       - application/json 
+         *     responses:
+         *       200:
+         *         description: 返回Backend后台服务器信息列表
+         */ 
+                
+        app.get('/api/backendmgmt/monitoring/serverstatus', function (req, res1) {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         
+            var config = configger.load();
+            async.waterfall(
+                [
+                    function(callback){
+                        backendMgmt.getBackendServerList (function ( serverList ) {
+                                callback(null,serverList); 
+                        }) 
+                    },
+                    function( serverList , callback ) { 
+                        
+                        var statusResult = [];
+                            
+                        async.mapSeries( serverList, function(serverItem , callback ) {
+                                console.log(serverItem.id);
+
+
+                                backendMgmt.getBackendServerStatus(serverItem.id, function ( status ) {
+                                    
+                                    if ( status.body.series.status === undefined ) {
+                                        serverItem["timestamp"] = "";
+                                        serverItem["status"] = 0;
+                                    } else {
+                                        serverItem["timestamp"] = status.body.series.status[0][0];
+                                        serverItem["available"] = status.body.series.status[0][1];
+                                        
+                                    }
+                                    
+                                    callback(null, serverItem );
+
+                                })
+
+
+                                
+                            }, function( err, result ) {
+                                if ( err ) {
+                                    console.log(err);
+                                };
+                                for ( var i in result ) {
+                                    var item = result[i];
+                                    if ( item.available >= 80 ) item['status'] = "OK";
+                                    else item["status"] = "FAILED";
+                                }
+                                callback(null, result);
+                            }
+                        )
+                    }
+            ], function (err, result) {
+                // result now equals 'done'
+
+                res1.json(200 ,result);
+            });
+        });
+
+
+
+
+
+        /**
+         * @swagger
+         * /api/backendmgmt/monitoring/mgmtobjects:
+         *   get:
+         *     tags:
+         *       - Backendmgmt
+         *     description: 获取纳管对象的数据采集状态
+         *     produces:
+         *       - application/json 
+         *     responses:
+         *       200:
+         *         description: 返回Backend后台服务器信息列表 
+         *                     { 
+         *                        "timestamp":1111111111,
+         *                               "statistics":{
+         *                                   "storage":{
+         *                                       "OK":20,
+         *                                       "FAILED":0
+         *                                   },
+         *                                   "switch":{
+         *                                       "OK":10,
+        *                                        "FAILED":1
+        *                                    },
+         *                                   "host":{
+        *                                        "DISABLED":2232
+        *                                    }
+        *                                },
+        *                                "storage":[
+        *                                    {
+        *                                        "status":"FAILED", 
+        *                                            "sn":"111111",
+        *                                            "name":"aaaaaa" ,
+        *                                        "testResult":"res"
+        *                                    }
+        *                                ],
+         *                               "switch":[
+        *                                    {
+        *                                        "status":"FAILED", 
+        *                                            "sn":"111111",
+        *                                            "name":"aaaaaa" ,
+        *                                        "testResult":"res"
+        *                                    }
+        *                                ]
+        *                            }
+         */ 
+                
+        app.get('/api/backendmgmt/monitoring/mgmtobjects', function (req, res1) {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        
+            var resultTmp =  ' {                      \
+                       "timestamp":1111111111,               \
+                       "statistics":{                 \
+                           "storage":{                \
+                               "OK":20,               \
+                               "FAILED":0             \
+                           },                         \
+                           "switch":{                 \
+                               "OK":10,               \
+                               "FAILED":1             \
+                           },                         \
+                           "host":{                   \
+                               "DISABLED":2232        \
+                           }                          \
+                       },                             \
+                       "storage":[                    \
+                           {                          \
+                               "status":"FAILED",     \
+                                   "sn":"111111",     \
+                                   "name":"aaaaaa" ,  \
+                               "testResult":"res"     \
+                           },                          \
+                           {                          \
+                            "status":"OK",          \
+                                "sn":"2222222",     \
+                                "name":"bbbbbbb" ,  \
+                            "testResult":"res"      \
+                            },                        \
+                           {                          \
+                               "status":"OK",           \
+                                   "sn":"3333333",     \
+                                   "name":"bbbbbbb" ,  \
+                               "testResult":"res"     \
+                           }                          \
+                        ],                                  \
+                       "switch":[                     \
+                           {                          \
+                               "status":"FAILED",     \
+                                   "sn":"111111",     \
+                                   "name":"aaaaaa" ,  \
+                               "testResult":"res"     \
+                           }                          \
+                       ]                              \
+                   } ';
+            var resultTmpJson = JSON.parse(resultTmp);
+
+            var config = configger.load();
+            async.waterfall(
+                [
+                    function(callback){
+                        backendMgmt.getCollectCatalogs(function(objCatalogs) {
+                            callback(null,objCatalogs);
+
+                        });
+
+                    },
+                    function( catalog, callback ) { 
+                        async.mapSeries( catalog, function ( catalogItem, callback ) { 
+                                var query = {};
+                                query.spId = catalogItem["sp-id"];
+                                query.spbId = catalogItem["spb-id"];
+                                query.spbVersion = catalogItem["spb-version"];
+                                query.exportId = catalogItem["export-id"];
+                                var deviceList = {};
+                                deviceList["query"] = query;
+                                
+                                backendMgmt.getCollectObjects(query,function(result ) {
+                                    deviceList["devices"] = result;
+                                    callback(null,deviceList);
+                                })
+                            }, function( err, result ) {
+                                if ( err ) {
+                                    console.log(err);
+                                }; 
+                                callback(null, result);
+                            }
+                    
+                    
+                        ); 
+ 
+
+                    },
+                    function( devices , callback ) {
+                        var result = {};
+                        result["timestamp"] = 0;
+                        result["statistics"] = {};
+                        result["storage"] = [];
+                        result["switch"] = [];
+
+                        for ( var i in devices  ) {
+                            var deviceItem = devices[i];
+                            switch ( deviceItem.query.exportId ) {
+                                //case "emcxtremio" :
+                                case "vnx" :
+                                    for ( var j in deviceItem.devices ) {
+                                        var objItem = deviceItem.devices[j];
+                                        var storageItem = {};
+
+                                        storageItem["testDateTime"] = objItem.Status["data-test-result-date"];
+                                        storageItem["status"] = objItem.Status["data-test-result-status"];
+                                        storageItem["sn"] = "";
+                                        storageItem["name"] = objItem["vnx.friendlyname"];
+                                        storageItem["testResult"] = objItem.Status["data-test-result-output"];
+
+                                        result.storage.push(storageItem);
+                                    };
+                                    break;
+                                case "vmax" :
+                                    for ( var j in deviceItem.devices ) {
+                                        var objItem = deviceItem.devices[j];
+                                        var storageItem = {};
+
+                                        storageItem["testDateTime"] = objItem.Status["data-test-result-date"];
+                                        storageItem["status"] = objItem.Status["data-test-result-status"];
+                                        storageItem["sn"] = objItem["vmax.serialnb"];
+                                        storageItem["name"] = "";
+                                        storageItem["testResult"] = objItem.Status["data-test-result-output"];
+
+                                        result.storage.push(storageItem);
+                                    };
+                                    break;
+                                case "smiprovider" :
+                                    for ( var j in deviceItem.devices ) {
+                                        var objItem = deviceItem.devices[j];
+                                        var storageItem = {};
+
+                                        storageItem["testDateTime"] = objItem.Status["data-test-result-date"];
+                                        storageItem["status"] = objItem.Status["data-test-result-status"];
+                                        storageItem["sn"] = "";
+                                        storageItem["name"] = objItem["smiprovider.host"];
+                                        storageItem["testResult"] = objItem.Status["data-test-result-output"];
+
+                                        result.switch.push(storageItem);
+                                    };
+                                    break;
+                                default :
+
+                            }
+                        }
+
+                        callback(null,result);
+
+                    }, 
+                    function ( objStatus, callback ) {
+                        var testtimestamp = 0;
+                        var storageStatistics = {};
+                        storageStatistics["storage"] = {};
+                        storageStatistics.storage["OK"] = 0;
+                        storageStatistics.storage["FAILED"] = 0;
+                        
+                        storageStatistics["switch"] = {};
+                        storageStatistics.switch["OK"] = 0;
+                        storageStatistics.switch["FAILED"] = 0;
+                        
+                        storageStatistics["host"] = {};
+                        storageStatistics.host["DISABLED"] = 0;
+                                                
+                        for ( var i in objStatus.storage ) {
+                            var storageItem = objStatus.storage[i];
+                            if ( storageItem.status == "SUCCESS")  storageStatistics.storage.OK++;
+                            else storageStatistics.storage.FAILED++; 
+                            var dt = moment(storageItem.testDateTime,'MMM DD, YYYY hh:mm:ss A'); 
+                            if ( dt > testtimestamp ) testtimestamp = dt;
+                            //console.log(dt+'\t' + dt.format() + '\t' +testtimestamp.format() );
+                        }
+                        for ( var i in objStatus.switch ) {
+                            var switchItem = objStatus.switch[i];
+                            if ( switchItem.status == "SUCCESS")  storageStatistics.switch.OK++;
+                            else storageStatistics.switch.FAILED++;
+
+                            var dt = moment(storageItem.testDateTime,'MMM DD, YYYY hh:mm:ss A');  
+                            if ( dt > testtimestamp ) testtimestamp = dt;
+                            //console.log(dt+'\t' + dt.format() + '\t' +testtimestamp.format() );
+
+                        }
+                       // var dtStr = moment(testtimestamp).format("YYYY-MM-DD hh:mm:ss");
+                        objStatus.timestamp = testtimestamp;
+                        objStatus.statistics = storageStatistics;
+                        callback(null, objStatus);
+                    }
+            ], function (err, result) {
+                // result now equals 'done'
+
+                res1.json(200 ,result);
+            });
+        });
+
+
+
+
+
+        /**
+         * @swagger
+         * /api/backendmgmt/monitoring/taskstatus:
+         *   get:
+         *     tags:
+         *       - Backendmgmt
+         *     description: 获取获取定时任务的执行状态
+         *     produces:
+         *       - application/json 
+         *     responses:
+         *       200:
+         *         description: 返回获取定时任务的执行状态 
+         *                     [
+         *                       { "taskname":"task1",
+         *                         "task_desc":"task1 is ...",
+         *                         "status":"FINISHED",
+         *                         "status_timestamp":111111
+         *                       } 
+         *                     ]
+         */ 
+                
+        app.get('/api/backendmgmt/monitoring/taskstatus', function (req, res1) {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        
+            var resStr = '[  \
+                { \
+                    "taskname":"存储综合月报", \
+                    "task_desc":"201807月份的存储综合月份生成的任务.", \
+                    "status":"FINISHED", \
+                    "status_msg":"2018-07-09 13:10:00 [XXXXXX]文件存在!", \
+                    "status_timestamp":1531104908 \
+                }, \
+                { \
+                    "taskname":"每天应用拓扑数据文件上报", \
+                    "task_desc":"每天自动生成应用拓扑文件(excel文件格式)并上传至共享文件服务器(ftp://10.1.41.60)中.", \
+                    "status":"FAILED", \
+                    "status_msg":"2018-07-09 13:10:00 [XXXXXX]上传数据文件没有在上传服务器中发现,请联系系统管理员处理!", \
+                    "status_timestamp":1531104908 \
+                } \
+            ]';
+
+            var res = JSON.parse(resStr);
+            var config = configger.load();
+            async.waterfall(
+                [
+                    function(callback){
+                        callback(null,res);
+                    }
+            ], function (err, result) {
+                // result now equals 'done'
+
+                res1.json(200 ,result);
+            });
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 };
+
+
 
 
 /*

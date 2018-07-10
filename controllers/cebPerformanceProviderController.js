@@ -161,9 +161,9 @@ var cebPerformanceProviderController = function (app) {
         var finalResult = {};
         finalResult["vnxIOPS"] = [];
 
-        var start = '2018-06-17T00:00:00.000Z';
-        var end = '2018-06-17T23:59:59.999Z';
-
+        var realtimeDatetime = util.getRealtimeDateTimeByDay(-1); 
+        var start = realtimeDatetime.begin;
+        var end = realtimeDatetime.end;
 
         async.waterfall([ 
  
@@ -227,8 +227,9 @@ var cebPerformanceProviderController = function (app) {
     var config = configger.load(); 
     var finalResult = {}; 
 
-    var start = '2018-06-17T00:00:00.000Z';
-    var end = '2018-06-17T23:59:59.999Z';
+    var realtimeDatetime = util.getRealtimeDateTimeByDay(-1); 
+    var start = realtimeDatetime.begin;
+    var end = realtimeDatetime.end;
 
     async.waterfall([ 
 
@@ -298,8 +299,9 @@ var cebPerformanceProviderController = function (app) {
         var config = configger.load(); 
         var finalResult = {}; 
 
-        var start = '2018-06-17T00:00:00.000Z';
-        var end = '2018-06-17T23:59:59.999Z';
+        var realtimeDatetime = util.getRealtimeDateTimeByDay(-1); 
+        var start = realtimeDatetime.begin;
+        var end = realtimeDatetime.end;
 
         async.waterfall([ 
 
@@ -671,6 +673,102 @@ var cebPerformanceProviderController = function (app) {
     });
 
  
+        
+    /*
+        Page: 性能信息:实时性能
+    */ 
+    app.get('/rest/vmaxHistoryPerf/storages', function (req, res) {
+
+        var retData = require("../config/StorageInfo");
+        var finalReturnData = [];
+        for ( var i in retData ) {
+            var item = retData[i];
+            var retItem = {};
+            retItem["name"] = item.name;
+            retItem["location"] = item.cabinet;
+            retItem["sn"] =  item.storagesn;
+            retItem["version"] = "";
+
+            finalReturnData.push(retItem);
+        }
+        res.json(200,finalReturnData);
+        
+    });
+ 
+    app.get('/rest/vmaxHistoryPerf/getPortList', function (req, res) {
+        var sn = req.query.storageSN;
+        if ( sn===undefined | sn == null | sn == "" ) res.json(200,[]);
+
+        var param = {};
+        param['filter'] = 'device=\''+sn+'\'&partgrp=\'Front-End\'&parttype=\'Port\'';
+        param['keys'] = ['device','feport']; 
+
+        var finalResult = [];
+        CallGet.CallGet(param, function(param) {   
+            for ( var i in param.result ) {
+                var item = param.result[i];
+                finalResult.push(item.feport);
+            }
+            res.json(200,finalResult);
+        });
+    }); 
+
+    app.get('/rest/vmaxHistoryPerf/getRdfPortList', function (req, res) {
+        var sn = req.query.storageSN;
+        if ( sn===undefined | sn == null | sn == "" ) res.json(200,[]);
+
+        var param = {};
+        param['filter'] = 'device=\''+sn+'\'&partgrp=\'RDF\'&parttype=\'Port\'';
+        param['keys'] = ['device','feport']; 
+
+        var finalResult = [];
+        CallGet.CallGet(param, function(param) {   
+            for ( var i in param.result ) {
+                var item = param.result[i];
+                finalResult.push(item.feport);
+            }
+            res.json(200,finalResult);
+        });
+    }); 
+
+    app.get('/rest/vmaxHistoryPerf/getSGList', function (req, res) {
+        var sn = req.query.storageSN;
+        if ( sn===undefined | sn == null | sn == "" ) res.json(200,[]);
+
+        var param = {};
+        param['filter'] = 'device=\''+sn+'\'&datagrp=\'VMAX-StorageGroup\'&parttype=\'Storage Group\'';
+        param['keys'] = ['device','part']; 
+
+        var finalResult = [];
+        CallGet.CallGet(param, function(param) {   
+            for ( var i in param.result ) {
+                var item = param.result[i];
+                finalResult.push(item.part);
+            }
+            res.json(200,finalResult);
+        });
+    }); 
+
+    app.get('/rest/vmaxHistoryPerf/getDiskList', function (req, res) {
+        var sn = req.query.storageSN;
+        if ( sn===undefined | sn == null | sn == "" ) res.json(200,[]);
+
+        var param = {};
+        param['filter'] = 'device=\''+sn+'\'&datagrp=\'VMAX-Disk\'&parttype=\'Disk\'';
+        param['keys'] = ['device','part']; 
+
+        var finalResult = [];
+        CallGet.CallGet(param, function(param) {   
+            for ( var i in param.result ) {
+                var item = param.result[i];
+                finalResult.push(item.part);
+            }
+            res.json(200,finalResult);
+        });
+    }); 
+
+
+
 };
 
 module.exports = cebPerformanceProviderController;

@@ -14,6 +14,7 @@ var configger = require('../config/configger');
 var unirest1 = require('unirest');
 var async = require('async');
 var moment = require('moment');
+var xml2json = require('xml2json');
 
  
 var RecordFlat = require('../lib/RecordFlat');
@@ -41,7 +42,7 @@ var DeviceMgmt = require('../lib/DeviceManagement');
 var Report = require('../lib/Reporting');
 
 var CAPACITY = require('../lib/Array_Capacity');
-
+var backendMgmt = require('../lib/BackendMgmt');
 
 var testController = function (app) {
 
@@ -277,6 +278,62 @@ var testController = function (app) {
         //res.json(200,apps);
 
     });
+
+
+    app.get('/test_backmgmt', function (req, res1) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        var config = configger.load();
+        var url = '/overview/physical';
+        //var url = "/polling/server?server=s3";
+        var REQUIRE_URL = config.BackendMgmt.URL+url;
+
+        async.waterfall(
+            [
+                function(callback){
+                    backendMgmt.BackEndLogin(function(sso_token) { 
+            
+                        var req = unirest("GET", REQUIRE_URL );
+                        
+                        req.headers({ 
+                        "content-type": "application/x-www-form-urlencoded",
+                        "referer": config.BackendMgmt.URL,
+                        "cookie": "JSESSIONIDSSO="+sso_token
+                        });
+                        
+                        req.end(function (res) {
+                            if (res.error) console.log(res.error);
+
+
+                            var xmlstr = "<div>" + res.body + "</div>";
+                            var options = {
+                                object: true 
+                            };
+                            var json = xml2json.toJson(xmlstr,options);    
+                            
+                            var serverList = [];
+                            for ( var i in json.div.div.div ) {
+                                var item = json.div.div.div[i];
+                                if ( item.id === undefined ) continue;
+
+                                var serverItem = {};
+                                serverItem["id"] = item.id;
+                                serverItem["name"] = item.h2.a['$t'];
+                                serverItem["type"] = item.h2.a["title"];
+                                serverList.push(serverItem);
+                            }
+                             
+                            callback(null,serverList);
+                        });
+                    });
+                    
+                }
+
+            ], function (err, result) {
+                  // result now equals 'done'
+ 
+                  res1.json(200 ,result);
+            });
+        });
 
 
 
