@@ -109,6 +109,7 @@ var analysisController = function (app) {
                     }); 
                 },  
                 function( param, callback ) {  
+                    console.log(moment.utc(Date.now()).format() + " Begin Query REDO volumes in Mongodb ...");
  
                     ArraySGRedoVolumeObj.find( {} , {"appname":1, "device":1, "devicesn":1, "sgname":1, "redovol":1, "_id": 0 },  function (err, doc) {
                         //system error.
@@ -149,7 +150,8 @@ var analysisController = function (app) {
                     });   
                 }, 
                 function(param,  callback) {  
-                    
+                    console.log(moment.utc(Date.now()).format() + " Begin get array alias name ...");
+                     
                     var res = [];
  
                     DeviceMgmt.GetArrayAliasName(function(arrayinfo) {  
@@ -219,6 +221,7 @@ var analysisController = function (app) {
                                     var arrayItemNew = {};
                                     arrayItemNew.name = item.array_name;
                                     arrayItemNew.sn = item.array;
+                                    arrayItemNew.model = item.model;
                                     arrayItemNew.sg = [];
 
                                     var sgItemNew = {};
@@ -239,6 +242,7 @@ var analysisController = function (app) {
                             var arrayItemNew = {};
                             arrayItemNew.name = item.array_name;
                             arrayItemNew.sn = item.array;
+                            arrayItemNew.model = item.model;
                             arrayItemNew.sg = [];
 
                             var sgItemNew = {};
@@ -265,11 +269,13 @@ var analysisController = function (app) {
 
                             for ( var z in item2.sg ) {
                                 var item3 = item2.sg[z];
- 
+ //console.log("======");
+ //console.log(item1);
                                 var resultItem = {};
                                 resultItem["appname"] = item1.name;
                                 resultItem["device"] = item2.name;
                                 resultItem["devicesn"] = item2.sn;
+                                resultItem["model"] = item2.model;
                                 resultItem["sgname"] = item3.name;
                                 resultItem["volumes"] = item3.volumes;
                                 resultItem["redovol"] = item3.redovol;
@@ -299,7 +305,33 @@ var analysisController = function (app) {
                     }
 
                     callback(null,finalResult);
-                } 
+                }, 
+                function( arg , callback ) {
+                    var param = {};  
+                    param['keys'] = ['device','model']; 
+                    param['field'] = ['model']; 
+                    param['filter'] = '!parttype&devtype=\'Array\'';
+                    
+                    CallGet.CallGet(param, function(arrays) { 
+
+                        for ( var j in arg ) {
+                            var arrayItem = arg[j];
+
+                            for ( var i in arrays.result ) {
+                                var item = arrays.result[i];
+
+                                
+                                if ( item.device == arrayItem.devicesn ) {
+                                    console.log(item.device+"\t"+arrayItem.devicesn);
+                                    arrayItem["model"] = item.model;
+                                    break;
+                                }
+                            }
+                        }
+                       // console.log(arg);
+                        callback(null,arg);
+                    } );
+                }
             ], function (err, result) { 
                 res.json(200 , result );
             });
@@ -693,12 +725,12 @@ var analysisController = function (app) {
                             item.CacheHit = item.matrics;
                             delete item.matrics;
                             for ( var i in item.CacheHit ) {
-                                var item1 = item.CacheHit[i];
+                                var item1 = item.CacheHit[i]; 
                                 delete item1.WriteRequests ;
                                 delete item1.WriteThroughput ;
                                 delete item1.ReadRequests ;
                                 delete item1.ReadThroughput ;
-                            }
+                            } 
                             callback(null,item);
                         }
                             
