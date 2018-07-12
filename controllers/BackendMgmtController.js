@@ -16,6 +16,8 @@ var xml2json = require('xml2json');
 var async = require('async'); 
 var moment = require('moment');
 var urlencode = require('urlencode');
+var util = require('../lib/util');
+var log = util.log;
 
 /**
  * @swagger
@@ -112,6 +114,8 @@ var BackendMgmtController = function (app) {
  *     tags:
  *       - Backendmgmt
  *     description: Returns collecter list 
+ *     security:
+ *       - Bearer: []
  *     produces:
  *       - application/json 
  *     responses:
@@ -204,6 +208,8 @@ var BackendMgmtController = function (app) {
  *     tags:
  *       - Backendmgmt
  *     description: Returns Device Location info
+ *     security:
+ *       - Bearer: []
  *     produces:
  *       - application/json
  *     parameters:
@@ -323,6 +329,8 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
  *     tags:
  *       - Backendmgmt
  *     description: 测试设备采集有效性. 
+ *     security:
+ *       - Bearer: []
  *     operationId: devicemgmt_test
  *     consumes:
  *       - application/json
@@ -340,118 +348,15 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
  */ 
 
   
-            app.post('/api/backendmgmt/discocenter/devicemgmt/test', function (req, res1) {
-                process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-                var config = configger.load();
+    app.post('/api/backendmgmt/discocenter/devicemgmt/test', function (req, res1) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        var config = configger.load();
 
-                var testBody = req.body; 
-                var query = testBody.collecter; 
-                var exeType = testBody.exe_type;
+        backendMgmt.testCollectObject(req.body, function( result ) {
+            res1.json(200,result);
+        });
 
-               switch ( query["export-id"] ) {
-                   case "vmax" :
-                        var jsonAnswersStr = combineRequestAnswer_vmax(testBody.deviceinfo);
-                        break;
-                    case "unisphere" :
-                        var jsonAnswersStr = combineRequestAnswer_unisphere(testBody.deviceinfo);
-                        break;
-                    case "vnx" :
-
-                        var jsonAnswersStr = combineRequestAnswer_vnx(testBody.deviceinfo);
-
-                        break;
-                    case "emcxtremio" :
-                        var jsonAnswersStr = combineRequestAnswer_xtremio(testBody.deviceinfo);
-                        break;
-
-                    case "smiprovider" :
-                        var jsonAnswersStr = combineRequestAnswer_brocade(testBody.deviceinfo);
-                        break;
-                   
-                    
-                }
-                 
-
-                backendMgmt.BackEndLogin(function(sso_token) { 
-         
-                    var req = unirest("POST", config.BackendMgmt.URL+"/discocenter/devicemgmt/test");
-                    
-                    req.headers({ 
-                        "content-type": "application/x-www-form-urlencoded",
-                        "referer": config.BackendMgmt.URL,
-                        "cookie": "JSESSIONIDSSO="+sso_token
-                    });
-
-                    if ( exeType == 'delete' ) {
-                        var isSave = false;
-                        devicemgmt_modify(testBody, isSave, function(save_response) {
-        
-                            var saveJson = JSON.parse(save_response);
-
-                            res1.json(200, saveJson); 
-                        })
-                    } else {
-                        var requreDataItem = {};
-                        requreDataItem.server = testBody.deviceinfo["Server"];
-                        requreDataItem.inEdit = true;
-                        requreDataItem.instance = testBody.deviceinfo["Instance"];
-                        requreDataItem.jsonAnswers = jsonAnswersStr;
-                        
-                        var requreData = [];
-                        requreData.push(requreDataItem);
-                         
-                        var requreDataStr = JSON.stringify(requreData);
-                      
-    
-                        var requireForm = {}
-                        requireForm.id = query['sp-id'];
-                        requireForm.block = query['spb-id'];
-                        requireForm.version = query['spb-version'];
-                        requireForm.spId = query['sp-id'];
-                        requireForm.spbId = query['spb-id'];
-                        requireForm.exportId = query['export-id'];
-                        requireForm.spbVersion = query['spb-version'];
-                        requireForm.jsonRows = requreDataStr ; 
-    
-                        console.log(requireForm); 
-    
-                        req.form(requireForm);
-    
-                        req.end(function (res) {
-                        if (res.error) console.log(res.error);  
-                            var resbody = res.raw_body;
-                            var resbodyJson = JSON.parse(resbody);
-                            console.log(resbodyJson.testResult.status);
-                            if ( exeType == "testonly" ) {
-                                res1.json(200,resbodyJson);
-                            } else  { 
-                                var isSave = true; 
-                                if  ( resbodyJson.testResult.status == 'SUCCESS' ) {
-                                    devicemgmt_modify(testBody, isSave, function(save_response) {
-        
-                                        var saveJson = JSON.parse(save_response);
-                                        var errCount = saveJson.saveErrors.length;
-                                        var warnCount = saveJson.saveWarnings.length;
-        
-                                        if ( errCount == 0 && warnCount == 0 ) {
-                                            res1.json(200, resbodyJson);
-                                        } else 
-                                            res1.json(200 , resbodyJson);
-                                    })
-                                }
-                            }
-    
-                            
-                        });
-                        
-                    }
-
-
-                });
-        
-         
-        
-            });
+    });
 
             
 
@@ -465,6 +370,8 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
          *     tags:
          *       - Backendmgmt
          *     description: 获取Backend后台服务器信息列表
+         *     security:
+         *       - Bearer: []
          *     produces:
          *       - application/json 
          *     responses:
@@ -538,7 +445,9 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
          *   get:
          *     tags:
          *       - Backendmgmt
-         *     description: 获取纳管对象的数据采集状态
+         *     description: 获取纳管对象的数据采集节点的可用性和相应的健康状态
+         *     security:
+         *       - Bearer: []
          *     produces:
          *       - application/json 
          *     responses:
@@ -581,51 +490,6 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
         app.get('/api/backendmgmt/monitoring/mgmtobjects', function (req, res1) {
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         
-            var resultTmp =  ' {                      \
-                       "timestamp":1111111111,               \
-                       "statistics":{                 \
-                           "storage":{                \
-                               "OK":20,               \
-                               "FAILED":0             \
-                           },                         \
-                           "switch":{                 \
-                               "OK":10,               \
-                               "FAILED":1             \
-                           },                         \
-                           "host":{                   \
-                               "DISABLED":2232        \
-                           }                          \
-                       },                             \
-                       "storage":[                    \
-                           {                          \
-                               "status":"FAILED",     \
-                                   "sn":"111111",     \
-                                   "name":"aaaaaa" ,  \
-                               "testResult":"res"     \
-                           },                          \
-                           {                          \
-                            "status":"OK",          \
-                                "sn":"2222222",     \
-                                "name":"bbbbbbb" ,  \
-                            "testResult":"res"      \
-                            },                        \
-                           {                          \
-                               "status":"OK",           \
-                                   "sn":"3333333",     \
-                                   "name":"bbbbbbb" ,  \
-                               "testResult":"res"     \
-                           }                          \
-                        ],                                  \
-                       "switch":[                     \
-                           {                          \
-                               "status":"FAILED",     \
-                                   "sn":"111111",     \
-                                   "name":"aaaaaa" ,  \
-                               "testResult":"res"     \
-                           }                          \
-                       ]                              \
-                   } ';
-            var resultTmpJson = JSON.parse(resultTmp);
 
             var config = configger.load();
             async.waterfall(
@@ -770,6 +634,154 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
 
 
 
+        /**
+         * @swagger
+         * /api/backendmgmt/monitoring/testvaild:
+         *   get:
+         *     tags:
+         *       - Backendmgmt
+         *     description: 批量执行测试后端数据采集节点的状态并记录
+         *     security:
+         *       - Bearer: []
+         *     produces:
+         *       - application/json 
+         *     responses:
+         *       200:
+         *         description: 返回Backend后台服务器信息列表 
+         */ 
+                            
+        app.get('/api/backendmgmt/monitoring/testvaild', function (req, res1) {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+            res1.setTimeout(1200*1000);
+         
+            var config = configger.load();
+            async.waterfall(
+                [
+                    function(callback){
+                        backendMgmt.getCollectCatalogs(function(objCatalogs) {
+                            callback(null,objCatalogs);
+
+                        });
+
+                    },
+                    function( catalog, callback ) { 
+ 
+                        async.mapSeries( catalog, function ( catalogItem, callback ) { 
+                                var query = {};
+                                query.spId = catalogItem["sp-id"];
+                                query.spbId = catalogItem["spb-id"];
+                                query.spbVersion = catalogItem["spb-version"];
+                                query.exportId = catalogItem["export-id"];
+                                var deviceList = {};
+                                deviceList["query"] = catalogItem;
+                                
+                                backendMgmt.getCollectObjects(query,function(result ) {
+                                    deviceList["devices"] = result;
+                                    callback(null,deviceList);
+                                })
+                            }, function( err, result ) {
+                                if ( err ) {
+                                    console.log(err);
+                                }; 
+                                callback(null, result);
+                            }
+                    
+                    
+                        );  
+
+                    },
+                    function( devices , callback ) {
+
+                        var objList =[];
+                        for ( var i in devices ) {
+                            var item = devices[i];
+
+
+                            for ( var j in item.devices ) {
+                                var deviceItem = item.devices[j];
+
+                                delete deviceItem.Status;
+
+                                var vaildInfo = {};
+                                vaildInfo["exe_type"] = "testonly";
+                                vaildInfo["collecter"] = item.query;
+                                vaildInfo["deviceinfo"] = deviceItem;
+
+                                objList.push(vaildInfo);
+                            }
+
+                        }
+                        callback(null,objList);
+
+                    },
+                    function ( objList , callback ) {
+  
+                        /**
+                         * 定义一个queue，设worker数量为worker
+                         */
+                        var worker = 8;
+                        var q = async.queue(function(task, callback) {
+                            log('worker is processing task: ', task.name); 
+                            backendMgmt.testCollectObject(task.taskInfo, function(vaildResult) {
+                                //console.log(task.taskInfo.collecter.deviceinfo);
+                                callback(vaildResult);
+                            })
+
+                        }, worker);
+
+                        /**
+                         * 监听：如果某次push操作后，任务数将达到或超过worker数量时，将调用该函数
+                         */
+                        q.saturated = function() {
+                            log('all workers to be used');
+                        }
+
+                        /**
+                         * 监听：当最后一个任务交给worker时，将调用该函数
+                         */
+                        q.empty = function() {
+                            log('no more tasks wating');
+                        }
+
+                        /**
+                         * 监听：当所有任务都执行完以后，将调用该函数
+                         */
+                        q.drain = function() {
+                            log('all tasks have been processed');
+                            callback(null,objList);
+                        }
+
+ 
+                        for ( var i in objList ) {
+                            var objItem = objList[i];
+                            var taskName = "TASK-"+i + "-["+objItem.collecter["export-id"] + "]"; 
+
+                            var taskItem = {};
+                            taskItem["name"] = taskName;
+                            taskItem["taskInfo"] = objItem; 
+
+                            // 加入任务
+                            q.push(taskItem, function(err) {
+                                if (err) { return console.log('error in adding tasks to queue'); }  
+                                console.log('pushed to queue!');  
+                            });
+
+                        } 
+
+                        log('pushed tasks into queue, waiting tasks: ', q.length());
+
+
+                        
+                    }
+            ], function (err, result) {
+                // result now equals 'done'
+
+                res1.json(200 ,result);
+            });
+        });
+
+
+
 
 
         /**
@@ -778,7 +790,9 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
          *   get:
          *     tags:
          *       - Backendmgmt
-         *     description: 获取获取定时任务的执行状态
+         *     description: 获取后端定时任务的执行状态
+         *     security:
+         *       - Bearer: []
          *     produces:
          *       - application/json 
          *     responses:
@@ -869,198 +883,6 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
 };
 
 
-
-
-/*
-*   Functions 
-*/
-function devicemgmt_modify ( testBody , isSave ,  callback ) {
-    var config = configger.load();
-
-    var query = testBody.collecter; 
-
-
-   switch ( query["export-id"] ) {
-       case "vmax" :
-            var jsonAnswersStr = combineRequestAnswer_vmax(testBody.deviceinfo);
-            break;
-        case "unisphere" :
-            var jsonAnswersStr = combineRequestAnswer_unisphere(testBody.deviceinfo);
-            break;
-        case "vnx" :
-
-            var jsonAnswersStr = combineRequestAnswer_vnx(testBody.deviceinfo);
-
-            break;
-        case "emcxtremio" :
-            var jsonAnswersStr = combineRequestAnswer_xtremio(testBody.deviceinfo);
-            break;
-
-        case "smiprovider" :
-            var jsonAnswersStr = combineRequestAnswer_brocade(testBody.deviceinfo);
-            break;
-       
-        
-    }
-     
-
-    backendMgmt.BackEndLogin(function(sso_token) { 
-
-        var req = unirest("POST", config.BackendMgmt.URL+"/discocenter/devicemgmt/save");
-        
-        req.headers({ 
-            "content-type": "application/x-www-form-urlencoded",
-            "referer": config.BackendMgmt.URL,
-            "cookie": "JSESSIONIDSSO="+sso_token
-        });
-
-
-
-        var requreDataItem = {};
-        requreDataItem.server = testBody.deviceinfo["Server"];
-        requreDataItem.instance = testBody.deviceinfo["Instance"];
-        
-        if ( isSave == true ) {
-            requreDataItem.isDeleted = false;
-            requreDataItem.isModified = true;
-        } else {
-            requreDataItem.isDeleted = true;
-            requreDataItem.isModified = false;
-        }
-
-        requreDataItem.jsonAnswers = jsonAnswersStr;
-        
-        var requreData = [];
-        requreData.push(requreDataItem);
-         
-        var requreDataStr = JSON.stringify(requreData);
-      
-
-        var requireForm = {}   
-        requireForm.spId = query['sp-id'];
-        requireForm.spbId = query['spb-id'];
-        requireForm.exportId = query['export-id'];
-        requireForm.spbVersion = query['spb-version'];
-        requireForm.jsonRows = requreDataStr ; 
-
-        console.log(requireForm); 
-
-        req.form(requireForm);
-
-        req.end(function (res) {
-        if (res.error) console.log(res.error);  
-            var resbody = res.raw_body;
-            console.log(resbody);
-            //var resbodyJson = JSON.parse(resbody); 
-            callback(resbody);
-        });
-        
-    });
-
-};
- 
-
-
-function combineRequestAnswer_vmax( deviceinfo ) {
-
-    
-    var smiinfo = {};
-    smiinfo.host = deviceinfo["vmax.smi.host"] ;
-    smiinfo.username = deviceinfo["vmax.smi.username"] ;
-    smiinfo.password = deviceinfo["vmax.smi.password"] ;
-    smiinfo.useAdvancedSettings = "false" ;
-
-    var unisphereInfo = {};
-    unisphereInfo.host = deviceinfo["vmax.unisphere.host"] ;
-    unisphereInfo.username = deviceinfo["vmax.unisphere.username"] ;
-    unisphereInfo.password = deviceinfo["vmax.unisphere.password"] ;
-    unisphereInfo.useAdvancedSettings = "false" ;
-
-    var jsonAnswers = {};
-    jsonAnswers.smi = smiinfo;
-    jsonAnswers.unisphere = unisphereInfo;
-    jsonAnswers.vmax_device_type = deviceinfo["vmax.vmax_device_type"] ;
-    jsonAnswers.serialnb = deviceinfo["vmax.serialnb"] ;
-    jsonAnswers.collect_other_perf = "3" ;
-    jsonAnswers.collect_lun_perf = "2" ;
-    jsonAnswers.srdfCollection = "true" ;
-
-    var jsonAnswersStr = JSON.stringify(jsonAnswers);
-    return jsonAnswersStr;
-}
-
-
-function combineRequestAnswer_vnx( deviceinfo ) {
-
-    var block = {};
-    block.spa = deviceinfo["vnx.block.spa"];
-    block.spb = deviceinfo["vnx.block.spb"];
-    block.use_secfile = deviceinfo["vnx.block.use_secfile"]; 
-    block.userscope = deviceinfo["vnx.block.userscope"];
-    block.username = deviceinfo["vnx.block.username"];
-    block.password = deviceinfo["vnx.block.password"];
-
-    var file = {};
-    file.csprimary = deviceinfo["vnx.file.csprimary"];
-    file.userscope = deviceinfo["vnx.file.userscope"];
-    file.username = deviceinfo["vnx.file.username"];
-    file.password = deviceinfo["vnx.file.password"];
-
-    var jsonAnswers = {};
-    jsonAnswers.block = block;
-    jsonAnswers.file = file;
-    jsonAnswers.type = deviceinfo["vnx.type"];
-    jsonAnswers.friendlyname = deviceinfo["vnx.friendlyname"];
-
-    var jsonAnswersStr = JSON.stringify(jsonAnswers);
-    return jsonAnswersStr;
-}
-
-
-
-function combineRequestAnswer_unisphere( deviceinfo ) {
-
-    var jsonAnswers = {};
-    jsonAnswers.host = deviceinfo["unisphere.host"]; 
-    jsonAnswers.port = deviceinfo["unisphere.port"];
-    jsonAnswers.username = deviceinfo["unisphere.username"];
-    jsonAnswers.password = deviceinfo["unisphere.password"];
-    jsonAnswers.serialnbIncludeList = deviceinfo["unisphere.serialnbIncludeList"];
-
-    var jsonAnswersStr = JSON.stringify(jsonAnswers);
-    return jsonAnswersStr;
-}
-
-
-
-function combineRequestAnswer_xtremio( deviceinfo ) {
-
-    var jsonAnswers = {};
-    jsonAnswers.host = deviceinfo["emcxtremio.host"];  
-    jsonAnswers.username = deviceinfo["emcxtremio.username"];
-    jsonAnswers.password = deviceinfo["emcxtremio.password"];
-    jsonAnswers.timezone = deviceinfo["emcxtremio.timezone"];
-    jsonAnswers.version = deviceinfo["emcxtremio.version"];
-
-    var jsonAnswersStr = JSON.stringify(jsonAnswers);
-    return jsonAnswersStr;
-}
-
-
-function combineRequestAnswer_brocade( deviceinfo ) {
-
-    var jsonAnswers = {};
-    jsonAnswers.host = deviceinfo["smiprovider.host"];  
-    jsonAnswers.username = deviceinfo["smiprovider.username"];
-    jsonAnswers.password = deviceinfo["smiprovider.password"];
-    jsonAnswers.usesecure = deviceinfo["smiprovider.usesecure"];
-    jsonAnswers.port = deviceinfo["smiprovider.port"];
-
-    var jsonAnswersStr = JSON.stringify(jsonAnswers);
- 
-
-    return jsonAnswersStr;
-}
 
 
 
