@@ -1,5 +1,5 @@
 {
-    "host": "10.62.38.229",
+    "host": "ssmpmysqlserver",
     "port": "3306",
     "user": "root",
     "password": "root",
