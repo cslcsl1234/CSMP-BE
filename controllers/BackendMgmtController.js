@@ -384,7 +384,12 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
         
             var isExecute = req.query.execute;
             if ( isExecute === undefined ) {
-                var restData = require('../data/server_status');
+                //var restData = require('../data/server_status');
+
+                var fs=reauire('fs');
+                var file="./data/server_status.json";
+                var restData=JSON.parse(fs.readFileSync( file)); 
+
                 res1.json(200,restData);    
             } else {
 
@@ -504,7 +509,10 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
         
             var isExecute = req.query.execute;
             if ( isExecute === undefined  ) {
-                var restData = require('../data/mgmtobjects_status');
+                //var restData = require('../data/mgmtobjects_status');
+                var fs=reauire('fs');
+                var file="./data/mgmtobjects_status.json";
+                var restData=JSON.parse(fs.readFileSync( file));
                 res1.json(200,restData);
             } else {
 
@@ -623,7 +631,7 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                                 var storageItem = objStatus.storage[i];
                                 if ( storageItem.status == "SUCCESS")  storageStatistics.storage.OK++;
                                 else storageStatistics.storage.FAILED++; 
-                                var dt = moment(storageItem.testDateTime,'MMM DD, YYYY hh:mm:ss A'); 
+                                var dt = moment(storageItem.testDateTime,'MMM DD, YYYY hh:mm:ss A').unix(); 
                                 if ( dt > testtimestamp ) testtimestamp = dt;
                                 //console.log(dt+'\t' + dt.format() + '\t' +testtimestamp.format() );
                             }
@@ -632,13 +640,13 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                                 if ( switchItem.status == "SUCCESS")  storageStatistics.switch.OK++;
                                 else storageStatistics.switch.FAILED++;
     
-                                var dt = moment(storageItem.testDateTime,'MMM DD, YYYY hh:mm:ss A');  
+                                var dt = moment(storageItem.testDateTime,'MMM DD, YYYY hh:mm:ss A').unix();  
                                 if ( dt > testtimestamp ) testtimestamp = dt;
                                 //console.log(dt+'\t' + dt.format() + '\t' +testtimestamp.format() );
     
                             }
-                           // var dtStr = moment(testtimestamp).format("YYYY-MM-DD hh:mm:ss");
-                            objStatus.timestamp = testtimestamp;
+                            var dtStr = moment.unix(testtimestamp).format("YYYY-MM-DD HH:mm:ss");
+                            objStatus.timestamp = dtStr;
                             objStatus.statistics = storageStatistics;
                             callback(null, objStatus);
                         }

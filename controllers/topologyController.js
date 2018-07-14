@@ -178,7 +178,9 @@ var topologyController = function (app) {
 
                         if ( appItem.WWN == topoItem.hbawwn) { 
                             retItem["app"] = appItem["app"];
+                            retItem["appManagerA"] = appItem["appManagerA"];
                             retItem["host"] = appItem["host"];   
+                            retItem["hostStatus"] = appItem["hostRunType"];
                         }
                     }
 
