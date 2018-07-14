@@ -27,6 +27,7 @@ var VMAX = require('../lib/Array_VMAX');
 
 var AppTopologyObj = mongoose.model('AppTopology');
 var ArraySGRedoVolumeObj = mongoose.model('ArraySGRedoVolume');
+var Analysis = require('../lib/analysis');
 
 var analysisController = function (app) {
 
@@ -2293,6 +2294,1046 @@ app.get('/api/analysis/storage/volume', function (req, res) {
     }); 
 
 }); 
+
+
+
+
+
+/**
+ * @swagger
+ * /api/analysis/app/workload/relateDistribution:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     summary: 关联应用总体负载分布
+ *     description: 获取与指定Storage Group相关联(PortGroup)的其他Storage Group的性能负载指标叠加，观察其相互影响程度。指标包括每个SG的IOPS和MBPS
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: appname
+ *         description: 应用名称 
+ *         type: string
+ *         example: 监督管理平台（AWP） 
+ *       - in: query
+ *         name: devicesn
+ *         description: 存储序列号
+ *         required: true
+ *         type: string
+ *         example: 000492600255
+ *       - in: query
+ *         name: sg
+ *         description: Storage Group名称
+ *         required: true
+ *         type: string 
+ *         example: AWPDB_NEW_SG
+ *       - in: query
+ *         name: from
+ *         description: 性能指标采样起始时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-05-01T00:00:00Z
+ *       - in: query
+ *         name: to
+ *         description: 性能指标采样结束时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-06-10T00:00:00Z
+ *     responses:
+ *       200:
+ *         description: return the workload of specical array and storage group
+ */ 
+
+app.get('/api/analysis/app/workload/relateDistribution', function (req, res) { 
+    res.setTimeout(300*1000); 
+    var appname = req.query.appname;
+    var device = req.query.devicesn;
+    var sgname = req.query.sg; 
+
+    if ( appname === undefined || appname == '' ) {
+        res.json(400, 'Must be special a appname!');
+        return;
+    };
+    if ( device === undefined || device == '' ) {
+        res.json(400, 'Must be special a storage!');
+        return;
+    };
+
+    if ( sgname === undefined || sgname == '' ) {
+        res.json(400, 'Must be special a storage group!');
+        return;
+    }; 
+
+    if ( req.query.from === undefined ||  !moment(req.query.from).isValid() ) {
+        res.json(400, 'Must be special a valid start time!');
+        return;            
+    }
+
+    if ( req.query.to === undefined ||  !moment(req.query.to).isValid() ) {
+        res.json(400, 'Must be special a valid end time!');
+        return;            
+    }
+    var start = moment(req.query.from).toISOString(); 
+    var end = moment(req.query.to).toISOString();
+
+    var data = {};
+    async.waterfall([
+        function(  callback){ 
+            var param = {};  
+            param['keys'] = ['device','viewname','sgname','portgrp']; 
+            param['fields'] = ['director']; 
+            param['filter'] = 'device=\''+device + '\'&datagrp=\'VMAX-ACCESS\'';
+            
+            CallGet.CallGet(param, function(result) { 
+ 
+                data.accessinfo = result.result;
+                callback(null,data);
+            } );
+
+        } , function ( data , callback ) {
+
+                var director ; 
+                var relaSGName = [];
+                for ( var i in data.accessinfo ) {
+                    var item = data.accessinfo[i];
+                    if ( item.sgname == sgname ) { 
+                        director = item.director.split('|');
+                        break;
+                    }
+                }
+                for ( var i in data.accessinfo ) {
+                    var item = data.accessinfo[i];
+                    for ( var j in director ) {
+                        var dirItem = director[j];
+                        if ( item.director.indexOf(dirItem) >= 0 ) {
+                            var isFind = false;
+                            for ( var z in relaSGName ) {
+                                if ( relaSGName[z] == item.sgname ) 
+                                    isFind = true;
+                            }
+                            if ( isFind == false )
+                                relaSGName.push(item.sgname);
+                        } 
+                    }
+                }
+
+                data.relaSGName = relaSGName;
+ 
+            callback(null, data);
+        } , function ( data, callback ) {
+
+            var filter_sgname = 'sgname=\''+sgname + '\'';
+            for ( var i in data.relaSGName ) {
+                var sgItem = data.relaSGName[i];
+                filter_sgname += '|sgname=\'' + sgItem +'\'';
+            }
+            filter_sgname = '(' + filter_sgname +')';
+
+            var param = {};
+            param['device'] = device;
+            param['period'] = 3600;
+            param['start'] = start;
+            param['end'] = end;
+            param['type'] = 'max';
+            param['filter_name'] = '(name==\'ReadRequests\'|name==\'ReadResponseTime\'|name==\'ReadThroughput\'|name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
+            param['keys'] = ['device','part']; 
+            param['fields'] = ['disktype'];  
+            param['filter'] = 'parttype=\'Storage Group\'&datagrp=\'VMAX-StorageGroup\'&' + filter_sgname;
+
+            CallGet.CallGetPerformance(param, function(sgperf) { 
+                data.sgPerf = sgperf;
+                callback(null, data);
+            });
+
+        } , function( data, callback ) {
+            var dataset = {};
+            dataset["appname"] = appname;
+            dataset["array"] = device;
+            dataset["sgname"] = sgname;
+            dataset["IOPS"] = [];
+            dataset["MBPS"] = [];
+
+            var IOPS = [];
+            var MBPS = [];
+            for ( var i in data.sgPerf ) {
+                var sgItem = data.sgPerf[i];
+                for ( var j in sgItem.matrics ) { 
+                    var item1 = sgItem.matrics[j];
+
+                    var isfind = false;
+                    for ( var z in IOPS ) {
+                        if ( IOPS[z].timestamp == item1.timestamp ) {
+                            isfind = true;
+                            IOPS[z][sgItem.part] = item1.WriteRequests + item1.ReadRequests;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var IOPSItem = {};
+                        IOPSItem["timestamp"] = item1.timestamp;
+                        IOPSItem[sgItem.part] = item1.WriteRequests + item1.ReadRequests;
+                        IOPS.push(IOPSItem);
+                    }
+
+                    
+                    isfind = false;
+                    for ( var z in MBPS ) {
+                        if ( MBPS[z].timestamp == item1.timestamp ) {
+                            isfind = true;
+                            MBPS[z][sgItem.part] = item1.ReadThroughput + item1.ReadThroughput;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var MBPSItem = {};
+                        MBPSItem["timestamp"] = item1.timestamp;
+                        MBPSItem[sgItem.part] = item1.ReadThroughput + item1.WriteThroughput;
+                        MBPS.push(MBPSItem);
+                    }
+
+
+                }
+            }
+            dataset["IOPS"] = {};
+            dataset["IOPS"]["title"] = "关联SG IOPS";
+            dataset["IOPS"]["dataset"] = IOPS;
+            
+            dataset["MBPS"] = {};
+            dataset["MBPS"]["title"] = "关联SG MBPS";
+            dataset["MBPS"]["dataset"] = MBPS;
+            
+            data["output"] = dataset;
+            callback(null, data );
+
+        }
+    ], function (err, result) { 
+
+        res.json(200, result.output );
+    }); 
+
+});
+
+
+
+
+/**
+ * @swagger
+ * /api/analysis/app/workload/compareDistribution:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     summary: 关联应用负载对比分析情况分布
+ *     description: 应用相关SG与选择的其他关联SG, 两个SG的负载性能指标的对比情况.
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: appname
+ *         description: 应用名称 
+ *         type: string
+ *         example: 监督管理平台（AWP） 
+ *       - in: query
+ *         name: devicesn
+ *         description: 存储序列号
+ *         required: true
+ *         type: string
+ *         example: 000492600255
+ *       - in: query
+ *         name: sg
+ *         description: Storage Group名称
+ *         required: true
+ *         type: string 
+ *         example: AWPDB_NEW_SG
+ *       - in: query
+ *         name: relevant_sg
+ *         description: 相关联的需要比对的Storage Group名称
+ *         required: true
+ *         type: string 
+ *         example: edw-etl_SG
+ *       - in: query
+ *         name: from
+ *         description: 性能指标采样起始时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-05-01T00:00:00Z
+ *       - in: query
+ *         name: to
+ *         description: 性能指标采样结束时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-06-10T00:00:00Z
+ *     responses:
+ *       200:
+ *         description: return the workload of specical array and storage group
+ */ 
+
+app.get('/api/analysis/app/workload/compareDistribution', function (req, res) { 
+    res.setTimeout(300*1000); 
+    var appname = req.query.appname;
+    var device = req.query.devicesn;
+    var sgname = req.query.sg; 
+    var relevant_sgname = req.query.relevant_sg; 
+
+    if ( appname === undefined || appname == '' ) {
+        res.json(400, 'Must be special a appname!');
+        return;
+    };
+    if ( device === undefined || device == '' ) {
+        res.json(400, 'Must be special a storage!');
+        return;
+    };
+
+    if ( sgname === undefined || sgname == '' ) {
+        res.json(400, 'Must be special a storage group!');
+        return;
+    }; 
+
+    if ( relevant_sgname === undefined || relevant_sgname == '' ) {
+        res.json(400, 'Must be special a relevant storage group!');
+        return;
+    }; 
+    if ( req.query.from === undefined ||  !moment(req.query.from).isValid() ) {
+        res.json(400, 'Must be special a valid start time!');
+        return;            
+    }
+
+    if ( req.query.to === undefined ||  !moment(req.query.to).isValid() ) {
+        res.json(400, 'Must be special a valid end time!');
+        return;            
+    }
+    var start = moment(req.query.from).toISOString(); 
+    var end = moment(req.query.to).toISOString();
+
+    var data = {};
+    async.waterfall([
+        function(  callback){ 
+            var param = {};  
+            param['keys'] = ['device','viewname','sgname','portgrp']; 
+            param['fields'] = ['director']; 
+            param['filter'] = 'device=\''+device + '\'&datagrp=\'VMAX-ACCESS\'';
+            
+            CallGet.CallGet(param, function(result) { 
+ 
+                data.accessinfo = result.result;
+                callback(null,data);
+            } );
+
+        } , function ( data , callback ) {
+
+                var director ; 
+                var relaSGName = [];
+                for ( var i in data.accessinfo ) {
+                    var item = data.accessinfo[i];
+                    if ( item.sgname == sgname ) { 
+                        director = item.director.split('|');
+                        break;
+                    }
+                }
+                for ( var i in data.accessinfo ) {
+                    var item = data.accessinfo[i];
+                    for ( var j in director ) {
+                        var dirItem = director[j];
+                        if ( item.director.indexOf(dirItem) >= 0 ) {
+                            var isFind = false;
+                            for ( var z in relaSGName ) {
+                                if ( relaSGName[z] == item.sgname ) 
+                                    isFind = true;
+                            }
+                            if ( isFind == false )
+                                relaSGName.push(item.sgname);
+                        } 
+                    }
+                }
+
+                data.relaSGName = relaSGName;
+ 
+            callback(null, data);
+        } , function ( data, callback ) {
+
+            var filter_sgname = 'sgname=\''+sgname + '\'';
+            for ( var i in data.relaSGName ) {
+                var sgItem = data.relaSGName[i];
+                filter_sgname += '|sgname=\'' + sgItem +'\'';
+            }
+            filter_sgname = '(' + filter_sgname +')';
+
+            var param = {};
+            param['device'] = device;
+            param['period'] = 3600;
+            param['start'] = start;
+            param['end'] = end;
+            param['type'] = 'max';
+            param['filter_name'] = '(name==\'ReadRequests\'|name==\'ReadResponseTime\'|name==\'ReadThroughput\'|name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
+            param['keys'] = ['device','part']; 
+            param['fields'] = ['disktype'];  
+            param['filter'] = 'parttype=\'Storage Group\'&datagrp=\'VMAX-StorageGroup\'&' + filter_sgname;
+
+            CallGet.CallGetPerformance(param, function(sgperf) { 
+                data.sgPerf = sgperf;
+                callback(null, data);
+            });
+
+        } , function( data, callback ) {
+            var dataset = {};
+            dataset["appname"] = appname;
+            dataset["array"] = device;
+            dataset["sgname"] = sgname;
+            dataset["IOPS"] = [];
+            dataset["MBPS"] = [];
+
+            var IOPS = [];
+            
+            var MBPS = [];
+            for ( var i in data.sgPerf ) {
+                var sgItem = data.sgPerf[i];
+                for ( var j in sgItem.matrics ) { 
+                    var item1 = sgItem.matrics[j];
+
+                    var isfind = false;
+                    for ( var z in IOPS ) {
+                        if ( IOPS[z].timestamp == item1.timestamp ) {
+                            isfind = true;
+                            IOPS[z][sgItem.part] = item1.WriteRequests + item1.ReadRequests;
+                            IOPS[z]["Total"] += item1.WriteRequests + item1.ReadRequests; 
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var IOPSItem = {};
+                        IOPSItem["timestamp"] = item1.timestamp;
+                        IOPSItem[sgItem.part] = item1.WriteRequests + item1.ReadRequests;
+                        IOPSItem["Total"] = item1.WriteRequests + item1.ReadRequests; 
+                        IOPS.push(IOPSItem);
+                    }
+
+                    
+                    isfind = false;
+                    for ( var z in MBPS ) {
+                        if ( MBPS[z].timestamp == item1.timestamp ) {
+                            isfind = true;
+                            MBPS[z][sgItem.part] = item1.ReadThroughput + item1.ReadThroughput;
+                            MBPS[z]["Total"] += item1.ReadThroughput + item1.ReadThroughput;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var MBPSItem = {};
+                        MBPSItem["timestamp"] = item1.timestamp;
+                        MBPSItem[sgItem.part] = item1.ReadThroughput + item1.WriteThroughput;
+                        MBPSItem["Total"] = item1.ReadThroughput + item1.WriteThroughput;
+                        MBPS.push(MBPSItem);
+                    }
+
+
+                }
+            }
+
+
+            for ( var i in IOPS ) {
+                var IOPSItem = IOPS[i];
+
+                for ( var fieldname in IOPSItem ) {
+                    switch (fieldname) {
+                        case "timestamp" :
+                        case sgname :
+                        case relevant_sgname :
+                            break;
+                        case "Total" :
+                            IOPSItem[fieldname] = IOPSItem[fieldname] - IOPSItem[sgname] - IOPSItem[relevant_sgname];
+                            break;
+                        default :
+                            delete IOPSItem[fieldname];
+                            break;
+                    }
+                }
+            }
+
+
+            for ( var i in MBPS ) {
+                var item = MBPS[i];
+
+                for ( var fieldname in item ) {
+                    switch (fieldname) {
+                        case "timestamp" :
+                        case sgname :
+                        case relevant_sgname :
+                            break;
+                        case "Total" :
+                        item[fieldname] = item[fieldname] - item[sgname] - item[relevant_sgname];
+                            break;
+                        default :
+                            delete item[fieldname];
+                            break;
+                    }
+                }
+            }
+
+            dataset["IOPS"] = {};
+            dataset["IOPS"]["title"] = "关联SG IOPS";
+            dataset["IOPS"]["dataset"] = IOPS;
+            
+            dataset["MBPS"] = {};
+            dataset["MBPS"]["title"] = "关联SG MBPS";
+            dataset["MBPS"]["dataset"] = MBPS;
+            
+            data["output"] = dataset;
+            callback(null, data );
+
+        }
+    ], function (err, result) { 
+
+        res.json(200, result.output );
+    }); 
+
+
+});
+
+
+
+
+
+
+/**
+ * @swagger
+ * /api/analysis/app/workload/distribution:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     summary: 应用负载分布
+ *     description: 获取指定Storage Group性能负载指标。指标包括每个SG的IOPS，MBPS，ReadResponseTime, WriteResponseTime
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: appname
+ *         description: 应用名称 
+ *         type: string
+ *         example: 监督管理平台（AWP） 
+ *       - in: query
+ *         name: devicesn
+ *         description: 存储序列号
+ *         required: true
+ *         type: string
+ *         example: 000492600255
+ *       - in: query
+ *         name: sg
+ *         description: Storage Group名称
+ *         required: true
+ *         type: string 
+ *         example: AWPDB_NEW_SG
+ *       - in: query
+ *         name: from
+ *         description: 性能指标采样起始时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-05-01T00:00:00Z
+ *       - in: query
+ *         name: to
+ *         description: 性能指标采样结束时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-06-10T00:00:00Z
+ *     responses:
+ *       200:
+ *         description: return the workload of specical array and storage group
+ */ 
+app.get('/api/analysis/app/workload/distribution', function (req, res) { 
+    res.setTimeout(300*1000); 
+    var appname = req.query.appname;
+    var device = req.query.devicesn;
+    var sgname = req.query.sg; 
+
+    if ( appname === undefined || appname == '' ) {
+        res.json(400, 'Must be special a appname!');
+        return;
+    };
+    if ( device === undefined || device == '' ) {
+        res.json(400, 'Must be special a storage!');
+        return;
+    };
+
+    if ( sgname === undefined || sgname == '' ) {
+        res.json(400, 'Must be special a storage group!');
+        return;
+    }; 
+
+    if ( req.query.from === undefined ||  !moment(req.query.from).isValid() ) {
+        res.json(400, 'Must be special a valid start time!');
+        return;            
+    }
+
+    if ( req.query.to === undefined ||  !moment(req.query.to).isValid() ) {
+        res.json(400, 'Must be special a valid end time!');
+        return;            
+    }
+    var start = moment(req.query.from).toISOString(); 
+    var end = moment(req.query.to).toISOString();
+
+    var data = {};
+    async.waterfall([
+        function(  callback){ 
+          
+            var filter_sgname = 'sgname=\''+sgname + '\''; 
+
+            var param = {};
+            param['device'] = device;
+            param['period'] = 3600;
+            param['start'] = start;
+            param['end'] = end;
+            param['type'] = 'max';
+            param['filter_name'] = '(name==\'ReadRequests\'|name==\'ReadResponseTime\'|name==\'ReadThroughput\'|name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
+            param['keys'] = ['device','part']; 
+            param['fields'] = ['sgname'];  
+            param['filter'] = 'parttype=\'Storage Group\'&datagrp=\'VMAX-StorageGroup\'&' + filter_sgname;
+
+            CallGet.CallGetPerformance(param, function(sgperf) {  
+
+                var matrics = [];
+                for ( var i in sgperf[0].matrics ) {
+                    var item = sgperf[0].matrics[i];
+                    var matricsItem = {};
+                    matricsItem["timestamp"] = item.timestamp;
+                    matricsItem["Throughput"] = item.ReadThroughput + item.WriteThroughput;
+                    matricsItem["Requests"] = item.ReadRequests + item.WriteRequests;
+            
+                    matrics.push(matricsItem);
+                }
+
+                var data = {};
+                data["orgiData"] = matrics;
+
+                callback(null, data);
+            });
+
+        } ,
+        function ( data , callback ) { 
+
+            var filter_sgname = 'sgname=\''+sgname + '\''; 
+
+            var param = {};
+            param['device'] = device;
+            param['period'] = 3600; 
+            param['type'] = 'max';
+            param['filter_name'] = '(name==\'ReadRequests\'|name==\'ReadResponseTime\'|name==\'ReadThroughput\'|name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
+            param['keys'] = ['device','part']; 
+            param['fields'] = ['sgname'];  
+            param['filter'] = 'parttype=\'Storage Group\'&datagrp=\'VMAX-StorageGroup\'&' + filter_sgname;
+
+            param['start'] = moment.unix(moment(start,moment.ISO_8601).unix() - 2419200).toISOString(true);
+            param['end'] = start;
+            
+
+            CallGet.CallGetPerformance(param, function(sgperf) {  
+
+                
+                var matrics = [];
+                for ( var i in sgperf[0].matrics ) {
+                    var item = sgperf[0].matrics[i];
+                    var matricsItem = {};
+                    matricsItem["timestamp"] = item.timestamp;
+                    matricsItem["Throughput"] = item.ReadThroughput + item.WriteThroughput;
+                    matricsItem["Requests"] = item.ReadRequests + item.WriteRequests;
+            
+                    matrics.push(matricsItem);
+                }
+ 
+                data["baselineData"] = matrics;
+                callback(null, data);
+            });
+
+
+        },
+        
+        function( data, callback ) {  
+            Analysis.GenerateBaseLine(data, function(result) {
+                callback(null, result);
+            }) 
+        }
+    ], function (err, result) { 
+
+        res.json(200, result );
+    }); 
+
+});
+
+
+app.get('/api/analysis/app/workload/distribution1', function (req, res) { 
+    res.setTimeout(300*1000); 
+    var appname = req.query.appname;
+    var device = req.query.devicesn;
+    var sgname = req.query.sg; 
+
+    if ( appname === undefined || appname == '' ) {
+        res.json(400, 'Must be special a appname!');
+        return;
+    };
+    if ( device === undefined || device == '' ) {
+        res.json(400, 'Must be special a storage!');
+        return;
+    };
+
+    if ( sgname === undefined || sgname == '' ) {
+        res.json(400, 'Must be special a storage group!');
+        return;
+    }; 
+
+    if ( req.query.from === undefined ||  !moment(req.query.from).isValid() ) {
+        res.json(400, 'Must be special a valid start time!');
+        return;            
+    }
+
+    if ( req.query.to === undefined ||  !moment(req.query.to).isValid() ) {
+        res.json(400, 'Must be special a valid end time!');
+        return;            
+    }
+    var start = moment(req.query.from).toISOString(); 
+    var end = moment(req.query.to).toISOString();
+
+    var data = {};
+    async.waterfall([
+        function(  callback){ 
+          
+            var filter_sgname = 'sgname=\''+sgname + '\''; 
+
+            var param = {};
+            param['device'] = device;
+            param['period'] = 3600;
+            param['start'] = start;
+            param['end'] = end;
+            param['type'] = 'max';
+            param['filter_name'] = '(name==\'ReadRequests\'|name==\'ReadResponseTime\'|name==\'ReadThroughput\'|name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
+            param['keys'] = ['device','part']; 
+            param['fields'] = ['sgname'];  
+            param['filter'] = 'parttype=\'Storage Group\'&datagrp=\'VMAX-StorageGroup\'&' + filter_sgname;
+
+            CallGet.CallGetPerformance(param, function(sgperf) {  
+                callback(null, sgperf);
+            });
+
+        } , function( data, callback ) {  
+            var IOPS = [];
+            var MBPS = [];
+            var ResponseTime = [];
+            for ( var i in data ) {
+                var sgItem = data[i];
+                for ( var j in sgItem.matrics ) { 
+                    var item1 = sgItem.matrics[j];
+
+                    var isfind = false;
+                    for ( var z in IOPS ) {
+                        if ( IOPS[z].timestamp == item1.timestamp ) {
+                            isfind = true;
+                            IOPS[z][sgItem.part] = item1.WriteRequests + item1.ReadRequests;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var IOPSItem = {};
+                        IOPSItem["timestamp"] = item1.timestamp;
+                        IOPSItem[sgItem.part] = item1.WriteRequests + item1.ReadRequests;
+                        IOPS.push(IOPSItem);
+                    }
+
+                    
+                    isfind = false;
+                    for ( var z in MBPS ) {
+                        if ( MBPS[z].timestamp == item1.timestamp ) {
+                            isfind = true;
+                            MBPS[z][sgItem.part] = item1.ReadThroughput + item1.ReadThroughput;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var MBPSItem = {};
+                        MBPSItem["timestamp"] = item1.timestamp;
+                        MBPSItem[sgItem.part] = item1.ReadThroughput + item1.WriteThroughput;
+                        MBPS.push(MBPSItem);
+                    }
+
+                    
+                    isfind = false;
+                    for ( var z in ResponseTime ) {
+                        if ( ResponseTime[z].timestamp == item1.timestamp ) {
+                            isfind = true;
+                            ResponseTime[z]["ReadResponseTime"] = item1.ReadResponseTime ;
+                            ResponseTime[z]["WriteResponseTime"] = item1.WriteResponseTime ;
+                            
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var ResponseTimeItem = {};
+                        ResponseTimeItem["timestamp"] = item1.timestamp;
+                        ResponseTimeItem["ReadResponseTime"] = item1.ReadResponseTime ;
+                        ResponseTimeItem["WriteResponseTime"] = item1.WriteResponseTime ;
+                        
+                        ResponseTime.push(ResponseTimeItem);
+                    }
+
+                }
+            }
+            var dataset = {};
+            dataset["IOPS"] = {};
+            dataset["IOPS"]["title"] = "IOPS";
+            dataset["IOPS"]["dataset"] = IOPS;
+
+            dataset["MBPS"] = {};
+            dataset["MBPS"]["title"] = "MBPS";
+            dataset["MBPS"]["dataset"] = MBPS;
+
+
+            dataset["ResponseTime"] = {};
+            dataset["ResponseTime"]["title"] = "Response Time(ms)";
+            dataset["ResponseTime"]["dataset"] = ResponseTime;
+
+            callback(null,dataset);
+
+        }
+    ], function (err, result) { 
+
+        res.json(200, result );
+    }); 
+
+});
+
+
+
+
+
+
+/**
+ * @swagger
+ * /api/analysis/array/frontend/workload:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     summary: 存储前端口负载分布
+ *     description: 获取指定存储的前端控制器性能负载指标。指标包括每个前端控制器的IOPS，MBPS，Utilization.
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: devicesn
+ *         description: 存储序列号
+ *         required: true
+ *         type: string
+ *         example: 000492600255
+ *       - in: query
+ *         name: fename
+ *         description: 前端控制器名称
+ *         required: false
+ *         type: string
+ *         example: FA-7F
+ *       - in: query
+ *         name: from
+ *         description: 性能指标采样起始时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-05-01T00:00:00Z
+ *       - in: query
+ *         name: to
+ *         description: 性能指标采样结束时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-06-10T00:00:00Z
+ *     responses:
+ *       200:
+ *         description: return the workload of specical array and storage group
+ */ 
+
+app.get('/api/analysis/array/frontend/workload', function (req, res) { 
+    res.setTimeout(300*1000);  
+    var device = req.query.devicesn;
+    var fename = req.query.fename; 
+ 
+    if ( device === undefined || device == '' ) {
+        res.json(400, 'Must be special a storage!');
+        return;
+    }; 
+    if ( req.query.from === undefined ||  !moment(req.query.from).isValid() ) {
+        res.json(400, 'Must be special a valid start time!');
+        return;            
+    }
+
+    if ( req.query.to === undefined ||  !moment(req.query.to).isValid() ) {
+        res.json(400, 'Must be special a valid end time!');
+        return;            
+    }
+    var start = moment(req.query.from).toISOString(true); 
+    var end = moment(req.query.to).toISOString(true);
+
+    var isNeedBaseLine = false;
+
+    var data = {};
+    async.waterfall([
+        function(  callback){ 
+           
+
+            var param = {};
+            param['device'] = device;
+            param['period'] = 3600;
+            param['start'] = start;
+            param['end'] = end;
+            param['type'] = 'max';
+            param['filter_name'] = '(name==\'Requests\'|name==\'CurrentUtilization\'|name==\'HostMBperSec\')';
+            param['keys'] = ['device','part']; 
+            param['fields'] = ['model'];  
+            
+            if ( fename === undefined ) 
+                param['filter'] = 'datagrp=\'VMAX-FEDirector\'' ;
+            else {
+                param['filter'] = 'datagrp=\'VMAX-FEDirector\'&part=\'' + fename +'\'' ;
+                isNeedBaseLine = true;
+            }
+                
+            
+
+            CallGet.CallGetPerformance(param, function(feperf) {  
+                var data = {};
+                data["orgiData"] = feperf[0].matrics;
+
+                callback(null, data);
+            });
+        } , function( data, callback ) {  
+            if ( isNeedBaseLine == false ) {
+                callback(null,data);
+            } else {
+                var param = {};
+                param['device'] = device;
+                param['period'] = 3600;
+                param['type'] = 'max';
+                param['filter_name'] = '(name==\'Requests\'|name==\'CurrentUtilization\'|name==\'HostMBperSec\')';
+                param['keys'] = ['device','part']; 
+                param['fields'] = ['model'];   
+
+                param['start'] = moment.unix(moment(start,moment.ISO_8601).unix() - 2419200).toISOString(true);
+                param['end'] = start;
+                
+                if ( fename === undefined ) 
+                    param['filter'] = 'datagrp=\'VMAX-FEDirector\'' ;
+                else {
+                    param['filter'] = 'datagrp=\'VMAX-FEDirector\'&part=\'' + fename +'\'' ; 
+                }
+
+                CallGet.CallGetPerformance(param, function(feperf) {  
+ 
+                    data["baselineData"] = feperf[0].matrics;
+                    
+                    callback(null, data);
+                });
+
+            }
+        
+        } , 
+        function( data, callback ) {
+            Analysis.GenerateBaseLine(data, function(result) {
+                callback(null, result);
+            })
+        }
+        /*function( data, callback ) {  
+            var IOPS = [];
+            var MBPS = [];
+            var UTIL = [];
+            var ResponseTime = [];
+            for ( var i in data ) {
+                var sgItem = data[i];
+                for ( var j in sgItem.matrics ) { 
+                    var item1 = sgItem.matrics[j];
+
+                    var isfind = false;
+                    for ( var z in IOPS ) {
+                        if ( IOPS[z].timestamp == item1.timestamp ) {
+                            isfind = true;
+                            IOPS[z][sgItem.part] = item1.Requests ;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var IOPSItem = {};
+                        IOPSItem["timestamp"] = item1.timestamp;
+                        IOPSItem[sgItem.part] = item1.Requests ;
+                        IOPS.push(IOPSItem);
+                    }
+
+                    
+                    isfind = false;
+                    for ( var z in MBPS ) {
+                        if ( MBPS[z].timestamp == item1.timestamp ) {
+                            isfind = true;
+                            MBPS[z][sgItem.part] = item1.HostMBperSec  ;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var MBPSItem = {};
+                        MBPSItem["timestamp"] = item1.timestamp;
+                        MBPSItem[sgItem.part] = item1.HostMBperSec  ;
+                        MBPS.push(MBPSItem);
+                    }
+
+                    
+                    isfind = false;
+                    for ( var z in UTIL ) {
+                        if ( UTIL[z].timestamp == item1.timestamp ) {
+                            isfind = true;
+                            UTIL[z][sgItem.part] = item1.KBytesTransferred  ;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        var UTILItem = {};
+                        UTILItem["timestamp"] = item1.timestamp;
+                        UTILItem[sgItem.part] = item1.CurrentUtilization  ;
+                        UTIL.push(UTILItem);
+                    }
+                    
+
+                }
+            }
+            var dataset = {};
+            dataset["IOPS"] = {};
+            dataset["IOPS"]["title"] = "IOPS";
+            dataset["IOPS"]["dataset"] = IOPS;
+
+            dataset["MBPS"] = {};
+            dataset["MBPS"]["title"] = "MBPS";
+            dataset["MBPS"]["dataset"] = MBPS;
+
+            
+            dataset["UTIL"] = {};
+            dataset["UTIL"]["title"] = "Utilization(%)";
+            dataset["UTIL"]["dataset"] = UTIL;
+ 
+            callback(null,dataset);
+
+        } */
+    ], function (err, result) { 
+
+        res.json(200, result );
+    }); 
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 };
 

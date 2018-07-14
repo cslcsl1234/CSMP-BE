@@ -43,6 +43,7 @@ var Report = require('../lib/Reporting');
 
 var CAPACITY = require('../lib/Array_Capacity');
 var backendMgmt = require('../lib/BackendMgmt');
+var Analysis = require('../lib/analysis');
 
 var testController = function (app) {
 
@@ -337,34 +338,88 @@ var testController = function (app) {
 
 
 
-    app.get('/api/test2', function (req, restu) {
-        var device = req.query.device; 
-        var start = moment(req.query.from).toISOString(); 
-        var end = moment(req.query.to).toISOString(); 
-        var param = {};
-        if (typeof device !== 'undefined') {  
-            param['filter'] = 'device=\''+device+'\'&!parttype&(source=\'VMAX-Collector\'|source==\'VNXBlock-Collector\'|source==\'VNXUnity-Collector\')';
-        } else { 
-            //param['filter'] = '!parttype&(source=\'VMAX-Collector\'|source==\'VNXBlock-Collector\'|source==\'VNXUnity-Collector\')';
-            param['filter'] = '!parttype&(source=\'VMAX-Collector\'|source==\'VNXBlock-Collector\')';
-        } 
+    app.get('/api/test2', function (req, res) {
 
-        param['filter_name'] = '(name=\'ConfiguredUsableCapacity\'|name=\'UsedCapacity\'|name=\'FreeCapacity\')';
-        param['keys'] = ['serialnb'];
-        param['fields'] = ['sstype','device','model','vendor','devdesc'];
-        param['period'] = 86400;
-        param['start'] = start;
-        param['end'] = end;
-        param['type'] = 'max';
+        var device = '000492600255';
+        var start = '2018-06-01T08:00:00.000+08:00';
+        var end = '2018-06-10T08:00:00.000+08:00';
+        var fename = 'FA-8F';
 
-        CallGet.CallGet(param,function(result) {
-        //CallGet.CallGetPerformance(param, function(result) {
-            restu.json(200,result);
-        });
-        
+       // var baselinePeriod = 4;
+       // var PeriodNumber = 604800 ;   // One Week;
+       // var baselinePercent = 30;     // BaseLine up/down percent ; %
+
+        var isNeedBaseLine = false ;
+        async.waterfall([
+            function(  callback){ 
+               
+    
+                var param = {};
+                param['device'] = device;
+                param['period'] = 3600;
+                param['start'] = start;
+                param['end'] = end;
+                param['type'] = 'max';
+                param['filter_name'] = '(name==\'Requests\'|name==\'CurrentUtilization\'|name==\'HostMBperSec\')';
+                param['keys'] = ['device','part']; 
+                param['fields'] = ['model'];  
+                
+                if ( fename === undefined ) 
+                    param['filter'] = 'datagrp=\'VMAX-FEDirector\'' ;
+                else {
+                    param['filter'] = 'datagrp=\'VMAX-FEDirector\'&part=\'' + fename +'\'' ;
+                    isNeedBaseLine = true;
+                }
+                    
+                
+    
+                CallGet.CallGetPerformance(param, function(feperf) {  
+                    var restData = {};
+                    restData["orgiData"] = feperf[0].matrics;
+                    
+                    callback(null, restData);
+                });
+            } , function( restData, callback ) {   
+                if ( isNeedBaseLine == false ) {
+                    callback(null,restData);
+                } else {
+                    var param = {};
+                    param['device'] = device;
+                    param['period'] = 3600;
+                    param['type'] = 'max';
+                    param['filter_name'] = '(name==\'Requests\'|name==\'CurrentUtilization\'|name==\'HostMBperSec\')';
+                    param['keys'] = ['device','part']; 
+                    param['fields'] = ['model'];   
+    
+                    param['start'] = moment.unix(moment(start,moment.ISO_8601).unix() - 2419200).toISOString(true);
+                    param['end'] = start;
+                    
+                    if ( fename === undefined ) 
+                        param['filter'] = 'datagrp=\'VMAX-FEDirector\'' ;
+                    else {
+                        param['filter'] = 'datagrp=\'VMAX-FEDirector\'&part=\'' + fename +'\'' ; 
+                    }
+    
+                    CallGet.CallGetPerformance(param, function(feperf) {   
+                        restData["baselineData"]= feperf[0].matrics;
+                        callback(null, restData);
+                    }); 
+                }
+            
+            } , 
+            function ( data, callback ) {
+
+                Analysis.GenerateBaseLine(data, function(result) {
+                    callback(null, result);
+                })
+            }
+        ], function (err, result) { 
+    
+            res.json(200, result );
+        }); 
     
 
-});
+    });
 
     app.get('/api/test/list', function (req, res) {
 
