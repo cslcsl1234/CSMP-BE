@@ -40,5 +40,10 @@
   "Reporting": {
     "TmpDataPath": "/csmp/reporting/tmp",
     "OutputPath": "/csmp/reporting"
+  },
+  "Analysis" : {
+    "baselinePeriod" : 4 ,    
+    "PeriodNumber": 604800,  
+    "baselinePercent": 30   
   }
 }

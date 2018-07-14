@@ -382,57 +382,69 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
         app.get('/api/backendmgmt/monitoring/serverstatus', function (req, res1) {
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         
-            var config = configger.load();
-            async.waterfall(
-                [
-                    function(callback){
-                        backendMgmt.getBackendServerList (function ( serverList ) {
-                                callback(null,serverList); 
-                        }) 
-                    },
-                    function( serverList , callback ) { 
-                        
-                        var statusResult = [];
+            var isExecute = req.query.execute;
+            if ( isExecute === undefined ) {
+                var restData = require('../data/server_status');
+                res1.json(200,restData);    
+            } else {
+
+                var config = configger.load();
+                async.waterfall(
+                    [
+                        function(callback){
+                            backendMgmt.getBackendServerList (function ( serverList ) {
+                                    callback(null,serverList); 
+                            }) 
+                        },
+                        function( serverList , callback ) { 
                             
-                        async.mapSeries( serverList, function(serverItem , callback ) {
-                                console.log(serverItem.id);
-
-
-                                backendMgmt.getBackendServerStatus(serverItem.id, function ( status ) {
-                                    
-                                    if ( status.body.series.status === undefined ) {
-                                        serverItem["timestamp"] = "";
-                                        serverItem["status"] = 0;
-                                    } else {
-                                        serverItem["timestamp"] = status.body.series.status[0][0];
-                                        serverItem["available"] = status.body.series.status[0][1];
-                                        
-                                    }
-                                    
-                                    callback(null, serverItem );
-
-                                })
-
-
+                            var statusResult = [];
                                 
-                            }, function( err, result ) {
-                                if ( err ) {
-                                    console.log(err);
-                                };
-                                for ( var i in result ) {
-                                    var item = result[i];
-                                    if ( item.available >= 80 ) item['status'] = "OK";
-                                    else item["status"] = "FAILED";
+                            async.mapSeries( serverList, function(serverItem , callback ) {
+                                    console.log(serverItem.id);
+    
+    
+                                    backendMgmt.getBackendServerStatus(serverItem.id, function ( status ) {
+                                        
+                                        if ( status.body.series.status === undefined ) {
+                                            serverItem["timestamp"] = "";
+                                            serverItem["status"] = 0;
+                                        } else {
+                                            serverItem["timestamp"] = status.body.series.status[0][0];
+                                            serverItem["available"] = status.body.series.status[0][1];
+                                            
+                                        }
+                                        
+                                        callback(null, serverItem );
+    
+                                    })
+    
+    
+                                    
+                                }, function( err, result ) {
+                                    if ( err ) {
+                                        console.log(err);
+                                    };
+                                    for ( var i in result ) {
+                                        var item = result[i];
+                                        if ( item.available >= 80 ) item['status'] = "OK";
+                                        else item["status"] = "FAILED";
+                                    }
+                                    callback(null, result);
                                 }
-                                callback(null, result);
-                            }
-                        )
-                    }
-            ], function (err, result) {
-                // result now equals 'done'
+                            )
+                        }
+                ], function (err, result) {
+                    // result now equals 'done'
+                    var fs = require('fs');
+                    fs.writeFile('./data/server_status.json',JSON.stringify(result), function(err) {
+                        if ( err ) throw err;
+                        res1.json(200 ,result);
+                    });
+                    
+                });
+            }
 
-                res1.json(200 ,result);
-            });
         });
 
 
@@ -490,146 +502,158 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
         app.get('/api/backendmgmt/monitoring/mgmtobjects', function (req, res1) {
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         
+            var isExecute = req.query.execute;
+            if ( isExecute === undefined  ) {
+                var restData = require('../data/mgmtobjects_status');
+                res1.json(200,restData);
+            } else {
 
-            var config = configger.load();
-            async.waterfall(
-                [
-                    function(callback){
-                        backendMgmt.getCollectCatalogs(function(objCatalogs) {
-                            callback(null,objCatalogs);
-
-                        });
-
-                    },
-                    function( catalog, callback ) { 
-                        async.mapSeries( catalog, function ( catalogItem, callback ) { 
-                                var query = {};
-                                query.spId = catalogItem["sp-id"];
-                                query.spbId = catalogItem["spb-id"];
-                                query.spbVersion = catalogItem["spb-version"];
-                                query.exportId = catalogItem["export-id"];
-                                var deviceList = {};
-                                deviceList["query"] = query;
-                                
-                                backendMgmt.getCollectObjects(query,function(result ) {
-                                    deviceList["devices"] = result;
-                                    callback(null,deviceList);
-                                })
-                            }, function( err, result ) {
-                                if ( err ) {
-                                    console.log(err);
-                                }; 
-                                callback(null, result);
-                            }
-                    
-                    
-                        ); 
- 
-
-                    },
-                    function( devices , callback ) {
-                        var result = {};
-                        result["timestamp"] = 0;
-                        result["statistics"] = {};
-                        result["storage"] = [];
-                        result["switch"] = [];
-
-                        for ( var i in devices  ) {
-                            var deviceItem = devices[i];
-                            switch ( deviceItem.query.exportId ) {
-                                //case "emcxtremio" :
-                                case "vnx" :
-                                    for ( var j in deviceItem.devices ) {
-                                        var objItem = deviceItem.devices[j];
-                                        var storageItem = {};
-
-                                        storageItem["testDateTime"] = objItem.Status["data-test-result-date"];
-                                        storageItem["status"] = objItem.Status["data-test-result-status"];
-                                        storageItem["sn"] = "";
-                                        storageItem["name"] = objItem["vnx.friendlyname"];
-                                        storageItem["testResult"] = objItem.Status["data-test-result-output"];
-
-                                        result.storage.push(storageItem);
-                                    };
-                                    break;
-                                case "vmax" :
-                                    for ( var j in deviceItem.devices ) {
-                                        var objItem = deviceItem.devices[j];
-                                        var storageItem = {};
-
-                                        storageItem["testDateTime"] = objItem.Status["data-test-result-date"];
-                                        storageItem["status"] = objItem.Status["data-test-result-status"];
-                                        storageItem["sn"] = objItem["vmax.serialnb"];
-                                        storageItem["name"] = "";
-                                        storageItem["testResult"] = objItem.Status["data-test-result-output"];
-
-                                        result.storage.push(storageItem);
-                                    };
-                                    break;
-                                case "smiprovider" :
-                                    for ( var j in deviceItem.devices ) {
-                                        var objItem = deviceItem.devices[j];
-                                        var storageItem = {};
-
-                                        storageItem["testDateTime"] = objItem.Status["data-test-result-date"];
-                                        storageItem["status"] = objItem.Status["data-test-result-status"];
-                                        storageItem["sn"] = "";
-                                        storageItem["name"] = objItem["smiprovider.host"];
-                                        storageItem["testResult"] = objItem.Status["data-test-result-output"];
-
-                                        result.switch.push(storageItem);
-                                    };
-                                    break;
-                                default :
-
-                            }
-                        }
-
-                        callback(null,result);
-
-                    }, 
-                    function ( objStatus, callback ) {
-                        var testtimestamp = 0;
-                        var storageStatistics = {};
-                        storageStatistics["storage"] = {};
-                        storageStatistics.storage["OK"] = 0;
-                        storageStatistics.storage["FAILED"] = 0;
+                var config = configger.load();
+                async.waterfall(
+                    [
+                        function(callback){
+                            backendMgmt.getCollectCatalogs(function(objCatalogs) {
+                                callback(null,objCatalogs);
+    
+                            });
+    
+                        },
+                        function( catalog, callback ) { 
+                            async.mapSeries( catalog, function ( catalogItem, callback ) { 
+                                    var query = {};
+                                    query.spId = catalogItem["sp-id"];
+                                    query.spbId = catalogItem["spb-id"];
+                                    query.spbVersion = catalogItem["spb-version"];
+                                    query.exportId = catalogItem["export-id"];
+                                    var deviceList = {};
+                                    deviceList["query"] = query;
+                                    
+                                    backendMgmt.getCollectObjects(query,function(result ) {
+                                        deviceList["devices"] = result;
+                                        callback(null,deviceList);
+                                    })
+                                }, function( err, result ) {
+                                    if ( err ) {
+                                        console.log(err);
+                                    }; 
+                                    callback(null, result);
+                                }
                         
-                        storageStatistics["switch"] = {};
-                        storageStatistics.switch["OK"] = 0;
-                        storageStatistics.switch["FAILED"] = 0;
                         
-                        storageStatistics["host"] = {};
-                        storageStatistics.host["DISABLED"] = 0;
-                                                
-                        for ( var i in objStatus.storage ) {
-                            var storageItem = objStatus.storage[i];
-                            if ( storageItem.status == "SUCCESS")  storageStatistics.storage.OK++;
-                            else storageStatistics.storage.FAILED++; 
-                            var dt = moment(storageItem.testDateTime,'MMM DD, YYYY hh:mm:ss A'); 
-                            if ( dt > testtimestamp ) testtimestamp = dt;
-                            //console.log(dt+'\t' + dt.format() + '\t' +testtimestamp.format() );
+                            ); 
+     
+    
+                        },
+                        function( devices , callback ) {
+                            var result = {};
+                            result["timestamp"] = 0;
+                            result["statistics"] = {};
+                            result["storage"] = [];
+                            result["switch"] = [];
+    
+                            for ( var i in devices  ) {
+                                var deviceItem = devices[i];
+                                switch ( deviceItem.query.exportId ) {
+                                    //case "emcxtremio" :
+                                    case "vnx" :
+                                        for ( var j in deviceItem.devices ) {
+                                            var objItem = deviceItem.devices[j];
+                                            var storageItem = {};
+    
+                                            storageItem["testDateTime"] = objItem.Status["data-test-result-date"];
+                                            storageItem["status"] = objItem.Status["data-test-result-status"];
+                                            storageItem["sn"] = "";
+                                            storageItem["name"] = objItem["vnx.friendlyname"];
+                                            storageItem["testResult"] = objItem.Status["data-test-result-output"];
+    
+                                            result.storage.push(storageItem);
+                                        };
+                                        break;
+                                    case "vmax" :
+                                        for ( var j in deviceItem.devices ) {
+                                            var objItem = deviceItem.devices[j];
+                                            var storageItem = {};
+    
+                                            storageItem["testDateTime"] = objItem.Status["data-test-result-date"];
+                                            storageItem["status"] = objItem.Status["data-test-result-status"];
+                                            storageItem["sn"] = objItem["vmax.serialnb"];
+                                            storageItem["name"] = "";
+                                            storageItem["testResult"] = objItem.Status["data-test-result-output"];
+    
+                                            result.storage.push(storageItem);
+                                        };
+                                        break;
+                                    case "smiprovider" :
+                                        for ( var j in deviceItem.devices ) {
+                                            var objItem = deviceItem.devices[j];
+                                            var storageItem = {};
+    
+                                            storageItem["testDateTime"] = objItem.Status["data-test-result-date"];
+                                            storageItem["status"] = objItem.Status["data-test-result-status"];
+                                            storageItem["sn"] = "";
+                                            storageItem["name"] = objItem["smiprovider.host"];
+                                            storageItem["testResult"] = objItem.Status["data-test-result-output"];
+    
+                                            result.switch.push(storageItem);
+                                        };
+                                        break;
+                                    default :
+    
+                                }
+                            }
+    
+                            callback(null,result);
+    
+                        }, 
+                        function ( objStatus, callback ) {
+                            var testtimestamp = 0;
+                            var storageStatistics = {};
+                            storageStatistics["storage"] = {};
+                            storageStatistics.storage["OK"] = 0;
+                            storageStatistics.storage["FAILED"] = 0;
+                            
+                            storageStatistics["switch"] = {};
+                            storageStatistics.switch["OK"] = 0;
+                            storageStatistics.switch["FAILED"] = 0;
+                            
+                            storageStatistics["host"] = {};
+                            storageStatistics.host["DISABLED"] = 0;
+                                                    
+                            for ( var i in objStatus.storage ) {
+                                var storageItem = objStatus.storage[i];
+                                if ( storageItem.status == "SUCCESS")  storageStatistics.storage.OK++;
+                                else storageStatistics.storage.FAILED++; 
+                                var dt = moment(storageItem.testDateTime,'MMM DD, YYYY hh:mm:ss A'); 
+                                if ( dt > testtimestamp ) testtimestamp = dt;
+                                //console.log(dt+'\t' + dt.format() + '\t' +testtimestamp.format() );
+                            }
+                            for ( var i in objStatus.switch ) {
+                                var switchItem = objStatus.switch[i];
+                                if ( switchItem.status == "SUCCESS")  storageStatistics.switch.OK++;
+                                else storageStatistics.switch.FAILED++;
+    
+                                var dt = moment(storageItem.testDateTime,'MMM DD, YYYY hh:mm:ss A');  
+                                if ( dt > testtimestamp ) testtimestamp = dt;
+                                //console.log(dt+'\t' + dt.format() + '\t' +testtimestamp.format() );
+    
+                            }
+                           // var dtStr = moment(testtimestamp).format("YYYY-MM-DD hh:mm:ss");
+                            objStatus.timestamp = testtimestamp;
+                            objStatus.statistics = storageStatistics;
+                            callback(null, objStatus);
                         }
-                        for ( var i in objStatus.switch ) {
-                            var switchItem = objStatus.switch[i];
-                            if ( switchItem.status == "SUCCESS")  storageStatistics.switch.OK++;
-                            else storageStatistics.switch.FAILED++;
+                ], function (err, result) {
+                    // result now equals 'done'
+    
+                    var fs = require('fs');
+                    fs.writeFile('./data/mgmtobjects_status.json',JSON.stringify(result), function(err) {
+                        if ( err ) throw err;
+                        res1.json(200 ,result);
+                    });
+    
+                });
+            }
 
-                            var dt = moment(storageItem.testDateTime,'MMM DD, YYYY hh:mm:ss A');  
-                            if ( dt > testtimestamp ) testtimestamp = dt;
-                            //console.log(dt+'\t' + dt.format() + '\t' +testtimestamp.format() );
-
-                        }
-                       // var dtStr = moment(testtimestamp).format("YYYY-MM-DD hh:mm:ss");
-                        objStatus.timestamp = testtimestamp;
-                        objStatus.statistics = storageStatistics;
-                        callback(null, objStatus);
-                    }
-            ], function (err, result) {
-                // result now equals 'done'
-
-                res1.json(200 ,result);
-            });
         });
 
 
