@@ -386,7 +386,7 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
             if ( isExecute === undefined ) {
                 //var restData = require('../data/server_status');
 
-                var fs=reauire('fs');
+                var fs=require('fs');
                 var file="./data/server_status.json";
                 var restData=JSON.parse(fs.readFileSync( file)); 
 
@@ -510,7 +510,7 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
             var isExecute = req.query.execute;
             if ( isExecute === undefined  ) {
                 //var restData = require('../data/mgmtobjects_status');
-                var fs=reauire('fs');
+                var fs=require('fs');
                 var file="./data/mgmtobjects_status.json";
                 var restData=JSON.parse(fs.readFileSync( file));
                 res1.json(200,restData);
