@@ -106,6 +106,7 @@ var appTopologyItemSchema = new Schema({
     arrayname :String,
     arraytype :String,
     devices  :String,
+    deviceips :String,
     maskingview  :String,
     IG  :String,
     PG  :String,
