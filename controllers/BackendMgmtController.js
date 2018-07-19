@@ -196,6 +196,40 @@ var BackendMgmtController = function (app) {
             query.exportId = req.query["export-id"];
  
             backendMgmt.getCollectObjects(query,function(result ) {
+ 
+                /*  Mapping vnx.type to vnx.typename 
+                    1 = VNX Block Only
+                    2 = VNX NAS Gateway/eNAS
+                    3 = VNX Unified/File
+                    4 = Unity/VNXe2
+                */
+                switch (query.exportId) {
+                    case "vnx" :
+                        for ( var i in result ) {
+                            var item = result[i];
+                            switch ( item["vnx.type"] ) {
+                                case "1" :
+                                    item["vnx.typename"] = "VNX Block Only";
+                                    break;
+                                case "2" :
+                                    item["vnx.typename"] = "VNX NAS Gateway/eNAS";
+                                    break;
+                                case "3" :
+                                    item["vnx.typename"] = "VNX Unified/File";
+                                    break;
+                                case "4" :
+                                    item["vnx.typename"] = "Unity/VNXe2";
+                                    break;
+                                default :
+                                    item["vnx.typename"] = "Unknow";
+                                    break;
+                            }
+                        }
+                        break;
+                    default :
+
+                        break;
+                }
                 res1.json(200,result);
             })
         });
@@ -304,14 +338,29 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                 for ( var i in tbody ) {
                     var item = tbody[i];
                     if ( item.class == "device-location") {
+                        var elementItem = item.div[0].div[2];
+
+                        var server = [];
+                        for ( var j in elementItem.select.option ) {
+                            var optionItem = elementItem.select.option[j];
+                            var serverItem = {};
+                            serverItem["serverid"] = optionItem.value;
+                            serverItem["servername"] = optionItem["$t"];
+
+                            server.push(serverItem);
+                        }
+                        callback( null , server ) ;
+                        break;
+
                         for ( var j in item.div ) {
                             var itemLocaltion = item.div[j];
                             device_localtion[itemLocaltion.input.name] = itemLocaltion.input.value;
                         } 
                     }
                 }
- 
+ /*
                 callback(null,device_localtion);
+                */
             } 
         ], function (err, result) {
               // result now equals 'done'

@@ -233,7 +233,7 @@ var testController = function (app) {
 
            //Switch.getFabric(fabwwn,function(resultJson) {    res.json(200,resultJson);       });
 
-           //Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
+       //Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
 
           //VMAX.getArrayPerformance1( function(result) {            res.json(200,result);       }); 
           // VMAX.GetCapacity(device, function(result) {            res.json(200,result);       });  
@@ -249,12 +249,12 @@ var testController = function (app) {
           //function GetFCSwitchPart(devtype,parttype,callback) { 
           //  Report.getAppStorageRelation( function (result )  {  res.json(200,result) });
             //CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
-        Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
+       // Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
 
         //SWITCH.GetSwitchPorts(device, function(rest) {             res.json(200,rest);        });
-        //SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
+       // SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
        // VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
         //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
@@ -268,7 +268,7 @@ var testController = function (app) {
         //VNX.GetBlockDevices(device,  function(result) {   res.json(200,result);   }); 
         //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
         //VMAX.GetMaskViews(device, function(ret) {     res.json(200,ret);        });
-        //Report.ArrayAccessInfos(device, function(ret) {  res.json(200,ret);        });
+        Report.ArrayAccessInfos(device, function(ret) {  res.json(200,ret);        });
         //VMAX.GetAssignedHosts(device, function(rest) {             res.json(200,rest);        });
 
         //Report.E2ETopology(device, function(ret) {   res.json(200,ret);        });

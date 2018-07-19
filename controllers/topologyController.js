@@ -166,9 +166,14 @@ var topologyController = function (app) {
                    // if ( topoItem.marched_type != 'find' ) continue;
                    // if ( topoItem.zname.indexOf('VPLEX') >=0 ) continue;
 
-                    var retItem = {};
-                    retItem.app = "";
+
+                   var retItem = {};
+                   retItem.appShortName = "";
+                   retItem.app = "";
+                    retItem.appManagerA = "";
                     retItem.host = "";
+                    retItem.hostStatus = "";
+
                     for ( var z in topoItem ) {
                         retItem[z] = topoItem[z];
                     }
@@ -177,6 +182,7 @@ var topologyController = function (app) {
                         var appItem = apps[i];
 
                         if ( appItem.WWN == topoItem.hbawwn) { 
+                            retItem["appShortName"] = appItem["appShortName"];
                             retItem["app"] = appItem["app"];
                             retItem["appManagerA"] = appItem["appManagerA"];
                             retItem["host"] = appItem["host"];   
@@ -196,6 +202,7 @@ var topologyController = function (app) {
                  var xls = json2xls(finalRecords_new);
          
                  var outputFilename = ReportOutputPath + '//' + 'topology.xlsx';
+                 console.log("Write Result to file [" + outputFilename + "]");
                  fs.writeFileSync(outputFilename, xls, 'binary');
 
                 var ret = {};

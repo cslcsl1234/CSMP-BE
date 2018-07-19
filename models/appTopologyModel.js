@@ -84,8 +84,11 @@ var maskingViewSchema = new Schema({
 
 
 var appTopologyItemSchema = new Schema({
+    appShortName  :String,
     app  :String,
+    appManagerA  :String,
     host  :String,
+    hostStatus :String,
     hbawwn  :String,
     connect_hba_swport_alias  :String,
     connect_hba_zmemtype  :String,
@@ -103,6 +106,7 @@ var appTopologyItemSchema = new Schema({
     arrayname :String,
     arraytype :String,
     devices  :String,
+    deviceips :String,
     maskingview  :String,
     IG  :String,
     PG  :String,
