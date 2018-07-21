@@ -13,8 +13,8 @@
   "MongoDBURL": "mongodb://csmpdbserver/csmp",
   "SRM_RESTAPI": {
     "SERIES_BEGIN_TS": "2017-12-14T18:30:00+08:00",
-    "SERIES_LIMITS": "500000",
-    "SERIES_PERIOD": 0,
+    "SERIES_LIMITS": "10000000",
+    "SERIES_PERIOD": 3600,
     "METRICS_PROPERTIES_VALUE": "/metrics/properties/values",
     "METRICS_SERIES_VALUE": "/metrics/series/values",
     "BASE_FILTER": ""
