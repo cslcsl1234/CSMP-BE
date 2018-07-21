@@ -160,6 +160,7 @@ var topologyController = function (app) {
                 }
 
                 var finalRecords_new = [];
+                var finalRecords_null = [];
                 for ( var j in finalRecords ) {
                     var topoItem = finalRecords[j];
 
@@ -192,10 +193,32 @@ var topologyController = function (app) {
 
                     if ( retItem.marched_type == 'find' ) {
                         delete retItem.marched_type;
-                        finalRecords_new.push(retItem);
+                        
+                        if ( retItem.connect_hba_swport_wwn === undefined  || retItem.connect_hba_swport_wwn === null || retItem.connect_hba_swport_wwn === '' ) 
+                            finalRecords_null.push(retItem);
+                        else
+                            finalRecords_new.push(retItem);
+ 
+
                     }
                 }
 
+                
+                var fs = require('fs');
+                var wstream = fs.createWriteStream("./data/finalRecords_null.json");  
+                         
+                wstream.write('[');
+                for ( var i in finalRecords_null ) {
+                    var item = finalRecords_null[i];
+                    if ( i == 0 ) wstream.write(JSON.stringify(item) +'\n');
+                    else wstream.write(', ' + JSON.stringify(item) +'\n');
+                }
+                wstream.write(']\n');
+                wstream.end();    
+
+
+
+                
                  var fs = require('fs');
                  var json2xls = require('json2xls');
         
