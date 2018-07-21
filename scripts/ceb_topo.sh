@@ -43,6 +43,15 @@ if [ -f topology.xlsx ];
 then 
 	echo "mv topology.xlsx topology${DD}.xlsx"
 	mv topology.xlsx topology${DD}.xlsx
+
+ftp -n 10.1.41.60 <<!
+user cmdbsb cmdbsb@1234
+bin 
+put topology${DD}.xlsx
+exit
+!
+
+
 fi
 
 echo " --------------------- end ---------------------------------"
