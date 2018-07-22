@@ -481,7 +481,7 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                                     };
                                     for ( var i in result ) {
                                         var item = result[i];
-                                        if ( item.available >= 80 ) item['status'] = "OK";
+                                        if ( item.available >= 50 ) item['status'] = "OK";
                                         else item["status"] = "FAILED";
                                     }
                                     callback(null, result);
@@ -622,6 +622,8 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                                             storageItem["sn"] = "";
                                             storageItem["name"] = objItem["vnx.friendlyname"];
                                             storageItem["testResult"] = objItem.Status["data-test-result-output"];
+                                            storageItem["CollectInfo"] = "Controller="+objItem["vnx.block.spa"] + ","+objItem["vnx.block.spb"];
+                                                
     
                                             result.storage.push(storageItem);
                                         };
@@ -636,6 +638,7 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                                             storageItem["sn"] = objItem["vmax.serialnb"];
                                             storageItem["name"] = "";
                                             storageItem["testResult"] = objItem.Status["data-test-result-output"];
+                                            storageItem["CollectInfo"] = "SMI-S Provider="+objItem["vmax.smi.host"] + ";Unisphere="+objItem["vmax.unisphere.host"];
     
                                             result.storage.push(storageItem);
                                         };
@@ -644,13 +647,14 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                                         for ( var j in deviceItem.devices ) {
                                             var objItem = deviceItem.devices[j];
                                             var storageItem = {};
-    
+ 
                                             storageItem["testDateTime"] = objItem.Status["data-test-result-date"];
                                             storageItem["status"] = objItem.Status["data-test-result-status"];
                                             storageItem["sn"] = "";
                                             storageItem["name"] = objItem["smiprovider.host"];
                                             storageItem["testResult"] = objItem.Status["data-test-result-output"];
-    
+                                            storageItem["CollectInfo"] = "SMI-S Provider="+objItem["smiprovider.host"];
+        
                                             result.switch.push(storageItem);
                                         };
                                         break;

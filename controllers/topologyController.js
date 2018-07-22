@@ -218,7 +218,8 @@ var topologyController = function (app) {
 
 
 
-                
+
+
                  var fs = require('fs');
                  var json2xls = require('json2xls');
         
@@ -242,6 +243,23 @@ var topologyController = function (app) {
                 //appTopologyRecord.nomarched_masking = topoAll.nomarched;
                 //appTopologyRecord.zone = zone ; 
                 //appTopologyRecord.masking = masking ;
+
+
+                /*  ------------------------------
+                    for lun mapping view 
+                  ------------------------------ */
+               var lunTopoViews = topos.CombineLunTopoViews(masking,finalRecords_new  );
+               var fs = require('fs');
+               var json2xls = require('json2xls');
+      
+               var xls1 = json2xls(lunTopoViews);
+       
+               var outputFilename1 = ReportOutputPath + '//' + 'lunmapping.xlsx';
+               console.log("Write Result to file [" + outputFilename1 + "]");
+               fs.writeFileSync(outputFilename1, xls1, 'binary');
+
+
+
 
                 var newRecord = new AppTopologyObj(appTopologyRecord);
                  
