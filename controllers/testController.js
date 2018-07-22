@@ -194,17 +194,26 @@ var testController = function (app) {
      });     
      
      app.get('/test2',function(req, res) {
-                            
-        var param = {}; 
-        param['filter'] = 'parttype==\'ZoneAlias\'';
-        param['fields'] = ['pswwn','alias','zmemid'];
-        param['keys'] = ['pswwn','alias','zmemid'];
+        var masking = require('C:\\CSMP\\reporting\\tmp\\masking.json');
+        var apptopo = require('C:\\CSMP\\CSMP-BE\\data\\topology.json');
+        var lunview = topos.CombineLunTopoViews(masking, apptopo );   
 
-        CallGet.CallGet(param, function(param) { 
+        
+                
+        var fs = require('fs');
+        var wstream = fs.createWriteStream("./data/lunview.json");  
+                 
+        wstream.write('[');
+        for ( var i in lunview ) {
+            var item = lunview[i];
+            if ( i == 0 ) wstream.write(JSON.stringify(item) +'\n');
+            else wstream.write(', ' + JSON.stringify(item) +'\n');
+        }
+        wstream.write(']\n');
+        wstream.end();    
 
-            
-            res.json(200,param.result);
-        });                
+
+        res.json(200,"succeeds");        
      })
 
     app.get('/api/test', function (req, res) {
@@ -266,9 +275,9 @@ var testController = function (app) {
         //Capacity.GetArrayCapacity(device, function(ret) {
          //   DeviceMgmt.GetArrayAliasName(function(ret) {           res.json(200,ret);        });
         //VNX.GetBlockDevices(device,  function(result) {   res.json(200,result);   }); 
-        //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
+        VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
         //VMAX.GetMaskViews(device, function(ret) {     res.json(200,ret);        });
-        Report.ArrayAccessInfos(device, function(ret) {  res.json(200,ret);        });
+       // Report.ArrayAccessInfos(device, function(ret) {  res.json(200,ret);        });
         //VMAX.GetAssignedHosts(device, function(rest) {             res.json(200,rest);        });
 
         //Report.E2ETopology(device, function(ret) {   res.json(200,ret);        });
