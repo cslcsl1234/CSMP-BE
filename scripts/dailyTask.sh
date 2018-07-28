@@ -12,7 +12,7 @@ echo "authkey="$authkey
 curl --silent -X GET http://csmpserver:8080/api/backendmgmt/monitoring/serverstatus?execute=true -H "Authorization: ${authkey}"
 
 curl --silent -X GET http://csmpserver:8080/api/backendmgmt/monitoring/testvaild -H "Authorization: ${authkey}"
-curl --silent -X GET http://csmpserver:8080/api/backendmgmt/monitoring/mgmtobjects -H "Authorization: ${authkey}"
+curl --silent -X GET http://csmpserver:8080/api/backendmgmt/monitoring/mgmtobjects?execute=true -H "Authorization: ${authkey}"
 
 
 echo " --------------------- end ---------------------------------"

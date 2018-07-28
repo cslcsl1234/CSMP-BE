@@ -242,7 +242,7 @@ var testController = function (app) {
 
            //Switch.getFabric(fabwwn,function(resultJson) {    res.json(200,resultJson);       });
 
-       //Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
+       // Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
 
           //VMAX.getArrayPerformance1( function(result) {            res.json(200,result);       }); 
           // VMAX.GetCapacity(device, function(result) {            res.json(200,result);       });  

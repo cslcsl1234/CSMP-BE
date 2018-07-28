@@ -218,6 +218,21 @@ var topologyController = function (app) {
 
 
 
+                
+                var fs = require('fs');
+                var wstream = fs.createWriteStream("./data/topology.json");  
+                         
+                wstream.write('[');
+                for ( var i in finalRecords_new ) {
+                    var item = finalRecords_new[i];
+                    if ( i == 0 ) wstream.write(JSON.stringify(item) +'\n');
+                    else wstream.write(', ' + JSON.stringify(item) +'\n');
+                }
+                wstream.write(']\n');
+                wstream.end();    
+
+
+
 
 
                  var fs = require('fs');
@@ -253,7 +268,8 @@ var topologyController = function (app) {
                var json2xls = require('json2xls');
       
                var xls1 = json2xls(lunTopoViews);
-       
+                console.log(lunTopoViews.length);
+
                var outputFilename1 = ReportOutputPath + '//' + 'lunmapping.xlsx';
                console.log("Write Result to file [" + outputFilename1 + "]");
                fs.writeFileSync(outputFilename1, xls1, 'binary');
@@ -277,7 +293,6 @@ var topologyController = function (app) {
 
     });
             
- 
 
 
 };
