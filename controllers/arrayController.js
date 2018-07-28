@@ -83,6 +83,7 @@ var arrayController = function (app) {
 
 
    app.get('/api/arrays', function (req, res) { 
+        res.setTimeout(1200*1000);
         var device = req.query.device;
         var datacenter = req.query.datacenter;
  

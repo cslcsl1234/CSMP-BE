@@ -17,6 +17,7 @@ var App = require('../lib/App');
 var topos = require('../lib/topos.js');
 var VPLEX = require('../lib/Array_VPLEX');  
 var VMAX = require('../lib/Array_VMAX');
+var VNX = require('../lib/Array_VNX');
  
 
 var externalController = function (app) {
@@ -279,8 +280,36 @@ function vplexinfo(device, callback) {
  
     };
 
-
+    app.get('/api/external/arrayinfo', function (req, res) { 
+        res.setTimeout(1200*1000);
+        var device;
  
+        async.auto(
+            {
+                vnxinfo: function( callback, result ) {
+                    VNX.GetArrays(device, function(ret) {
+                        callback(null,ret);
+                   })                        
+                },
+                vmaxinfo: function(callback, result ) {
+                    VMAX.GetArrays(device, function(ret) {
+                        callback(null,ret);
+                   })  
+                },
+                mergeResult: ["vnxinfo","vmaxinfo",function(callback, result ) {
+                    var finalResult = [];
+                    finalResult = finalResult.concat(result.vnxinfo);
+                    finalResult = finalResult.concat(result.vmaxinfo);
+                    callback(null,finalResult);
+
+                }]
+            }, function(err, result ) {
+                res.json(200,result.mergeResult);
+            }
+            
+        );
+    });
+
 
 
 };
