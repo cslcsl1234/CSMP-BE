@@ -9,6 +9,7 @@
 const debug = require('debug')('externalController')  
 const name = 'my-app'  
 var unirest = require('unirest');
+var moment = require('moment');
 var configger = require('../config/configger');  
     
 var async = require('async'); 
@@ -18,7 +19,7 @@ var topos = require('../lib/topos.js');
 var VPLEX = require('../lib/Array_VPLEX');  
 var VMAX = require('../lib/Array_VMAX');
 var VNX = require('../lib/Array_VNX');
- 
+var CallGet = require('../lib/CallGet'); 
 
 var externalController = function (app) {
 
@@ -282,7 +283,13 @@ function vplexinfo(device, callback) {
 
     app.get('/api/external/arrayinfo', function (req, res) { 
         res.setTimeout(1200*1000);
+
+        var config = configger.load(); 
+        var ReportTmpDataPath = config.Reporting.TmpDataPath;
+        var ReportOutputPath = config.Reporting.OutputPath;
+                        
         var device;
+        var arrayInfo = require("../config/StorageInfo");
  
         async.auto(
             {
@@ -300,16 +307,105 @@ function vplexinfo(device, callback) {
                     var finalResult = [];
                     finalResult = finalResult.concat(result.vnxinfo);
                     finalResult = finalResult.concat(result.vmaxinfo);
+                    
                     callback(null,finalResult);
 
                 }]
             }, function(err, result ) {
-                res.json(200,result.mergeResult);
+
+                var finalResult = [];
+                for ( var i in result.mergeResult ) {
+                    var item = result.mergeResult[i];
+
+                    if ( item.serialnb == 'CETV3163400036' ) continue;
+
+                    for ( var j in arrayInfo ) {
+                        var arrayInfoItem = arrayInfo[j];
+                        if ( item.serialnb == arrayInfoItem.storagesn ) {
+                            var ST_ALIAS = arrayInfoItem.name;
+                            var LOCATION = arrayInfoItem.cabinet;
+                        }
+                    }
+                    var finalResultItem = {};
+                    finalResultItem["ST_VENDOR"] = item.vendor;
+                    finalResultItem["ST_ALIAS"] =  ST_ALIAS === undefined ? "" : ST_ALIAS;
+                    finalResultItem["ST_SN"] = item.serialnb;
+                    finalResultItem["ST_MODEL"] = item.model;
+                    finalResultItem["ST_MICROCODE"] = item.devdesc;
+                    finalResultItem["CACHE_SIZE"] = Math.round(item.TotalMemory/1024);
+                    finalResultItem["PORT_NUMBER"] = item.TotalFEPort;
+                    finalResultItem["DISK_NUMBER"] = item.TotalDisk;
+                    finalResultItem["RAW_CAPACITY"] = item.RawCapacity;
+                    finalResultItem["CAPACITY"] = item.ConfiguredUsableCapacity;
+                    finalResultItem["ALLOCATED"] = item.UsedCapacity;
+                    finalResultItem["LOCATION"] = LOCATION === undefined ? "" : LOCATION;
+
+                    finalResult.push(finalResultItem);
+                                       
+                }
+                const fs = require('fs');
+                const Json2csvParser = require('json2csv').Parser;
+                const fields = ["ST_VENDOR","ST_ALIAS","ST_SN","ST_MODEL","ST_MICROCODE","CACHE_SIZE","PORT_NUMBER","DISK_NUMBER","RAW_CAPACITY","CAPACITY","ALLOCATED","LOCATION"];
+
+                const json2csvParser = new Json2csvParser({ fields });
+                const csv = json2csvParser.parse(finalResult);
+                 
+                var filename = [ReportOutputPath,'\\', 'arrayinfo', moment().format('YYYY-MM-DD') , '.csv'].join('');
+                console.log(filename);
+                fs.writeFile(filename, csv);
+
+                res.json(200,finalResult);
             }
             
         );
     });
 
+    app.get('/api/external/switchinfo', function (req, res) { 
+        res.setTimeout(1200*1000);
+
+        var config = configger.load(); 
+        var ReportTmpDataPath = config.Reporting.TmpDataPath;
+        var ReportOutputPath = config.Reporting.OutputPath;
+                      
+
+        var param = {};  
+        param['keys'] = ['device','devicesn','vendor','model','ip','devdesc','firmware','lsname'];  
+        param['filter'] = 'datagrp=\'BROCADE_FCSWITCH_PORT\'';
+ 
+        CallGet.CallGet(param, function(swinfo) {   
+            var finalResult = [];
+            for ( var i in swinfo.result ) {
+                var item = swinfo.result[i];
+
+                var finalResultItem = {};
+                finalResultItem["SW_SN"] = item.devicesn; 
+                finalResultItem["SW_NAME"] = item.lsname;
+                finalResultItem["SW_MODEL"] = item.model;
+                finalResultItem["SW_VENDOR"] = item.vendor; 
+                finalResultItem["IP"] = item.ip;
+                finalResultItem["ST_MICROCODE"] = item.firmware; 
+
+                finalResult.push(finalResultItem);
+
+            }  
+
+
+            const fs = require('fs');
+            const Json2csvParser = require('json2csv').Parser;
+            const fields = ["SW_SN","SW_NAME","SW_MODEL","SW_VENDOR","IP","CACHE_SIZE","ST_MICROCODE"];
+
+            const json2csvParser = new Json2csvParser({ fields });
+            const csv = json2csvParser.parse(finalResult);
+             
+            var filename = [ReportOutputPath,'\\', 'switchinfo', moment().format('YYYY-MM-DD') , '.csv'].join('');
+            console.log(filename);
+            fs.writeFile(filename, csv);
+
+
+            res.json(200,finalResult); 
+        });        
+    
+    });
 
 
 };

@@ -4,10 +4,9 @@
 
 echo " --------------------- begin ---------------------------------"
 DD=`date +%Y%m%d%H%M%S`
+DD1=`date +%Y-%m-%d`
 YESTODAY_DD=`date -d yesterday +%Y%m%d`
 
-authkey=`curl --silent -X POST http://csmpserver:8080/api/login -d "username=admin&password=password" | jq -r -S '.authKey'`
-sleep 5
 authkey=`curl --silent -X POST http://csmpserver:8080/api/login -d "username=admin&password=password" | jq -r -S '.authKey'`
 
 echo "authkey="$authkey
@@ -63,6 +62,31 @@ exit
 !
 fi
 
+echo 'curl --silent -X GET http://csmpserver:8080/api/external/switchinfo -H "Authorization: ${authkey}"'
+curl --silent -X GET http://csmpserver:8080/api/external/switchinfo -H "Authorization: ${authkey}"
+if [ -f switchinfo${DD1}.csv ];
+then 
+	echo "put file switchinfo${DD1}.csv"
+ftp -n 10.1.41.60 <<!
+user cmdbsb cmdbsb@1234
+bin 
+put switchinfo${DD1}.csv
+exit
+!
+fi
+
+echo 'curl --silent -X GET http://csmpserver:8080/api/external/arrayinfo -H "Authorization: ${authkey}"'
+curl --silent -X GET http://csmpserver:8080/api/external/arrayinfo -H "Authorization: ${authkey}"
+if [ -f switchinfo${DD1}.csv ];
+then 
+	echo "put file arrayinfo${DD1}.csv"
+ftp -n 10.1.41.60 <<!
+user cmdbsb cmdbsb@1234
+bin 
+put arrayinfo${DD1}.csv
+exit
+!
+fi
 
 
 echo " --------------------- end ---------------------------------"

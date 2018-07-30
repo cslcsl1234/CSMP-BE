@@ -121,7 +121,13 @@ var authController = function (app) {
                       roleFunc.GetRoleListByUser(user.username,function(retcode, menulist) {
                       //console.log(menulist); 
 
-                      return res.json(200, {authKey: authKey, user: user , menuItems: menulist });
+                        Auth.find({user: userId})
+                        .exec(function (err, auths) {
+                                var auth = auths[0];
+                                var authKey = auth.authKey; 
+                                return res.json(200, {authKey: authKey, user: user , menuItems: menulist });
+                        });
+                        
 
                       })
 
