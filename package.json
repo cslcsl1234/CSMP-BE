@@ -5,6 +5,7 @@
     "body-parser": "*",
     "debug": "^2.6.3",
     "express": "~3.1.0",
+    "json2csv": "^4.1.6",
     "json2xls": "^0.1.2",
     "jsonpath": "0.2.11",
     "memory-cache": "^0.1.6",
