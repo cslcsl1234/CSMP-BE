@@ -350,7 +350,7 @@ function vplexinfo(device, callback) {
                 const json2csvParser = new Json2csvParser({ fields });
                 const csv = json2csvParser.parse(finalResult);
                  
-                var filename = [ReportOutputPath,'\\', 'arrayinfo', moment().format('YYYY-MM-DD') , '.csv'].join('');
+                var filename = [ReportOutputPath,'/', 'array_info', moment().format('YYYY-MM-DD') , '.csv'].join('');
                 console.log(filename);
                 fs.writeFile(filename, csv);
 
@@ -397,7 +397,7 @@ function vplexinfo(device, callback) {
             const json2csvParser = new Json2csvParser({ fields });
             const csv = json2csvParser.parse(finalResult);
              
-            var filename = [ReportOutputPath,'\\', 'switchinfo', moment().format('YYYY-MM-DD') , '.csv'].join('');
+            var filename = [ReportOutputPath,'/', 'switch_info', moment().format('YYYY-MM-DD') , '.csv'].join('');
             console.log(filename);
             fs.writeFile(filename, csv);
 
