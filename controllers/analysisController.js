@@ -2507,10 +2507,22 @@ app.get('/api/analysis/app/workload/relateDistribution', function (req, res) {
             data["output"] = dataset;
             callback(null, data );
 
+        }        
+        , function ( arg1, callback ) {
+            var arg = arg1.output;
+            for ( var fieldname in arg ) {
+                console.log(fieldname);
+                if ( arg[fieldname].dataset === undefined ) continue;
+                for ( var i in arg[fieldname].dataset ) {
+                    var item = arg[fieldname].dataset[i];
+                    item['timestamp'] = moment.unix(item.timestamp).format('YYYY-MM-DD HH:mm:ss')
+                }
+            }
+            callback(null,arg);
         }
     ], function (err, result) { 
 
-        res.json(200, result.output );
+        res.json(200, result );
     }); 
 
 });
@@ -2955,6 +2967,16 @@ app.get('/api/analysis/app/workload/distribution', function (req, res) {
                 callback(null, result);
             }) 
         }
+        , function ( arg, callback ) { 
+            for ( var fieldname in arg ) { 
+                if ( arg[fieldname].dataset === undefined ) continue;
+                for ( var i in arg[fieldname].dataset ) {
+                    var item = arg[fieldname].dataset[i];
+                    item['timestamp'] = moment.unix(item.timestamp).format('YYYY-MM-DD HH:mm:ss')
+                }
+            }
+            callback(null,arg);
+        }
     ], function (err, result) { 
 
         res.json(200, result );
@@ -3315,6 +3337,15 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
             callback(null,dataset);
 
         } */
+        , function ( arg, callback ) {
+            for ( var fieldname in arg ) {
+                for ( var i in arg[fieldname].dataset ) {
+                    var item = arg[fieldname].dataset[i];
+                    item['timestamp'] = moment.unix(item.timestamp).format('YYYY-MM-DD HH:mm:ss')
+                }
+            }
+            callback(null,arg);
+        }
     ], function (err, result) { 
 
         res.json(200, result );
