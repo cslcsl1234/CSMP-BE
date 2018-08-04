@@ -66,11 +66,11 @@ echo 'curl --silent -X GET http://csmpserver:8080/api/external/switchinfo -H "Au
 curl --silent -X GET http://csmpserver:8080/api/external/switchinfo -H "Authorization: ${authkey}"
 if [ -f switchinfo${DD1}.csv ];
 then 
-	echo "put file switchinfo${DD1}.csv"
+	echo "put file switch_info${DD1}.csv"
 ftp -n 10.1.41.60 <<!
 user cmdbsb cmdbsb@1234
 bin 
-put switchinfo${DD1}.csv
+put switch_info${DD1}.csv
 exit
 !
 fi
@@ -79,11 +79,11 @@ echo 'curl --silent -X GET http://csmpserver:8080/api/external/arrayinfo -H "Aut
 curl --silent -X GET http://csmpserver:8080/api/external/arrayinfo -H "Authorization: ${authkey}"
 if [ -f switchinfo${DD1}.csv ];
 then 
-	echo "put file arrayinfo${DD1}.csv"
+	echo "put file array_info${DD1}.csv"
 ftp -n 10.1.41.60 <<!
 user cmdbsb cmdbsb@1234
 bin 
-put arrayinfo${DD1}.csv
+put array_info${DD1}.csv
 exit
 !
 fi

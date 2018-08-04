@@ -9,6 +9,6 @@ then
 	echo "node process is exist!"
 else
 	echo "node process is not exists!"
-	nohup node app.js > stdout.log 2> stderr.log &
+	nohup node --max-old-space-size=2048 app.js > stdout.log 2> stderr.log &
 fi
 
