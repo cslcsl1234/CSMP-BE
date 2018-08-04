@@ -78,7 +78,7 @@ var analysisController = function (app) {
 
                 function(callback){
                     console.log(moment.utc(Date.now()).format() + " Begin Query mongodb ...");
-                    var query = AppTopologyObj.find({}).select({ "metadata": 1, "data": 1,  "_id": 0});
+                    var query = AppTopologyObj.find({}).sort({"metadata.generateDatetime":-1}).limit(1).select({ "metadata": 1, "data": 1,  "_id": 0});
                     query.exec(function (err, doc) {
                         //system error.
                         if (err) { 
@@ -129,7 +129,7 @@ var analysisController = function (app) {
                                     var redoItem = doc[j];
                                     if ( item.array == redoItem.devicesn && item.SG == redoItem.sgname ) {
                                         
-                                    console.log(item.array +"|"+ redoItem.devicesn +"|"+ item.SG +"|"+ redoItem.sgname+"\t" +redoItem.redovol);
+                                   // console.log(item.array +"|"+ redoItem.devicesn +"|"+ item.SG +"|"+ redoItem.sgname+"\t" +redoItem.redovol);
                                     item.redovol = redoItem.redovol;
                                     }
                                 }
@@ -323,7 +323,7 @@ var analysisController = function (app) {
 
                                 
                                 if ( item.device == arrayItem.devicesn ) {
-                                    console.log(item.device+"\t"+arrayItem.devicesn);
+                                    //console.log(item.device+"\t"+arrayItem.devicesn);
                                     arrayItem["model"] = item.model;
                                     break;
                                 }
@@ -2379,6 +2379,7 @@ app.get('/api/analysis/app/workload/relateDistribution', function (req, res) {
     var end = moment(req.query.to).toISOString();
 
     var data = {};
+    var relateSG = [];
     async.waterfall([
         function(  callback){ 
             var param = {};  
@@ -2452,6 +2453,7 @@ app.get('/api/analysis/app/workload/relateDistribution', function (req, res) {
             dataset["appname"] = appname;
             dataset["array"] = device;
             dataset["sgname"] = sgname;
+            dataset["associateSgName"] = data.relaSGName;
             dataset["IOPS"] = [];
             dataset["MBPS"] = [];
 
@@ -3193,7 +3195,11 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
     var end = moment(req.query.to).toISOString(true);
 
     var isNeedBaseLine = false;
-
+    var arrayInfo = require("../config/StorageInfo");
+    var arrayname = "";
+    for ( var i in arrayInfo ) {
+        if ( arrayInfo[i].storagesn == device ) arrayname = arrayInfo[i].name;
+    }
     var data = {};
     async.waterfall([
         function(  callback){ 
@@ -3207,7 +3213,7 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
             param['type'] = 'max';
             param['filter_name'] = '(name==\'Requests\'|name==\'CurrentUtilization\'|name==\'HostMBperSec\')';
             param['keys'] = ['device','part']; 
-            param['fields'] = ['model'];  
+            param['fields'] = ['model'];
             
             if ( fename === undefined ) 
                 param['filter'] = 'datagrp=\'VMAX-FEDirector\'' ;
@@ -3219,8 +3225,55 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
             
 
             CallGet.CallGetPerformance(param, function(feperf) {  
-                var data = {};
-                data["orgiData"] = feperf[0].matrics;
+                var resData = {};  
+                for ( var i in feperf ) {
+                    var item = feperf[i];
+                    var itemFename = item.part;
+                    var itemDevice = item.device;
+                    console.log(itemFename);
+    
+                    for ( var j in item.matrics ) {
+                        var matricsItem = item.matrics[j];
+                        var timestamp ;
+                        for ( var fieldname in matricsItem ) { 
+                            if ( fieldname == 'timestamp' )  timestamp = matricsItem[fieldname];
+                            else  {
+                                if ( resData[fieldname] === undefined ) {
+                                    resData[fieldname] = {};
+                                    resData[fieldname]["Title"] = fieldname;
+                                    resData[fieldname]["dataset"] = [];
+                                }
+                                var isfind = false;
+                                for ( var ii in resData[fieldname]["dataset"] ) {
+                                    var item1 =  resData[fieldname]["dataset"][ii];
+                                    if ( item1.timestamp == timestamp ) {
+                                        item1[itemFename] = matricsItem[fieldname];
+                                        isfind = true;
+                                        break;
+                                    }
+                                }
+                                if ( isfind == false  ) {
+                                    var item1 = {};
+                                    item1["timestamp"] = timestamp;
+                                    item1[itemFename] = matricsItem[fieldname];
+                                    resData[fieldname]["dataset"].push(item1); 
+                                }
+                               
+                            }
+    
+                        }
+                    }
+                }
+                data["orgiData"] = { "Array": {} , "matrics" : {}};
+                data.orgiData.Array["sn"] = device;
+                data.orgiData.Array["name"] = arrayname;
+                data.orgiData.Array["haveBaseLine"] = isNeedBaseLine;
+                data.orgiData.Array["FEName"] = fename;
+                                
+                if ( feperf[0] === undefined ) 
+                    data.orgiData.matrics = {};
+                else 
+                    data.orgiData.matrics = resData;
 
                 callback(null, data);
             });
@@ -3246,9 +3299,11 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
                 }
 
                 CallGet.CallGetPerformance(param, function(feperf) {  
- 
-                    data["baselineData"] = feperf[0].matrics;
-                    
+  
+                    if ( feperf[0] === undefined ) data["baselineData"] = [];
+                    else 
+                        data["baselineData"] = feperf[0].matrics;
+                        
                     callback(null, data);
                 });
 
@@ -3256,11 +3311,18 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
         
         } , 
         function( data, callback ) {
-            Analysis.GenerateBaseLine(data, function(result) {
-                callback(null, result);
-            })
+            if ( isNeedBaseLine == false ) { 
+                callback(null, data); 
+            } else {
+                callback(null, data); 
+                //Analysis.GenerateBaseLine(data, function(result) {
+                //    callback(null, result);
+                //})
+            }
         }
-        /*function( data, callback ) {  
+        /*
+        , function( data, callback ) {  
+            callback(null, data);
             var IOPS = [];
             var MBPS = [];
             var UTIL = [];

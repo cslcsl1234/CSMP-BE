@@ -183,12 +183,65 @@ var testController = function (app) {
 
 
     app.get('/api/test1', function (req, res) {
-        res.setTimeout(1200*1000);
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        var start = moment('2018-05-26').toISOString(true); 
+        var end = moment('2018-05-27').toISOString(true);
+    
+        var param = {};
+        param['device'] = '000297000161';
+        param['period'] = 3600;
+        param['start'] = start;
+        param['end'] = end;
+        param['type'] = 'max';
+        param['filter_name'] = '(name==\'Requests\'|name==\'CurrentUtilization\'|name==\'HostMBperSec\')';
+        //param['filter_name'] = '(name==\'Requests\')';
+        param['keys'] = ['device','part']; 
+        param['fields'] = ['model'];
+         
+        param['filter'] = 'datagrp=\'VMAX-FEDirector\'' ; 
         
-        var deviceid;
-        SWITCH.getZone(deviceid, function(result) {  
-            res.json(200,result); 
+        CallGet.CallGetPerformance(param, function(feperf) {
+            
+            var resData = {};  
+            for ( var i in feperf ) {
+                var item = feperf[i];
+                var itemFename = item.part;
+                var itemDevice = item.device;
+                console.log(itemFename);
+
+                for ( var j in item.matrics ) {
+                    var matricsItem = item.matrics[j];
+                    var timestamp ;
+                    for ( var fieldname in matricsItem ) { 
+                        if ( fieldname == 'timestamp' )  timestamp = matricsItem[fieldname];
+                        else  {
+                            if ( resData[fieldname] === undefined ) {
+                                resData[fieldname] = {};
+                                resData[fieldname]["Title"] = fieldname;
+                                resData[fieldname]["dataset"] = [];
+                            }
+                            var isfind = false;
+                            for ( var ii in resData[fieldname]["dataset"] ) {
+                                var item1 =  resData[fieldname]["dataset"][ii];
+                                if ( item1.timestamp == timestamp ) {
+                                    item1[itemFename] = matricsItem[fieldname];
+                                    isfind = true;
+                                    break;
+                                }
+                            }
+                            if ( isfind == false  ) {
+                                var item1 = {};
+                                item1["timestamp"] = timestamp;
+                                item1[itemFename] = matricsItem[fieldname];
+                                resData[fieldname]["dataset"].push(item1);
+                                console.log(JSON.stringify(resData));
+                            }
+                           
+                        }
+
+                    }
+                }
+            }
+            res.json(200,resData);
         });
 
      });     
