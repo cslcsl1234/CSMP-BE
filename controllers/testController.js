@@ -15,6 +15,7 @@ var unirest1 = require('unirest');
 var async = require('async');
 var moment = require('moment');
 var xml2json = require('xml2json');
+var sortBy = require('sort-by');
 
  
 var RecordFlat = require('../lib/RecordFlat');
@@ -183,8 +184,8 @@ var testController = function (app) {
 
 
     app.get('/api/test1', function (req, res) {
-        var start = moment('2018-05-26').toISOString(true); 
-        var end = moment('2018-05-27').toISOString(true);
+        var start = moment('2018-07-26').toISOString(true); 
+        var end = moment('2018-07-27').toISOString(true);
     
         var param = {};
         param['device'] = '000297000161';
@@ -204,43 +205,63 @@ var testController = function (app) {
             var resData = {};  
             for ( var i in feperf ) {
                 var item = feperf[i];
-                var itemFename = item.part;
-                var itemDevice = item.device;
-                console.log(itemFename);
+                var fename = item.part;
+                var device = item.device;
+
 
                 for ( var j in item.matrics ) {
                     var matricsItem = item.matrics[j];
+
                     var timestamp ;
-                    for ( var fieldname in matricsItem ) { 
-                        if ( fieldname == 'timestamp' )  timestamp = matricsItem[fieldname];
-                        else  {
-                            if ( resData[fieldname] === undefined ) {
-                                resData[fieldname] = {};
-                                resData[fieldname]["Title"] = fieldname;
-                                resData[fieldname]["dataset"] = [];
-                            }
-                            var isfind = false;
-                            for ( var ii in resData[fieldname]["dataset"] ) {
-                                var item1 =  resData[fieldname]["dataset"][ii];
-                                if ( item1.timestamp == timestamp ) {
-                                    item1[itemFename] = matricsItem[fieldname];
-                                    isfind = true;
-                                    break;
-                                }
-                            }
-                            if ( isfind == false  ) {
-                                var item1 = {};
-                                item1["timestamp"] = timestamp;
-                                item1[itemFename] = matricsItem[fieldname];
-                                resData[fieldname]["dataset"].push(item1);
-                                console.log(JSON.stringify(resData));
-                            }
-                           
+                    for ( var fieldname in matricsItem ) {
+                        if ( fieldname == 'timestamp' ) {
+                            timestamp = matricsItem[fieldname];
+                            continue;
                         }
 
+                        var hour = moment.unix(timestamp).format('HH');
+                        var ts = moment.unix(timestamp).format('YYYY-MM-DD');
+
+                        if ( resData[fieldname] === undefined ) {
+                            resData[fieldname] = {};
+                            resData[fieldname]['title'] = fieldname;
+                            resData[fieldname]['dataset'] = [];
+                        }
+
+                        var isfind = false;
+                        for ( var z in resData[fieldname].dataset ) {
+                            var resItem = resData[fieldname].dataset[z];
+                            if ( resItem.hour == hour ) {
+                                if ( resItem[fename] === undefined ) {
+                                    resItem[fename] = matricsItem[fieldname];
+                                    resItem[fename+"_label"] = ts + ' ' + fename + ' ' + matricsItem[fieldname];
+                                } else if ( resItem[fename] < matricsItem[fieldname] ) {
+                                    resItem[fename] = matricsItem[fieldname];
+                                    resItem[fename+"_label"] = ts + ' ' + fename + ' ' + matricsItem[fieldname];                                    
+                                }
+                                isfind = true;
+                                break;
+                            }
+                        }
+                        if ( isfind == false ) {
+                            var resItem  = {};
+                            resItem['hour'] = hour;
+                            resItem[fename] = matricsItem[fieldname];
+                            resItem[fename+"_label"] = ts + ' ' + fename + ' ' + matricsItem[fieldname];
+                            resData[fieldname].dataset.push(resItem);
+                    
+                        }
                     }
                 }
+                
             }
+
+            // Sort dataset by hour
+            for ( var fieldname in resData ) {
+                var item = resData[fieldname];
+                item["dataset"].sort(sortBy("hour"));
+            }
+
             res.json(200,resData);
         });
 
@@ -269,6 +290,31 @@ var testController = function (app) {
         res.json(200,"succeeds");        
      })
 
+
+     
+     
+     app.get('/test3',function(req, res) {
+        
+        var device = req.query.device;
+        var filter = {};
+        filter["sn"] = device;
+        DeviceMgmt.getMgmtObjectInfo( filter,  function(ret ) { 
+            res.json(200,ret);    
+        })
+
+    });
+    
+    app.get('/test4',function(req, res) {
+        
+        var start = '2018-05-01T00:00:00.000Z';
+        var end = '2018-05-30T00:00:00.000Z';
+        var period = util.getPeriod(start, end);
+
+        var r = {"period": period};
+        res.json(200,r);
+
+    });
+    
     app.get('/api/test', function (req, res) {
         res.setTimeout(1200*1000);
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";

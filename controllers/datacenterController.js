@@ -12,7 +12,10 @@ var unirest = require('unirest');
 var configger = require('../config/configger'); 
 var mongoose = require('mongoose');
 var DatacenterObj = mongoose.model('Datacenter');
- 
+var deviceMgmt = require('../lib/DeviceManagement');
+var MgmtObjectInfoObject = mongoose.model('MgmtObjectInfo');
+
+
 var datacenterController = function (app) {
 
     var config = configger.load();
@@ -131,8 +134,92 @@ var datacenterController = function (app) {
 
 
 
+    app.post('/api/mgmtObject/info', function (req, res) { 
+        var mgmtobj = req.body;
+    
+        console.log("|"+ mgmtobj.toString() + "|");
+        MgmtObjectInfoObject.findOne({"sn" : mgmtobj.sn }, function (err, doc) {
+            //system error.
+            if (err) {
+                return   done(err);
+            }
+            if (!doc) { //user doesn't exist.
+                console.log("Management Object  is not exist. insert it."); 
+    
+                var newmgmtobj = new MgmtObjectInfoObject(mgmtobj);
+                newmgmtobj.save(function(err, thor) {
+                  if (err)  {
+                    console.dir(thor);
+                    return res.json(400 , err);
+                  } else 
+                    return res.json(200, {status:"SUCCESS", info: "The management object insert is succeeds!"});
+                });
+            }
+            else {  
+                doc.update(mgmtobj, function(error, course) {
+                    if(error) return next(error);
+                });
+                return  res.json(200 , {status:"SUCCESS", info: "The management object has exist! Update it."});
+            }
+        });
+    });
+    
+    app.get('/ceb/storageSet/addOrUpdate', function (req, res) {  
+        var data ={};
+        data["sn"] = req.query.storageSN;
+        data["name"] = req.query.name;
+        data["datacenter"] = req.query.datacenter;
+        data["level"] = req.query.type;
+        data["type"] = "array";
+        data["createdData"] = "";
+        data["updatedData"] = "";
+        data["specialInfo"] = "";
+
+        var specialInfo = {};
+        specialInfo["used"] = req.query.used;
+        specialInfo["maxCache"] = req.query.maxCache;
+        specialInfo["maxDisks"] = req.query.maxDisks
+        specialInfo["maxPorts"] = req.query.maxPorts;
+        specialInfo["lifeCycle"] = req.query.lifeCycle;
+        specialInfo["maintenanceInfo"] = req.query.maintenanceInfo;
+        data["specialInfo"] = JSON.stringify(specialInfo);
 
 
+        console.log("|"+ data.toString() + "|");
+        MgmtObjectInfoObject.findOne({"sn" : data.sn }, function (err, doc) {
+            //system error.
+            if (err) {
+                return   done(err);
+            }
+            if (!doc) { //user doesn't exist.
+                console.log("Management Object  is not exist. insert it."); 
+    
+                var newmgmtobj = new MgmtObjectInfoObject(data);
+                newmgmtobj.save(function(err, thor) {
+                  if (err)  {
+                    console.dir(thor);
+                    return res.json(400 , err);
+                  } else 
+                    return res.json(200, {status:"SUCCESS", info: "The management object insert is succeeds!"});
+                });
+            }
+            else {  
+                doc.update(data, function(error, course) {
+                    if(error) return next(error);
+                });
+                return  res.json(200 , {status:"SUCCESS", info: "The management object has exist! Update it."});
+            }
+        });
+    });
+    
+
+    app.get('/ceb/storageSet/list', function (req, res) {   
+        var filter = {};
+        deviceMgmt.getMgmtObjectInfo(filter, function(devInfo) {
+            res.json(200,devInfo);
+        })
+    });
+    
 };
 
 module.exports = datacenterController;

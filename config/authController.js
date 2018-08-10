@@ -125,7 +125,7 @@ var authController = function (app) {
                         .exec(function (err, auths) {
                                 var auth = auths[0];
                                 var authKey = auth.authKey; 
-                                return res.json(200, {authKey: authKey, user: user , menuItems: menulist });
+                                return res.json(200, {authKey: authKey, user: user , menuItems: menulist, data: {token: authKey} });
                         });
                         
 
@@ -147,7 +147,7 @@ var authController = function (app) {
                     roleFunc.GetRoleListByUser(user.username,function(retcode, menulist) {
                         //console.log(menulist); 
 
-                        return res.json(200, {authKey: authKey, user: user , menuItems: menulist });
+                        return res.json(200, {authKey: authKey, user: user , menuItems: menulist , data: {token: authKey} });
 
                     })                  
                 }
@@ -190,18 +190,28 @@ var authController = function (app) {
  */ 
          
     app.post('/api/login', function (req, res) {
-        var user = {
-            username: req.body.username,
-            password: req.body.password
-        };
+        var headers = req.headers;
+        console.log(headers["content-type"]);
+        if ( headers["content-type"].indexOf('x-www-form-urlencoded' )>0 )  {
+            console.log("---------------------");
+            var user = {
+                username: req.body.username,
+                password: req.body.password
+            };
+        } else { 
+            var user = {};
+            user.username = req.body.email;
+            user.password = req.body.password;
+    
+        }
 
 
-        //console.log(req.body);
+ 
         //console.log("username = %s, password = %s", req.body.username, req.body.password);
 
         User.login(user, function (err, userid, msg) {
 
-            console.log(msg);
+            //console.log(msg);
             if (err) {
                 res.json(500, err);
             }
@@ -213,6 +223,9 @@ var authController = function (app) {
             }
         });
     });
+
+
+
 
 /*
 *  Create and Update a user

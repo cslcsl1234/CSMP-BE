@@ -130,7 +130,7 @@ var analysisController = function (app) {
                                     if ( item.array == redoItem.devicesn && item.SG == redoItem.sgname ) {
                                         
                                    // console.log(item.array +"|"+ redoItem.devicesn +"|"+ item.SG +"|"+ redoItem.sgname+"\t" +redoItem.redovol);
-                                    item.redovol = redoItem.redovol;
+                                        item.redovol = redoItem.redovol;
                                     }
                                 }
 
@@ -145,7 +145,9 @@ var analysisController = function (app) {
                                 
                                 results.push(resItem);
 
-                            }  
+                            }
+                            
+
                             callback(null, results); 
                         }
                     });   
@@ -157,7 +159,7 @@ var analysisController = function (app) {
  
                     DeviceMgmt.GetArrayAliasName(function(arrayinfo) {  
                          
-
+                        //console.log(arrayinfo);
                         for ( var i in param ) {
                             var resItem = param[i]; 
                             
@@ -214,6 +216,7 @@ var analysisController = function (app) {
                                             sgItemNew.name = item.SG;
                                             sgItemNew.volumes = item.volumes;
                                             sgItemNew.redovol = item.redovol;
+                                            sgItemNew.FEDirector = item.FEDirector;
                                             arrayItem.sg.push(sgItemNew);
                                         }
                                     }
@@ -229,6 +232,7 @@ var analysisController = function (app) {
                                     sgItemNew.name = item.SG;
                                     sgItemNew.volumes = item.volumes;
                                     sgItemNew.redovol = item.redovol;
+                                    sgItemNew.FEDirector = item.FEDirector;
                                     arrayItemNew.sg.push(sgItemNew);
 
                                     resItem.device.push(arrayItemNew);
@@ -250,6 +254,7 @@ var analysisController = function (app) {
                             sgItemNew.name = item.SG;
                             sgItemNew.volumes = item.volumes;
                             sgItemNew.redovol = item.redovol;
+                            sgItemNew.FEDirector = item.FEDirector;
                             arrayItemNew.sg.push(sgItemNew);
 
                             appItemNew.device.push(arrayItemNew);  
@@ -280,6 +285,7 @@ var analysisController = function (app) {
                                 resultItem["sgname"] = item3.name;
                                 resultItem["volumes"] = item3.volumes;
                                 resultItem["redovol"] = item3.redovol;
+                                resultItem["FEDirector"] = item3.FEDirector;
 
                                 result.push(resultItem);
                                 
@@ -332,6 +338,57 @@ var analysisController = function (app) {
                        // console.log(arg);
                         callback(null,arg);
                     } );
+                }, 
+                function ( arg , callback ) {
+                    var query = AppTopologyObj.find({}).sort({"metadata.generateDatetime":-1}).limit(1).select({ "metadata": 1, "data": 1,  "_id": 0});
+                    query.exec(function (err, doc) {
+                        //system error.
+                        if (err) { 
+                            res.json(500 , {status: err})
+                        }
+                        if (!doc) { //user doesn't exist.
+                            res.json(200 , []); 
+                        }
+                        else {
+                            console.log(moment.utc(Date.now()).format() + " mongodb has return. ");
+                            var lastRecord ;
+                            for ( var i in doc ) {
+                                var item = doc[i];
+                                var generateDT = new Date(item.metadata.generateDatetime);
+                                if ( lastRecord === undefined ) {
+                                    var lastRecord = item;
+                                } else {
+                                    var lastRecordgenerateDT = new Date(lastRecord.metadata.generateDatetime);
+                                    if ( generateDT > lastRecordgenerateDT ) 
+                                        lastRecord = item;
+                                } 
+                            } 
+                            console.log(moment.utc(Date.now()).format() + " It has got the last record.");
+
+                            //console.log(lastRecord.data);
+                            var relaFE = {};
+
+                            for ( var i in lastRecord.data ) {
+                                var item = lastRecord.data[i];
+                                if ( item.arraytype != 'high') continue;
+
+                                var director = item.arrayport.split(':')[0];
+
+                                if ( relaFE[item.array] === undefined ) relaFE[item.array] = {};
+                                if ( relaFE[item.array][item.SG] === undefined ) relaFE[item.array][item.SG] = director;
+                                else {
+                                    if ( relaFE[item.array][item.SG].indexOf(director) < 0 ) 
+                                        relaFE[item.array][item.SG] += ',' + director;
+                                }
+
+                            } 
+                            for ( var i in arg ) {
+                                var item = arg[i];
+                                item["FEDirector"] = relaFE[item.devicesn][item.sgname];
+                            }
+                            callback(null,arg); 
+                        } 
+                    }); 
                 }
             ], function (err, result) { 
                 res.json(200 , result );
@@ -439,12 +496,11 @@ var analysisController = function (app) {
             return;            
         }
         var start = moment(req.query.from).toISOString(); 
-        var end = moment(req.query.to).toISOString();
-
+        var end = moment(req.query.to).toISOString(); 
 
         async.waterfall([
             function(callback){ 
-                var period = 86400;
+                var period = util.getPeriod(start,end);
                 var valuetype = 'max'; 
                 VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) { 
                     
@@ -557,7 +613,7 @@ var analysisController = function (app) {
 
                 var param = {};
                 param['device'] = device;
-                param['period'] = 3600;
+                param['period'] = util.getPeriod(start,end);
                 param['start'] = start;
                 param['end'] = end;
                 param['type'] = 'max';
@@ -702,7 +758,7 @@ var analysisController = function (app) {
         var start = moment(req.query.from).toISOString(); 
         var end = moment(req.query.to).toISOString();
 
-        var period = 86400;
+        var period = util.getPeriod(start,end);
         var valuetype = 'max'; 
 
         async.waterfall([
@@ -1357,7 +1413,7 @@ var analysisController = function (app) {
             res.json(400, 'Must be special a to ( endtime ) !' + end);
             return;
         }; 
-        var period = 86400;
+        var period = util.getPeriod(start,end);
         var valuetype = 'max'; 
 
         async.waterfall([
@@ -1954,7 +2010,7 @@ var analysisController = function (app) {
                         var param = {}; 
                         param['keys'] = ['device','part'];
                         param['fields'] = ['name'];
-                        param['period'] = 604800;
+                        param['period'] = util.getPeriod(start,end);
                         param['start'] = start;
                         param['end'] = end;
                         param['filter'] =  'device==\''+device+'\'&(parttype==\'LUN\')&('+lunlist+')';
@@ -2150,7 +2206,7 @@ app.get('/api/analysis/storage/volume', function (req, res) {
             var param = {}; 
             param['keys'] = ['device','part'];
             param['fields'] = ['name'];
-            param['period'] = 3600;
+            param['period'] = util.getPeriod(start,end);
             param['start'] = start;
             param['end'] = end;
             param['filter'] =  'device==\''+device+'\'&part==\''+volume+'\'&(parttype==\'LUN\')';
@@ -2377,6 +2433,22 @@ app.get('/api/analysis/app/workload/relateDistribution', function (req, res) {
     }
     var start = moment(req.query.from).toISOString(); 
     var end = moment(req.query.to).toISOString();
+    var period = util.getPeriod(start,end);
+    switch (period) {
+        case 0 :
+            var dateFormat = "YYYYMMDD HH:mm:ss";
+            break;
+        case 3600 :
+            var dateFormat = "YYYYMMDD HH";
+            break;
+        case 86400 :
+        case 604800 :
+            var dateFormat = "YYYYMMDD";
+            break;
+        default :
+            var dateFormat = "YYYYMMDD HH:mm:ss";
+            break;
+    }
 
     var data = {};
     var relateSG = [];
@@ -2434,7 +2506,7 @@ app.get('/api/analysis/app/workload/relateDistribution', function (req, res) {
 
             var param = {};
             param['device'] = device;
-            param['period'] = 3600;
+            param['period'] = util.getPeriod(start,end);
             param['start'] = start;
             param['end'] = end;
             param['type'] = 'max';
@@ -2517,7 +2589,7 @@ app.get('/api/analysis/app/workload/relateDistribution', function (req, res) {
                 if ( arg[fieldname].dataset === undefined ) continue;
                 for ( var i in arg[fieldname].dataset ) {
                     var item = arg[fieldname].dataset[i];
-                    item['timestamp'] = moment.unix(item.timestamp).format('YYYY-MM-DD HH:mm:ss')
+                    item['timestamp'] = moment.unix(item.timestamp).format(dateFormat)
                 }
             }
             callback(null,arg);
@@ -2621,6 +2693,23 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
     }
     var start = moment(req.query.from).toISOString(); 
     var end = moment(req.query.to).toISOString();
+    var period = util.getPeriod(start,end);
+    switch (period) {
+        case 0 :
+            var dateFormat = "YYYYMMDD HH:mm:ss";
+            break;
+        case 3600 :
+            var dateFormat = "YYYYMMDD HH";
+            break;
+        case 86400 :
+        case 604800 :
+            var dateFormat = "YYYYMMDD";
+            break;
+        default :
+            var dateFormat = "YYYYMMDD HH:mm:ss";
+            break;
+    }
+
 
     var data = {};
     async.waterfall([
@@ -2677,7 +2766,7 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
 
             var param = {};
             param['device'] = device;
-            param['period'] = 3600;
+            param['period'] = util.getPeriod(start,end);
             param['start'] = start;
             param['end'] = end;
             param['type'] = 'max';
@@ -2711,7 +2800,7 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
                     for ( var z in IOPS ) {
                         if ( IOPS[z].timestamp == item1.timestamp ) {
                             isfind = true;
-                            IOPS[z][sgItem.part] = item1.WriteRequests + item1.ReadRequests;
+                            IOPS[z][sgItem.part] = Math.round(item1.WriteRequests + item1.ReadRequests);
                             IOPS[z]["Total"] += item1.WriteRequests + item1.ReadRequests; 
                             break;
                         }
@@ -2719,7 +2808,7 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
                     if ( isfind == false ) {
                         var IOPSItem = {};
                         IOPSItem["timestamp"] = item1.timestamp;
-                        IOPSItem[sgItem.part] = item1.WriteRequests + item1.ReadRequests;
+                        IOPSItem[sgItem.part] = Math.round(item1.WriteRequests + item1.ReadRequests);
                         IOPSItem["Total"] = item1.WriteRequests + item1.ReadRequests; 
                         IOPS.push(IOPSItem);
                     }
@@ -2729,7 +2818,7 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
                     for ( var z in MBPS ) {
                         if ( MBPS[z].timestamp == item1.timestamp ) {
                             isfind = true;
-                            MBPS[z][sgItem.part] = item1.ReadThroughput + item1.ReadThroughput;
+                            MBPS[z][sgItem.part] = Math.round(item1.ReadThroughput + item1.ReadThroughput);
                             MBPS[z]["Total"] += item1.ReadThroughput + item1.ReadThroughput;
                             break;
                         }
@@ -2737,7 +2826,7 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
                     if ( isfind == false ) {
                         var MBPSItem = {};
                         MBPSItem["timestamp"] = item1.timestamp;
-                        MBPSItem[sgItem.part] = item1.ReadThroughput + item1.WriteThroughput;
+                        MBPSItem[sgItem.part] = Math.round(item1.ReadThroughput + item1.WriteThroughput);
                         MBPSItem["Total"] = item1.ReadThroughput + item1.WriteThroughput;
                         MBPS.push(MBPSItem);
                     }
@@ -2745,8 +2834,7 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
 
                 }
             }
-
-
+ 
             for ( var i in IOPS ) {
                 var IOPSItem = IOPS[i];
 
@@ -2756,8 +2844,8 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
                         case sgname :
                         case relevant_sgname :
                             break;
-                        case "Total" :
-                            IOPSItem[fieldname] = IOPSItem[fieldname] - IOPSItem[sgname] - IOPSItem[relevant_sgname];
+                        case "Total" : 
+                            IOPSItem[fieldname] = Math.round(IOPSItem[fieldname] - IOPSItem[sgname] - IOPSItem[relevant_sgname]);
                             break;
                         default :
                             delete IOPSItem[fieldname];
@@ -2765,7 +2853,7 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
                     }
                 }
             }
-
+ 
 
             for ( var i in MBPS ) {
                 var item = MBPS[i];
@@ -2777,7 +2865,7 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
                         case relevant_sgname :
                             break;
                         case "Total" :
-                        item[fieldname] = item[fieldname] - item[sgname] - item[relevant_sgname];
+                            item[fieldname] = Math.round(item[fieldname] - item[sgname] - item[relevant_sgname]);
                             break;
                         default :
                             delete item[fieldname];
@@ -2797,6 +2885,22 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
             data["output"] = dataset;
             callback(null, data );
 
+        }
+        , function ( arg, callback ) { 
+            var origData = arg.output;
+
+            
+            for ( var fieldname in origData ) {
+                console.log(fieldname);
+                if ( origData[fieldname].dataset === undefined ) continue;
+
+                for ( var i in origData[fieldname].dataset ) {
+                    var item = origData[fieldname].dataset[i];
+                    item['timestamp'] = moment.unix(item.timestamp).format(dateFormat)
+                }
+
+            }
+            callback(null,arg);
         }
     ], function (err, result) { 
 
@@ -2852,7 +2956,7 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
  *         description: 性能指标采样结束时间(格式:ISO 8601)
  *         required: true
  *         type: string 
- *         example: 2018-06-10T00:00:00Z
+ *         example: 2018-06-10T00:00:00Z 
  *     responses:
  *       200:
  *         description: return the workload of specical array and storage group
@@ -2861,8 +2965,8 @@ app.get('/api/analysis/app/workload/distribution', function (req, res) {
     res.setTimeout(300*1000); 
     var appname = req.query.appname;
     var device = req.query.devicesn;
-    var sgname = req.query.sg; 
-
+    var sgname = req.query.sg;  
+ 
     if ( appname === undefined || appname == '' ) {
         res.json(400, 'Must be special a appname!');
         return;
@@ -2888,6 +2992,22 @@ app.get('/api/analysis/app/workload/distribution', function (req, res) {
     }
     var start = moment(req.query.from).toISOString(); 
     var end = moment(req.query.to).toISOString();
+    var period = util.getPeriod(start,end);
+    switch (period) {
+        case 0 :
+            var dateFormat = "YYYYMMDD HH:mm:ss";
+            break;
+        case 3600 :
+            var dateFormat = "YYYYMMDD HH";
+            break;
+        case 86400 :
+        case 604800 :
+            var dateFormat = "YYYYMMDD";
+            break;
+        default :
+            var dateFormat = "YYYYMMDD HH:mm:ss";
+            break;
+    }
 
     var data = {};
     async.waterfall([
@@ -2897,7 +3017,7 @@ app.get('/api/analysis/app/workload/distribution', function (req, res) {
 
             var param = {};
             param['device'] = device;
-            param['period'] = 3600;
+            param['period'] = util.getPeriod(start,end);
             param['start'] = start;
             param['end'] = end;
             param['type'] = 'max';
@@ -2913,9 +3033,11 @@ app.get('/api/analysis/app/workload/distribution', function (req, res) {
                     var item = sgperf[0].matrics[i];
                     var matricsItem = {};
                     matricsItem["timestamp"] = item.timestamp;
-                    matricsItem["Throughput"] = item.ReadThroughput + item.WriteThroughput;
-                    matricsItem["Requests"] = item.ReadRequests + item.WriteRequests;
-            
+                    matricsItem["Throughput"] = Math.round(item.ReadThroughput + item.WriteThroughput);
+                    matricsItem["Requests"] = Math.round(item.ReadRequests + item.WriteRequests);
+                    matricsItem["ReadResponseTime"] = Math.round(item.ReadResponseTime );
+                    matricsItem["WriteResponseTime"] = Math.round(item.WriteResponseTime) ;
+                        
                     matrics.push(matricsItem);
                 }
 
@@ -2932,52 +3054,56 @@ app.get('/api/analysis/app/workload/distribution', function (req, res) {
 
             var param = {};
             param['device'] = device;
-            param['period'] = 3600; 
+            param['period'] = util.getPeriod(start,end);
             param['type'] = 'max';
             param['filter_name'] = '(name==\'ReadRequests\'|name==\'ReadResponseTime\'|name==\'ReadThroughput\'|name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
             param['keys'] = ['device','part']; 
             param['fields'] = ['sgname'];  
             param['filter'] = 'parttype=\'Storage Group\'&datagrp=\'VMAX-StorageGroup\'&' + filter_sgname;
 
-            param['start'] = moment.unix(moment(start,moment.ISO_8601).unix() - 2419200).toISOString(true);
+            param['start'] = moment.unix(moment(start,moment.ISO_8601).unix() - 2419200).toISOString();
+            //param['start'] = moment.unix(moment(start,moment.ISO_8601).unix() - 3600*24).toISOString();
             param['end'] = start;
             
 
             CallGet.CallGetPerformance(param, function(sgperf) {  
-
-                
+  
                 var matrics = [];
                 for ( var i in sgperf[0].matrics ) {
                     var item = sgperf[0].matrics[i];
                     var matricsItem = {};
                     matricsItem["timestamp"] = item.timestamp;
-                    matricsItem["Throughput"] = item.ReadThroughput + item.WriteThroughput;
-                    matricsItem["Requests"] = item.ReadRequests + item.WriteRequests;
-            
+                    matricsItem["Throughput"] = Math.round(item.ReadThroughput + item.WriteThroughput);
+                    matricsItem["Requests"] = Math.round(item.ReadRequests + item.WriteRequests);
+                    matricsItem["ReadResponseTime"] = Math.round(item.ReadResponseTime );
+                    matricsItem["WriteResponseTime"] = Math.round(item.WriteResponseTime) ;
+                        
                     matrics.push(matricsItem);
                 }
- 
+     
                 data["baselineData"] = matrics;
+                
                 callback(null, data);
             });
 
 
         },
         
-        function( data, callback ) {  
+        function( data, callback ) {    
             Analysis.GenerateBaseLine(data, function(result) {
                 callback(null, result);
             }) 
+
         }
         , function ( arg, callback ) { 
             for ( var fieldname in arg ) { 
                 if ( arg[fieldname].dataset === undefined ) continue;
                 for ( var i in arg[fieldname].dataset ) {
                     var item = arg[fieldname].dataset[i];
-                    item['timestamp'] = moment.unix(item.timestamp).format('YYYY-MM-DD HH:mm:ss')
+                    item['timestamp'] = moment.unix(item.timestamp).format(dateFormat); 
                 }
             }
-            callback(null,arg);
+            callback(null,arg); 
         }
     ], function (err, result) { 
 
@@ -2985,6 +3111,528 @@ app.get('/api/analysis/app/workload/distribution', function (req, res) {
     }); 
 
 });
+
+
+
+
+/**
+ * @swagger
+ * /api/analysis/app/workload/overall:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     summary: 应用负载分布
+ *     description: 获取指定Storage Group性能负载指标。指标包括每个SG的IOPS，MBPS，ReadResponseTime, WriteResponseTime
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: appname
+ *         description: 应用名称 
+ *         type: string
+ *         example: 监督管理平台（AWP） 
+ *       - in: query
+ *         name: devicesn
+ *         description: 存储序列号
+ *         required: true
+ *         type: string
+ *         example: 000492600255
+ *       - in: query
+ *         name: from
+ *         description: 性能指标采样起始时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-05-01T00:00:00Z
+ *       - in: query
+ *         name: to
+ *         description: 性能指标采样结束时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-06-10T00:00:00Z 
+ *     responses:
+ *       200:
+ *         description: return the workload of specical array and storage group
+ */ 
+app.get('/api/analysis/app/workload/overall', function (req, res) { 
+    res.setTimeout(300*1000); 
+    var appname = req.query.appname;
+    var device = req.query.devicesn; 
+ 
+    if ( appname === undefined || appname == '' ) {
+        res.json(400, 'Must be special a appname!');
+        return;
+    };
+    if ( device === undefined || device == '' ) {
+        res.json(400, 'Must be special a storage!');
+        return;
+    }; 
+
+    if ( req.query.from === undefined ||  !moment(req.query.from).isValid() ) {
+        res.json(400, 'Must be special a valid start time!');
+        return;            
+    }
+
+    if ( req.query.to === undefined ||  !moment(req.query.to).isValid() ) {
+        res.json(400, 'Must be special a valid end time!');
+        return;            
+    }
+    var start = moment(req.query.from).toISOString(); 
+    var end = moment(req.query.to).toISOString();
+    var period = util.getPeriod(start,end);
+    switch (period) {
+        case 0 :
+            var dateFormat = "YYYYMMDD HH:mm:ss";
+            break;
+        case 3600 :
+            var dateFormat = "YYYYMMDD HH";
+            break;
+        case 86400 :
+        case 604800 :
+            var dateFormat = "YYYYMMDD";
+            break;
+        default :
+            var dateFormat = "YYYYMMDD HH:mm:ss";
+            break;
+    }
+
+    var data = {};
+    async.waterfall([
+        function(  callback){ 
+           
+            var param = {};
+            param['device'] = device;
+            param['period'] = util.getPeriod(start,end);
+            param['start'] = start;
+            param['end'] = end;
+            param['type'] = 'max';
+            param['filter_name'] = '(name==\'ReadRequests\'|name==\'ReadResponseTime\'|name==\'ReadThroughput\'|name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
+            param['keys'] = ['device','part']; 
+            param['fields'] = ['sgname'];  
+            param['filter'] = 'parttype=\'Storage Group\'&datagrp=\'VMAX-StorageGroup\'';
+
+            CallGet.CallGetPerformance(param, function(sgperf) {   
+                var matrics = [];
+
+                var resData = {};
+                for ( var i in sgperf ) {
+                    var item = sgperf[i];
+                    
+                    for ( var j in item.matrics ) {
+                        var matricsItem = item.matrics[j];
+
+                        var timestamp ;
+                        for ( var fieldname in matricsItem ) {
+                            if ( fieldname == 'timestamp' ) {
+                                timestamp = matricsItem[fieldname];
+                                continue;
+                            }
+
+                            if ( resData[fieldname] === undefined ) resData[fieldname] = [];
+
+                            var isfind = false;
+                            for ( var z in resData[fieldname] ) {
+                                var resItem = resData[fieldname][z];
+                                if ( resItem.timestamp == timestamp ) {
+                                    resItem[item.sgname] = matricsItem[fieldname];
+                                    isfind = true;
+                                    break;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var resItem = {};
+                                resItem['timestamp'] = timestamp;
+                                resItem[item.sgname] = matricsItem[fieldname];
+                                resData[fieldname].push(resItem);
+                            }
+
+                        }
+                    }
+                }
+
+                callback(null, resData); 
+            }); 
+        } , function ( arg , callback ) {
+            callback(null, arg);
+        }
+    ], function (err, result) { 
+
+        res.json(200, result );
+    }); 
+
+});
+
+
+
+
+
+/**
+ * @swagger
+ * /api/analysis/app/workload/historypeak:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     summary: 应用负载峰值积累
+ *     description: 获取指定Storage Group性能负载峰值积累. 在一定时间同期内(1-12月), 一天24小时内的每个小时的历史峰值
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: appname
+ *         description: 应用名称 
+ *         type: string
+ *         example: 监督管理平台（AWP） 
+ *       - in: query
+ *         name: devicesn
+ *         description: 存储序列号
+ *         required: true
+ *         type: string
+ *         example: 000492600255
+ *       - in: query
+ *         name: sg
+ *         description: Storage Group名称
+ *         required: true
+ *         type: string 
+ *         example: AWPDB_NEW_SG
+ *       - in: query
+ *         name: period
+ *         description: 性能指标采样周期(1-12 Month)
+ *         required: true
+ *         type: integer 
+ *         example: 1 
+ *     responses:
+ *       200:
+ *         description: return the workload peak of specical array and storage group
+ */ 
+app.get('/api/analysis/app/workload/historypeak', function (req, res) { 
+    res.setTimeout(300*1000); 
+    var appname = req.query.appname;
+    var device = req.query.devicesn;
+    var sgname = req.query.sg; 
+    var period = req.query.period;
+
+    if ( appname === undefined || appname == '' ) {
+        res.json(400, 'Must be special a appname!');
+        return;
+    };
+    if ( device === undefined || device == '' ) {
+        res.json(400, 'Must be special a storage!');
+        return;
+    };
+
+    if ( sgname === undefined || sgname == '' ) {
+        res.json(400, 'Must be special a storage group!');
+        return;
+    }; 
+
+    if ( period === undefined || period == '' ) {
+        res.json(400, 'Must be special a valid period value!');
+        return;            
+    } 
+    if ( period <=0 || period >12 ) {
+        res.json(400, 'Must be special a valid period value! (1-12)');
+        return;   
+    }
+    
+    var end = moment(moment().format("YYYY-MM-01")).toISOString();
+    var start = moment(end).add(0-period,'month').toISOString();
+ 
+
+    var queryPeriod = 3600;
+    var data = {};
+    async.waterfall([
+        function(  callback){ 
+          
+            var filter_sgname = 'sgname=\''+sgname + '\''; 
+
+            var param = {};
+            param['device'] = device;
+            param['period'] = queryPeriod;
+            param['start'] = start;
+            param['end'] = end;
+            param['type'] = 'max';
+            param['filter_name'] = '(name==\'ReadRequests\'|name==\'ReadResponseTime\'|name==\'ReadThroughput\'|name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
+            param['keys'] = ['device','part']; 
+            param['fields'] = ['sgname'];  
+            param['filter'] = 'parttype=\'Storage Group\'&datagrp=\'VMAX-StorageGroup\'&' + filter_sgname;
+
+            CallGet.CallGetPerformance(param, function(sgperf) {  
+
+                var matrics = [];
+                for ( var i in sgperf[0].matrics ) {
+                    var item = sgperf[0].matrics[i];
+                    var matricsItem = {};
+                    matricsItem["timestamp"] = item.timestamp;
+                    matricsItem["Throughput"] = Math.round(item.ReadThroughput + item.WriteThroughput);
+                    matricsItem["Requests"] = Math.round(item.ReadRequests + item.WriteRequests);
+                    matricsItem["ReadResponseTime"] = Math.round(item.ReadResponseTime) ;
+                    matricsItem["WriteResponseTime"] = Math.round(item.WriteResponseTime) ;
+                        
+                    matrics.push(matricsItem);
+                } 
+                callback(null, matrics);
+            });
+
+        } , function ( arg, callback ) {
+            var resRecord = {};
+            for ( var i in arg ) {
+                var item = arg[i];
+                var timestamp; 
+                for ( var fieldname in item ) {
+                    if ( fieldname == 'timestamp' ) {
+                        timestamp = item[fieldname];
+                        continue;
+                    };
+
+                    if ( resRecord[fieldname] === undefined ) {
+                        resRecord[fieldname] = {};
+                        resRecord[fieldname]['title'] = fieldname;
+                        resRecord[fieldname]['dataset'] = [];
+                    }
+
+                    var resItem = {};
+                    resItem['timestamp'] = timestamp;
+                    resItem['hour'] = moment.unix(timestamp).format('HH');
+                    resItem[fieldname] = item[fieldname];
+
+                    resRecord[fieldname]['dataset'].push(resItem);
+
+
+                }
+            }
+            callback(null, resRecord);
+        } 
+        , function ( arg, callback ) { 
+            for ( var fieldname in arg ) { 
+                if ( arg[fieldname].dataset === undefined ) continue;
+                for ( var i in arg[fieldname].dataset ) {
+                    var item = arg[fieldname].dataset[i];
+                    item['timestamp'] = moment.unix(item.timestamp).format('YYYY-MM-DD');
+                }
+            }
+            callback(null,arg);
+        }, function ( arg, callback ) {
+            for ( var fieldname in arg ) { 
+                if ( arg[fieldname].dataset === undefined ) continue;
+                var resRecord = [];
+                for ( var i in arg[fieldname].dataset ) {
+                    var item = arg[fieldname].dataset[i];
+                    var isfind = false;
+                    for ( var j in resRecord ) {
+                        var resItem = resRecord[j];
+                        if ( resItem.hour == item.hour )  {
+                            if ( resItem[fieldname] < item[fieldname] )  { 
+                                resRecord[j] = item;
+                            } 
+                            isfind = true;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        resRecord.push(item);
+                    }
+                }
+ 
+
+                resRecord.sort(sortBy("hour"));
+                arg[fieldname].dataset = resRecord;
+            }
+            callback(null,arg);           
+        }
+    ], function (err, result) { 
+
+        res.json(200, result );
+    }); 
+
+});
+
+
+
+
+
+
+/**
+ * @swagger
+ * /api/analysis/app/workload/historypeak:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     summary: 应用负载峰值积累
+ *     description: 获取指定Storage Group性能负载峰值积累. 在一定时间同期内(1-12月), 一天24小时内的每个小时的历史峰值
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: appname
+ *         description: 应用名称 
+ *         type: string
+ *         example: 监督管理平台（AWP） 
+ *       - in: query
+ *         name: devicesn
+ *         description: 存储序列号
+ *         required: true
+ *         type: string
+ *         example: 000492600255
+ *       - in: query
+ *         name: sg
+ *         description: Storage Group名称
+ *         required: true
+ *         type: string 
+ *         example: AWPDB_NEW_SG
+ *       - in: query
+ *         name: period
+ *         description: 性能指标采样周期(1-12 Month)
+ *         required: true
+ *         type: integer 
+ *         example: 1 
+ *     responses:
+ *       200:
+ *         description: return the workload peak of specical array and storage group
+ */ 
+app.get('/api/analysis/app/workload/historypeak', function (req, res) { 
+    res.setTimeout(300*1000); 
+    var appname = req.query.appname;
+    var device = req.query.devicesn;
+    var sgname = req.query.sg; 
+    var period = req.query.period;
+
+    if ( appname === undefined || appname == '' ) {
+        res.json(400, 'Must be special a appname!');
+        return;
+    };
+    if ( device === undefined || device == '' ) {
+        res.json(400, 'Must be special a storage!');
+        return;
+    };
+
+    if ( sgname === undefined || sgname == '' ) {
+        res.json(400, 'Must be special a storage group!');
+        return;
+    }; 
+
+    if ( period === undefined || period == '' ) {
+        res.json(400, 'Must be special a valid period value!');
+        return;            
+    } 
+    if ( period <=0 || period >12 ) {
+        res.json(400, 'Must be special a valid period value! (1-12)');
+        return;   
+    }
+    
+    var end = moment(moment().format("YYYY-MM-01")).toISOString();
+    var start = moment(end).add(0-period,'month').toISOString();
+ 
+
+    var queryPeriod = 3600;
+    var data = {};
+    async.waterfall([
+        function(  callback){ 
+          
+            var filter_sgname = 'sgname=\''+sgname + '\''; 
+
+            var param = {};
+            param['device'] = device;
+            param['period'] = queryPeriod;
+            param['start'] = start;
+            param['end'] = end;
+            param['type'] = 'max';
+            param['filter_name'] = '(name==\'ReadRequests\'|name==\'ReadResponseTime\'|name==\'ReadThroughput\'|name==\'WriteRequests\'|name==\'WriteResponseTime\'|name==\'WriteThroughput\')';
+            param['keys'] = ['device','part']; 
+            param['fields'] = ['sgname'];  
+            param['filter'] = 'parttype=\'Storage Group\'&datagrp=\'VMAX-StorageGroup\'&' + filter_sgname;
+
+            CallGet.CallGetPerformance(param, function(sgperf) {  
+
+                var matrics = [];
+                for ( var i in sgperf[0].matrics ) {
+                    var item = sgperf[0].matrics[i];
+                    var matricsItem = {};
+                    matricsItem["timestamp"] = item.timestamp;
+                    matricsItem["Throughput"] = Math.round(item.ReadThroughput + item.WriteThroughput);
+                    matricsItem["Requests"] = Math.round(item.ReadRequests + item.WriteRequests);
+                    matricsItem["ReadResponseTime"] = Math.round(item.ReadResponseTime) ;
+                    matricsItem["WriteResponseTime"] = Math.round(item.WriteResponseTime) ;
+                        
+                    matrics.push(matricsItem);
+                } 
+                callback(null, matrics);
+            });
+
+        } , function ( arg, callback ) {
+            var resRecord = {};
+            for ( var i in arg ) {
+                var item = arg[i];
+                var timestamp; 
+                for ( var fieldname in item ) {
+                    if ( fieldname == 'timestamp' ) {
+                        timestamp = item[fieldname];
+                        continue;
+                    };
+
+                    if ( resRecord[fieldname] === undefined ) {
+                        resRecord[fieldname] = {};
+                        resRecord[fieldname]['title'] = fieldname;
+                        resRecord[fieldname]['dataset'] = [];
+                    }
+
+                    var resItem = {};
+                    resItem['timestamp'] = timestamp;
+                    resItem['hour'] = moment.unix(timestamp).format('HH');
+                    resItem[fieldname] = item[fieldname];
+
+                    resRecord[fieldname]['dataset'].push(resItem);
+
+
+                }
+            }
+            callback(null, resRecord);
+        } 
+        , function ( arg, callback ) { 
+            for ( var fieldname in arg ) { 
+                if ( arg[fieldname].dataset === undefined ) continue;
+                for ( var i in arg[fieldname].dataset ) {
+                    var item = arg[fieldname].dataset[i];
+                    item['timestamp'] = moment.unix(item.timestamp).format('YYYY-MM-DD');
+                }
+            }
+            callback(null,arg);
+        }, function ( arg, callback ) {
+            for ( var fieldname in arg ) { 
+                if ( arg[fieldname].dataset === undefined ) continue;
+                var resRecord = [];
+                for ( var i in arg[fieldname].dataset ) {
+                    var item = arg[fieldname].dataset[i];
+                    var isfind = false;
+                    for ( var j in resRecord ) {
+                        var resItem = resRecord[j];
+                        if ( resItem.hour == item.hour )  {
+                            if ( resItem[fieldname] < item[fieldname] )  { 
+                                resRecord[j] = item;
+                            } 
+                            isfind = true;
+                            break;
+                        }
+                    }
+                    if ( isfind == false ) {
+                        resRecord.push(item);
+                    }
+                }
+                arg[fieldname].dataset = resRecord;
+            }
+            callback(null,arg);           
+        }
+    ], function (err, result) { 
+
+        res.json(200, result );
+    }); 
+
+});
+
 
 
 app.get('/api/analysis/app/workload/distribution1', function (req, res) { 
@@ -3018,6 +3666,22 @@ app.get('/api/analysis/app/workload/distribution1', function (req, res) {
     }
     var start = moment(req.query.from).toISOString(); 
     var end = moment(req.query.to).toISOString();
+    var period = util.getPeriod(start,end);
+    switch (period) {
+        case 0 :
+            var dateFormat = "YYYYMMDD HH:mm:ss";
+            break;
+        case 3600 :
+            var dateFormat = "YYYYMMDD HH";
+            break;
+        case 86400 :
+        case 604800 :
+            var dateFormat = "YYYYMMDD";
+            break;
+        default :
+            var dateFormat = "YYYYMMDD HH:mm:ss";
+            break;
+    }
 
     var data = {};
     async.waterfall([
@@ -3027,7 +3691,7 @@ app.get('/api/analysis/app/workload/distribution1', function (req, res) {
 
             var param = {};
             param['device'] = device;
-            param['period'] = 3600;
+            param['period'] = util.getPeriod(start,end);
             param['start'] = start;
             param['end'] = end;
             param['type'] = 'max';
@@ -3053,14 +3717,14 @@ app.get('/api/analysis/app/workload/distribution1', function (req, res) {
                     for ( var z in IOPS ) {
                         if ( IOPS[z].timestamp == item1.timestamp ) {
                             isfind = true;
-                            IOPS[z][sgItem.part] = item1.WriteRequests + item1.ReadRequests;
+                            IOPS[z][sgItem.part] = Math.round(item1.WriteRequests + item1.ReadRequests);
                             break;
                         }
                     }
                     if ( isfind == false ) {
                         var IOPSItem = {};
                         IOPSItem["timestamp"] = item1.timestamp;
-                        IOPSItem[sgItem.part] = item1.WriteRequests + item1.ReadRequests;
+                        IOPSItem[sgItem.part] =Math.round( item1.WriteRequests + item1.ReadRequests);
                         IOPS.push(IOPSItem);
                     }
 
@@ -3069,14 +3733,14 @@ app.get('/api/analysis/app/workload/distribution1', function (req, res) {
                     for ( var z in MBPS ) {
                         if ( MBPS[z].timestamp == item1.timestamp ) {
                             isfind = true;
-                            MBPS[z][sgItem.part] = item1.ReadThroughput + item1.ReadThroughput;
+                            MBPS[z][sgItem.part] = Math.round(item1.ReadThroughput + item1.ReadThroughput);
                             break;
                         }
                     }
                     if ( isfind == false ) {
                         var MBPSItem = {};
                         MBPSItem["timestamp"] = item1.timestamp;
-                        MBPSItem[sgItem.part] = item1.ReadThroughput + item1.WriteThroughput;
+                        MBPSItem[sgItem.part] = Math.round(item1.ReadThroughput + item1.WriteThroughput);
                         MBPS.push(MBPSItem);
                     }
 
@@ -3128,6 +3792,260 @@ app.get('/api/analysis/app/workload/distribution1', function (req, res) {
 
 
 
+
+/**
+ * @swagger
+ * /api/analysis/array/frontend/historypeak:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     summary: FE负载峰值积累
+ *     description: 获取FE性能负载峰值积累. 在一定时间同期内(1-12月), 一天24小时内的每个小时的历史峰值
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: appname
+ *         description: 应用名称 
+ *         type: string
+ *         example: 监督管理平台（AWP） 
+ *       - in: query
+ *         name: devicesn
+ *         description: 存储序列号
+ *         required: true
+ *         type: string
+ *         example: 000492600255 
+ *       - in: query
+ *         name: period
+ *         description: 性能指标采样周期(1-12 Month)
+ *         required: true
+ *         type: integer 
+ *         example: 1 
+ *     responses:
+ *       200:
+ *         description: return the workload peak of specical array and storage group
+ */ 
+app.get('/api/analysis/array/frontend/historypeak', function (req, res) { 
+    res.setTimeout(300*1000); 
+    var appname = req.query.appname;
+    var device = req.query.devicesn; 
+    var period = req.query.period;
+
+    if ( appname === undefined || appname == '' ) {
+        res.json(400, 'Must be special a appname!');
+        return;
+    };
+    if ( device === undefined || device == '' ) {
+        res.json(400, 'Must be special a storage!');
+        return;
+    }; 
+    if ( period === undefined || period == '' ) {
+        res.json(400, 'Must be special a valid period value!');
+        return;            
+    } 
+    if ( period <=0 || period >12 ) {
+        res.json(400, 'Must be special a valid period value! (1-12)');
+        return;   
+    }
+    
+    //var end = moment(moment().format("YYYY-MM-01")).toISOString();
+    //var start = moment(end).add(0-period,'month').toISOString();
+    var end = moment().toISOString();
+    var start = moment(end).add(0-period,'month').toISOString();
+
+    var queryPeriod = 3600; 
+            
+        var param = {};
+        param['device'] = '000297000161';
+        param['period'] = queryPeriod;
+        param['start'] = start;
+        param['end'] = end;
+        param['type'] = 'max';
+        param['filter_name'] = '(name==\'Requests\'|name==\'CurrentUtilization\'|name==\'HostMBperSec\')';
+        //param['filter_name'] = '(name==\'Requests\')';
+        param['keys'] = ['device','part']; 
+        param['fields'] = ['model'];
+            
+        param['filter'] = 'datagrp=\'VMAX-FEDirector\'' ; 
+        
+        CallGet.CallGetPerformance(param, function(feperf) {
+            
+            var resData = {};  
+            for ( var i in feperf ) {
+                var item = feperf[i];
+                var fename = item.part;
+                var device = item.device;
+
+
+                for ( var j in item.matrics ) {
+                    var matricsItem = item.matrics[j];
+
+                    var timestamp ;
+                    for ( var fieldname in matricsItem ) {
+                        if ( fieldname == 'timestamp' ) {
+                            timestamp = matricsItem[fieldname];
+                            continue;
+                        }
+
+                        var hour = moment.unix(timestamp).format('HH');
+                        var ts = moment.unix(timestamp).format('YYYY-MM-DD');
+
+                        if ( resData[fieldname] === undefined ) {
+                            resData[fieldname] = {};
+                            resData[fieldname]['title'] = fieldname;
+                            resData[fieldname]['dataset'] = [];
+                        }
+
+                        var isfind = false;
+                        for ( var z in resData[fieldname].dataset ) {
+                            var resItem = resData[fieldname].dataset[z];
+                            if ( resItem.hour == hour ) {
+                                if ( resItem[fename] === undefined ) {
+                                    resItem[fename] = matricsItem[fieldname];
+                                    resItem[fename+"_label"] = ts + '<br>' + fename + ': ' + matricsItem[fieldname];
+                                } else if ( resItem[fename] < matricsItem[fieldname] ) {
+                                    resItem[fename] = matricsItem[fieldname];
+                                    resItem[fename+"_label"] = ts + '<br>' + fename + ': ' + matricsItem[fieldname];                                    
+                                }
+                                isfind = true;
+                                break;
+                            }
+                        }
+                        if ( isfind == false ) {
+                            var resItem  = {};
+                            resItem['hour'] = hour;
+                            resItem[fename] = matricsItem[fieldname];
+                            resItem[fename+"_label"] = ts + '<br>' + fename + ': ' + matricsItem[fieldname];
+                            resData[fieldname].dataset.push(resItem);
+                    
+                        }
+                    }
+                }
+                
+            }
+
+            // Sort dataset by hour
+            for ( var fieldname in resData ) {
+                var item = resData[fieldname];
+                item["dataset"].sort(sortBy("hour"));
+            }
+
+            res.json(200, resData ); 
+        }); 
+});
+
+
+/**
+ * @swagger
+ * /api/analysis/array/frontend/AbnormalBehavior:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     summary: 前端控制器异常行为记录
+ *     description: 获取前端控制器异常行为记录
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: devicesn
+ *         description: 存储序列号
+ *         required: true
+ *         type: string
+ *         example: 000492600255
+ *       - in: query
+ *         name: fename
+ *         description: 前端控制器名称
+ *         required: false
+ *         type: string
+ *         example: FA-7F
+ *       - in: query
+ *         name: from
+ *         description: 性能指标采样起始时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-05-01T00:00:00Z
+ *       - in: query
+ *         name: to
+ *         description: 性能指标采样结束时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-06-10T00:00:00Z
+ *     responses:
+ *       200:
+ *         description: return the workload peak of specical array and storage group
+ */ 
+app.get('/api/analysis/array/frontend/AbnormalBehavior', function (req, res) { 
+    res.setTimeout(300*1000);  
+    var device = req.query.devicesn;
+    var fename = req.query.fename; 
+ 
+    if ( device === undefined || device == '' ) {
+        res.json(400, 'Must be special a storage!');
+        return;
+    }; 
+    if ( req.query.from === undefined ||  !moment(req.query.from).isValid() ) {
+        res.json(400, 'Must be special a valid start time!');
+        return;            
+    }
+
+    if ( req.query.to === undefined ||  !moment(req.query.to).isValid() ) {
+        res.json(400, 'Must be special a valid end time!');
+        return;            
+    }
+    var start = moment(req.query.from).toISOString(true); 
+    var end = moment(req.query.to).toISOString(true);
+
+
+    // for test
+    var resData = '[                                         \
+        {                                 \
+            "devicesn":"000492600256",    \
+            "director":"FA-11E",          \
+            "timestamp":"1532145600",     \
+            "AbnormalMatricsName":[       \
+                "IOPS",                   \
+                "MBPS"                    \
+            ],                            \
+            "IOPS":1,                     \
+            "MBPS":1,                     \
+            "RW":1,                       \
+            "BlockSize":1,                \
+            "Utilization":1,              \
+            "ResponeTime":1               \
+        },                                \
+        {                                 \
+            "devicesn":"000297000161",    \
+            "director":"FA-1D",           \
+            "timestamp":"1532145600",     \
+            "AbnormalMatricsName":[       \
+                "Utilization",            \
+                "ResponeTime"             \
+            ],                            \
+            "IOPS":1,                     \
+            "MBPS":1,                     \
+            "RW":1,                       \
+            "BlockSize":1,                \
+            "Utilization":1,              \
+            "ResponeTime":1               \
+        }                                 \
+    ]                                     ' ;
+    async.waterfall([
+        function( callback ) {
+            var s = JSON.parse(resData);
+            callback(null, s);
+
+        }
+    ], function (err, result) { 
+
+        res.json(200, result );
+    }); 
+
+     
+});
 
 
 
@@ -3193,21 +4111,45 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
     }
     var start = moment(req.query.from).toISOString(true); 
     var end = moment(req.query.to).toISOString(true);
+    var period = util.getPeriod(start,end);
+    switch (period) {
+        case 0 :
+            var dateFormat = "YYYYMMDD HH:mm:ss";
+            break;
+        case 3600 :
+            var dateFormat = "YYYYMMDD HH";
+            break;
+        case 86400 :
+        case 604800 :
+            var dateFormat = "YYYYMMDD";
+            break;
+        default :
+            var dateFormat = "YYYYMMDD HH:mm:ss";
+            break;
+    }
 
     var isNeedBaseLine = false;
-    var arrayInfo = require("../config/StorageInfo");
-    var arrayname = "";
-    for ( var i in arrayInfo ) {
-        if ( arrayInfo[i].storagesn == device ) arrayname = arrayInfo[i].name;
-    }
+
     var data = {};
+    var arrayname = "";
+     
     async.waterfall([
-        function(  callback){ 
+        function( callback ) {
+            var filter = {"sn":device};
+            DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                if ( arrayInfo.length > 0 ) {
+                    arrayname = arrayInfo[0].name;
+                } 
+                callback(null,arrayname);
+            })
+
+        },
+        function( arrayname, callback){ 
            
 
             var param = {};
             param['device'] = device;
-            param['period'] = 3600;
+            param['period'] = util.getPeriod(start,end);
             param['start'] = start;
             param['end'] = end;
             param['type'] = 'max';
@@ -3283,7 +4225,7 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
             } else {
                 var param = {};
                 param['device'] = device;
-                param['period'] = 3600;
+                param['period'] = util.getPeriod(start,end);
                 param['type'] = 'max';
                 param['filter_name'] = '(name==\'Requests\'|name==\'CurrentUtilization\'|name==\'HostMBperSec\')';
                 param['keys'] = ['device','part']; 
@@ -3400,10 +4342,11 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
 
         } */
         , function ( arg, callback ) {
-            for ( var fieldname in arg ) {
-                for ( var i in arg[fieldname].dataset ) {
-                    var item = arg[fieldname].dataset[i];
-                    item['timestamp'] = moment.unix(item.timestamp).format('YYYY-MM-DD HH:mm:ss')
+            var origData= arg.orgiData.matrics;
+            for ( var fieldname in origData ) {
+                for ( var i in origData[fieldname].dataset ) {
+                    var item = origData[fieldname].dataset[i];
+                    item['timestamp'] = moment.unix(item.timestamp).format(dateFormat)
                 }
             }
             callback(null,arg);

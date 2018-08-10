@@ -20,6 +20,7 @@ var VPLEX = require('../lib/Array_VPLEX');
 var VMAX = require('../lib/Array_VMAX');
 var VNX = require('../lib/Array_VNX');
 var CallGet = require('../lib/CallGet'); 
+var DeviceMgmt = require('../lib/DeviceManagement');
 
 var externalController = function (app) {
 
@@ -288,8 +289,7 @@ function vplexinfo(device, callback) {
         var ReportTmpDataPath = config.Reporting.TmpDataPath;
         var ReportOutputPath = config.Reporting.OutputPath;
                         
-        var device;
-        var arrayInfo = require("../config/StorageInfo");
+        var device; 
  
         async.auto(
             {
@@ -303,11 +303,28 @@ function vplexinfo(device, callback) {
                         callback(null,ret);
                    })  
                 },
-                mergeResult: ["vnxinfo","vmaxinfo",function(callback, result ) {
+                arrayinfo: function( callback, result ) {
+                    var filter = {};
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                        callback(null,arrayInfo);
+                    })
+                },
+                mergeResult: ["vnxinfo","vmaxinfo","arrayinfo", function(callback, result ) {
                     var finalResult = [];
                     finalResult = finalResult.concat(result.vnxinfo);
                     finalResult = finalResult.concat(result.vmaxinfo);
                     
+                    for ( var i in finalResult ) {
+                        var item = finalResult[i];
+                        for ( var j in result.arrayinfo ) {
+                            var arrayInfoItem = result.arrayinfo[j];
+                            if ( item.serialnb == arrayInfoItem.storagesn ) {
+                                item["ST_ALIAS"] = arrayInfoItem.name;
+                                item["LOCATION"] = arrayInfoItem.cabinet;
+                            }
+                        }
+                    }
+
                     callback(null,finalResult);
 
                 }]
@@ -319,16 +336,10 @@ function vplexinfo(device, callback) {
 
                     if ( item.serialnb == 'CETV3163400036' ) continue;
 
-                    for ( var j in arrayInfo ) {
-                        var arrayInfoItem = arrayInfo[j];
-                        if ( item.serialnb == arrayInfoItem.storagesn ) {
-                            var ST_ALIAS = arrayInfoItem.name;
-                            var LOCATION = arrayInfoItem.cabinet;
-                        }
-                    }
+
                     var finalResultItem = {};
                     finalResultItem["ST_VENDOR"] = item.vendor;
-                    finalResultItem["ST_ALIAS"] =  ST_ALIAS === undefined ? "" : ST_ALIAS;
+                    finalResultItem["ST_ALIAS"] =  item.ST_ALIAS === undefined ? "" : item.ST_ALIAS;
                     finalResultItem["ST_SN"] = item.serialnb;
                     finalResultItem["ST_MODEL"] = item.model;
                     finalResultItem["ST_MICROCODE"] = item.devdesc;
@@ -338,7 +349,7 @@ function vplexinfo(device, callback) {
                     finalResultItem["RAW_CAPACITY"] = item.RawCapacity;
                     finalResultItem["CAPACITY"] = item.ConfiguredUsableCapacity;
                     finalResultItem["ALLOCATED"] = item.UsedCapacity;
-                    finalResultItem["LOCATION"] = LOCATION === undefined ? "" : LOCATION;
+                    finalResultItem["LOCATION"] = item.LOCATION === undefined ? "" : item.LOCATION;
 
                     finalResult.push(finalResultItem);
                                        

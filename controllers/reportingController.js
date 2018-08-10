@@ -1084,9 +1084,12 @@ var reportingController = function (app) {
 
                 
         async.waterfall([
-            function(callback){
-                var arrayInfo = require("../config/StorageInfo");
-                callback(null,arrayInfo);
+            function(callback){ 
+                var filter = {};
+                DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                    callback(null,arrayInfo);
+                })
+                
             }, 
             function(param,  callback){ 
                 var finalRecords = [];
@@ -1613,8 +1616,10 @@ var reportingController = function (app) {
         async.waterfall(
             [
                 function(callback){
-                    var arrayInfo = require("../config/StorageInfo");
-                    callback(null,arrayInfo);
+                    var filter = {};
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                        callback(null,arrayInfo);
+                    })
                 },
                 // Get Current Month matrics
                 function(arg1,  callback){ 
@@ -1799,8 +1804,10 @@ var reportingController = function (app) {
         async.waterfall(
             [
                 function(callback){
-                    var arrayInfo = require("../config/StorageInfo");
-                    callback(null,arrayInfo);
+                    var filter = {};
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                        callback(null,arrayInfo);
+                    })
                 },
                 // Get Current Month matrics
                 function(arg1,  callback){ 
@@ -1987,8 +1994,10 @@ var reportingController = function (app) {
         async.waterfall(
             [
                 function(callback){
-                    var arrayInfo = require("../config/StorageInfo");
-                    callback(null,arrayInfo);
+                    var filter = {};
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                        callback(null,arrayInfo);
+                    })
                 },
                 function( arg, callback ) {
 
@@ -2116,8 +2125,10 @@ var reportingController = function (app) {
         async.waterfall(
             [
                 function(callback){
-                    var arrayInfo = require("../config/StorageInfo");
-                    callback(null,arrayInfo);
+                    var filter = {};
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                        callback(null,arrayInfo);
+                    })
                 },
                 // Get IOPS peak value 
                 function(param,  callback){ 
@@ -2234,8 +2245,10 @@ var reportingController = function (app) {
          async.waterfall(
             [
                 function(callback){
-                    var arrayInfo = require("../config/StorageInfo");
-                    callback(null,arrayInfo);
+                    var filter = {};
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                        callback(null,arrayInfo);
+                    })
                 },
                 // Get All Localtion Records
                 function(arg1,  callback){ 
@@ -2344,8 +2357,10 @@ var reportingController = function (app) {
         async.waterfall(
             [
                 function(callback){
-                    var arrayInfo = require("../config/StorageInfo");
-                    callback(null,arrayInfo);
+                    var filter = {};
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                        callback(null,arrayInfo);
+                    })
                 },
                 // Get All Localtion Records
                 function(param,  callback){ 
@@ -2636,8 +2651,10 @@ var reportingController = function (app) {
         async.waterfall(
             [
                 function(callback){
-                    var arrayInfo = require("../config/StorageInfo");
-                    callback(null,arrayInfo);
+                    var filter = {};
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                        callback(null,arrayInfo);
+                    })
                 },
                 // Get All Localtion Records
                 function(param,  callback){ 
@@ -2758,8 +2775,10 @@ var reportingController = function (app) {
         async.waterfall(
             [
                 function(callback){
-                    var arrayInfo = require("../config/StorageInfo");
-                    callback(null,arrayInfo);
+                    var filter = {};
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                        callback(null,arrayInfo);
+                    })
                 },
                 // Get All Localtion Records
                 function(param,  callback){ 
@@ -2855,8 +2874,10 @@ var reportingController = function (app) {
         async.waterfall(
             [
                 function(callback){
-                    var arrayInfo = require("../config/StorageInfo");
-                    callback(null,arrayInfo);
+                    var filter = {};
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                        callback(null,arrayInfo);
+                    })
                 },
                 // Get All Localtion Records
                 function(arg1,  callback){ 

@@ -29,7 +29,7 @@ var SWITCH = require('../lib/Switch');
 var CAPACITY = require('../lib/Array_Capacity');
 var mysql = require('../lib/MySQLDBFunction');
 var AppTopologyObj = mongoose.model('AppTopology');
-
+var DeviceMgmt = require('../lib/DeviceManagement');
 var Report = require('../lib/Reporting');
 
 
@@ -90,7 +90,7 @@ var cebPerformanceProviderController = function (app) {
                 var param = {}; 
                 param['keys'] = ['device'];
                 param['fields'] = ['name'];
-                param['period'] = 0;
+                param['period'] = util.getPeriod(start,end);
                 param['start'] = start;
                 param['end'] = end;
                 param['filter'] = '!parttype&source=\'VMAX-Collector\'';
@@ -169,7 +169,7 @@ var cebPerformanceProviderController = function (app) {
  
             function ( callback ) {
                 var param = {}; 
-                param['period'] = 0;
+                param['period'] = util.getPeriod(start,end);
                 param['start'] = start;
                 param['end'] = end; 
 
@@ -237,7 +237,7 @@ var cebPerformanceProviderController = function (app) {
             var param = {}; 
             param['keys'] = ['device'];
             param['fields'] = ['name'];
-            param['period'] = 0;
+            param['period'] = util.getPeriod(start,end);
             param['start'] = start;
             param['end'] = end;
             param['filter'] = '!parttype&source=\'VMAX-Collector\'';
@@ -307,7 +307,7 @@ var cebPerformanceProviderController = function (app) {
 
             function ( callback ) {
                 var param = {}; 
-                param['period'] = 0;
+                param['period'] = util.getPeriod(start,end);
                 param['start'] = start;
                 param['end'] = end; 
 
@@ -481,8 +481,10 @@ var cebPerformanceProviderController = function (app) {
 
         async.waterfall([
             function(callback){
-                var arrayInfo = require("../config/StorageInfo");
-                callback(null,arrayInfo);
+                var filter = {};
+                DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                    callback(null,arrayInfo);
+                })
             }, 
             function ( arrayInfo, callback ) {
                 var finalResult = {};
@@ -679,19 +681,22 @@ var cebPerformanceProviderController = function (app) {
     */ 
     app.get('/rest/vmaxHistoryPerf/storages', function (req, res) {
 
-        var retData = require("../config/StorageInfo");
-        var finalReturnData = [];
-        for ( var i in retData ) {
-            var item = retData[i];
-            var retItem = {};
-            retItem["name"] = item.name;
-            retItem["location"] = item.cabinet;
-            retItem["sn"] =  item.storagesn;
-            retItem["version"] = "";
+        var filter = {};
+        DeviceMgmt.getMgmtObjectInfo(filter, function(retData) {
+            var finalReturnData = [];
+            for ( var i in retData ) {
+                var item = retData[i];
+                var retItem = {};
+                retItem["name"] = item.name;
+                retItem["location"] = item.cabinet;
+                retItem["sn"] =  item.storagesn;
+                retItem["version"] = "";
+    
+                finalReturnData.push(retItem);
+            }
+            res.json(200,finalReturnData);
+        })
 
-            finalReturnData.push(retItem);
-        }
-        res.json(200,finalReturnData);
         
     });
  
