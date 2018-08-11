@@ -2623,9 +2623,7 @@ var reportingController = function (app) {
     
                 }
             ], function (err, result) {
-                  // result now equals 'done'
-
-
+                  // result now equals 'done' 
                   var ret = {}
                   ret.data = []; 
                   for ( var i=0; i<10; i++ ) {

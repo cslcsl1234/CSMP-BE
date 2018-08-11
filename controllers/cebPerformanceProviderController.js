@@ -25,14 +25,14 @@ var HBAObj = mongoose.model('HBA');
   
 var HBALIST = require('../demodata/host_hba_list');
 var VMAX = require('../lib/Array_VMAX');
+var VNX = require('../lib/Array_VNX');
 var SWITCH = require('../lib/Switch');
 var CAPACITY = require('../lib/Array_Capacity');
 var mysql = require('../lib/MySQLDBFunction');
 var AppTopologyObj = mongoose.model('AppTopology');
 var DeviceMgmt = require('../lib/DeviceManagement');
 var Report = require('../lib/Reporting');
-
-
+var Analysis = require('../lib/analysis'); 
  
 var cebPerformanceProviderController = function (app) {
 
@@ -771,6 +771,677 @@ var cebPerformanceProviderController = function (app) {
             res.json(200,finalResult);
         });
     }); 
+
+
+    // http://10.62.38.246:8080/ssmp-frontend/rest/config/queryCondition/?_=1533896160715
+    // 配置信息->关联关系查询-1 : (存储前端口->服务器)条件选择数据
+
+    app.get('/rest/config/queryCondition', function (req, res) { 
+        res.setTimeout(1200*1000);
+
+        var config = configger.load(); 
+        var ReportTmpDataPath = config.Reporting.TmpDataPath;
+        var ReportOutputPath = config.Reporting.OutputPath;
+                        
+        var device; 
+ 
+        async.auto(
+            {
+                vnxinfo: function( callback, result ) {
+                    VNX.GetFEPort(device, function(ret) {
+                        var vnxout = {};
+                        vnxout["storageType"] = 'VNX';
+                        vnxout["storageList"] = [];
+                        for ( var i in ret ) {
+                            var item = ret[i];
+                            var director = item.feport.split(":");
+                            var directorname = director[0];
+                            var directorport = director[1];
+
+                            var isfind = false;
+                            for ( var j in vnxout.storageList ) {
+                                var vnxoutItem = vnxout.storageList[j];
+                                if ( vnxoutItem.storageSn == item.serialnb ) {
+                                    isfind = true;
+                                    var isfinddir = false;
+                                    for ( var z in vnxoutItem.directorList ) {
+                                        var dirItem = vnxoutItem.directorList[z];
+                                        if ( dirItem.directorName == directorname ) {
+                                            isfinddir = true;
+                                            dirItem.portList.push(directorport) ;
+                                            break;
+                                        }
+                                    }
+                                    if ( isfinddir == false  ){
+                                        var dirItem = {};
+                                        dirItem["directorName"] = directorname;
+                                        dirItem["portList"] = [];
+                                        dirItem.portList.push(directorport);
+        
+                                        vnxoutItem.directorList.push(dirItem);
+                                    }
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var vnxoutItem = {};
+                                vnxoutItem["storageName"] = item.device;
+                                vnxoutItem["storageSn"] = item.serialnb;
+                                vnxoutItem["directorList"] = [];
+                                var dirItem = {};
+                                dirItem["directorName"] = directorname;
+                                dirItem["portList"] = [];
+                                dirItem.portList.push(directorport);
+
+                                vnxoutItem.directorList.push(dirItem);
+                                vnxout.storageList.push(vnxoutItem);
+                            }
+
+                        }
+                        callback(null,vnxout);
+                   })                        
+                },
+                vmaxinfo: function(callback, result ) {
+                    VMAX.GetFEPortsOnly(device, function(ret) {
+                        var vnxout = {};
+                        vnxout["storageType"] = 'VMAX';
+                        vnxout["storageList"] = [];
+                        for ( var i in ret ) {
+                            var item = ret[i];
+                            var director = item.feport.split(":");
+                            var directorname = director[0];
+                            var directorport = director[1];
+
+                            var isfind = false;
+                            for ( var j in vnxout.storageList ) {
+                                var vnxoutItem = vnxout.storageList[j];
+                                if ( vnxoutItem.storageSn == item.device ) {
+                                    isfind = true;
+                                    var isfinddir = false;
+                                    for ( var z in vnxoutItem.directorList ) {
+                                        var dirItem = vnxoutItem.directorList[z];
+                                        if ( dirItem.directorName == directorname ) {
+                                            isfinddir = true;
+                                            dirItem.portList.push(directorport) ;
+                                            break;
+                                        }
+                                    }
+                                    if ( isfinddir == false  ){
+                                        var dirItem = {};
+                                        dirItem["directorName"] = directorname;
+                                        dirItem["portList"] = [];
+                                        dirItem.portList.push(directorport);
+        
+                                        vnxoutItem.directorList.push(dirItem);
+                                    }
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var vnxoutItem = {};
+                                vnxoutItem["storageName"] = "";
+                                vnxoutItem["storageSn"] = item.device;
+                                vnxoutItem["directorList"] = [];
+                                var dirItem = {};
+                                dirItem["directorName"] = directorname;
+                                dirItem["portList"] = [];
+                                dirItem.portList.push(directorport);
+
+                                vnxoutItem.directorList.push(dirItem);
+                                vnxout.storageList.push(vnxoutItem);
+                            }
+
+                        }
+                        callback(null,vnxout);
+                   })                     
+                },
+                arrayinfo: function( callback, result ) {
+                    var filter = {};
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+                        callback(null,arrayInfo);
+                    })
+                },
+                mergeResult: ["vnxinfo","vmaxinfo","arrayinfo", function(callback, result ) {
+
+                    for ( var i in result.vmaxinfo.storageList ) {
+                        var item = result.vmaxinfo.storageList[i];
+                        for ( var j in result.arrayinfo ) {
+                            var infoItem = result.arrayinfo[j];
+                            if ( item.storageSn == infoItem.sn ) {
+                                item.storageName = infoItem.name;
+                            }
+                        }
+                    }
+                    var finalResult = [];
+                    finalResult = finalResult.concat(result.vnxinfo);
+                    finalResult = finalResult.concat(result.vmaxinfo);
+             
+                    callback(null,finalResult);
+
+                }]
+            }, function(err, result ) {
+
+
+                res.json(200,result.mergeResult);
+            }
+            
+        );
+    });
+
+
+    
+    //http://10.62.38.246:8080/ceb/config/multiQuery/getQueryCondition?_=1533912943234
+    // 配置信息->关联关系查询-2: (交换机端口->服务器,服务器->交换机、存储)条件选择数据
+
+     app.get('/rest/multiQuery/getQueryConditio', function (req, res) {   
+        var config = configger.load();
+        res.setTimeout(1200*1000);
+
+        var config = configger.load(); 
+        var ReportTmpDataPath = config.Reporting.TmpDataPath;
+        var ReportOutputPath = config.Reporting.OutputPath;
+                        
+        var device; 
+ 
+        async.auto(
+            {
+
+                appinfo: function(callback, result ) { 
+                    Analysis.getAppTopology(function(apptopo) { 
+                        var hosts = [];
+                        for ( var i in apptopo ) {
+                            var item = apptopo[i];
+                            if ( item.host == "" ) continue;
+                            var isfind = false;
+                            for ( var j in hosts ) {
+                                var hostItem = hosts[j];
+                                if ( item.host == hostItem ) {
+                                    isfind = true;
+                                    break;
+                                }
+                            }
+                            if ( isfind == false ) hosts.push(item.host);
+                        }
+                        callback(null,hosts);
+                    })                   
+                },
+                arrayinfo: function( callback, result ) {
+                    var param = {};
+                    param['filter'] = 'datagrp=\'BROCADE_FCSWITCH_PORT\''; 
+            
+                    param['keys'] = ['deviceid','partwwn']; 
+                    param['fields'] = ['partid','lsname'];
+            
+                    CallGet.CallGet(param, function(param) {  
+                        var swportinfo = [];
+                        for ( var i in param.result ) {
+                            var item = param.result[i];
+
+                            var isfind = false;
+                            for ( var j in swportinfo ) {
+                                var switem = swportinfo[j];
+
+                                if ( item.lsname == switem.name ) {
+                                    isfind = true;
+                                    switem.wwpn.push(item.partid+'(' + item.partwwn + ')');
+                                    break;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var switem = {};
+                                switem["name"] = item.lsname;
+                                switem["wwpn"] = [];
+                                switem.wwpn.push(item.partid+'(' + item.partwwn + ')');
+                                switem["sn"] = item.deviceid;
+                                swportinfo.push(switem);
+                            }
+                        } 
+
+                        callback(null, swportinfo ); 
+                    }); 
+                },
+                mergeResult: ["appinfo","arrayinfo", function(callback, result ) {
+ 
+                    var finalResult = {};
+                    finalResult["hosts"] = result.appinfo;
+                    finalResult["switchPorts"]= result.arrayinfo; 
+             
+                    callback(null,finalResult);
+
+                }]
+            }, function(err, result ) {
+
+
+                res.json(200,result.mergeResult);
+            }
+            
+        );
+    });
+
+
+
+
+    //7555http://10.62.38.246:8080/ssmp-frontend/rest/config/configQuery/?storage=VNX+_+CKM00114601261&director=all&port=all&_=1533896160718
+     // 配置信息->关联关系查询-2: (存储前端口->服务器 )
+
+    app.get('/rest/config/configQuery', function (req, res) { 
+        res.setTimeout(1200*1000);
+
+        var storageTmp = req.query.storage.replace(" _ ",',');
+
+        var storageType = storageTmp.split(",")[0];
+        var storageSn = storageTmp.split(",")[1];
+
+        var director = req.query.director.replace(' ','');
+        var port = req.query.port;
+
+        console.log(storageTmp+"\t"+storageSn+"\t"+storageType+"\t"+director);
+ 
+        var device;
+        async.auto(
+            {
+                apptopo: function( callback, result ) {
+                    Analysis.getAppTopology(function(apptopo) {
+                        var appTopo1 = [];
+                        for ( var i in apptopo) {
+                            var item = apptopo[i];
+                            if ( director != 'all' && port != 'all') {
+                                var feport = director+':'+port;
+                                if ( item.array == storageSn && item.arrayport == feport ) 
+                                    appTopo1.push(item);
+                            } else if ( director != 'all' && port == 'all') {
+                                if ( item.array == storageSn && item.arrayport.indexOf(director) >=0  ) 
+                                    appTopo1.push(item);
+
+                            } else 
+                                if ( item.array == storageSn ) appTopo1.push(item);
+                        }
+                        callback(null,appTopo1);
+                    })
+                } ,
+                appinfo: function ( callback, result ) {
+                    Report.GetApplicationInfo( function (ret) {
+                        callback(null,(ret));
+                    });   
+                },
+                mergeResult: ["apptopo","appinfo",  function(callback, result ) {
+
+                    if ( storageType == 'VNX' ) {
+                        console.log('storage is vnx');
+                        var finalResult = [];
+                        for ( var i in result.apptopo ) {
+                            var item = result.apptopo[i];
+    
+                            var app = {} ;
+                            for ( var z in result.appinfo ) {
+                                var appitem = result.appinfo[z];
+                                if ( appitem.WWN == item.hbawwn ) 
+                                    app = appitem;
+                            }
+    
+                            var isfind = false ;
+                            for ( var j in finalResult ) {
+                                var resultItem = finalResult[j];
+                                if ( resultItem.SGName == item.maskingview && resultItem.appName == item.app )  {
+                                    isfind = true;
+                                    break;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var resultItem = {};
+                                resultItem["Type"] = []; 
+                                if ( app.appLevel !== undefined ) resultItem.Type.push(app.appLevel);
+
+
+                                resultItem["SGName"] = item.maskingview;
+                                resultItem["SGHost"] = [];
+                                resultItem.SGHost.push("");
+                                resultItem["MirrorViewNum"] = 0;
+                                
+                                
+                                resultItem["LunNameNum"] = item.devices === undefined ? 0 : item.devices.split(',').length;
+                                resultItem["mirrorViewToLuns"] = [];
+        
+                                resultItem["hostName"] = item.host;
+                                resultItem["appAdmin"] = item.appManagerA;
+                                resultItem["hostIP"] = app.hostIP;
+                                resultItem["appName"] = item.app;
+                                resultItem["hostID"] = "";
+                                resultItem["masterSlave"] = app.hostRunType == 'PRIMARY' ? '主机' : '备机';
+                                resultItem["admin"] =  app.admin;
+                                resultItem["searchCode"] = app.searchCode;
+                                resultItem["appShortName"] = item.appShortName;
+                                resultItem["usePurpose"] = item.hostStatus;
+                                finalResult.push(resultItem);
+    
+                            }
+    
+    
+                        } 
+                 
+                        callback(null,finalResult);
+
+
+
+
+
+                    } else if ( storageType == 'VMAX' ) {
+
+
+
+                        console.log('storage is vmax');
+                        var finalResult = [];
+                        for ( var i in result.apptopo ) {
+                            var item = result.apptopo[i];
+    
+                            var app = {} ;
+                            for ( var z in result.appinfo ) {
+                                var appitem = result.appinfo[z];
+                                if ( appitem.WWN == item.hbawwn ) 
+                                    app = appitem;
+                            }
+    
+                            var isfind = false ;
+                            for ( var j in finalResult ) {
+                                var resultItem = finalResult[j];
+                                if ( resultItem.viewName == item.maskingview && resultItem.appName == item.app && resultItem.hostName == item.host)  {
+                                    isfind = true;
+                                    break;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var resultItem = {};
+                                resultItem["Type"] = []; 
+                                if ( app.appLevel !== undefined ) resultItem.Type.push(app.appLevel);
+
+
+                                resultItem["viewName"] = item.maskingview;
+                                resultItem["IGNum"] = 1 ;
+                                resultItem["PGNum"] = 1 ;
+                                resultItem["SGNum"] =  1;
+                                resultItem["DeviceNum"] = item.devices.split(',').length;
+                                resultItem["maskViewInfos"] = [];
+                                var maskviewinfoItem = {};
+                                maskviewinfoItem["SG"] = item.SG;
+                                maskviewinfoItem["PG"] = item.PG;
+                                maskviewinfoItem["IG"] = item.IG; 
+                                resultItem["maskViewInfos"].push(maskviewinfoItem);
+
+                                resultItem["maskviewToDevices"] = [];
+                                var devs = item.devices.split(',');
+                                for ( var z in devs ) {
+                                    var devItem = {};
+                                    devItem["deviceType"] = "";
+                                    devItem["SG"] = item.SG;
+                                    devItem["deviceName"] = devs[z];
+                                    devItem["IG"] = item.IG;
+                                    devItem["PG"] = item.PG;
+
+                                    resultItem.maskviewToDevices.push(devItem);
+
+                                }
+        
+                                resultItem["hostName"] = item.host;
+                                resultItem["appAdmin"] = item.appManagerA;
+                                resultItem["hostIP"] = app.hostIP;
+                                resultItem["appName"] = item.app;
+                                resultItem["hostID"] = "";
+                                resultItem["masterSlave"] = app.hostRunType == 'PRIMARY' ? '主机' : '备机';
+                                resultItem["admin"] =  app.admin;
+                                resultItem["searchCode"] = app.searchCode;
+                                resultItem["appShortName"] = item.appShortName;
+                                resultItem["usePurpose"] = item.hostStatus;
+                                finalResult.push(resultItem);
+    
+                            }
+    
+    
+                        } 
+                 
+                        callback(null,finalResult);
+
+                    }
+
+
+                }]
+            }, function(err, result ) {
+
+
+                res.json(200,result.mergeResult);
+            }
+            
+        );
+    });
+
+
+
+
+ 
+    // http://10.62.38.246:8080/ceb/config/multiQuery/getHostToSwitchInfo?sn=100000051E365840&wwpn=11(200B00051E365840)&_=1533949591187
+    // 配置信息->关联关系查询-4: (交换机端口->服务器   )
+
+     app.get('/rest/config/multiQuery/getHostToSwitchInfo', function (req, res) { 
+        res.setTimeout(1200*1000);
+
+        var switemsn = req.query.sn;
+        var wwpn = req.query.wwpn;
+        var portid = wwpn.split('(')[0];
+        var portwwn = wwpn.split('(')[1].replace(')','');
+
+        console.log(switemsn+"\t"+wwpn+"\t"+portid+"\t"+portwwn);
+ 
+        var device;
+        async.auto(
+            {
+                apptopo: function( callback, result ) {
+                    Analysis.getAppTopology(function(apptopo) {
+                        var appTopo1 = [];
+                        for ( var i in apptopo) {
+                            var item = apptopo[i];
+                            if ( item.connect_hba_swport_wwn == portwwn ) {
+                                var retItem = {};
+                                retItem["hostName"] = item.host;
+                                retItem["appAdmin"] = item.appManagerA;
+                                retItem["hostip"] = "";
+                                retItem["appName"] = item.app;
+                                retItem["masterSlave"] = "";
+                                retItem["admin"] = "";
+                                retItem["wwpn"] = portwwn;
+                                retItem["searchCode"] = 
+                                retItem["sppShortName"] =  item.appShortName;
+                                retItem["hbaWwn"] = item.hbawwn;
+                                retItem["usePurpose"] = "";
+                                retItem["switchName"] = item.connect_hba_sw;
+                                retItem["sn"] = item.connect_hba_sw_id;
+                                
+                                appTopo1.push(retItem);
+                            }
+                        }
+
+                        var returnData=[];
+                        for ( var i in appTopo1 ) {
+                            var item = appTopo1[i];
+                            var isfind = false;
+                            for ( var j in returnData ) {
+                                var retItem = returnData[j]; 
+                                if (    item.hostName == retItem.hostName && 
+                                        item.appName == retItem.appName && 
+                                        item.hbawwn == retItem.hbawwn  
+                                    ) {
+                                        isfind = true;
+                                        break;
+                                    }
+                            }
+                            if ( isfind == false ) returnData.push(item);
+
+                        }
+                        callback(null,returnData);
+                    })
+                } ,
+                appinfo: function ( callback, result ) {
+                    Report.GetApplicationInfo( function (ret) {
+                        callback(null,(ret));
+                    });   
+                },
+                mergeResult: ["apptopo","appinfo",  function(callback, result ) {
+
+                 
+                    for ( var i in result.apptopo ) {
+                        var item = result.apptopo[i];
+
+                        var app = {} ;
+                        for ( var z in result.appinfo ) {
+                            var appitem = result.appinfo[z];
+                            if ( appitem.app == item.appName )  {
+                                app= appitem;
+                                break;
+                            }
+                                app = appitem;
+                        }
+
+                        item["hostip"] = app.hostIP; 
+                        item["masterSlave"] = app.hostRuntype;
+                        item["admin"] = app.admin; 
+                        item["searchCode"] = app.searchCode;  
+                        item["usePurpose"] = app.appLevel; 
+                    } 
+             
+                    callback(null,result.apptopo);
+
+                }]
+            }, function(err, result ) {
+
+
+                res.json(200,result.mergeResult);
+            }
+            
+        );
+    });
+
+
+    //http://10.62.38.246:8080/ssmp-frontend/rest/config/getConfigViewsByHost/ECFB-QZ-APP-P01
+    // 配置信息->关联关系查询-4: ( 服务器->交换机、存储  )
+
+     app.get('/rest/config/getConfigViewsByHost/:hostname', function (req, res) { 
+        res.setTimeout(1200*1000);
+
+        var hostname = req.params.hostname;
+        console.log("HOSTNAME="+hostname);
+        var device;
+        async.auto(
+            {
+                apptopo: function( callback, result ) {
+                    Analysis.getAppTopology(function(apptopo) {
+                        var appTopo1 = [];
+                        for ( var i in apptopo) {
+                            var item = apptopo[i];
+                            if ( item.host == hostname ) {
+                                var retItem = {};
+                                retItem["hostName"] = item.host;
+                                retItem["storage_SwitchName"] = item.connect_hba_sw;
+                                retItem["VPLEX"] = "";
+                                retItem["fabricId"] = item.fabricname ;
+                                retItem["appName"] = item.app;
+                                retItem["hostSN"] = "" ;
+                                retItem["masterSlave"] = item.hostStatus ;
+                                retItem["host_SwitchSN"] = item.connect_hba_sw_id ;
+                                retItem["admin"] = ""; 
+                                retItem["type"] = "" ;
+                                retItem["url"] = "" ;
+                                retItem["storageName"] = item.arrayname ;
+                                retItem["hostConnWwpn"] = item.hbawwn;
+                                retItem["host_SwitchName"] = item.connect_hba_sw;
+                                retItem["appId"] = "";
+                                retItem["location"] = "" ;
+                                retItem["storageConnWwpn"] = item.connect_arrayport_swport_wwn ;
+                                retItem["shortName"] = item.appShortName ;
+                                retItem["storage_SwitchSN"] = item.connect_arrayport_sw_id ;
+                                retItem["storageSN"] = item.array ;
+                                       
+                                                                
+                                appTopo1.push(retItem);
+                            }
+                        }
+
+                        var returnData=[];
+                        for ( var i in appTopo1 ) {
+                            var item = appTopo1[i];
+                            var isfind = false;
+                            for ( var j in returnData ) {
+                                var retItem = returnData[j]; 
+                                if (    item.host_SwitchSN == retItem.host_SwitchSN && 
+                                        item.storage_SwitchSN == retItem.storage_SwitchSN && 
+                                        item.appName == retItem.appName && 
+                                        item.storageSN == retItem.storageSN  
+                                    ) {
+                                        isfind = true;
+                                        break;
+                                    }
+                            }
+                            if ( isfind == false ) returnData.push(item);
+
+                        }
+                        callback(null,returnData);
+                    })
+                } ,
+                appinfo: function ( callback, result ) {
+                    Report.GetApplicationInfo( function (ret) {
+                        callback(null,(ret));
+                    });   
+                },
+                arrayinfo: function ( callback, result ) {
+                    DeviceMgmt.getMgmtObjectInfo(device, function(ret) {     
+                        callback(null,(ret));     
+                    });
+                },
+                mergeResult: ["apptopo","appinfo", "arrayinfo", function(callback, result ) {
+
+                 
+                    for ( var i in result.apptopo ) {
+                        var item = result.apptopo[i];
+
+                        var app = {} ;
+                        for ( var z in result.appinfo ) {
+                            var appitem = result.appinfo[z];
+                            if ( appitem.app == item.appName )  {
+                                app= appitem;
+                                break;
+                            }
+                                app = appitem;
+                        } 
+
+                        var array = {};
+                        for ( var j in result.arrayinfo ) {
+                            var arrayitem = result.arrayinfo[j];
+                            if ( arrayitem.sn == item.storageSN )  {
+                                array = arrayitem;
+                                break;
+                            }
+                                array = arrayitem;
+                        } 
+
+                                                
+
+                        item["VPLEX"] = "";
+                        item["hostSN"] = "" ; 
+                        item["appId"] = "";
+                        item["admin"] = app.admin; 
+                        item["type"] = array.name.indexOf("VMAX") ? 'vmax' : 'vnx' ;
+                        item["url"] = item.type=='vmax' ? '../vmax/summary.html' : '../vnx/summary.html';
+                        item["location"] = array.cabinet ;
+
+                    } 
+             
+                    callback(null,result.apptopo);
+
+                }]
+            }, function(err, result ) {
+
+
+                res.json(200,result.mergeResult);
+            }
+            
+        );
+    });
+
 
 
 

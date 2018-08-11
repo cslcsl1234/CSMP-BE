@@ -295,13 +295,15 @@ var testController = function (app) {
      
      app.get('/test3',function(req, res) {
         
-        var device = req.query.device;
-        var filter = {};
-        filter["sn"] = device;
-        DeviceMgmt.getMgmtObjectInfo( filter,  function(ret ) { 
-            res.json(200,ret);    
-        })
+        var param = {};
+        param['filter'] = 'datagrp=\'BROCADE_FCSWITCH_PORT\''; 
 
+        param['keys'] = ['deviceid','partwwn']; 
+        param['fields'] = ['partid','lsname'];
+
+        CallGet.CallGet(param, function(param) {  
+            res.json(200,param.result ); 
+        });
     });
     
     app.get('/test4',function(req, res) {
@@ -353,6 +355,8 @@ var testController = function (app) {
           var start = '2018-05-30T16:00:00.000Z';
           var end = '2018-06-29T16:00:00.000Z';;
           var part;
+
+         // VMAX.GetFEPortsOnly(device,function(rest) {             res.json(200,rest);        });
          //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
           //function GetFCSwitchPart(devtype,parttype,callback) { 
           //  Report.getAppStorageRelation( function (result )  {  res.json(200,result) });
@@ -374,15 +378,15 @@ var testController = function (app) {
         //Capacity.GetArrayCapacity(device, function(ret) {
          //   DeviceMgmt.GetArrayAliasName(function(ret) {           res.json(200,ret);        });
         //VNX.GetBlockDevices(device,  function(result) {   res.json(200,result);   }); 
-        VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
+        //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
         //VMAX.GetMaskViews(device, function(ret) {     res.json(200,ret);        });
        // Report.ArrayAccessInfos(device, function(ret) {  res.json(200,ret);        });
         //VMAX.GetAssignedHosts(device, function(rest) {             res.json(200,rest);        });
 
         //Report.E2ETopology(device, function(ret) {   res.json(200,ret);        });
-        //Report.GetApplicationInfo( function (ret) {  res.json(200,ret);        });
- 
-
+       // Report.GetApplicationInfo( function (ret) {  res.json(200,ret);        });
+        //Analysis.getAppTopology(function(apptopo) {            res.json(200,apptopo);        })
+        DeviceMgmt.getMgmtObjectInfo(device, function(ret) {     res.json(200,ret);        });
         //var apps = Report.ApplicationCapacityAnalysis("","");
         //res.json(200,apps);
 

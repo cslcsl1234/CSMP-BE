@@ -112,7 +112,7 @@ var topologyController = function (app) {
 
 
     app.get('/api/topology/app', function (req, res) {
-        res.setTimeout(3600*1000);
+        res.setTimeout(3600*10000);
         var device;
         var config = configger.load(); 
         var ReportTmpDataPath = config.Reporting.TmpDataPath;
@@ -144,8 +144,7 @@ var topologyController = function (app) {
                  wstream.write(']\n');
                  wstream.end();    
                  console.log("===== End  execute application capacity analysis ======");
-                 console.log("========================================================");
-        
+
 
                  
                 var finalRecords = [];
@@ -202,6 +201,8 @@ var topologyController = function (app) {
 
                     }
                 }
+                console.log("===== execute write topology file ======");
+
 
                 
                 var fs = require('fs');
@@ -216,24 +217,7 @@ var topologyController = function (app) {
                 wstream.write(']\n');
                 wstream.end();    
 
-
-
-                
-                var fs = require('fs');
-                var wstream = fs.createWriteStream("./data/topology.json");  
-                         
-                wstream.write('[');
-                for ( var i in finalRecords_new ) {
-                    var item = finalRecords_new[i];
-                    if ( i == 0 ) wstream.write(JSON.stringify(item) +'\n');
-                    else wstream.write(', ' + JSON.stringify(item) +'\n');
-                }
-                wstream.write(']\n');
-                wstream.end();    
-
-
-
-
+ 
 
                  var fs = require('fs');
                  var json2xls = require('json2xls');
@@ -259,6 +243,8 @@ var topologyController = function (app) {
                 //appTopologyRecord.zone = zone ; 
                 //appTopologyRecord.masking = masking ;
 
+                console.log("===== execute write lunmappping file ======");
+
 
                 /*  ------------------------------
                     for lun mapping view 
@@ -275,6 +261,8 @@ var topologyController = function (app) {
                fs.writeFileSync(outputFilename1, xls1, 'binary');
 
 
+               console.log("===== execute write mongo record ======");
+
 
 
                 var newRecord = new AppTopologyObj(appTopologyRecord);
@@ -283,6 +271,8 @@ var topologyController = function (app) {
                     if (err)  { 
                         return res.json(400 , err);
                     } else 
+                        console.log("========================================================");
+        
                         res.json(200 , ret  );
                 });
     

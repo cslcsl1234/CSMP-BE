@@ -90,16 +90,25 @@ var appTopologyItemSchema = new Schema({
     host  :String,
     hostStatus :String,
     hbawwn  :String,
+    connect_hba_swport :String,
+    connect_hba_swport_wwn :String,
+    connect_hba_swport_status :String,
     connect_hba_swport_alias  :String,
     connect_hba_zmemtype  :String,
+    connect_hba_sw_ip :String,
+    connect_hba_sw_id :String,
+    connect_hba_sw :String,
     fabricname  :String,
     zsetname  :String,
     zname  :String,
     connect_arrayport_sw  :String,
+    connect_arrayport_sw_id :String,
+    connect_arrayport_sw_ip :String,
     connect_arrayport_zmemtype  :String,
     connect_arrayport_swport_alias  :String,
     connect_arrayport_swport_status  :String,
     connect_arrayport_swport_wwn  :String,
+    connect_arrayport_swport :String,
     arrayport  :String,
     arrayport_wwn  :String,
     array  :String,
@@ -113,7 +122,6 @@ var appTopologyItemSchema = new Schema({
     SG  :String,
     Capacity : Number,
     marched_type  :String
-    
 },{ _id : false });
 
 appTopologySchema = new Schema({
