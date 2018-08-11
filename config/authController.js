@@ -200,28 +200,36 @@ var authController = function (app) {
             };
         } else { 
             var user = {};
-            user.username = req.body.email;
+            user.username = req.body.username;
             user.password = req.body.password;
     
         }
 
+        if ( user.username === undefined || user.username == 'undefined') {
+            res.json(400,'username is required!'); 
+        } else if ( user.password === undefined || user.password== 'undefined' ) {
+            res.json(400,'password is required!');
+        } else {
+            console.log("username = %s, password = %s", user.username, user.password); 
 
+            User.login(user, function (err, userid, msg) {
+    
+                //console.log(msg);
+                if (err) {
+                    console.log("ERROR:" + err);
+                    res.json(500, err);
+                }
+                if (!userid) {
+                    console.log("NoExist:" + msg);
+                    res.json(400, { data :{ errors: msg}});
+                } else { 
+                    console.log("Login - Get Auth key");
+                    getAuthKey(res, msg);
+                }
+            });
+        }
  
-        //console.log("username = %s, password = %s", req.body.username, req.body.password);
 
-        User.login(user, function (err, userid, msg) {
-
-            //console.log(msg);
-            if (err) {
-                res.json(500, err);
-            }
-            if (!userid) {
-                res.json(400, {message: msg});
-            } else { 
-                console.log("Login - Get Auth key");
-                getAuthKey(res, msg);
-            }
-        });
     });
 
 

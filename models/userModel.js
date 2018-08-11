@@ -79,8 +79,12 @@ userSchema.statics = {
      * @returns {*}
      */
     login: function (user, done) {
-        if (!(user && user.username && user.password)) {
+        console.log("AAA:" + user.username + '|' + user.password );
+
+        if (!( user.username && user.password)) {
             return done(null, null, 'username & password are required');
+        } else if (!(user)) {
+            return done(null, null, 'user ' + user.username + ' is not exists');
         }
 
         this.findOne({username: user.username}, function (err, doc) {
@@ -90,7 +94,7 @@ userSchema.statics = {
             } 
             //user doesn't exit.
             if (!doc) {
-                return  done(null, null, "user doesn't exit!");
+                return  done(null, null, "User doesn't exit!");
             }
             //password correct.
             if (doc.comparePassword(user.password)) {

@@ -20,7 +20,7 @@
     "BASE_FILTER": ""
   },
   "SERVER": {
-    "HOST": "10.62.38.238",
+    "HOST": "192.168.17.201",
     "PORT": 8080
   },
   "ProductType": "Test",
@@ -41,9 +41,9 @@
     "TmpDataPath": "/csmp/reporting/tmp",
     "OutputPath": "/csmp/reporting"
   },
-  "Analysis" : {
-    "baselinePeriod" : 4 ,    
-    "PeriodNumber": 604800,  
-    "baselinePercent": 30   
+  "Analysis": {
+    "baselinePeriod": 4,
+    "PeriodNumber": 604800,
+    "baselinePercent": 30
   }
 }
