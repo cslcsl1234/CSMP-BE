@@ -399,7 +399,8 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
                                 var matricsItemDT = moment.unix(parseInt(matricsItem.timestamp)).format("MM-DD HH:mm");
                                 if ( resultItem.DT == matricsItemDT ) {
                                     if ( resultItem[item.device] === undefined ) resultItem[item.device] = 0;
-                                    resultItem[item.device] += matricsItem.TotalThroughput === undefined ? 0 : matricsItem.TotalThroughput;
+                                    //resultItem[item.device] += matricsItem.TotalThroughput === undefined ? 0 : matricsItem.TotalThroughput;
+                                    resultItem[item.device] += matricsItem.CurrentUtilization === undefined ? 0 : matricsItem.CurrentUtilization;
                                     isfind = true;
                                 }
                             }
@@ -408,7 +409,8 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
                                 var resultItem = {};
                                 var DT =  moment.unix(parseInt(matricsItem.timestamp)).format("MM-DD HH:mm");
                                 resultItem["DT"] = DT;
-                                resultItem[item.device] = matricsItem.TotalThroughput === undefined ? 0 : matricsItem.TotalThroughput;
+                                //resultItem[item.device] = matricsItem.TotalThroughput === undefined ? 0 : matricsItem.TotalThroughput;
+                                resultItem[item.device] = matricsItem.CurrentUtilization === undefined ? 0 : matricsItem.CurrentUtilization;
                                 finalResult.push(resultItem);
                             }
                         }

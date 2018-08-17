@@ -21,9 +21,8 @@ var util = require('../lib/util');
 
 var mongoose = require('mongoose');
 var ArrayObj = mongoose.model('Array');
-var ArraySGRedoVolumeObj = mongoose.model('ArraySGRedoVolume');
-
 var CallGet = require('../lib/CallGet'); 
+var ArraySGRedoVolumeObj = mongoose.model('ArraySGRedoVolume');
 
 var App = require('../lib/App'); 
 var getTopos = require('../lib/topos.js');
@@ -76,14 +75,13 @@ var arrayController = function (app) {
         debug('req.method = %s', req.method);     
         debug('req.url = %s', req.url); 
 
-        if(req.method=="OPTIONS") res.send(200);  /*ÈÃoptionsÇëÇó¿ìËÙ·µ»Ø*/
+        if(req.method=="OPTIONS") res.send(200);  /*让options请求快速返回*/
         else  next();
     });
 
 
 
    app.get('/api/arrays', function (req, res) { 
-        res.setTimeout(1200*1000);
         var device = req.query.device;
         var datacenter = req.query.datacenter;
  
@@ -146,6 +144,7 @@ var arrayController = function (app) {
 
 
     app.get('/api/array/capacity', function ( req, res )  {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         var device = req.query.device; 
         var start = ( req.query.startDate === undefined ? util.getPerfStartTime() : req.query.startDate ) ;
         var end = ( req.query.endDate === undefined ? util.getPerfEndTime() : req.query.endDate ) ;
@@ -158,46 +157,46 @@ var arrayController = function (app) {
 
                     var valueFieldItem = {};
                     valueFieldItem["field"] = "ConfiguredUsableCapacity";
-                    valueFieldItem["name"] = "ÒÑÅäÖÃ¿ÉÓÃÈÝÁ¿";
+                    valueFieldItem["name"] = "已配置可用容量";
                     valueField.push(valueFieldItem);
 
                     var valueFieldItem = {};
                     valueFieldItem["field"] = "UnconfiguredCapacity";
-                    valueFieldItem["name"] = "Î´ÅäÖÃÂãÈÝÁ¿";
+                    valueFieldItem["name"] = "未配置裸容量";
                     valueField.push(valueFieldItem);
 
                     var valueFieldItem = {};
                     valueFieldItem["field"] = "UsedCapacity";
-                    valueFieldItem["name"] = "ÒÑ·ÖÅäÈÝÁ¿";
+                    valueFieldItem["name"] = "已分配容量";
                     valueField.push(valueFieldItem);
 */
 
                     var valueFieldItem = {};
                     valueFieldItem["field"] = "BlockUsedCapacity";
-                    valueFieldItem["name"] = "Block·ÖÅäÈÝÁ¿";
+                    valueFieldItem["name"] = "Block分配容量";
                     valueField.push(valueFieldItem);
 
                     var valueFieldItem = {};
                     valueFieldItem["field"] = "FileUsedCapacity";
-                    valueFieldItem["name"] = "File·ÖÅäÈÝÁ¿";
+                    valueFieldItem["name"] = "File分配容量";
                     valueField.push(valueFieldItem);
 
                     
                     var valueFieldItem = {};
                     valueFieldItem["field"] = "TotalFreeCapacity";
-                    valueFieldItem["name"] = "Ê£Óà¿ÉÓÃÈÝÁ¿";
+                    valueFieldItem["name"] = "剩余可用容量";
                     valueField.push(valueFieldItem);
                                         
                     
                     var valueFieldItem = {};
                     valueFieldItem["field"] = "AllocateGrowthRate";
-                    valueFieldItem["name"] = "·ÖÅäÈÝÁ¿Ôö³¤ÂÊ";
+                    valueFieldItem["name"] = "分配容量增长率";
                     valueField.push(valueFieldItem);
                                         
                     var stackedarea = {};
                     var header = {};
-                    header["Title"] = "ÈÝÁ¿Ç÷ÊÆ";
-                    header["YTitle"] = "ÈÝÁ¿(GB)";
+                    header["Title"] = "容量趋势";
+                    header["YTitle"] = "容量(GB)";
                     header["categoryField"] = "timestamp";
                     header["dataformat"] = "YYYY-MM-DD";
                     header["ValueField"] = valueField;
@@ -228,23 +227,23 @@ var arrayController = function (app) {
 
                     // -------------- Left Chart ---------------------------
                     var leftChart = {} ;
-                    leftChart['title'] = "´æ´¢ÈÝÁ¿·Ö²¼(TB)"; 
+                    leftChart['title'] = "存储容量分布(TB)"; 
                     leftChart['chartType'] = 'pie';
 
                     var chartData = [];
                     item={};
                     item["color"] =  "#80B3E8",
-                    item["name"] =  "ÒÑÅäÖÃÈÝÁ¿",
+                    item["name"] =  "已配置容量",
                     //item["value"] =  returnData.RawCapacity.ConfiguredUsableCapacity;
-                    item["name2"] =  "ÒÑ·ÖÅä";
+                    item["name2"] =  "已分配";
                     item["value2"] =  Math.round(returnData.ConfiguredUsableCapacity.UsedCapacity/1024);
-                    item["name3"] =  "Ê£Óà¿É·ÖÅä";
+                    item["name3"] =  "剩余可分配";
                     item["value3"] =  Math.round(returnData.ConfiguredUsableCapacity.PoolFreeCapacity/1024 +returnData.ConfiguredUsableCapacity.FreeCapacity/1024);
                     chartData.push(item);
 
                     item={};
                     item["color"] =  "#80B3E8",
-                    item["name"] =  "Î´ÅäÖÃÈÝÁ¿",
+                    item["name"] =  "未配置容量",
                     item["value"] =  Math.round(returnData.RawCapacity.UnconfiguredCapacity/1024);
                     chartData.push(item);
 
@@ -263,14 +262,14 @@ var arrayController = function (app) {
 
                     item={};
                     item["color"] =  "#80B3E8",
-                    item["name"] =  "²»¿ÉÓÃÈÝÁ¿",
+                    item["name"] =  "不可用容量",
                     item["value"] =  Math.round(returnData.RawCapacity.UnusableCapacity/1024);
                     chartData.push(item);
                     leftChart["chartData"] = chartData;
 
                     // -------------- Right Chart ---------------------------
                     var RightChart = {} ;
-                    RightChart['title'] = "ÒÑ·ÖÅäÈÝÁ¿·Ö²¼(TB)"; 
+                    RightChart['title'] = "已分配容量分布(TB)"; 
                     RightChart['chartType'] = 'pie';
 
                     var chartData = [];
@@ -278,7 +277,7 @@ var arrayController = function (app) {
                     item["color"] =  "#80B3E8",
                     item["name"] =  "Block",
                     item["value"] =  Math.round(returnData.UsedCapacityByType.BlockUsedCapacity/1024);
-                    item["name2"] =  "Ê£Óà¿É·ÖÅä";
+                    item["name2"] =  "剩余可分配";
                     //item["value2"] =  Math.round((returnData.ConfiguredUsableCapacity.PoolFreeCapacity - ( returnData.FileUsedCapacity !== undefined ? returnData.FileUsedCapacity.NASPoolFreeCapacity : 0 ))/1024);
                     item["value2"] =  0;
                     chartData.push(item);
@@ -286,20 +285,22 @@ var arrayController = function (app) {
                     item={};
                     item["color"] =  "#444348",
                     item["name"] = "File",
-                    item["name2"] =  "FSÒÑÊ¹ÓÃ";
-                    item["name3"] =  "FSÊ£Óà¿ÉÓÃ";
-                    item["name4"] =  "FSÊ£Óà¿É·ÖÅä";
+                    item["name2"] =  "FS已使用";
+                    item["name3"] =  "FS未使用";
+                    item["name4"] = "超分配容量";
                     if ( returnData.UsedCapacityByType.FileUsedCapacity === undefined || 
                          returnData.NASFSCapacity === undefined || 
                          returnData.FileUsedCapacity === undefined  ) {
                         item["value2"] = 0 ;
                         item["value3"] = 0 ;
                         item["value4"] = 0 ;
+                        item["value5"] = 0;
                     } else  {
-                        item["value2"] = Math.round(returnData.UsedCapacityByType.FileUsedCapacity/1024 - returnData.NASFSCapacity.NASFSFreeCapacity/1024 - returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
-                        item["value3"] =  Math.round(returnData.NASFSCapacity.NASFSFreeCapacity/1024);
-                        item["value4"] =  Math.round(returnData.FileUsedCapacity.NASPoolFreeCapacity/1024);
-
+                        var TotalCapacity = returnData.NASFSCapacity.NASFSFreeCapacity + returnData.NASFSCapacity.NASFSUsedCapacity;
+                        var OverAllocate = TotalCapacity - returnData.UsedCapacityByType.FileUsedCapacity;
+                        item["value2"] = Math.round(returnData.NASFSCapacity.NASFSUsedCapacity/1024); 
+                        item["value3"] =  Math.round((returnData.UsedCapacityByType.FileUsedCapacity - returnData.NASFSCapacity.NASFSUsedCapacity)/1024);
+                        item["value4"] =  Math.round(OverAllocate/1024);
                     }
 
 
@@ -352,31 +353,31 @@ var arrayController = function (app) {
 
             // -------------- Block1 ---------------------------
             var UI_Block1 = {} ;
-            UI_Block1['title'] = "´æ´¢¹ÜÀíÐÅÏ¢";
+            UI_Block1['title'] = "存储管理信息";
             UI_Block1['detail'] = [];
 
             item={};
-            item["name"] = "´æ´¢ÐòÁÐºÅ"; 
+            item["name"] = "存储序列号"; 
             item["value"] = returnData.device;
             UI_Block1.detail.push(item);
  
             item={};
-            item["name"] = "³§ÉÌ"; 
+            item["name"] = "厂商"; 
             item["value"] = returnData.vendor;
             UI_Block1.detail.push(item);
 
             item={};
-            item["name"] = "ÐÍºÅ"; 
+            item["name"] = "型号"; 
             item["value"] = returnData.model;
             UI_Block1.detail.push(item);
 
             item={};
-            item["name"] = "´æ´¢ÀàÐÍ"; 
+            item["name"] = "存储类型"; 
             item["value"] = returnData.sstype;
             UI_Block1.detail.push(item);
 
             item={};
-            item["name"] = "Î¢Âë°æ±¾"; 
+            item["name"] = "微码版本"; 
             item["value"] = returnData.devdesc;
             UI_Block1.detail.push(item);
 
@@ -384,21 +385,21 @@ var arrayController = function (app) {
             // -------------- Block1 ---------------------------
  
             var UI_Block2 = {} ;
-            UI_Block2['title'] = "´æ´¢Ó²¼þÅäÖÃÐÅÏ¢";
+            UI_Block2['title'] = "存储硬件配置信息";
             UI_Block2['detail'] = [];
 
             item={};
-            item["name"] = "»º´æ´óÐ¡(Gb)"; 
+            item["name"] = "缓存大小(Gb)"; 
             item["value"] = returnData.TotalMemory;
             UI_Block2.detail.push(item);
 
             item={};
-            item["name"] = "´ÅÅÌÊýÁ¿"; 
+            item["name"] = "磁盘数量"; 
             item["value"] = returnData.TotalDisk;
             UI_Block2.detail.push(item);
 
             item={};
-            item["name"] = "LUNÊýÁ¿"; 
+            item["name"] = "LUN数量"; 
             item["value"] = returnData.TotalLun;
             UI_Block2.detail.push(item);
 
@@ -479,57 +480,57 @@ var arrayController = function (app) {
                 // ---------- the part of table ---------------
                 var tableHeader = [];
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "´ÅÅÌÃû³Æ";
+                tableHeaderItem["name"] = "磁盘名称";
                 tableHeaderItem["value"] = "part";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÐòÁÐºÅ";
+                tableHeaderItem["name"] = "序列号";
                 tableHeaderItem["value"] = "partsn";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÓÃÍ¾";
+                tableHeaderItem["name"] = "用途";
                 tableHeaderItem["value"] = "partmode";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÀàÐÍ";
+                tableHeaderItem["name"] = "类型";
                 tableHeaderItem["value"] = "disktype";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "×ªËÙ";
+                tableHeaderItem["name"] = "转速";
                 tableHeaderItem["value"] = "diskrpm";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÐÍºÅ";
+                tableHeaderItem["name"] = "型号";
                 tableHeaderItem["value"] = "partmdl";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Î¢Âë°æ±¾";
+                tableHeaderItem["name"] = "微码版本";
                 tableHeaderItem["value"] = "partver";
                 tableHeaderItem["sort"] = "partver";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "³§ÉÌ";
+                tableHeaderItem["name"] = "厂商";
                 tableHeaderItem["value"] = "partvend";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "容量(GB)";
                 tableHeaderItem["value"] = "disksize";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -613,51 +614,51 @@ var arrayController = function (app) {
                 // ---------- the part of table ---------------
                 var tableHeader = [];
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "´ÅÅÌÃû³Æ";
+                tableHeaderItem["name"] = "磁盘名称";
                 tableHeaderItem["value"] = "part";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÐòÁÐºÅ";
+                tableHeaderItem["name"] = "序列号";
                 tableHeaderItem["value"] = "partsn";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÓÃÍ¾";
+                tableHeaderItem["name"] = "用途";
                 tableHeaderItem["value"] = "partmode";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
  
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "×ªËÙ";
+                tableHeaderItem["name"] = "转速";
                 tableHeaderItem["value"] = "diskrpm";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÐÍºÅ";
+                tableHeaderItem["name"] = "型号";
                 tableHeaderItem["value"] = "partmdl";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Î¢Âë°æ±¾";
+                tableHeaderItem["name"] = "微码版本";
                 tableHeaderItem["value"] = "partver";
                 tableHeaderItem["sort"] = "partver";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "³§ÉÌ";
+                tableHeaderItem["name"] = "厂商";
                 tableHeaderItem["value"] = "partvend";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "容量(GB)";
                 tableHeaderItem["value"] = "disksize";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -712,7 +713,7 @@ var arrayController = function (app) {
                 // ---------- the part of table ---------------
                 var tableHeader = [];
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ãû³Æ";
+                tableHeaderItem["name"] = "名称";
                 tableHeaderItem["value"] = "part";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -726,13 +727,13 @@ var arrayController = function (app) {
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÓÃÍ¾";
+                tableHeaderItem["name"] = "用途";
                 tableHeaderItem["value"] = "purpose";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÀàÐÍ";
+                tableHeaderItem["name"] = "类型";
                 tableHeaderItem["value"] = "config";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -750,13 +751,13 @@ var arrayController = function (app) {
                 tableHeader.push(tableHeaderItem); 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "容量(GB)";
                 tableHeaderItem["value"] = "Capacity";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÒÑÊ¹ÓÃÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "已使用容量(GB)";
                 tableHeaderItem["value"] = "UsedCapacity";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -809,9 +810,9 @@ var arrayController = function (app) {
                 for ( var i in data ) {
                     var item = data[i]; 
                     if ( item.ismasked == 0 ) {
-                        item.ismasked = "Î´·ÖÅä";
+                        item.ismasked = "未分配";
                     } else {
-                        item.ismasked = "ÒÑ·ÖÅä";
+                        item.ismasked = "已分配";
                     }
 
 
@@ -847,7 +848,7 @@ var arrayController = function (app) {
                 // ---------- the part of table ---------------
                 var tableHeader = [];
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ãû³Æ";
+                tableHeaderItem["name"] = "名称";
                 tableHeaderItem["value"] = "part";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
@@ -861,19 +862,19 @@ var arrayController = function (app) {
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÓÃÍ¾";
+                tableHeaderItem["name"] = "用途";
                 tableHeaderItem["value"] = "purpose";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÀàÐÍ";
+                tableHeaderItem["name"] = "类型";
                 tableHeaderItem["value"] = "config";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "¾íÀàÐÍ";
+                tableHeaderItem["name"] = "卷类型";
                 tableHeaderItem["value"] = "parttype";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
@@ -887,13 +888,13 @@ var arrayController = function (app) {
 
                 if ( deviceType == 'DMX' ) {
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "Ó³ÉäÇ°¶Ë¿Ú¿ØÖÆÆ÷";
+                    tableHeaderItem["name"] = "映射前端口控制器";
                     tableHeaderItem["value"] = "director";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem); 
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "ÒÑÓ³ÉäÇ°¶Ë¿Ú";
+                    tableHeaderItem["name"] = "已映射前端口";
                     tableHeaderItem["value"] = "MappedFEPort";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem); 
@@ -908,40 +909,40 @@ var arrayController = function (app) {
                 }
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "容量(GB)";
                 tableHeaderItem["value"] = "Capacity";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÒÑÊ¹ÓÃÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "已使用容量(GB)";
                 tableHeaderItem["value"] = "UsedCapacity";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "#·ÖÅäÖ÷»ú";
+                tableHeaderItem["name"] = "#分配主机";
                 tableHeaderItem["value"] = "ConnectedHostCount";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "¸´ÖÆÄ¿±ê´æ´¢";
+                tableHeaderItem["name"] = "复制目标存储";
                 tableHeaderItem["value"] = "remarray";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
  
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "¸´ÖÆÄ¿±ê¾í";
+                tableHeaderItem["name"] = "复制目标卷";
                 tableHeaderItem["value"] = "remlun";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "¸´ÖÆ×´Ì¬";
+                tableHeaderItem["name"] = "复制状态";
                 tableHeaderItem["value"] = "replstat";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
@@ -1042,7 +1043,7 @@ var arrayController = function (app) {
                 } else {
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "Ö÷»úÃû³Æ";
+                    tableHeaderItem["name"] = "主机名称";
                     tableHeaderItem["value"] = "hostname";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
@@ -1054,25 +1055,25 @@ var arrayController = function (app) {
                     tableHeader.push(tableHeaderItem);
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "Ö÷»úÀàÐÍ";
+                    tableHeaderItem["name"] = "主机类型";
                     tableHeaderItem["value"] = "hosttype";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "×´Ì¬";
+                    tableHeaderItem["name"] = "状态";
                     tableHeaderItem["value"] = "status";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "²Ù×÷ÏµÍ³";
+                    tableHeaderItem["name"] = "操作系统";
                     tableHeaderItem["value"] = "OS";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "²Ù×÷ÏµÍ³°æ±¾";
+                    tableHeaderItem["name"] = "操作系统版本";
                     tableHeaderItem["value"] = "OSVersion";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
@@ -1148,7 +1149,7 @@ var arrayController = function (app) {
                 // ---------- the part of table ---------------
                 var tableHeader = [];
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ãû³Æ";
+                tableHeaderItem["name"] = "名称";
                 tableHeaderItem["value"] = "part";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -1162,13 +1163,13 @@ var arrayController = function (app) {
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÓÃÍ¾";
+                tableHeaderItem["name"] = "用途";
                 tableHeaderItem["value"] = "purpose";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÀàÐÍ";
+                tableHeaderItem["name"] = "类型";
                 tableHeaderItem["value"] = "config";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -1180,7 +1181,7 @@ var arrayController = function (app) {
                 tableHeader.push(tableHeaderItem);
  
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "容量(GB)";
                 tableHeaderItem["value"] = "Capacity";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -1275,7 +1276,7 @@ var arrayController = function (app) {
                 // ---------- the part of table ---------------
                 var tableHeader = [];
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ãû³Æ";
+                tableHeaderItem["name"] = "名称";
                 tableHeaderItem["value"] = "part";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -1289,13 +1290,13 @@ var arrayController = function (app) {
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÓÃÍ¾";
+                tableHeaderItem["name"] = "用途";
                 tableHeaderItem["value"] = "purpose";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÀàÐÍ";
+                tableHeaderItem["name"] = "类型";
                 tableHeaderItem["value"] = "config";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -1325,37 +1326,37 @@ var arrayController = function (app) {
                 tableHeader.push(tableHeaderItem); 
       
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "容量(GB)";
                 tableHeaderItem["value"] = "Capacity";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÒÑÊ¹ÓÃÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "已使用容量(GB)";
                 tableHeaderItem["value"] = "UsedCapacity";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "·ÖÅäÉè±¸Ãû³Æ";
+                tableHeaderItem["name"] = "分配设备名称";
                 tableHeaderItem["value"] = "ConnectedDevice";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "·ÖÅäÉè±¸ÀàÐÍ";
+                tableHeaderItem["name"] = "分配设备类型";
                 tableHeaderItem["value"] = "ConnectedDeviceType";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "·ÖÅä¶ÔÏóÃû";
+                tableHeaderItem["name"] = "分配对象名";
                 tableHeaderItem["value"] = "ConnectedObject";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "·ÖÅäÖ÷»úÃû³Æ";
+                tableHeaderItem["name"] = "分配主机名称";
                 tableHeaderItem["value"] = "ConnectedHost";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -1489,7 +1490,7 @@ var arrayController = function (app) {
                 // ---------- the part of table ---------------
                 var tableHeader = [];
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ãû³Æ";
+                tableHeaderItem["name"] = "名称";
                 tableHeaderItem["value"] = "part";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -1503,13 +1504,13 @@ var arrayController = function (app) {
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÓÃÍ¾";
+                tableHeaderItem["name"] = "用途";
                 tableHeaderItem["value"] = "purpose";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÀàÐÍ";
+                tableHeaderItem["name"] = "类型";
                 tableHeaderItem["value"] = "config";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -1533,25 +1534,25 @@ var arrayController = function (app) {
                 tableHeader.push(tableHeaderItem); 
  
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "容量(GB)";
                 tableHeaderItem["value"] = "Capacity";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÒÑÊ¹ÓÃÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "已使用容量(GB)";
                 tableHeaderItem["value"] = "UsedCapacity";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "MaskingÇ°¶Ë¿Ú";
+                tableHeaderItem["name"] = "Masking前端口";
                 tableHeaderItem["value"] = "MaskingFA";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem); 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "·ÖÅäÖ÷»úÃû³Æ";
+                tableHeaderItem["name"] = "分配主机名称";
                 tableHeaderItem["value"] = "hostname";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -1638,52 +1639,52 @@ var arrayController = function (app) {
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ãû³Æ";
+                tableHeaderItem["name"] = "名称";
                 tableHeaderItem["value"] = "part";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "±£»¤·½Ê½";
+                tableHeaderItem["name"] = "保护方式";
                 tableHeaderItem["value"] = "raidtype";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "×´Ì¬";
+                tableHeaderItem["name"] = "状态";
                 tableHeaderItem["value"] = "partstat";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "RAIDÀàÐÍ";
+                tableHeaderItem["name"] = "RAID类型";
                 tableHeaderItem["value"] = "dgraid";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "´ÅÅÌÀàÐÍ";
+                tableHeaderItem["name"] = "磁盘类型";
                 tableHeaderItem["value"] = "disktype";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "¿ÉÓÃÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "可用容量(GB)";
                 tableHeaderItem["value"] = "Capacity";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem); 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÒÑ·ÖÅäÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "已分配容量(GB)";
                 tableHeaderItem["value"] = "SubscribedCapacity";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
  
                 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ÒÑÊ¹ÓÃÈÝÁ¿(GB)";
+                tableHeaderItem["name"] = "已使用容量(GB)";
                 tableHeaderItem["value"] = "UsedCapacity";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -1750,33 +1751,33 @@ var arrayController = function (app) {
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ç°¶Ë¿ÚÃû³Æ";
+                tableHeaderItem["name"] = "前端口名称";
                 tableHeaderItem["value"] = "FEPortDisplayName";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Áª½Ó½»»»»ú¶Ë¿Ú";
+                tableHeaderItem["name"] = "联接交换机端口";
                 tableHeaderItem["value"] = "SwitchPortDisplayName";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "½»»»»úÃû³Æ";
+                tableHeaderItem["name"] = "交换机名称";
                 tableHeaderItem["value"] = "SwitchDisplayName";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "½»»»»ú³§ÉÌ";
+                tableHeaderItem["name"] = "交换机厂商";
                 tableHeaderItem["value"] = "SwitchVendor";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "½»»»»úÐÍºÅ";
+                tableHeaderItem["name"] = "交换机型号";
                 tableHeaderItem["value"] = "SwitchModel";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -2197,39 +2198,39 @@ var arrayController = function (app) {
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "SRDF GroupÃû³Æ";
+                tableHeaderItem["name"] = "SRDF Group名称";
                 tableHeaderItem["value"] = "srdfgpnm";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "SRDF GroupÀàÐÍ";
+                tableHeaderItem["name"] = "SRDF Group类型";
                 tableHeaderItem["value"] = "srdfgpty";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
  
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Í¬²½Ä£Ê½";
+                tableHeaderItem["name"] = "同步模式";
                 tableHeaderItem["value"] = "srdfmode";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
  
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "¸´ÖÆÉè±¸ÊýÁ¿";
+                tableHeaderItem["name"] = "复制设备数量";
                 tableHeaderItem["value"] = "NumOfDevices";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
  
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Pair×´Ì¬";
+                tableHeaderItem["name"] = "Pair状态";
                 tableHeaderItem["value"] = "pairstate";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ô¶¶Ë´æ´¢";
+                tableHeaderItem["name"] = "远端存储";
                 tableHeaderItem["value"] = "remarray";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
@@ -2395,52 +2396,52 @@ var arrayController = function (app) {
                 // ---------- the part of table ---------------
                 var tableHeader = [];
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "¸´ÖÆÔ´LUN";
+                tableHeaderItem["name"] = "复制源LUN";
                 tableHeaderItem["value"] = "srclun";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ô´LUN·ÖÅäÖ÷»ú";
+                tableHeaderItem["name"] = "源LUN分配主机";
                 tableHeaderItem["value"] = "hosts";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ô´LUNÓ³ÉäÖ÷»úHBA";
+                tableHeaderItem["name"] = "源LUN映射主机HBA";
                 tableHeaderItem["value"] = "ConnectedInitiators";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
  
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ä¿±êLUN";
+                tableHeaderItem["name"] = "目标LUN";
                 tableHeaderItem["value"] = "remlun";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
  
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ä¿±êLUN·ÖÅäÖ÷»ú";
+                tableHeaderItem["name"] = "目标LUN分配主机";
                 tableHeaderItem["value"] = "remhosts";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
  
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ä¿±êLUNÓ³ÉäÖ÷»úHBA";
+                tableHeaderItem["name"] = "目标LUN映射主机HBA";
                 tableHeaderItem["value"] = "remConnectedInitiators";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "¸´ÖÆ¼¼Êõ";
+                tableHeaderItem["name"] = "复制技术";
                 tableHeaderItem["value"] = "repltech";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "¸´ÖÆ×´Ì¬";
+                tableHeaderItem["name"] = "复制状态";
                 tableHeaderItem["value"] = "replstat";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
@@ -2497,59 +2498,59 @@ var arrayController = function (app) {
                 // ---------- the part of table ---------------
                 var tableHeader = [];
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "ËùÊôSG";
+                tableHeaderItem["name"] = "所属SG";
                 tableHeaderItem["value"] = "sgname";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
  
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Âß¼­Éè±¸Ãû³Æ";
+                tableHeaderItem["name"] = "逻辑设备名称";
                 tableHeaderItem["value"] = "part";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ô¶¶Ë´æ´¢Ãû³Æ";
+                tableHeaderItem["name"] = "远端存储名称";
                 tableHeaderItem["value"] = "remarray";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ô¶¶ËÂß¼­Éè±¸";
+                tableHeaderItem["name"] = "远端逻辑设备";
                 tableHeaderItem["value"] = "remlun";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Ô¶¶ËÂß¼­Éè±¸×´Ì¬";
+                tableHeaderItem["name"] = "远端逻辑设备状态";
                 tableHeaderItem["value"] = "tgtstate";
                 tableHeaderItem["sort"] = "true";
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Pair×´Ì¬";
+                tableHeaderItem["name"] = "Pair状态";
                 tableHeaderItem["value"] = "replstat";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "SRDFÄ£Ê½";
+                tableHeaderItem["name"] = "SRDF模式";
                 tableHeaderItem["value"] = "srdfmode";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Link×´Ì¬";
+                tableHeaderItem["name"] = "Link状态";
                 tableHeaderItem["value"] = "linkstat";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
 
 
                 var tableHeaderItem = {};
-                tableHeaderItem["name"] = "Link×´Ì¬±ä¸üÊ±¼ä";
+                tableHeaderItem["name"] = "Link状态变更时间";
                 tableHeaderItem["value"] = "linkstct";
                 tableHeaderItem["sort"] = true;
                 tableHeader.push(tableHeaderItem);
@@ -2846,7 +2847,7 @@ console.log("RULE17="+rule17);
 
             // Chart Header
             var chartHeader = {} ;
-            chartHeader["leftTitle"] = "Ó³ÉäÂß¼­´ÅÅÌÊýÁ¿";
+            chartHeader["leftTitle"] = "映射逻辑磁盘数量";
             chartHeader["rightTitle"] = "Throughput (MB/s)";
 
             finalResult1["chartHeader"] = chartHeader;
@@ -2857,7 +2858,7 @@ console.log("RULE17="+rule17);
             // ---------------- Table data -----------------------
             var tableHead = [];
             var tableHeadItem = {};
-            tableHeadItem["name"] = "Ç°¶Ë¿ÚÃû³Æ";
+            tableHeadItem["name"] = "前端口名称";
             tableHeadItem["sort"] = true;
             tableHeadItem["value"] = "feport";
             tableHead.push(tableHeadItem);
@@ -2870,20 +2871,20 @@ console.log("RULE17="+rule17);
 
             if ( item.vmaxtype != 'DMX' ) {
                 var tableHeadItem = {};
-                tableHeadItem["name"] = "¶Ë¿ÚËÙÂÊ(GB/s)";
+                tableHeadItem["name"] = "端口速率(GB/s)";
                 tableHeadItem["sort"] = true;
                 tableHeadItem["value"] = "maxspeed";
                 tableHead.push(tableHeadItem);
                            
                 var tableHeadItem = {};
-                tableHeadItem["name"] = "Á¬½ÓËÙÂÊ(GB/s)";
+                tableHeadItem["name"] = "连接速率(GB/s)";
                 tableHeadItem["sort"] = true;
                 tableHeadItem["value"] = "negspeed";
                 tableHead.push(tableHeadItem);                    
             }  
 
             var tableHeadItem = {};
-            tableHeadItem["name"] = "Ó³ÉäÉè±¸Êý";
+            tableHeadItem["name"] = "映射设备数";
             tableHeadItem["sort"] = true;
             tableHeadItem["value"] = "MappingVolCount";
             tableHead.push(tableHeadItem);
@@ -2901,13 +2902,13 @@ console.log("RULE17="+rule17);
             tableHead.push(tableHeadItem);
 
             var tableHeadItem = {};
-            tableHeadItem["name"] = "Á¬½Ó½»»»»ú¶Ë¿Ú";
+            tableHeadItem["name"] = "连接交换机端口";
             tableHeadItem["sort"] = true;
             tableHeadItem["value"] = "ConnectedToPort";
             tableHead.push(tableHeadItem);
 
              var tableHeadItem = {};
-            tableHeadItem["name"] = "Á¬½Ó½»»»»ú";
+            tableHeadItem["name"] = "连接交换机";
             tableHeadItem["sort"] = true;
             tableHeadItem["value"] = "ConnectedToSwitch";
             tableHead.push(tableHeadItem);
@@ -3397,6 +3398,7 @@ console.log("RULE17="+rule17);
         });
 
     });  
+
 
 
     app.get('/api/vmax/performance/storagegroup', function (req, res) {
@@ -4094,9 +4096,6 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
             }
 
         });
-
-
-
     });
 
 
@@ -4107,8 +4106,8 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
  *   get:
  *     tags:
  *       - analysis
- *     summary: 应用Redo卷查询
- *     description: 返回与应用,存储和SG相关的Redo卷列表 
+ *     summary: ??Redo???
+ *     description: ?????,???SG???Redo??? 
  *     security:
  *       - Bearer: []
  *     produces:
@@ -4116,25 +4115,25 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
  *     parameters:
  *       - in: query
  *         name: appname
- *         description: 应用名称
+ *         description: ????
  *         required: true
  *         type: string
- *         example: 金融IC卡系统（EBIC）
+ *         example: ??IC????EBIC?
  *       - in: query
  *         name: device
- *         description: 存储名称
+ *         description: ????
  *         required: true
  *         type: string    
  *         example: DC1-VMAX1
  *       - in: query
  *         name: devicesn
- *         description: 存储序列号
+ *         description: ?????
  *         required: true
  *         type: string
  *         example: 000292600886
  *       - in: query
  *         name: sg
- *         description: Storage Group名称
+ *         description: Storage Group??
  *         required: true
  *         type: string 
  *         example: EBIC_P7509P1_SG
@@ -4148,8 +4147,8 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
  *   post:
  *     tags:
  *       - analysis
- *     summary: 应用Redo卷创建及更新
- *     description: 创建与应用,存储和SG相关的Redo卷列表  
+ *     summary: ??Redo??????
+ *     description: ?????,???SG???Redo???  
  *     security:
  *       - Bearer: []
  *     consumes:
@@ -4284,7 +4283,7 @@ console.log(storage_sn+"|"+sg+"|");
             // ---------- the part of table ---------------
             var tableHeader = [];
             var tableHeaderItem = {};
-            tableHeaderItem["name"] = "SPÃû³Æ";
+            tableHeaderItem["name"] = "SP名称";
             tableHeaderItem["value"] = "part";
             tableHeaderItem["sort"] = "true";
             tableHeader.push(tableHeaderItem);
@@ -4298,7 +4297,7 @@ console.log(storage_sn+"|"+sg+"|");
 
 
             var tableHeaderItem = {};
-            tableHeaderItem["name"] = "°æ±¾";
+            tableHeaderItem["name"] = "版本";
             tableHeaderItem["value"] = "partvrs";
             tableHeaderItem["sort"] = "true";
             tableHeader.push(tableHeaderItem);
@@ -4488,8 +4487,7 @@ app.get('/api/vnx/block/sp/perf', function ( req, res )  {
     });
 
 
-
-
+ 
    app.get('/api/vnx/block/luns', function (req, res) { 
         
         var device = req.query.device;
@@ -4499,146 +4497,278 @@ app.get('/api/vnx/block/sp/perf', function ( req, res )  {
             return;
         }
 
+        VNX.GetArrayType(device, function(arrayinfo) {
 
-        VNX.GetBlockDevices(device, function(result) { 
+            if ( arrayinfo.model.indexOf("Unity") >= 0 ) {
+                VNX.GetUNITY_BlockDevices(device, function(result) { 
             
-            var data = result;
+                    var data = result;
+                    var finalResult = {};
 
-            var finalResult = {};
+                    // ---------- the part of table ---------------
+                    var tableHeader = [];
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "LUN名称";
+                    tableHeaderItem["value"] = "part";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem); 
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Storage Group";
+                    tableHeaderItem["value"] = "sgname";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "RAID级别";
+                    tableHeaderItem["value"] = "dgraid";
+                    tableHeaderItem["sort"] = "true";
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "LUN类型";
+                    tableHeaderItem["value"] = "dgstype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "所属SP";
+                    tableHeaderItem["value"] = "memberof";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Pool/RAID Group类型";
+                    tableHeaderItem["value"] = "dgtype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Pool/RAID Group名称";
+                    tableHeaderItem["value"] = "dgname";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "可用容量(GB)";
+                    tableHeaderItem["value"] = "Capacity";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "使用容量(GB)";
+                    tableHeaderItem["value"] = "UsedCapacity";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+         
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Throughput(IOPS)";
+                    tableHeaderItem["value"] = "TotalThroughput";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Bandwidth(MB/s)";
+                    tableHeaderItem["value"] = "TotalBandwidth";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "QueueLength";
+                    tableHeaderItem["value"] = "QueueLength";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "ResponseTime(ms)";
+                    tableHeaderItem["value"] = "ResponseTime";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
 
-            // ---------- the part of table ---------------
-            var tableHeader = [];
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "LUNÃû³Æ";
-            tableHeaderItem["value"] = "partdesc";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "LUN±êÊ¶";
-            tableHeaderItem["value"] = "part";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "Storage Group";
-            tableHeaderItem["value"] = "sgname";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "RAID¼¶±ð";
-            tableHeaderItem["value"] = "dgraid";
-            tableHeaderItem["sort"] = "true";
-            tableHeader.push(tableHeaderItem);
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "LUNÀàÐÍ";
-            tableHeaderItem["value"] = "parttype";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "ÎïÀí´ÅÅÌÀàÐÍ";
-            tableHeaderItem["value"] = "disktype";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "Pool/RAID GroupÀàÐÍ";
-            tableHeaderItem["value"] = "dgtype";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "Pool/RAID GroupÃû³Æ";
-            tableHeaderItem["value"] = "dgname";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "¿ÉÓÃÈÝÁ¿(GB)";
-            tableHeaderItem["value"] = "Capacity";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "Ê¹ÓÃÈÝÁ¿(GB)";
-            tableHeaderItem["value"] = "UsedCapacity";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "Utilization(%)";
-            tableHeaderItem["value"] = "CurrentUtilization";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem); 
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "Throughput(IOPS)";
-            tableHeaderItem["value"] = "TotalThroughput";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "Bandwidth(MB/s)";
-            tableHeaderItem["value"] = "TotalBandwidth";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "ServiceTime(ms)";
-            tableHeaderItem["value"] = "TotalThroughput";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "ResponseTime(ms)";
-            tableHeaderItem["value"] = "ResponseTime";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-
+        
+                    // -------------- Table Event -------------------
+                    var tableevent = {};
+                    tableevent["event"] = "appendArea";
+                    tableevent["url"] = "/vnx/block/lun/perf";
+                    var param=[];
+                    var paramItem = {};
+                    paramItem["findName"] = "serialnb";
+                    paramItem["postName"] = "device";
+                    param.push(paramItem);
+                    var paramItem = {};
+                    paramItem["findName"] = "uid";
+                    paramItem["postName"] = "uid";
+                    param.push(paramItem);
+        
+                    tableevent["param"] = param;
+        
+                    //
+                    // Combine the result structure.
+                    // 
+                    finalResult["startDate"] = "2017-01-01T01:01:01+08:00";
+                    finalResult["endDate"] = "2019-01-01T01:01:01+08:00"
+                    finalResult["tableEvent"] = tableevent;
+        
+        
+                    finalResult["tableHead"] = tableHeader;
+                    finalResult["tableBody"] = data;
+        
+                    res.json(200, finalResult);
+        
+                });
+        
+            } else {
+                VNX.GetBlockDevices(device, function(result) { 
             
-            
+                    var data = result;
+        
+                    var finalResult = {};
+        
+                    // ---------- the part of table ---------------
+                    var tableHeader = [];
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "LUN名称";
+                    tableHeaderItem["value"] = "partdesc";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "LUN标识";
+                    tableHeaderItem["value"] = "part";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Storage Group";
+                    tableHeaderItem["value"] = "sgname";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "RAID级别";
+                    tableHeaderItem["value"] = "dgraid";
+                    tableHeaderItem["sort"] = "true";
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "LUN类型";
+                    tableHeaderItem["value"] = "parttype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "物理磁盘类型";
+                    tableHeaderItem["value"] = "disktype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Pool/RAID Group类型";
+                    tableHeaderItem["value"] = "dgtype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Pool/RAID Group名称";
+                    tableHeaderItem["value"] = "dgname";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "可用容量(GB)";
+                    tableHeaderItem["value"] = "Capacity";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "使用容量(GB)";
+                    tableHeaderItem["value"] = "UsedCapacity";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Utilization(%)";
+                    tableHeaderItem["value"] = "CurrentUtilization";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem); 
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Throughput(IOPS)";
+                    tableHeaderItem["value"] = "TotalThroughput";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Bandwidth(MB/s)";
+                    tableHeaderItem["value"] = "TotalBandwidth";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "ServiceTime(ms)";
+                    tableHeaderItem["value"] = "TotalThroughput";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "ResponseTime(ms)";
+                    tableHeaderItem["value"] = "ResponseTime";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    
+                    
+        
+                    // -------------- Table Event -------------------
+                    var tableevent = {};
+                    tableevent["event"] = "appendArea";
+                    tableevent["url"] = "/vnx/block/lun/perf";
+                    var param=[];
+                    var paramItem = {};
+                    paramItem["findName"] = "serialnb";
+                    paramItem["postName"] = "device";
+                    param.push(paramItem);
+                    var paramItem = {};
+                    paramItem["findName"] = "uid";
+                    paramItem["postName"] = "uid";
+                    param.push(paramItem);
+        
+                    tableevent["param"] = param;
+        
+                    //
+                    // Combine the result structure.
+                    // 
+                    finalResult["startDate"] = "2017-01-01T01:01:01+08:00";
+                    finalResult["endDate"] = "2019-01-01T01:01:01+08:00"
+                    finalResult["tableEvent"] = tableevent;
+        
+        
+                    finalResult["tableHead"] = tableHeader;
+                    finalResult["tableBody"] = data;
+        
+                    res.json(200, finalResult);
+        
+                });
+        
+            }
 
-            // -------------- Table Event -------------------
-            var tableevent = {};
-            tableevent["event"] = "appendArea";
-            tableevent["url"] = "/vnx/block/lun/perf";
-            var param=[];
-            var paramItem = {};
-            paramItem["findName"] = "serialnb";
-            paramItem["postName"] = "device";
-            param.push(paramItem);
-            var paramItem = {};
-            paramItem["findName"] = "uid";
-            paramItem["postName"] = "uid";
-            param.push(paramItem);
+        })
 
-            tableevent["param"] = param;
-
-            //
-            // Combine the result structure.
-            // 
-            finalResult["startDate"] = "2017-01-01T01:01:01+08:00";
-            finalResult["endDate"] = "2019-01-01T01:01:01+08:00"
-            finalResult["tableEvent"] = tableevent;
-
-
-            finalResult["tableHead"] = tableHeader;
-            finalResult["tableBody"] = data;
-
-            res.json(200, finalResult);
-
-        });
 
     });
 
@@ -4658,29 +4788,18 @@ app.get('/api/vnx/block/lun/perf', function ( req, res )  {
             return;
         }
 
-        var finalResult = {}; 
-           async.waterfall([
-            function(callback){ 
-
-                VNX.GetBlockDevicePerformance(device, uid, start, end,function(result) { 
- 
-                    finalResult["charts"] = result.charts;
-
-                    callback(null,finalResult);
-                                      
+        VNX.GetArrayType(device, function(arrayinfo) {
+            if ( arrayinfo.model.indexOf("Unity") >= 0 ) {
+                VNX.GetUNITY_BlockDevicePerformance(device, uid, start, end,function(result) { 
+                    res.json(200, result);
                 }); 
-
-         },
-
-            function(arg1,  callback){  
-
-                callback(null, arg1);
-
+            } else {
+                VNX.GetBlockDevicePerformance(device, uid, start, end,function(result) { 
+                    res.json(200, result);
+                }); 
             }
-        ], function (err, result) {
-           // result now equals 'done'
-           res.json(200, result);
-        });
+        })
+ 
 
 
     });
@@ -4695,103 +4814,183 @@ app.get('/api/vnx/block/lun/perf', function ( req, res )  {
             return;
         }
 
-
-        VNX.GetFEPort(device, function(result) { 
+        VNX.GetArrayType(device, function(arrayinfo) { 
+            if ( arrayinfo.model.indexOf("Unity") >= 0 ) {
+                VNX.GetUNITY_FEPort(device, function(result) { 
             
-            var data = result;
-
-            var finalResult = {};
-
-            // ---------- the part of table ---------------
-            var tableHeader = [];
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "Ãû³Æ";
-            tableHeaderItem["value"] = "feport";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "WWN";
-            tableHeaderItem["value"] = "portwwn";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "ÀàÐÍ";
-            tableHeaderItem["value"] = "conntype";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "ËùÊôSP";
-            tableHeaderItem["value"] = "memberof";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem); 
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "LoggedInInitiators";
-            tableHeaderItem["value"] = "LoggedInInitiators";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "RegisteredInitiators";
-            tableHeaderItem["value"] = "RegisteredInitiators";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "Throughput(IOPS)";
-            tableHeaderItem["value"] = "TotalThroughput";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
-
-            var tableHeaderItem = {};
-            tableHeaderItem["name"] = "Bandwidth(MB/s)";
-            tableHeaderItem["value"] = "TotalBandwidth";
-            tableHeaderItem["sort"] = true;
-            tableHeader.push(tableHeaderItem);
- 
-
-
+                    var data = result; 
+                    var finalResult = {}; 
+                    // ---------- the part of table ---------------
+                    var tableHeader = [];
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "名称";
+                    tableHeaderItem["value"] = "feport";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "WWN";
+                    tableHeaderItem["value"] = "portwwn";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "类型";
+                    tableHeaderItem["value"] = "iftype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "所属SP";
+                    tableHeaderItem["value"] = "memberof";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem); 
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "状态";
+                    tableHeaderItem["value"] = "partstat";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem); 
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Throughput(IOPS)";
+                    tableHeaderItem["value"] = "TotalThroughput";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Bandwidth(MB/s)";
+                    tableHeaderItem["value"] = "TotalBandwidth";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    // -------------- Table Event -------------------
+                    var tableevent = {};
+                    tableevent["event"] = "appendArea";
+                    tableevent["url"] = "/vnx/block/port/perf";
+                    var param=[];
+                    var paramItem = {};
+                    paramItem["findName"] = "serialnb";
+                    paramItem["postName"] = "device";
+                    param.push(paramItem);
+                    var paramItem = {};
+                    paramItem["findName"] = "portwwn";
+                    paramItem["postName"] = "portwwn";
+                    param.push(paramItem);
+        
+                    tableevent["param"] = param;
+        
+                    //
+                    // Combine the result structure.
+                    // 
+                    finalResult["startDate"] = "2017-01-01T01:01:01+08:00";
+                    finalResult["endDate"] = "2019-01-01T01:01:01+08:00"
+                    finalResult["tableEvent"] = tableevent;
+        
+        
+                    finalResult["tableHead"] = tableHeader;
+                    finalResult["tableBody"] = data;
+        
+                    res.json(200, finalResult);
+        
+                });
+            } else {
+                VNX.GetFEPort(device, function(result) { 
             
-            
+                    var data = result;
+        
+                    var finalResult = {};
+        
+                    // ---------- the part of table ---------------
+                    var tableHeader = [];
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "名称";
+                    tableHeaderItem["value"] = "feport";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "WWN";
+                    tableHeaderItem["value"] = "portwwn";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "类型";
+                    tableHeaderItem["value"] = "conntype";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "所属SP";
+                    tableHeaderItem["value"] = "memberof";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem); 
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "LoggedInInitiators";
+                    tableHeaderItem["value"] = "LoggedInInitiators";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "RegisteredInitiators";
+                    tableHeaderItem["value"] = "RegisteredInitiators";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Throughput(IOPS)";
+                    tableHeaderItem["value"] = "TotalThroughput";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    var tableHeaderItem = {};
+                    tableHeaderItem["name"] = "Bandwidth(MB/s)";
+                    tableHeaderItem["value"] = "TotalBandwidth";
+                    tableHeaderItem["sort"] = true;
+                    tableHeader.push(tableHeaderItem);
+        
+                    // -------------- Table Event -------------------
+                    var tableevent = {};
+                    tableevent["event"] = "appendArea";
+                    tableevent["url"] = "/vnx/block/port/perf";
+                    var param=[];
+                    var paramItem = {};
+                    paramItem["findName"] = "serialnb";
+                    paramItem["postName"] = "device";
+                    param.push(paramItem);
+                    var paramItem = {};
+                    paramItem["findName"] = "portwwn";
+                    paramItem["postName"] = "portwwn";
+                    param.push(paramItem);
+        
+                    tableevent["param"] = param;
+        
+                    //
+                    // Combine the result structure.
+                    // 
+                    finalResult["startDate"] = "2017-01-01T01:01:01+08:00";
+                    finalResult["endDate"] = "2019-01-01T01:01:01+08:00"
+                    finalResult["tableEvent"] = tableevent;
+        
+        
+                    finalResult["tableHead"] = tableHeader;
+                    finalResult["tableBody"] = data;
+        
+                    res.json(200, finalResult);
+        
+                });
+            }
+        }) 
 
-            // -------------- Table Event -------------------
-            var tableevent = {};
-            tableevent["event"] = "appendArea";
-            tableevent["url"] = "/vnx/block/port/perf";
-            var param=[];
-            var paramItem = {};
-            paramItem["findName"] = "serialnb";
-            paramItem["postName"] = "device";
-            param.push(paramItem);
-            var paramItem = {};
-            paramItem["findName"] = "portwwn";
-            paramItem["postName"] = "portwwn";
-            param.push(paramItem);
-
-            tableevent["param"] = param;
-
-            //
-            // Combine the result structure.
-            // 
-            finalResult["startDate"] = "2017-01-01T01:01:01+08:00";
-            finalResult["endDate"] = "2019-01-01T01:01:01+08:00"
-            finalResult["tableEvent"] = tableevent;
-
-
-            finalResult["tableHead"] = tableHeader;
-            finalResult["tableBody"] = data;
-
-            res.json(200, finalResult);
-
-        });
 
     });
 
@@ -4811,32 +5010,23 @@ app.get('/api/vnx/block/port/perf', function ( req, res )  {
             return;
         }
 
-        var finalResult = {}; 
-           async.waterfall([
-            function(callback){ 
-
-                VNX.GetFEPortPerformance(device, portwwn, start, end,function(result) { 
- 
-                    finalResult["charts"] = result.charts;
-
-                    callback(null,finalResult);
-                                      
+        var finalResult ;
+        VNX.GetArrayType(device, function(arrayinfo) {
+            if ( arrayinfo.model.indexOf("Unity") >= 0 ) {
+                VNX.GetUNITY_FEPortPerformance(device, portwwn, start, end,function(result) { 
+                   //finalResult["charts"] = result.charts;
+                    res.json(200, result);
                 }); 
-
-         },
-
-            function(arg1,  callback){  
-
-                callback(null, arg1);
-
+            } else {
+                VNX.GetFEPortPerformance(device, portwwn, start, end,function(result) { 
+                    finalResult["charts"] = result.charts;
+                    res.json(200, finalResult);
+                }); 
             }
-        ], function (err, result) {
-           // result now equals 'done'
-           res.json(200, result);
+
         });
 
-
-    });
+});
 
 
 
@@ -4903,34 +5093,34 @@ app.get('/api/vnx/block/port/perf', function ( req, res )  {
                     var tableHeader = [];
             // ---------- the part of table ---------------
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "Ãû³Æ";
+                    tableHeaderItem["name"] = "名称";
                     tableHeaderItem["value"] = "sgname";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "ÎïÀí´ÅÅÌÀàÐÍ";
+                    tableHeaderItem["name"] = "物理磁盘类型";
                     tableHeaderItem["value"] = "disktype";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "LunÊýÁ¿";
+                    tableHeaderItem["name"] = "Lun数量";
                     tableHeaderItem["value"] = "NumOfLuns";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "¿ÉÓÃÈÝÁ¿(GB)";
+                    tableHeaderItem["name"] = "可用容量(GB)";
                     tableHeaderItem["value"] = "Capacity";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem); 
 
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "Ê¹ÓÃÈÝÁ¿(GB)";
+                    tableHeaderItem["name"] = "使用容量(GB)";
                     tableHeaderItem["value"] = "UsedCapacity";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem); 
@@ -4951,20 +5141,20 @@ app.get('/api/vnx/block/port/perf', function ( req, res )  {
 
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "×î´óÏìÓ¦Ê±¼ä(ms)";
+                    tableHeaderItem["name"] = "最大响应时间(ms)";
                     tableHeaderItem["value"] = "MaxResponseTime";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "×î´ó·þÎñÊ±¼ä(ms)";
+                    tableHeaderItem["name"] = "最大服务时间(ms)";
                     tableHeaderItem["value"] = "MaxServiceTime";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
           
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "×î´óÀûÓÃÂÊ(%)";
+                    tableHeaderItem["name"] = "最大利用率(%)";
                     tableHeaderItem["value"] = "MaxUnilization";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
@@ -5016,6 +5206,10 @@ app.get('/api/vnx/block/port/perf', function ( req, res )  {
             
 
     });
+
+
+
+
 
 
    app.get('/api/vnx/block/storagegroup/luns', function (req, res) { 
@@ -5105,13 +5299,13 @@ app.get('/api/vnx/block/port/perf', function ( req, res )  {
                     // ---------- the part of table ---------------
                     var tableHeader = [];
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "LUNÃû³Æ";
+                    tableHeaderItem["name"] = "LUN名称";
                     tableHeaderItem["value"] = "partdesc";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "LUN±êÊ¶";
+                    tableHeaderItem["name"] = "LUN标识";
                     tableHeaderItem["value"] = "part";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
@@ -5125,19 +5319,19 @@ app.get('/api/vnx/block/port/perf', function ( req, res )  {
 
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "RAID¼¶±ð";
+                    tableHeaderItem["name"] = "RAID级别";
                     tableHeaderItem["value"] = "dgraid";
                     tableHeaderItem["sort"] = "true";
                     tableHeader.push(tableHeaderItem);
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "LUNÀàÐÍ";
+                    tableHeaderItem["name"] = "LUN类型";
                     tableHeaderItem["value"] = "parttype";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "ÎïÀí´ÅÅÌÀàÐÍ";
+                    tableHeaderItem["name"] = "物理磁盘类型";
                     tableHeaderItem["value"] = "disktype";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
@@ -5145,26 +5339,26 @@ app.get('/api/vnx/block/port/perf', function ( req, res )  {
 
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "Pool/RAID GroupÀàÐÍ";
+                    tableHeaderItem["name"] = "Pool/RAID Group类型";
                     tableHeaderItem["value"] = "dgtype";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "Pool/RAID GroupÃû³Æ";
+                    tableHeaderItem["name"] = "Pool/RAID Group名称";
                     tableHeaderItem["value"] = "dgname";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "¿ÉÓÃÈÝÁ¿(GB)";
+                    tableHeaderItem["name"] = "可用容量(GB)";
                     tableHeaderItem["value"] = "Capacity";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
 
 
                     var tableHeaderItem = {};
-                    tableHeaderItem["name"] = "Ê¹ÓÃÈÝÁ¿(GB)";
+                    tableHeaderItem["name"] = "使用容量(GB)";
                     tableHeaderItem["value"] = "UsedCapacity";
                     tableHeaderItem["sort"] = true;
                     tableHeader.push(tableHeaderItem);
@@ -5296,7 +5490,7 @@ app.get('/api/vnx/block/port/perf', function ( req, res )  {
             function( arg1, callback ) {
                    var tableHead = [];
                     var item = {};
-                    item['name'] = 'Ãû³Æ';
+                    item['name'] = '名称';
                     item['sort'] = false;
                     item['value'] = 'part';
                     tableHead.push(item);
@@ -5436,6 +5630,14 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
                 });  
             }, 
             function( arg1, callback ) {
+                VNX.GetUnity_FileSystem(device,function(result) { 
+                    arg1.tableBody = arg1.tableBody.concat(result);
+                    callback(null,arg1);
+                                      
+                });  
+                
+            },
+            function( arg1, callback ) { 
  
 
                 // Set Zero for not find export
@@ -5482,11 +5684,12 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
 
                     var tableHead = [];
                     var item = {};
-                    item['name'] = 'FSÃû³Æ';
+                    item['name'] = 'FS名称';
                     item['sort'] = false;
                     item['value'] = 'fsname';
                     tableHead.push(item);
 
+                    /*
                     var item = {};
                     item['name'] = 'Mount Point';
                     item['sort'] = false;
@@ -5498,6 +5701,12 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
                     item['sort'] = false;
                     item['value'] = 'cifsserv';
                     tableHead.push(item);
+*/
+                    var item = {};
+                    item['name'] = '应用系统';
+                    item['sort'] = true;
+                    item['value'] = 'appname';
+                    tableHead.push(item);
 
                     var item = {};
                     item['name'] = '#Exports';
@@ -5507,13 +5716,13 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
                     
 
                     var item = {};
-                    item['name'] = '¹²ÏíÀàÐÍ';
+                    item['name'] = '共享类型';
                     item['sort'] = false;
                     item['value'] = 'protocol';
                     tableHead.push(item);
                     
                     var item = {};
-                    item['name'] = 'È¨ÏÞ';
+                    item['name'] = '权限';
                     item['sort'] = false;
                     item['value'] = 'mtperm';
                     tableHead.push(item);
@@ -5526,20 +5735,20 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
                     tableHead.push(item);
 
                     var item = {};
-                    item['name'] = 'ÈÝÁ¿(GB)';
+                    item['name'] = '容量(GB)';
                     item['sort'] = true;
                     item['value'] = 'PresentedCapacity';
                     tableHead.push(item);
                     
                     var item = {};
-                    item['name'] = 'Ê£ÓàÈÝÁ¿(GB)';
+                    item['name'] = '剩余容量(GB)';
                     item['sort'] = true;
                     item['value'] = 'FreeCapacity';
                     tableHead.push(item);
                     
 
                     var item = {};
-                    item['name'] = 'Ê¹ÓÃÂÊ(%)';
+                    item['name'] = '使用率(%)';
                     item['sort'] = true;
                     item['value'] = 'CurrentUtilization';
                     tableHead.push(item);
@@ -5613,40 +5822,65 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
             return;
         }
 
+        var arraymodel = "";
         var finalResult = {}; 
+
+
            async.waterfall([
-            function(callback){ 
-
-                VNX.GetVNX_NFSExport(device,function(result) { 
-
-                    var isfind = false;
-                    for ( var i in result) {
-                        var item = result[i];
-                        //console.log(device+'='+item.device+'\t'+fsid + '=' + item.fsid);
-                        
-                        if ( device ==  item.device && fsid == item.fsid ) {
-                            
-                            isfind = true;
-                            callback(null,item);
+            function(callback) {
+                VNX.GetArrayType(device,function(arrayinfo){
+                    arraymodel = arrayinfo.model;
+                    callback(null,arrayinfo);
+                })
+            },
+            function(arrayinfo,callback){ 
+                console.log(arrayinfo);
+                if ( arrayinfo.model.indexOf('Unity') >= 0 ) {
+                    console.log("AAAA");
+                    VNX.GetUNITY_NFSExport(device,function(result) {  
+                        var isfind = false;
+                        for ( var i in result) {
+                            var item = result[i]; 
+                            if ( device ==  item.device && fsid == item.fsid ) {
+                                
+                                isfind = true;
+                                callback(null,item);
+                            }
                         }
-                    }
-                    if ( isfind == false ) callback(null,"noclient");                                      
-                });  
+                        if ( isfind == false ) callback(null,"noclient");                                      
+                    });  
+                } else {
+                    VNX.GetVNX_NFSExport(device,function(result) { 
+
+                        var isfind = false;
+                        for ( var i in result) {
+                            var item = result[i];
+                            //console.log(device+'='+item.device+'\t'+fsid + '=' + item.fsid);
+                            
+                            if ( device ==  item.device && fsid == item.fsid ) {
+                                
+                                isfind = true;
+                                callback(null,item);
+                            }
+                        }
+                        if ( isfind == false ) callback(null,"noclient");                                      
+                    });  
+                }
+
          },
             function(arg1,  callback){  
-                    console.log(arg1);
-
+                
                     var findalResult = {};
                     // ---------------------- Table Header --------------------
                     var tableHead = [];
                     var item = {};
-                    item['name'] = '¿Í»§¶ËIPµØÖ·';
+                    item['name'] = '客户端IP地址';
                     item['sort'] = true;
                     item['value'] = 'clientip';
                     tableHead.push(item);
 
                     var item = {};
-                    item['name'] = 'Ö÷»úÃû³Æ';
+                    item['name'] = '主机名称';
                     item['sort'] = true;
                     item['value'] = 'hostname';
                     tableHead.push(item);
@@ -5658,10 +5892,7 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
                         callback(null,findalResult);
                     } else {
                         var hostname;
-                        host.GetHosts(hostname, function(code,hostresult) {
- 
-
-
+                        host.GetHosts(hostname, function(code,hostresult) { 
                             // ---------------------  Table Body ---------------------------
 
                             var ips = []; 
@@ -5707,14 +5938,25 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
 
             },
             function(arg1,  callback){  
-
-                VNX.getNFSPerformance(device, vols, start, end,function(result) { 
  
-                    arg1["charts"] = result.charts;
+                if ( arraymodel.indexOf("Unity") >= 0 ) {
+                    VNX.getUNITY_FS_Performance(device, vols, start, end,function(result) { 
+ 
+                        arg1["charts"] = result.charts;
+    
+                        callback(null,arg1);
+                                          
+                    }); 
+                } else {
+                    VNX.getNFSPerformance(device, vols, start, end,function(result) { 
+ 
+                        arg1["charts"] = result.charts;
+    
+                        callback(null,arg1);
+                                          
+                    }); 
+                }
 
-                    callback(null,arg1);
-                                      
-                }); 
 
             }
         ], function (err, result) {

@@ -32,9 +32,7 @@ hostSchema = new Schema({
 
 	// --- the name of host, it should be unique in the whole enterprices.
         name: {
-            type: String,
-            required: true,
-            unique: true
+            type: String
         },
 	// --- the type of host, the vaild values is : Physical, Virtual, etc.
         type: {

@@ -294,16 +294,24 @@ var testController = function (app) {
      
      
      app.get('/test3',function(req, res) {
-        
-        var param = {};
-        param['filter'] = 'datagrp=\'BROCADE_FCSWITCH_PORT\''; 
+        var device;
+        var perfStat = util.getConfStartTime('1w');  
+                var param = {}; 
+                param['device'] = device;
+                param['period'] = '3600';
+                param['start'] = perfStat;
+                param['type'] = 'max';
 
-        param['keys'] = ['deviceid','partwwn']; 
-        param['fields'] = ['partid','lsname'];
+                param['keys'] = ['serialnb,part']; 
+                param['fields'] = ['device','dgstype','fsid','format','fsname','nasname','partdesc','type'];   
+                param['filter'] = 'parttype==\'FileSystem\'';
+                param['filter_name'] = '(name=\'Capacity\'|name=\'FreeCapacity\'|name=\'UsedCapacity\'|name=\'CurrentUtilization\'|name=\'TotalBandwidth\'|name=\'TotalThroughput\')';
+                   
 
-        CallGet.CallGet(param, function(param) {  
-            res.json(200,param.result ); 
-        });
+                var ret1 = []
+                CallGet.CallGetPerformance(param, function(ret) {  
+                    res.json(200,ret);
+                });
     });
     
     app.get('/test4',function(req, res) {
@@ -375,9 +383,24 @@ var testController = function (app) {
         //Report.GetArraysIncludeHisotry(device, function(ret) {  
         
         //VMAX.GetSGTop20ByCapacity(device, function(ret) {
-        //Capacity.GetArrayCapacity(device, function(ret) {
+        //Capacity.GetArrayCapacity(device, function(ret) {     res.json(200,ret);        });
          //   DeviceMgmt.GetArrayAliasName(function(ret) {           res.json(200,ret);        });
         //VNX.GetBlockDevices(device,  function(result) {   res.json(200,result);   }); 
+        //VNX.getSPPerformance(device, part, start, end ,function(result) {  res.json(200,result);   });
+
+        //VNX.GetUNITY_NASSERVER(device,  function(result) {   res.json(200,result);   }); 
+        //VNX.GetVNX_NFSExport(device,  function(result) {   res.json(200,result);   }); 
+        //VNX.GetUNITY_NFSExport(device,  function(result) {   res.json(200,result);   }); 
+        //var device  = 'Unity-022';
+        var vols = 'jytjsxt';
+        var start = '2018-01-01T01:01:01+08:00';
+        var end = '2018-08-29T16:00:00.000Z';
+       // VNX.getNFSPerformance(device, vols, start, end,function(result) {  res.json(200,result);   }); 
+        //VNX.getUNITY_FS_Performance(device, vols, start, end,function(result) {  res.json(200,result);   }); 
+
+        //VNX.GetArrayType(device,  function(result) {   res.json(200,result);   }); 
+
+  
         //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
         //VMAX.GetMaskViews(device, function(ret) {     res.json(200,ret);        });
        // Report.ArrayAccessInfos(device, function(ret) {  res.json(200,ret);        });
@@ -386,9 +409,15 @@ var testController = function (app) {
         //Report.E2ETopology(device, function(ret) {   res.json(200,ret);        });
        // Report.GetApplicationInfo( function (ret) {  res.json(200,ret);        });
         //Analysis.getAppTopology(function(apptopo) {            res.json(200,apptopo);        })
-        DeviceMgmt.getMgmtObjectInfo(device, function(ret) {     res.json(200,ret);        });
+       // DeviceMgmt.getMgmtObjectInfo(device, function(ret) {     res.json(200,ret);        });
         //var apps = Report.ApplicationCapacityAnalysis("","");
         //res.json(200,apps);
+        //VNX.GetSPs(device, function(ret) {     res.json(200,ret);        });
+        var sgname; 
+        VNX.GetUnity_FileSystem(device, function(ret) {     res.json(200,ret);        });
+        
+        //var finalResult={};
+        //VNX.GetUnity_FileSystem(device,function(result) {  res.json(200,result); });
 
     });
 

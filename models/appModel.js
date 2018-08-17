@@ -20,14 +20,10 @@ var mongoose = require('mongoose')
 
 appSchema = new Schema({
         id: {
-            type: String,
-            //required: true,
-            unique: true
+            type: String
         },
         name: {
-            type: String,
-            //required: true,
-            unique: true
+            type: String
         },
         alias: {
             type: String 
