@@ -34,6 +34,8 @@ require('./../models/reportingModel');
 require('./../models/appTopologyModel');
 require('./../models/arraySGRedoVolumeModel');
 require('./../models/mgmtObjectInfoModel');
+require('./../models/IOLimitEventModel');
+
 
 
 //connect to db.

@@ -23,6 +23,7 @@ var moment = require('moment');
 var DeviceMgmt = require('../lib/DeviceManagement');
 var Report = require('../lib/Reporting');
 
+var IOLimitEventObj = mongoose.model('IOLimitEvent');
 
 var eventController = function (app) {
 
@@ -253,6 +254,7 @@ var eventController = function (app) {
                             var ioItem = item.matrics[j];
                             if ( ioItem.HostIOLimitExceededPercent > 0 ) {
                                 var resItem = {};
+                                resItem["id"] = item.device+":"+item.sgname+":"+ioItem.timestamp;
                                 resItem["array"] = item.device;
                                 resItem["arrayname"] = item.arrayname;
                                 resItem["sgname"] = item.sgname;
@@ -260,20 +262,240 @@ var eventController = function (app) {
                                 resItem["appname"] = item.appname;
                                 resItem["timestamp"] = ioItem.timestamp;
                                 resItem["HostIOLimitExceededPercent"] = ioItem.HostIOLimitExceededPercent;
-
-                                results.push(resItem);
-
+                                resItem["acknowlaged"] = false;
+                                resItem["commons"] = "";
+ 
+                                var newRecord = new IOLimitEventObj(resItem);
+                
+                                newRecord.save(function(err, thor) {  
+                                    if (err == 400 )  { 
+                                        console.log("Duplicate Record : ", thor , " ; ignore insert." ); 
+                                    }  else {
+                                        console.log('insert record :', resItem.id);
+                                        results.push(resItem);
+                                    }
+                                }); 
+                    
                             }
                         }
                     }
 
+                    console.log(results.length);
                     callback (null, results);
                 }
             ], function (err, result) { 
-                  res.json(200 ,result);
+                var output = {};
+                output.begintime = start;
+                output.endtime = end;
+                output.InsertedRecords = result.length;
+                res.json(200 ,output);
             });
     }); 
 
+
+/**
+ * @swagger
+ * /api/event/performance/sg/iolimit/query:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     summary: 获取IOLimit超限的事件列表
+ *     description: 只返回那些未"acknowlaged=false"的记录, 数据来源为后台每天定时任务的结果, 数据库表:mongodb:csmp:iolimitevents 
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json 
+ *     responses:
+ *       200:
+ *         description: return an array of application list
+ *         schema:
+ *            type: array 
+ */ 
+    app.get('/api/event/performance/sg/iolimit/query', function (req, res) {   
+        var acknowlaged_param = req.query.acknowlaged;
+        if ( acknowlaged_param !== undefined ) {
+            if ( acknowlaged_param == 'false' ) 
+                var acknowlaged = false;
+            else 
+                var acknowlaged = true;
+            var filter = { acknowlaged : acknowlaged };
+        }
+        else {
+            var filter = {};
+        } 
+
+        var retData = {};
+
+        async.waterfall(
+            [
+                function(callback){ 
+                    console.log(filter);
+                    IOLimitEventObj.find(filter).select({ "__v": 0, "_id": 0}).exec(  function (err, doc) {
+                        //system error. 
+                        if (err) {
+                            return   done(err);
+                        }
+                        if (!doc) { //user doesn't exist. 
+                            res.json(200,[]);
+                        }
+                        else {    
+                            var resResult = [];
+                            for ( var i in doc ) {
+                                var item = doc[i];
+                                var resItem={}
+                                resItem["id"] = item.id;
+                                resItem["eventCatalog"] = "性能";
+                                resItem["eventName"] = "IOLimit Exceeded";
+                                resItem["timestamp"] = item.timestamp;
+                                resItem["eventDescription"] = "应用[" + item.appname + "] 存储["+item.arrayname+"]-SG[" + item.sgname + "]超出设定["+item.iolimit+"] " + item.HostIOLimitExceededPercent + "%";
+                                resItem["acknowlaged"] = item.acknowlaged;
+                                resItem["detailinfo"] = item;
+
+                                resResult.push(resItem);
+                                    
+                            }
+
+                            retData.detail = resResult;
+                            res.json(200 ,retData); 
+                        }
+                    });   
+                } ,
+                function ( arg, callback ) {
+                    callback (null, arg);
+
+                }  
+            ], function (err, result) {  
+
+                res.json(200 ,result);
+            });
+                
+    }); 
+
+
+/**
+ * @swagger
+ * /api/event/performance/sg/iolimit/update:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     summary: 修改IOLimit事件数据中的acknowlaged字段内容
+ *     description: 
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json 
+ *     responses:
+ *       200:
+ *         description: return an array of application list
+ *         schema:
+ *            type: array 
+ */ 
+app.post('/api/event/performance/sg/iolimit/update', function (req, res) {   
+        var reqBody = req.body;
+
+        console.log(reqBody);
+
+        IOLimitEventObj.findOne({"id" : reqBody.id}, function (err, doc) {
+            //system error.
+            if (err) {
+                return   done(err);
+            }
+            if (!doc) { //user doesn't exist.
+                console.log("app is not exist. insert it."); 
+
+                var newapp = new IOLimitEventObj(reqBody);
+                console.log('Test1');
+                newapp.save(function(err, thor) {
+                console.log('Test2');
+                if (err)  {
+                    console.dir(thor);
+                    return res.json(400 , err);
+                } else 
+                    return res.json(200, reqBody);
+                });
+            }
+            else { 
+
+                doc.update(reqBody, function(error, course) {
+                    if(error) return next(error);
+                });
+
+
+                return  res.json(200 , {status: "The IOLimitEvent has exist! Update it."});
+            }
+
+        });     
+            
+}); 
+
+
+
+/**
+ * @swagger
+ * /api/event/performance/sg/iolimit/statistics:
+ *   get:
+ *     tags:
+ *       - analysis
+ *     summary: 统计IOLimit的总体情况
+ *     description: 
+ *     security:
+ *       - Bearer: []
+ *     produces:
+ *       - application/json 
+ *     parameters:
+ *       - in: query
+ *         name: from
+ *         description: 起始时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-05-01T00:00:00Z
+ *       - in: query
+ *         name: to
+ *         description: 结束时间(格式:ISO 8601)
+ *         required: true
+ *         type: string 
+ *         example: 2018-06-10T00:00:00Z 
+ *     responses:
+ *       200:
+ *         description: return an array of application list
+ *         schema:
+ *            type: array 
+ */ 
+app.get('/api/event/performance/sg/iolimit/statistics', function (req, res) {   
+    var filter; 
+                //if ( filter === undefined ) filter = {acknowlaged: false};
+    filter = {}; 
+    IOLimitEventObj.find({}).select({ "__v": 0, "_id": 0}).exec(  function (err, doc) {
+        //system error.
+        console.log(err);
+        if (err) {
+            return   done(err);
+        }
+        if (!doc) { //user doesn't exist. 
+            res.json(200,[]);
+        }
+        else {    
+            var resResult = [];
+            for ( var i in doc ) {
+                var item = doc[i];
+                var resItem={}
+                resItem["id"] = item.id;
+                resItem["eventCatalog"] = "性能";
+                resItem["eventName"] = "IOLimit Exceeded";
+                resItem["timestamp"] = item.timestamp;
+                resItem["eventDescription"] = "应用[" + item.appname + "] 存储["+item.arrayname+"]-SG[" + item.sgname + "]超出设定["+item.iolimit+"] " + item.HostIOLimitExceededPercent + "%";
+                resItem["acknowlaged"] = item.acknowlaged;
+                resItem["detailinfo"] = item;
+
+                resResult.push(resItem);
+                    
+            }
+            res.json(200 ,resResult); 
+        }
+    });   
+    
+            
+}); 
 
 
 };
