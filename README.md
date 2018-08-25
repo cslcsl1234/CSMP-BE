@@ -29,3 +29,20 @@ To play this app
 
 4. Logout
     curl -i -H "authKey: YOUR_RETURNED_AUTHKEY" -X POST  http://localhost:8080/api/logout
+
+
+
+
+Container
+===============
+1. rebuild the docker image
+   > docker-compose build
+
+2. Start container apps
+   docker-compose up
+
+3. Initiator the mongodb data
+   docker-compose run app grunt
+
+4. Access the app api of backend
+   http://<IP>:8000/api/...  (update port mapping in docker-compose.yml)
