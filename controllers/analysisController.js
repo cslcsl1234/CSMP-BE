@@ -69,13 +69,12 @@ var analysisController = function (app) {
  *                $ref: '#/definitions/ApplicationInfoItem'
  */ 
    
-    app.get('/api/analysis/app/info', function (req, res) {
+    app.get('/api/analysis/app/info_old', function (req, res) {
         res.setTimeout(3600*1000);
         var device;
         var config = configger.load();  
         async.waterfall(
             [
-
                 function(callback){
                     console.log(moment.utc(Date.now()).format() + " Begin Query mongodb ...");
                     var query = AppTopologyObj.find({}).sort({"metadata.generateDatetime":-1}).limit(1).select({ "metadata": 1, "data": 1,  "_id": 0});
@@ -397,6 +396,149 @@ var analysisController = function (app) {
     });
             
  
+
+   
+    app.get('/api/analysis/app/info', function (req, res) {
+        res.setTimeout(3600*1000);
+        var device;
+        var config = configger.load();  
+        async.waterfall(
+            [
+
+                function(callback){
+                    console.log(moment.utc(Date.now()).format() + " Begin Query mongodb ...");
+                    var query = AppTopologyObj.find({}).sort({"metadata.generateDatetime":-1}).limit(1).select({ "metadata": 1, "data": 1,  "_id": 0});
+                    query.exec(function (err, doc) {
+                        //system error.
+                        if (err) { 
+                            res.json(500 , {status: err})
+                        }
+                        if (!doc) { //user doesn't exist.
+                            res.json(200 , []); 
+                        }
+                        else {
+                            console.log(moment.utc(Date.now()).format() + " mongodb has return. ");
+                            var lastRecord ;
+                            for ( var i in doc ) {
+                                var item = doc[i];
+                                var generateDT = new Date(item.metadata.generateDatetime);
+                                if ( lastRecord === undefined ) {
+                                    var lastRecord = item;
+                                } else {
+                                    var lastRecordgenerateDT = new Date(lastRecord.metadata.generateDatetime);
+                                    if ( generateDT > lastRecordgenerateDT ) 
+                                        lastRecord = item;
+                                } 
+                            } 
+                            console.log(moment.utc(Date.now()).format() + " It has got the last record.");
+
+                            //console.log(lastRecord.data); 
+                            callback(null,lastRecord.data); 
+                        } 
+                    }); 
+                },
+                function( arg, callback ) {
+ 
+                    var ret = [];
+                    for ( var i in arg ) {
+                        var item = arg[i]; 
+                        if ( item.arraytype != 'high' ) continue;
+                        var isfind = false;
+                        for ( var j in ret ) {
+                            var retItem = ret[j];
+                            if ( 
+                                retItem.appname == item.app &&
+                                retItem.device == item.arrayname &&
+                                retItem.devicesn == item.array &&
+                                retItem.sgname == item.SG
+                            ) {
+                                var director = item.arrayport.split(':')[0];
+                                if ( retItem.FEDirector.indexOf(director) < 0 ) 
+                                    retItem.FEDirector += ',' + director;
+                                isfind = true;
+                                break;
+                            }
+                        }
+                        if ( isfind == false ) {
+                            var retItem = {};
+                            retItem["appname"] = item.app;
+                            retItem["device"] = item.arrayname ;
+                            retItem["devicesn"] = item.array ;
+                            retItem["model"] = "";
+                            retItem["sgname"] =  item.SG; 
+                            retItem["redovol"] = [];
+                            var director = item.arrayport.split(':')[0];
+                            retItem["FEDirector"] = director;
+                            retItem["Capacity"] = item.Capacity;
+                            ret.push(retItem);
+                        }
+                    }
+                    callback(null,ret); 
+                } ,
+                function( arg , callback ) {
+                    var param = {};  
+                    param['keys'] = ['device','model']; 
+                    param['field'] = ['model']; 
+                    param['filter'] = '!parttype&devtype=\'Array\'';
+                    
+                    CallGet.CallGet(param, function(arrays) { 
+
+                        for ( var j in arg ) {
+                            var arrayItem = arg[j];
+
+                            for ( var i in arrays.result ) {
+                                var item = arrays.result[i];
+
+                                if ( item.device == arrayItem.devicesn ) {
+                                    //console.log(item.device+"\t"+arrayItem.devicesn);
+                                    arrayItem["model"] = item.model;
+                                    break;
+                                }
+                            }
+                        }
+                       // console.log(arg);
+                        callback(null,arg);
+                    } );
+                },
+                function( param, callback ) {  
+                    console.log(moment.utc(Date.now()).format() + " Begin Query REDO volumes in Mongodb ...");
+ 
+                    ArraySGRedoVolumeObj.find( {} , {"appname":1, "device":1, "devicesn":1, "sgname":1, "redovol":1, "_id": 0 },  function (err, doc) {
+                        //system error.
+                        if (err) {
+                            return   done(err);
+                        }
+                        if (!doc) { //user doesn't exist. 
+                            console.log("is not exits!");
+                        }
+                        else {   
+                            var results = [];
+                            for ( var i in param ) {
+                                var item = param[i];
+                                if ( item.array === undefined ) continue;
+                                for ( var j in doc ) {
+                                    var redoItem = doc[j];
+                                    if ( item.array == redoItem.devicesn && 
+                                         item.SG == redoItem.sgname  
+                                        ) {
+                                        
+                                   // console.log(item.array +"|"+ redoItem.devicesn +"|"+ item.SG +"|"+ redoItem.sgname+"\t" +redoItem.redovol);
+                                        item.redovol = redoItem.redovol;
+                                    }
+                                }
+                            } 
+                            
+                        }
+                        callback(null, param); 
+                    });   
+                }
+            ], function (err, result) { 
+                res.json(200 , result );
+            });
+
+        
+    });
+         
 
 /**
  * @swagger
