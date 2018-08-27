@@ -18,6 +18,8 @@ var moment = require('moment');
 var urlencode = require('urlencode');
 var util = require('../lib/util');
 var log = util.log;
+var taskMonitorObj = mongoose.model('taskmonitor');
+
 
 /**
  * @swagger
@@ -892,9 +894,89 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
          *                     ]
          */ 
                 
-        app.get('/api/backendmgmt/monitoring/taskstatus', function (req, res1) {
+        app.get('/api/backendmgmt/monitoring/taskstatus', function (req, res) {
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+            async.waterfall(
+                [
+                function(callback){
         
+                    var query = taskMonitorObj.find( {} ).select({ "_id": 0});
+
+                    query.exec(function (err, doc) {
+                        //system error.
+                        if (err) { 
+                            res.json(500 , {status: err})
+                        }
+                        if (!doc) { //user doesn't exist.
+                            callback(null , []); 
+                        }
+                        else {  
+                            callback(null ,doc);
+                        }
+
+                    });
+                },
+                function( arg, callback ) {
+                    var finalresult = [];
+                    var start = moment(moment().format('YYYY-MM-DD')).unix() - 3600*24;
+                    var end = moment().unix();
+
+                    for ( var i in arg ) {
+                        var item = arg[i];
+                        var timestamp = moment(item.timestamp).unix();
+                        if ( timestamp < start)  continue;
+                        
+                        console.log(moment(item.timestamp).unix() + '\t' + (moment(moment().format('YYYY-MM-DD')).unix() - 3600*24)) ;
+
+                        switch ( item.sourcetype ) {
+                            case "mongodb" :
+                            case "mysql" :
+                                var resultItem = {};
+                                resultItem["taskname"] = item.jobName;
+                                resultItem["task_desc"] = item.jobDesc;
+                                resultItem["status"] = item.status==true?"FINISHED":"FAILED";
+                                resultItem["status_msg"] = item.status==true?item.dbname+":数据库状态正常":item.dbname+":数据库状态异常";
+                                resultItem["status_timestamp"] = item.timestamp;
+
+                                finalresult.push(resultItem);
+                                                                        
+                                break;
+                            case "localfile" :
+                            case "remotefile" :
+                                var resultItem = {};
+                                resultItem["taskname"] = item.jobName;
+                                resultItem["task_desc"] = item.jobDesc;
+                                resultItem["status"] = item.status==true?"FINISHED":"FAILED";
+                                resultItem["status_msg"] = item.status==true?item.filename+":文件存在":item.dbname+":文件不存在";
+                                resultItem["status_timestamp"] = item.timestamp;
+
+                                finalresult.push(resultItem);
+                                                           
+                                break;
+                            case "processes" :
+                                var resultItem = {};
+                                resultItem["taskname"] = item.jobName;
+                                resultItem["task_desc"] = item.jobDesc;
+                                resultItem["status"] = item.status==true?"FINISHED":"FAILED";
+                                resultItem["status_msg"] = item.status==true?item.dbname+":进程状态正常":item.dbname+":进程状态不正常";
+                                resultItem["status_timestamp"] = item.timestamp;
+
+                                finalresult.push(resultItem);
+                                                       
+                                break;
+
+
+                            }
+                    }
+
+                    callback(null, finalresult);
+                }
+            ], function (err, result) { 
+                res.json(200 ,result);
+            });
+
+            /*
             var resStr = '[  \
                 { \
                     "taskname":"存储综合月报", \
@@ -924,6 +1006,8 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
 
                 res1.json(200 ,result);
             });
+            */
+
         });
 
 

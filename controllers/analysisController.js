@@ -103,8 +103,7 @@ var analysisController = function (app) {
                             } 
                             console.log(moment.utc(Date.now()).format() + " It has got the last record.");
 
-                            //console.log(lastRecord.data);
-
+                            //console.log(lastRecord.data); 
                             callback(null,lastRecord.data); 
                         } 
                     }); 
@@ -154,7 +153,7 @@ var analysisController = function (app) {
                 }, 
                 function(param,  callback) {  
                     console.log(moment.utc(Date.now()).format() + " Begin get array alias name ...");
-                     
+
                     var res = [];
  
                     DeviceMgmt.GetArrayAliasName(function(arrayinfo) {  
@@ -183,7 +182,8 @@ var analysisController = function (app) {
                                    
                     });
                 },
-                function(param,  callback){  
+                function(param,  callback){   
+
                     var res = []; 
                     for ( var i in  param ) {
                         var item = param[i];
@@ -275,8 +275,7 @@ var analysisController = function (app) {
 
                             for ( var z in item2.sg ) {
                                 var item3 = item2.sg[z];
- //console.log("======");
- //console.log(item1);
+
                                 var resultItem = {};
                                 resultItem["appname"] = item1.name;
                                 resultItem["device"] = item2.name;
@@ -506,101 +505,66 @@ var analysisController = function (app) {
                     
                     for ( var i in rest)   {
                         var item = rest[i];
-                        if ( item.device == device && item.sgname == sgname ) 
-                            callback(null,item);
+                        if ( item.device == device && item.sgname == sgname ) {
+
+                            var matrics = item.matrics;
+
+                            var finalResult = {};
+                            var ResponseTime = [];
+                            var IOPS = [];
+                            var MBPS = [];
+                        
+                            for ( var i in matrics ) {
+                                var matricsItem = matrics[i];
+
+                                var timestamp = matricsItem.timestamp;
+
+                                // --- ResponseTime ---
+                                var ResponseTimeItem = {};
+                                ResponseTimeItem["timestamp"] = timestamp;
+                                ResponseTimeItem["ResponseTime"] = matricsItem.ResponseTime;
+                                ResponseTime.push(ResponseTimeItem);
+
+                                // --- IOPS ----
+                                var IOPSItem = {};
+                                IOPSItem["timestamp"] = timestamp;
+                                IOPSItem["ReadRequests"] = matricsItem.ReadRequests;
+                                IOPSItem["WriteRequests"] = matricsItem.WriteRequests;
+                                IOPS.push(IOPSItem);
+
+                                // --- MBPS ----
+                                var MBPSItem = {};
+                                MBPSItem["timestamp"] = timestamp;
+                                MBPSItem["ReadThroughput"] = matricsItem.ReadThroughput;
+                                MBPSItem["WriteThroughput"] = matricsItem.WriteThroughput;
+                                MBPS.push(MBPSItem);
+                                
+
+                            }
+                                
+                            var ResponseTimeResult = {};
+                            ResponseTimeResult["Title"] = "ResponseTime";
+                            ResponseTimeResult["dataset"] = ResponseTime;
+
+                            var IOPSResult = {};
+                            IOPSResult["Title"] = "IOPS";
+                            IOPSResult["dataset"] = IOPS;
+
+                            var MBPSResult = {};
+                            MBPSResult["Title"] = "MBPS";
+                            MBPSResult["dataset"] = MBPS;
+
+                            finalResult["ResponseTime"] = ResponseTimeResult;
+                            finalResult["MBPS"] = MBPSResult;
+                            finalResult["IOPS"] = IOPSResult;
+
+                            callback(null,finalResult);
+                        }
+                            
                     }     
-                      
-                   
-               // callback(null,rest);
-                });
-                //res.json(500 , {} );    
-                
-            }, 
-            function(arg1,  callback){   
-                    delete arg1.parttype;
-                    delete arg1.matricsStat;
-                    delete arg1.part;
-
-                    callback(null,arg1);
-            }, 
-            function ( arg1, callback) {
-
-                var SG_ResponseTime = {}; 
-                var SG_IOPS = {}; 
-                var SG_MBPS = {};
-                var SG_REDO = {};
-
-                var MatricsData = arg1.matrics;
-
-                for ( var i in MatricsData ) {
-                    var item = MatricsData[i]; 
-
-                    //ResponseTime
-                    for ( var fieldName in item ) { 
-                        if ( fieldName.indexOf("ResponseTime") < 0  && fieldName.indexOf("timestamp") ) continue; 
-    
-                        var isfind = false ;
-                        for ( var fieldName1 in SG_ResponseTime ) { 
-                            if ( fieldName1 == fieldName ) {
-                                SG_ResponseTime[fieldName1].push(item[fieldName]);
-                                isfind = true;
-                                break;
-                            }
-                        }
-                        if ( isfind == false ) {
-                            var SG_ResponseTimeItem = [];  
-                            SG_ResponseTimeItem.push(item[fieldName]);
-                            SG_ResponseTime[fieldName] = SG_ResponseTimeItem; 
-                        }
-                    }
-
-                    //IOPS
-                    for ( var fieldName in item ) { 
-                        if ( fieldName.indexOf("Requests") < 0  && fieldName.indexOf("timestamp") ) continue; 
-    
-                        var isfind = false ;
-                        for ( var fieldName1 in SG_IOPS ) { 
-                            if ( fieldName1 == fieldName ) {
-                                SG_IOPS[fieldName1].push(item[fieldName]);
-                                isfind = true;
-                                break;
-                            }
-                        }
-                        if ( isfind == false ) {
-                            var SG_IOPSItem = [];  
-                            SG_IOPSItem.push(item[fieldName]);
-                            SG_IOPS[fieldName] = SG_IOPSItem; 
-                        }
-                    }
-
-                    
-                    //MBPS
-                    for ( var fieldName in item ) { 
-                        if ( fieldName.indexOf("Throughput") < 0  && fieldName.indexOf("timestamp") ) continue; 
-    
-                        var isfind = false ;
-                        for ( var fieldName1 in SG_MBPS ) { 
-                            if ( fieldName1 == fieldName ) {
-                                SG_MBPS[fieldName1].push(item[fieldName]);
-                                isfind = true;
-                                break;
-                            }
-                        }
-                        if ( isfind == false ) {
-                            var resItem = [];  
-                            resItem.push(item[fieldName]);
-                            SG_MBPS[fieldName] = resItem; 
-                        }
-                    }
-                }
-
-                var ret = {};
-                ret.dataset = {};
-                ret.dataset["ResponseTime"] = SG_ResponseTime; 
-                ret.dataset["IOPS"] = SG_IOPS; 
-                ret.dataset["MBPS"] = SG_MBPS; 
-                callback(null,ret);
-            },
+                       
+                });    
+            } ,
             function(arg1,  callback){ 
                 // Get Redo Volumes Performance 
                 var part; 
@@ -622,68 +586,43 @@ var analysisController = function (app) {
                 param['fields'] = ['disktype'];  
                 param['filter'] = (part===undefined?"":part+"&") + 'parttype=\'LUN\'';
  
-                CallGet.CallGetPerformance(param, function(param) { 
+                CallGet.CallGetPerformance(param, function(param) {  
 
-                    var VolumePerfOrg = param;
-                    var VolumePerf = [];
-                    for ( var i in VolumePerfOrg ) {
-                        var item = VolumePerfOrg[i]; 
-        
+                    var REDO = [];
+                    for ( var i in param ) {
+                        var item = param[i];
+                        var redovolname = item.part;
+
                         for ( var j in item.matrics ) {
-                            var item1 = item.matrics[j];
-        
+                            var matricsItem = item.matrics[j];
                             var isfind = false;
-                            for ( var z in VolumePerf ) {
-                                var itemResult = VolumePerf[z];
-                                if ( itemResult.timestamp == item1.timestamp ) {
-                                    isfind = true;
-                                    //itemResult[item.part+"_ReadRequests"] = item1.ReadRequests;
-                                    itemResult[item.part+"_WriteRequests"] = item1.WriteRequests; 
-                                    //itemResult[item.part+"_ReadThroughput"] = item1.ReadThroughput;
-                                    itemResult[item.part+"_WriteThroughput"] = item1.WriteThroughput; 
-                                    itemResult[item.part+"_WriteResponseTime"] = item1.WriteResponseTime;                                                                         
-                                    break;
-                                }
-                            }
-                            if ( isfind == false ) {
-                                var itemResult = {};
-                                itemResult["timestamp"] = item1.timestamp;
-                               // itemResult[item.part+"_ReadRequests"] = item1.ReadRequests;
-                                itemResult[item.part+"_WriteRequests"] = item1.WriteRequests; 
-                                //itemResult[item.part+"_ReadThroughput"] = item1.ReadThroughput;
-                                itemResult[item.part+"_WriteThroughput"] = item1.WriteThroughput; 
-                                itemResult[item.part+"_WriteResponseTime"] = item1.WriteResponseTime;                                                                         
-                                                               
-                                VolumePerf.push(itemResult);
-                            }
-                        }
-                    }
-                    
-                    var SG_REDO = {};
-                    for ( var i in VolumePerf ) {
-                        var item = VolumePerf[i];
- 
-                        for ( var fieldName in item ) { 
-                            //if ( fieldName.indexOf("Throughput") < 0  && fieldName.indexOf("timestamp") ) continue; 
-        
-                            var isfind = false ;
-                            for ( var fieldName1 in SG_REDO ) { 
-                                if ( fieldName1 == fieldName ) {
-                                    SG_REDO[fieldName1].push(item[fieldName]);
-                                    isfind = true;
-                                    break;
-                                }
-                            }
-                            if ( isfind == false ) {
-                                var resItem = [];  
-                                resItem.push(item[fieldName]);
-                                SG_REDO[fieldName] = resItem; 
-                            }
-                        }
-                    }
 
-                    
-                    arg1.dataset["REDO"] = SG_REDO; 
+                            for ( var z in REDO ) {
+                                var redoItem = REDO[z];
+                                if ( redoItem.timestamp == matricsItem.timestamp ) {
+                                    redoItem[redovolname+"_WriteResponseTime"]  = matricsItem.WriteResponseTime;
+                                    redoItem[redovolname+"_WriteRequests"]  = matricsItem.WriteRequests;
+                                    redoItem[redovolname+"_WriteThroughput"]  =  matricsItem.WriteThroughput;
+                                    isfind = true;
+                                }
+                            }
+
+                            if ( isfind == false ) {
+                                var redoItem = {};
+                                redoItem["timestamp"] = matricsItem.timestamp;
+                                redoItem[redovolname+"_WriteResponseTime"]  = matricsItem.WriteResponseTime;
+                                redoItem[redovolname+"_WriteRequests"]  = matricsItem.WriteRequests;
+                                redoItem[redovolname+"_WriteThroughput"]  =  matricsItem.WriteThroughput;
+                                REDO.push(redoItem);
+                            }
+                        
+                        }
+                    }
+                    var REDOResult = {};
+                    REDOResult["Title"] = "REDO volume performance";
+                    REDOResult["dataset"] = REDO;
+                    arg1["REDO"] = REDOResult;
+
                     callback(null, arg1 ); 
                 });
 
@@ -764,64 +703,132 @@ var analysisController = function (app) {
         async.waterfall([
             function(callback){  
                 var param = {}; 
+                param['device'] = device;
                 param['keys'] = ['device'];
                 param['fields'] = ['name'];
                 param['period'] = period;
                 param['start'] = start;
                 param['end'] = end;
                 param['filter'] = '!parttype&source=\'VMAX-Collector\'';
-                param['filter_name'] = '(name==\'HitPercent\'|name==\'ReadRequests\'|name==\'WriteRequests\'|name==\'ReadThroughput\'|name==\'WriteThroughput\')';
+                param['filter_name'] = '(name==\'HitPercent\')';
 
-        
+                var finalResult = {};
                 CallGet.CallGetPerformance(param, function(result) {   
-
+ 
+                    var HIT = [];
                     for ( var i in result)   {
                         var item = result[i];
-                        if ( item.device == device ) {
-                            delete item.matricsStat;
-                            item.CacheHit = item.matrics;
-                            delete item.matrics;
-                            for ( var i in item.CacheHit ) {
-                                var item1 = item.CacheHit[i]; 
-                                delete item1.WriteRequests ;
-                                delete item1.WriteThroughput ;
-                                delete item1.ReadRequests ;
-                                delete item1.ReadThroughput ;
-                            } 
-                            callback(null,item);
+                        if ( item.device == device ) { 
+                            for ( var j in item.matrics ) {
+                                var matricsItem = item.matrics[j];
+                                var HITItem = {};
+                                HITItem["timestamp"] = matricsItem.timestamp;
+                                HITItem[device] = matricsItem.HitPercent;
+                                HIT.push(HITItem);
+                            }
+                            
+                            var HITResult = {};
+                            HITResult["Title"] = "存储Cache命中率(%)";
+                            HITResult["dataset"] = HIT;
+
+                            finalResult["CacheHit"] = HITResult;
+                            callback(null,finalResult);
                         }
                             
                     }     
                        
-                });
-                //res.json(500 , {} );    
-                
+                }); 
             },  
             function(arg1, callback ) { 
                 VMAX.GetDirectorPerformance(device, period, start, valuetype, function(result) { 
-                    var resultFA = [];
-                    for ( var j in result){
-                        if ( result[j].partgrp== 'Front-End') 
-                            resultFA.push(result[j])                   
+                     
+
+                    var IOPS = [];
+                    var MBPS = [];
+                    var SYSCALL=[];
+                    var QUEUE = [];
+                    for ( var i in result) {
+                        var item = result[i];
+
+                        for ( var j in item.matrics ) {
+                            var matricsItem = item.matrics[j];
+
+                            // --- Front End Controller IOPS (Read/Write) ---
+                            var isfind  = false;
+                            for ( var z in IOPS ) {
+                                var IOPSItem = IOPS[z];
+                                if ( IOPSItem.timestamp == matricsItem.timestamp ) {
+                                    IOPSItem[item.part +"_ReadRequests"] = matricsItem.ReadRequests;
+                                    IOPSItem[item.part +"_WriteRequests"] = matricsItem.WriteRequests;
+                                    isfind = true;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var IOPSItem = {};
+                                IOPSItem["timestamp"] = matricsItem.timestamp;
+                                IOPSItem[item.part +"_ReadRequests"] = matricsItem.ReadRequests;
+                                IOPSItem[item.part +"_WriteRequests"] = matricsItem.WriteRequests;
+                                IOPS.push(IOPSItem);
+                            }
+
+
+                            // --- Front End Controller MBPS ---
+                            var isfind  = false;
+                            for ( var z in MBPS ) {
+                                var MBPSItem = MBPS[z];
+                                if ( MBPSItem.timestamp == matricsItem.timestamp ) {
+                                    MBPSItem[item.part +"_HostMBperSec"] = matricsItem.HostMBperSec; 
+                                    isfind = true;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var MBPSItem = {};
+                                MBPSItem["timestamp"] = matricsItem.timestamp;
+                                MBPSItem[item.part +"_HostMBperSec"] = matricsItem.HostMBperSec; 
+                                MBPS.push(MBPSItem);
+                            }
+
+                            // --- Front End Controller SysCall ---
+                            var isfind  = false;
+                            for ( var z in SYSCALL ) {
+                                var SYSCALLItem = SYSCALL[z];
+                                if ( SYSCALLItem.timestamp == matricsItem.timestamp ) {
+                                    SYSCALLItem[item.part] = matricsItem.SysCallCount; 
+                                    isfind = true;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var SYSCALLItem = {};
+                                SYSCALLItem["timestamp"] = matricsItem.timestamp;
+                                SYSCALLItem[item.part] = matricsItem.SysCallCount; 
+                                SYSCALL.push(SYSCALLItem);
+                            }
+
+
+
                         }
-                    for ( var i in resultFA ) {
-                        var item = resultFA[i];
-                        delete item.matricsStat;
-                        delete item.partgrp;
-                        //delete item.parttype;
-                        delete item.model;
-                        delete item.device;
 
+                    }
+                    var IOPSResult = {};
+                    IOPSResult["Title"] = "前端控制器IOPS";
+                    IOPSResult["dataset"] = IOPS;
+                    arg1["FEController_IOPS"] = IOPSResult;
 
-                    }; 
-                    arg1["FA-Director"] = resultFA; 
+                    var MBPSResult = {};
+                    MBPSResult["Title"] = "前端控制器MBPS";
+                    MBPSResult["dataset"] = MBPS;
+                    arg1["FEController_MBPS"] = MBPSResult;
+
+                    
+                    var SYSCALLResult = {};
+                    SYSCALLResult["Title"] = "前端控制器SysCall";
+                    SYSCALLResult["dataset"] = SYSCALL;
+                    arg1["FEController_SysCall"] = SYSCALLResult;
+
                     callback(null,arg1);
                 });
             },
-            function(arg1, callback ) {
-
-                
-
+            function(arg1, callback ) { 
 
                 var param = {};
                 param['device'] = device;
@@ -834,23 +841,119 @@ var analysisController = function (app) {
                 param['filter'] = '(parttype=\'Controller\'&partgrp=\'RDF\')';
 
 
-                CallGet.CallGetPerformance(param, function(result) { 
-                    var resultRDF = [];
-                    for ( var j in result){ 
-                        if ( result[j].partgrp== 'RDF') 
-                            resultRDF.push(result[j])                    
-                        } 
-
-                    for ( var i in resultRDF ) {
-                        var item = resultRDF[i];
-                        delete item.matricsStat;
-                        delete item.partgrp;
-                        //delete item.parttype;
-                        delete item.model;
-                        delete item.device;
+                CallGet.CallGetPerformance(param, function(result) {  
  
-                    }; 
-                    arg1["RDF"] = resultRDF; 
+                    var MBPS = [];
+                    var UTIL=[]; 
+                    for ( var i in result) {
+                        var item = result[i];
+
+                        for ( var j in item.matrics ) {
+                            var matricsItem = item.matrics[j]; 
+
+                            // --- RDF Controller MBPS ---
+                            var isfind  = false;
+                            for ( var z in MBPS ) {
+                                var MBPSItem = MBPS[z];
+                                if ( MBPSItem.timestamp == matricsItem.timestamp ) {
+                                    MBPSItem[item.part +"_WriteThroughput"] = matricsItem.WriteThroughput; 
+                                    MBPSItem[item.part +"_ReadThroughput"] = matricsItem.ReadThroughput; 
+                                    isfind = true;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var MBPSItem = {};
+                                MBPSItem["timestamp"] = matricsItem.timestamp;
+                                MBPSItem[item.part +"_WriteThroughput"] = matricsItem.WriteThroughput; 
+                                MBPSItem[item.part +"_ReadThroughput"] = matricsItem.ReadThroughput; 
+
+                                MBPS.push(MBPSItem);
+                            }
+
+                            // --- RDF Controller Untilization ---
+                            var isfind  = false;
+                            for ( var z in UTIL ) {
+                                var UTILItem = UTIL[z];
+                                if ( UTILItem.timestamp == matricsItem.timestamp ) {
+                                    UTILItem[item.part] = matricsItem.CurrentUtilization; 
+                                    isfind = true;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var UTILItem = {};
+                                UTILItem["timestamp"] = matricsItem.timestamp;
+                                UTILItem[item.part] = matricsItem.CurrentUtilization; 
+                                UTIL.push(UTILItem);
+                            }
+
+
+
+                        }
+
+                    } 
+                    var RDFResult = {};
+                    RDFResult["Title"] = "RDF控制器MBPS";
+                    RDFResult["dataset"] = MBPS;
+                    arg1["RDFController_MBPS"] = RDFResult;
+
+                    
+                    var UTILResult = {};
+                    UTILResult["Title"] = "RDF控制器利用率";
+                    UTILResult["dataset"] = UTIL;
+                    arg1["RDFController_Utilization"] = UTILResult;
+
+                    callback(null,arg1);
+                });
+            },
+            function ( arg1, callback ) {
+
+                // VMAX3's Initiator HostIOs
+                var param = {};
+                param['device'] = device;
+                param['period'] = period;
+                param['start'] = start;
+                param['end'] = end;
+                param['type'] = valuetype;
+                param['filter_name'] = '(name=\'HostIOs\')';
+                param['keys'] = ['device','part'];
+                param['fields'] = ['name'];  
+                param['filter'] = 'datagrp=\'VMAX-Initiator\'';
+        
+                CallGet.CallGetPerformance(param, function(result) {    
+
+                    var MBPS = []; 
+                    for ( var i in result) {
+                        var item = result[i];
+
+                        for ( var j in item.matrics ) {
+                            var matricsItem = item.matrics[j]; 
+
+                            // ---  ---
+                            var isfind  = false;
+                            for ( var z in MBPS ) {
+                                var MBPSItem = MBPS[z];
+                                if ( MBPSItem.timestamp == matricsItem.timestamp ) {
+                                    MBPSItem[item.part ] = matricsItem.HostIOs; 
+                                    isfind = true;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var MBPSItem = {};
+                                MBPSItem["timestamp"] = matricsItem.timestamp;
+                                MBPSItem[item.part ] = matricsItem.HostIOs;  
+
+                                MBPS.push(MBPSItem);
+                            } 
+
+
+                        }
+
+                    }  
+                    var UTILResult = {};
+                    UTILResult["Title"] = "Initiator Host IOs/sec";
+                    UTILResult["dataset"] = MBPS;
+                    arg1["Initiator"] = UTILResult;
+ 
                     callback(null, arg1 ); 
                 });
             },
@@ -920,429 +1023,40 @@ var analysisController = function (app) {
                         }
                     }
 
-                    arg["DISK_TOP10"] = top10Disk;
-                    console.log(top10Disk);
+                    var DISK=[];
+                    for ( var i in top10Disk ) {
+                        var item = top10Disk[i];
+
+                        for ( var j in item.matrics) {
+                            var matricsItem = item.matrics[j];
+
+                            var isfind = false;
+                            for ( var z in DISK ) {
+                                var DISKItem = DISK[z];
+                                if ( DISKItem.timestamp == matricsItem.timestamp ) {
+                                    DISKItem[item.part] = matricsItem.CurrentUtilization;
+                                    isfind = true;
+                                }
+                            }
+                            if ( isfind ==false ) {
+                                var DISKItem = {};
+                                DISKItem["timestamp"] = matricsItem.timestamp;
+                                DISKItem[item.part] = matricsItem.CurrentUtilization;
+                                DISK.push(DISKItem);
+                            }
+                        }
+                    }
+                    var DiskResult = {};
+                    DiskResult["Title"] = "Top10磁盘利用率"
+                    DiskResult["dataset"] = DISK;
+                    arg["DISK_TOP10"] = DiskResult; 
                     callback(null,arg);
                 });
                 //callback(null,arg);
-            },
-            function ( arg1, callback ) {
-
-                // VMAX3's Initiator HostIOs
-                var param = {};
-                param['device'] = device;
-                param['period'] = period;
-                param['start'] = start;
-                param['end'] = end;
-                param['type'] = valuetype;
-                param['filter_name'] = '(name=\'HostIOs\')';
-                param['keys'] = ['device','part'];
-                param['fields'] = ['name'];  
-                param['filter'] = 'datagrp=\'VMAX-Initiator\'';
-        
-                CallGet.CallGetPerformance(param, function(result) {    
-                    var resultInitiator = [];
-                    for ( var j in result){ 
-                        var item = result[j];
-
-                        delete item.matricsStat;  
-                        delete item.device;
-                        resultInitiator.push(item);
-                    }
-                    arg1["Initiator"] = resultInitiator; 
-                    callback(null, arg1 ); 
-                });
-            },
-            function(arg1,  callback){
-                var ret = {};
-                ret.data = arg1; 
-                callback(null,ret);
-    
             }
         ], function (err, result) {  
 
-            var CacheHit = result.data.CacheHit;
-            var CacheHitResult = {};            
-
-            for ( var i in CacheHit ) {
-                var item = CacheHit[i]; 
-                for ( var fieldName in item ) {  
-                    var isfind = false ;
-                    for ( var fieldName1 in CacheHitResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            CacheHitResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var CacheHitResultItem = [];  
-                        CacheHitResultItem.push(item[fieldName]);
-                        CacheHitResult[fieldName] = CacheHitResultItem; 
-
-                    }
-                }
-            }
-
-            var DirectorIOPS = result.data["FA-Director"];
-
-            var DirectorIOPS1 = [];
-            for ( var i in DirectorIOPS ) {
-                var item = DirectorIOPS[i]; 
-
-                for ( var j in item.matrics ) {
-                    var item1 = item.matrics[j];
-
-                    var isfind = false;
-                    for ( var z in DirectorIOPS1 ) {
-                        var itemResult = DirectorIOPS1[z];
-                        if ( itemResult.timestamp == item1.timestamp ) {
-                            isfind = true;
-                            itemResult[item.part+"_ReadRequests"] = item1.ReadRequests;
-                            itemResult[item.part+"_WriteRequests"] = item1.WriteRequests;
-                            itemResult[item.part+"_HostMBperSec"] = item1.HostMBperSec;
-                            itemResult[item.part+"_SysCallCount"] = item1.SysCallCount;                            
-                            itemResult[item.part+"_QueueDepthCountRange0"] = item1.QueueDepthCountRange0;                            
-                            itemResult[item.part+"_QueueDepthCountRange1"] = item1.QueueDepthCountRange1;                            
-                            itemResult[item.part+"_QueueDepthCountRange2"] = item1.QueueDepthCountRange2;                            
-                            itemResult[item.part+"_QueueDepthCountRange3"] = item1.QueueDepthCountRange3;                            
-                            itemResult[item.part+"_QueueDepthCountRange4"] = item1.QueueDepthCountRange4;                            
-                            itemResult[item.part+"_QueueDepthCountRange5"] = item1.QueueDepthCountRange5;                            
-                            itemResult[item.part+"_QueueDepthCountRange6"] = item1.QueueDepthCountRange6;                            
-                            itemResult[item.part+"_QueueDepthCountRange7"] = item1.QueueDepthCountRange7;                            
-                            itemResult[item.part+"_QueueDepthCountRange8"] = item1.QueueDepthCountRange8;                            
-                            itemResult[item.part+"_QueueDepthCountRange9"] = item1.QueueDepthCountRange9;                            
-
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var itemResult = {};
-                        itemResult["timestamp"] = item1.timestamp;
-                        itemResult[item.part+"_ReadRequests"] = item1.ReadRequests;
-                        itemResult[item.part+"_WriteRequests"] = item1.WriteRequests;
-                        itemResult[item.part+"_HostMBperSec"] = item1.HostMBperSec;
-                        itemResult[item.part+"_SysCallCount"] = item1.SysCallCount;
-                        itemResult[item.part+"_QueueDepthCountRange0"] = item1.QueueDepthCountRange0;                            
-                        itemResult[item.part+"_QueueDepthCountRange1"] = item1.QueueDepthCountRange1;                            
-                        itemResult[item.part+"_QueueDepthCountRange2"] = item1.QueueDepthCountRange2;                            
-                        itemResult[item.part+"_QueueDepthCountRange3"] = item1.QueueDepthCountRange3;                            
-                        itemResult[item.part+"_QueueDepthCountRange4"] = item1.QueueDepthCountRange4;                            
-                        itemResult[item.part+"_QueueDepthCountRange5"] = item1.QueueDepthCountRange5;                            
-                        itemResult[item.part+"_QueueDepthCountRange6"] = item1.QueueDepthCountRange6;                            
-                        itemResult[item.part+"_QueueDepthCountRange7"] = item1.QueueDepthCountRange7;                            
-                        itemResult[item.part+"_QueueDepthCountRange8"] = item1.QueueDepthCountRange8;                            
-                        itemResult[item.part+"_QueueDepthCountRange9"] = item1.QueueDepthCountRange9;                            
-
-                        DirectorIOPS1.push(itemResult);
-                    }
-                }
-            }
-
-
-            var RDF = result.data["RDF"];
-
-            var RDF_MBPS = [];
-            for ( var i in RDF ) {
-                var item = RDF[i]; 
-
-                for ( var j in item.matrics ) {
-                    var item1 = item.matrics[j];
-
-                    var isfind = false;
-                    for ( var z in RDF_MBPS ) {
-                        var itemResult = RDF_MBPS[z];
-                        if ( itemResult.timestamp == item1.timestamp ) {
-                            isfind = true;
-                            itemResult[item.part+"_MBPS"] = item1.ReadThroughput + item1.WriteThroughput;
-                            itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;                           
-
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var itemResult = {};
-                        itemResult["timestamp"] = item1.timestamp; 
-                        
-                        itemResult[item.part+"_MBPS"] = item1.ReadThroughput + item1.WriteThroughput;
-                        itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;                               
-
-                        RDF_MBPS.push(itemResult);
-                    }
-                }
-            }
-
- 
-            var Initiator = result.data["Initiator"];
-
-            var Initiator_HostIOs = [];
-            for ( var i in Initiator ) {
-                var item = Initiator[i]; 
-
-                for ( var j in item.matrics ) {
-                    var item1 = item.matrics[j];
-
-                    var isfind = false;
-                    for ( var z in Initiator_HostIOs ) {
-                        var itemResult = Initiator_HostIOs[z];
-                        if ( itemResult.timestamp == item1.timestamp ) {
-                            isfind = true;
-                            itemResult[item.part+"_HostIOs"] = item1.HostIOs  ;                          
-
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var itemResult = {};
-                        itemResult["timestamp"] = item1.timestamp; 
-                        
-                        itemResult[item.part+"_HostIOs"] = item1.HostIOs  ;                               
-
-                        Initiator_HostIOs.push(itemResult);
-                    }
-                }
-            }
-
-            
-            
-
-            var DISK = result.data["DISK_TOP10"];
-
-            var DISK_MBPS = [];
-            for ( var i in DISK ) {
-                var item = DISK[i]; 
- 
-                for ( var j in item.matrics ) {
-                    var item1 = item.matrics[j];
-
-                    var isfind = false;
-                    for ( var z in DISK_MBPS ) {
-                        var itemResult = DISK_MBPS[z];
-                        if ( itemResult.timestamp == item1.timestamp ) {
-                            isfind = true;
-                            itemResult[item.part+"_MBPS"] = item1.ReadThroughput + item1.WriteThroughput;
-                            itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;                           
-
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var itemResult = {};
-                        itemResult["timestamp"] = item1.timestamp; 
-                        
-                        itemResult[item.part+"_MBPS"] = item1.ReadThroughput + item1.WriteThroughput;
-                        itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;                               
-
-                        DISK_MBPS.push(itemResult);
-                    }
-                }
-            }
-
-            console.log(DISK_MBPS);
-            // -------------------------------------
-            var DirectorIOPSResult = {}; 
-            var DirectorMBPSResult = {}; 
-  
-            var DirectorSysCallResult = {}; 
-
-            
-            for ( var i in DirectorIOPS1 ) {
-                var item = DirectorIOPS1[i]; 
-                for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("Requests") < 0 && fieldName.indexOf("timestamp")) continue; 
-
-                    var isfind = false ;
-                    for ( var fieldName1 in DirectorIOPSResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            DirectorIOPSResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var DirectorIOPSResultItem = [];  
-                        DirectorIOPSResultItem.push(item[fieldName]);
-                        DirectorIOPSResult[fieldName] = DirectorIOPSResultItem; 
-                    }
-                }
-            }
- 
-            for ( var i in DirectorIOPS1 ) {
-                var item = DirectorIOPS1[i]; 
-                for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("HostMBperSec") < 0  && fieldName.indexOf("timestamp") ) continue; 
-
-                    var isfind = false ;
-                    for ( var fieldName1 in DirectorMBPSResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            DirectorMBPSResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var DirectorMBPSResultItem = [];  
-                        DirectorMBPSResultItem.push(item[fieldName]);
-                        DirectorMBPSResult[fieldName] = DirectorMBPSResultItem; 
-                    }
-                }
-            }
- 
- 
-            for ( var i in DirectorIOPS1 ) {
-                var item = DirectorIOPS1[i]; 
-                for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("SysCallCount") < 0  && fieldName.indexOf("timestamp") ) continue; 
-
-                    var isfind = false ;
-                    for ( var fieldName1 in DirectorSysCallResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            DirectorSysCallResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var DirectorSysCallResultItem = [];  
-                        DirectorSysCallResultItem.push(item[fieldName]);
-                        DirectorSysCallResult[fieldName] = DirectorSysCallResultItem; 
-                    }
-                }
-            }
- 
-            var QueueDepthCountResult = {};
-            for ( var i in DirectorIOPS1 ) {
-                var item = DirectorIOPS1[i]; 
-                for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("QueueDepthCountRange") < 0  && fieldName.indexOf("timestamp") ) continue; 
-
-                    var isfind = false ;
-                    for ( var fieldName1 in QueueDepthCountResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            QueueDepthCountResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var DirectorSysCallResultItem = [];  
-                        DirectorSysCallResultItem.push(item[fieldName]);
-                        QueueDepthCountResult[fieldName] = DirectorSysCallResultItem; 
-                    }
-                }
-            }
- 
-
-            // =========================================
-            var RDFMBPSResult = {};  
-
-            
-            for ( var i in RDF_MBPS ) {
-                var item = RDF_MBPS[i]; 
-                for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("MBPS") < 0 && fieldName.indexOf("timestamp")) continue; 
-
-                    var isfind = false ;
-                    for ( var fieldName1 in RDFMBPSResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            RDFMBPSResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var DirectorIOPSResultItem = [];  
-                        DirectorIOPSResultItem.push(item[fieldName]);
-                        RDFMBPSResult[fieldName] = DirectorIOPSResultItem; 
-                    }
-                }
-            }
-
-
-            var RDFUTILResult = {};  
-
-            
-            for ( var i in RDF_MBPS ) {
-                var item = RDF_MBPS[i]; 
-                for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("CurrentUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
-
-                    var isfind = false ;
-                    for ( var fieldName1 in RDFUTILResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            RDFUTILResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var ResultItem = [];  
-                        ResultItem.push(item[fieldName]);
-                        RDFUTILResult[fieldName] = ResultItem; 
-                    }
-                }
-            }
-
-
-            var InitiatorResult = {};  
-            for ( var i in Initiator_HostIOs ) {
-                var item = Initiator_HostIOs[i]; 
-                for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("HostIOs") < 0 && fieldName.indexOf("timestamp")) continue; 
-
-                    var isfind = false ;
-                    for ( var fieldName1 in InitiatorResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            InitiatorResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var ResultItem = [];  
-                        ResultItem.push(item[fieldName]);
-                        InitiatorResult[fieldName] = ResultItem; 
-                    }
-                }
-            } 
-            
-
-
-            var DiskResult = {};  
-            for ( var i in DISK_MBPS ) {
-                var item = DISK_MBPS[i]; 
-                for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("CurrentUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
-
-                    var isfind = false ;
-                    for ( var fieldName1 in DiskResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            DiskResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var ResultItem = [];  
-                        ResultItem.push(item[fieldName]);
-                        DiskResult[fieldName] = ResultItem; 
-                    }
-                }
-            } 
-
-            
-            var ret = {};
-            ret.dataset = {};
-            ret.dataset["ARRAY_CacheHit"] = CacheHitResult;
-            ret.dataset["FA_IOPS"] = DirectorIOPSResult;
-            ret.dataset["FA_MBPS"] = DirectorMBPSResult;
-            ret.dataset["FA_SysCall"] = DirectorSysCallResult;
-            ret.dataset["FA_QueueDepth"] = QueueDepthCountResult;
-            ret.dataset["RDF_MBPS"] = RDFMBPSResult;
-            ret.dataset["RDF_Utilization"] = RDFUTILResult;
-            ret.dataset["Initiator_HostIOs"] = InitiatorResult;
-            ret.dataset["Disk_Utilization"] = DiskResult;
-            res.json(200, ret );
+            res.json(200, result );
 
 
         }); 
@@ -1435,295 +1149,138 @@ var analysisController = function (app) {
                     //res.json(200, resultNew );
                     callback(null,resultNew);
                 });
-            },
-            function(arg1,callback) {
-                var FAUtilSource = arg1["Front-End"];
-
-                var FAUtils = [];
-                for ( var i in FAUtilSource ) {
-                    var item = FAUtilSource[i]; 
-    
-                    for ( var j in item.matrics ) {
-                        var item1 = item.matrics[j];
-    
-                        var isfind = false;
-                        for ( var z in FAUtils ) {
-                            var itemResult = FAUtils[z];
-                            if ( itemResult.timestamp == item1.timestamp ) {
-                                isfind = true;
-                                itemResult[item.part+"_ReadRequests"] = item1.CurrentUtilization;
-                                itemResult[item.part+"_WriteRequests"] = item1.WriteRequests;
-                                itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
-                                
-                                break;
-                            }
-                        }
-                        if ( isfind == false ) {
-                            var DirectorIOPSItem = {};
-                            DirectorIOPSItem["timestamp"] = item1.timestamp;
-                            DirectorIOPSItem[item.part+"_ReadRequests"] = item1.CurrentUtilization;
-                            DirectorIOPSItem[item.part+"_WriteRequests"] = item1.WriteRequests;
-                            DirectorIOPSItem[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
-                                    
-                            FAUtils.push(DirectorIOPSItem);
-                        }
-                    }
-                } 
-
-                var RDFUtilSource = arg1["RDF"];
-
-                var RDFUtils = [];
-                for ( var i in RDFUtilSource ) {
-                    var item = RDFUtilSource[i]; 
-    
-                    for ( var j in item.matrics ) {
-                        var item1 = item.matrics[j];
-    
-                        var isfind = false;
-                        for ( var z in RDFUtils ) {
-                            var itemResult = RDFUtils[z];
-                            if ( itemResult.timestamp == item1.timestamp ) {
-                                isfind = true;
-                                itemResult[item.part+"_ReadRequests"] = item1.CurrentUtilization;
-                                itemResult[item.part+"_WriteRequests"] = item1.WriteRequests;
-                                itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
-                                
-                                break;
-                            }
-                        }
-                        if ( isfind == false ) {
-                            var DirectorIOPSItem = {};
-                            DirectorIOPSItem["timestamp"] = item1.timestamp;
-                            DirectorIOPSItem[item.part+"_ReadRequests"] = item1.CurrentUtilization;
-                            DirectorIOPSItem[item.part+"_WriteRequests"] = item1.WriteRequests;
-                            DirectorIOPSItem[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
-                                    
-                            RDFUtils.push(DirectorIOPSItem);
-                        }
-                    }
-                } 
-
-                
-                var BEUtilSource = arg1["Back-End"]; 
-                var BEUtils = [];
-                for ( var i in BEUtilSource ) {
-                    var item = BEUtilSource[i]; 
-    
-                    for ( var j in item.matrics ) {
-                        var item1 = item.matrics[j];
-    
-                        var isfind = false;
-                        for ( var z in BEUtils ) {
-                            var itemResult = BEUtils[z];
-                            if ( itemResult.timestamp == item1.timestamp ) {
-                                isfind = true;  
-                                itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
-                                
-                                break;
-                            }
-                        }
-                        if ( isfind == false ) {
-                            var DirectorIOPSItem = {};
-                            DirectorIOPSItem["timestamp"] = item1.timestamp;
-                            DirectorIOPSItem[item.part+"_ReadRequests"] = item1.CurrentUtilization;
-                            DirectorIOPSItem[item.part+"_WriteRequests"] = item1.WriteRequests;
-                            DirectorIOPSItem[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
-                                    
-                            BEUtils.push(DirectorIOPSItem);
-                        }
-                    }
-                } 
-
-
-                                
-                var EDUtilSource = arg1["Enginuity Data Services"]; 
-                var EDUtils = [];
-                for ( var i in EDUtilSource ) {
-                    var item = EDUtilSource[i]; 
-    
-                    for ( var j in item.matrics ) {
-                        var item1 = item.matrics[j];
-    
-                        var isfind = false;
-                        for ( var z in EDUtils ) {
-                            var itemResult = EDUtils[z];
-                            if ( itemResult.timestamp == item1.timestamp ) {
-                                isfind = true;  
-                                itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
-                                
-                                break;
-                            }
-                        }
-                        if ( isfind == false ) {
-                            var DirectorIOPSItem = {};
-                            DirectorIOPSItem["timestamp"] = item1.timestamp;
-        
-                            EDUtils.push(DirectorIOPSItem);
-                        }
-                    }
-                } 
-
-                var IMUtilSource = arg1["Infrastructure Manager"]; 
-                var IMUtils = [];
-                for ( var i in IMUtilSource ) {
-                    var item = IMUtilSource[i]; 
-    
-                    for ( var j in item.matrics ) {
-                        var item1 = item.matrics[j];
-    
-                        var isfind = false;
-                        for ( var z in IMUtils ) {
-                            var itemResult = IMUtils[z];
-                            if ( itemResult.timestamp == item1.timestamp ) {
-                                isfind = true;  
-                                itemResult[item.part+"_CurrentUtilization"] = item1.CurrentUtilization;
-                                
-                                break;
-                            }
-                        }
-                        if ( isfind == false ) {
-                            var DirectorIOPSItem = {};
-                            DirectorIOPSItem["timestamp"] = item1.timestamp;
-        
-                            IMUtils.push(DirectorIOPSItem);
-                        }
-                    }
-                } 
-
+            } , 
+            function( arg , callback ) {
                 var result = {};
-                result["FA"] = FAUtils;
-                result["RDF"] = RDFUtils;
-                result["BE"] = BEUtils;
-                result["ED"] = EDUtils;
-                result["IM"] = IMUtils;
-                callback(null,result);
-            },
-            function(arg1,  callback){ 
 
-                var FAUtilResult = {}; 
+                // ---- Front End Controller Utilization -------
+                var FrontEnd = [];
+                for ( var i in arg["Front-End"] ) {
+                    var item = arg["Front-End"][i];
+                    
+                    for ( var j in item.matrics) {
+                        var matricsItem = item.matrics[j];
 
-                for ( var i in arg1.FA ) {
-                    var item = arg1.FA[i]; 
-                    for ( var fieldName in item ) { 
-                        if ( fieldName.indexOf("CurrentUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
-    
-                        var isfind = false ;
-                        for ( var fieldName1 in FAUtilResult ) { 
-                            if ( fieldName1 == fieldName ) {
-                                FAUtilResult[fieldName1].push(item[fieldName]);
+                        var isfind = false;
+                        for ( var z in FrontEnd ) {
+                            var FrontEndItem = FrontEnd[z];
+                            if ( FrontEndItem.timestamp == matricsItem.timestamp ) {
+                                FrontEndItem[item.part] = matricsItem.CurrentUtilization;
                                 isfind = true;
-                                break;
                             }
                         }
                         if ( isfind == false ) {
-                            var FAUtilResultItem = [];  
-                            FAUtilResultItem.push(item[fieldName]);
-                            FAUtilResult[fieldName] = FAUtilResultItem; 
+                            var FrontEndItem = {};
+                            FrontEndItem["timestamp"] = matricsItem.timestamp;
+                            FrontEndItem[item.part] = matricsItem.CurrentUtilization;
+                            FrontEnd.push(FrontEndItem);
                         }
                     }
                 }
+                var FrontEndResult = {};
+                FrontEndResult["Title"] = "前端控制器利用率(%)";
+                FrontEndResult["dataset"] = FrontEnd;
 
-                var RDFUtilResult = {}; 
-                for ( var i in arg1.RDF ) {
-                    var item = arg1.RDF[i]; 
-                    for ( var fieldName in item ) { 
-                        if ( fieldName.indexOf("CurrentUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
-    
-                        var isfind = false ;
-                        for ( var fieldName1 in RDFUtilResult ) { 
-                            if ( fieldName1 == fieldName ) {
-                                RDFUtilResult[fieldName1].push(item[fieldName]);
+
+                // ---- RDF Controller Utilization -------
+                var RDF = [];
+                for ( var i in arg["RDF"] ) {
+                    var item = arg["RDF"][i];
+                    
+                    for ( var j in item.matrics) {
+                        var matricsItem = item.matrics[j];
+
+                        var isfind = false;
+                        for ( var z in RDF ) {
+                            var RDFItem = RDF[z];
+                            if ( RDFItem.timestamp == matricsItem.timestamp ) {
+                                RDFItem[item.part] = matricsItem.CurrentUtilization;
                                 isfind = true;
-                                break;
                             }
                         }
                         if ( isfind == false ) {
-                            var FAUtilResultItem = [];  
-                            FAUtilResultItem.push(item[fieldName]);
-                            RDFUtilResult[fieldName] = FAUtilResultItem; 
+                            var RDFItem = {};
+                            RDFItem["timestamp"] = matricsItem.timestamp;
+                            RDFItem[item.part] = matricsItem.CurrentUtilization;
+                            RDF.push(RDFItem);
                         }
                     }
                 }
+                var RDFResult = {};
+                RDFResult["Title"] = "RDF控制器利用率(%)";
+                RDFResult["dataset"] = RDF;
 
-                var BEUtilResult = {}; 
-                for ( var i in arg1.BE ) {
-                    var item = arg1.BE[i]; 
-                    for ( var fieldName in item ) { 
-                        if ( fieldName.indexOf("CurrentUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
-    
-                        var isfind = false ;
-                        for ( var fieldName1 in BEUtilResult ) { 
-                            if ( fieldName1 == fieldName ) {
-                                BEUtilResult[fieldName1].push(item[fieldName]);
+
+                // ---- Back End Controller Utilization -------
+                var BackEnd = [];
+                for ( var i in arg["Back-End"] ) {
+                    var item = arg["Back-End"][i];
+                    
+                    for ( var j in item.matrics) {
+                        var matricsItem = item.matrics[j];
+
+                        var isfind = false;
+                        for ( var z in BackEnd ) {
+                            var BackEndItem = BackEnd[z];
+                            if ( BackEndItem.timestamp == matricsItem.timestamp ) {
+                                BackEndItem[item.part] = matricsItem.CurrentUtilization;
                                 isfind = true;
-                                break;
                             }
                         }
                         if ( isfind == false ) {
-                            var FAUtilResultItem = [];  
-                            FAUtilResultItem.push(item[fieldName]);
-                            BEUtilResult[fieldName] = FAUtilResultItem; 
+                            var BackEndItem = {};
+                            BackEndItem["timestamp"] = matricsItem.timestamp;
+                            BackEndItem[item.part] = matricsItem.CurrentUtilization;
+                            BackEnd.push(BackEndItem);
                         }
                     }
                 }
+                var BackEndResult = {};
+                BackEndResult["Title"] = "后端控制器控制器利用率(%)";
+                BackEndResult["dataset"] = BackEnd;
 
-                
-                var EDUtilResult = {}; 
-                for ( var i in arg1.ED ) {
-                    var item = arg1.ED[i]; 
-                    for ( var fieldName in item ) { 
-                        if ( fieldName.indexOf("CurrentUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
-    
-                        var isfind = false ;
-                        for ( var fieldName1 in EDUtilResult ) { 
-                            if ( fieldName1 == fieldName ) {
-                                EDUtilResult[fieldName1].push(item[fieldName]);
+
+
+                // ---- Enginuity Data Services Utilization (VMAX3 only)-------
+                var EDS = [];
+                for ( var i in arg["Enginuity Data Services"] ) {
+                    var item = arg["Enginuity Data Services"][i];
+                    
+                    for ( var j in item.matrics) {
+                        var matricsItem = item.matrics[j];
+
+                        var isfind = false;
+                        for ( var z in EDS ) {
+                            var EDSItem = EDS[z];
+                            if ( EDSItem.timestamp == matricsItem.timestamp ) {
+                                EDSItem[item.part] = matricsItem.CurrentUtilization;
                                 isfind = true;
-                                break;
                             }
                         }
                         if ( isfind == false ) {
-                            var FAUtilResultItem = [];  
-                            FAUtilResultItem.push(item[fieldName]);
-                            EDUtilResult[fieldName] = FAUtilResultItem; 
+                            var EDSItem = {};
+                            EDSItem["timestamp"] = matricsItem.timestamp;
+                            EDSItem[item.part] = matricsItem.CurrentUtilization;
+                            EDS.push(EDSItem);
                         }
                     }
                 }
+                var EDSResult = {};
+                EDSResult["Title"] = "Enginuity Data Services利用率(%)";
+                EDSResult["dataset"] = EDS;
 
 
-                var IMUtilResult = {}; 
-                for ( var i in arg1.IM ) {
-                    var item = arg1.IM[i]; 
-                    for ( var fieldName in item ) { 
-                        if ( fieldName.indexOf("CurrentUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
-    
-                        var isfind = false ;
-                        for ( var fieldName1 in IMUtilResult ) { 
-                            if ( fieldName1 == fieldName ) {
-                                IMUtilResult[fieldName1].push(item[fieldName]);
-                                isfind = true;
-                                break;
-                            }
-                        }
-                        if ( isfind == false ) {
-                            var FAUtilResultItem = [];  
-                            FAUtilResultItem.push(item[fieldName]);
-                            IMUtilResult[fieldName] = FAUtilResultItem; 
-                        }
-                    }
-                }
 
 
-                var result = {};
-                result.dataset = {};
-                result.dataset["Front-End"] = FAUtilResult;
-                result.dataset["RDF"] = RDFUtilResult;
-                result.dataset["Back-End"] = BEUtilResult;
-                result.dataset["ED"] = EDUtilResult;
-                result.dataset["IM"] = IMUtilResult;
 
-                callback(null,result);
-    
+
+                result["Front-End"] = FrontEndResult;
+                result["RDF"] = RDFResult;
+                result["Back-End"] = BackEndResult;
+                result["EDS"] = EDSResult;
+
+
+                callback(null, result);
             },
             function ( arg1, callback ) {
                 // ---------------------------
@@ -1756,17 +1313,18 @@ var analysisController = function (app) {
                         if ( item.disktype == 'Enterprise Flash Drive' ) {
                             var disktype = 'EFD'; 
                         } else {
-                            var disktype = 'SAS'; 
+                            var disktype = 'Other'; 
                         }
                         if ( resultDisk[disktype] === undefined  ) resultDisk[disktype] = [];
                         resultDisk[disktype].push(item);
                         
                     }
+
                     var DiskResult = [];
                     var DiskSASResultTmp = {}
                     var DiskEFDResultTmp = {}
-                    for ( var i in resultDisk.SAS ) {
-                        var item = resultDisk.SAS[i];
+                    for ( var i in resultDisk.Other ) {
+                        var item = resultDisk.Other[i];
                         var itemMatrics = item.matrics;
 
                         for ( var j in itemMatrics ) {
@@ -1816,44 +1374,23 @@ var analysisController = function (app) {
 
                         
                         if ( DiskSASResultTmp[ts] === undefined ) 
-                            resItem["SAS_AvgUtilization"] = 0 ;
+                            resItem["Other"] = 0 ;
                         else 
-                            resItem["SAS_AvgUtilization"] = sumNumber / DiskSASResultTmp[ts].length;
+                            resItem["Other"] = sumNumber / DiskSASResultTmp[ts].length;
                         
                         if ( DiskEFDResultTmp[ts] === undefined ) 
-                            resItem["EFD_AvgUtilization"] = 0 ;
+                            resItem["EFD"] = 0 ;
                         else 
-                            resItem["EFD_AvgUtilization"] = sumNumberEFD / DiskEFDResultTmp[ts].length;
+                            resItem["EFD"] = sumNumberEFD / DiskEFDResultTmp[ts].length;
 
                         DiskResult.push(resItem);
                     } 
 
+                    var result1 = {};
+                    result1["Title"] = "磁盘利用率(按类型)(%)";
+                    result1["dataset"] = DiskResult;
 
-                    var DiskUtilResult = {}; 
-                    for ( var i in DiskResult ) {
-                        var item = DiskResult[i]; 
-                        for ( var fieldName in item ) { 
-                            if ( fieldName.indexOf("AvgUtilization") < 0 && fieldName.indexOf("timestamp")) continue; 
-        
-                            var isfind = false ;
-                            for ( var fieldName1 in DiskUtilResult ) { 
-                                if ( fieldName1 == fieldName ) {
-                                    DiskUtilResult[fieldName1].push(item[fieldName]);
-                                    isfind = true;
-                                    break;
-                                }
-                            }
-                            if ( isfind == false ) {
-                                var FAUtilResultItem = [];  
-                                FAUtilResultItem.push(item[fieldName]);
-                                DiskUtilResult[fieldName] = FAUtilResultItem; 
-                            }
-                        }
-                    }
-    
-
-
-                    arg1.dataset["Disk"] = DiskUtilResult;
+                    arg1["DiskUtilization"] = result1;
 
                     callback(null,arg1);
                 });
@@ -2223,126 +1760,104 @@ app.get('/api/analysis/storage/volume', function (req, res) {
                                     'name==\'WriteRequests\')';
             param['type'] = 'max'; 
     
-            CallGet.CallGetPerformance(param, function(lunperf) {  
 
-                var VolMatrics = lunperf[0].matrics;
-                for ( var i in VolMatrics ) {
-                    var item = VolMatrics[i];
-                    item["ReadIOSize"]  = (item.ReadThroughput / item.ReadRequests).toFixed(2);
-                    item["WriteIOSize"]  = (item.WriteThroughput / item.WriteRequests).toFixed(2);
-
-                    item["WriteIOPercent"] = ( item.WriteRequests / (item.WriteRequests + item.ReadRequests) * 100 );
-                }
+            CallGet.CallGetPerformance(param, function(lunperf) { 
                 
-                callback(null, lunperf);
+                var IOPS = [];
+                var RT = [];
+                var IOSIZE = [];
+                var IOPercent = [];
+
+                for ( var i in lunperf ) {
+                    var item = lunperf[i];
+
+                    for ( var j in item.matrics ) {
+                        var matricsItem = item.matrics[j];
+
+                            
+                        matricsItem["ReadIOSize"]  = matricsItem.ReadRequests == 0 ? 0 : (matricsItem.ReadThroughput / matricsItem.ReadRequests).toFixed(2);
+                        matricsItem["WriteIOSize"]  = matricsItem.WriteRequests == 0 ? 0 : (matricsItem.WriteThroughput / matricsItem.WriteRequests).toFixed(2);
+                        matricsItem["WriteIOPercent"] = (matricsItem.WriteRequests + matricsItem.ReadRequests) == 0 ? 0 : ( matricsItem.WriteRequests / (matricsItem.WriteRequests + matricsItem.ReadRequests) * 100 );
+
+
+                        var isfind = false;
+                        for ( var z in IOPS ) {
+                            var IOPSItem = IOPS[z];
+                            if ( IOPSItem.timestamp == matricsItem.timestamp ) {
+                                IOPSItem["ReadRequest"] = matricsItem.ReadRequests;
+                                IOPSItem["WriteRequests"] = matricsItem.WriteRequests;
+                                isfind = true;
+                            }
+                        }
+                        if ( isfind == false ) {
+                            var IOPSItem = {};
+                            IOPSItem["timestamp"] = matricsItem.timestamp;
+                            IOPSItem["ReadRequest"] = matricsItem.ReadRequests;
+                            IOPSItem["WriteRequests"] = matricsItem.WriteRequests;
+                            IOPS.push(IOPSItem);
+                        }
+
+                        // --- Response Time --- 
+                        var isfind = false;
+                        for ( var z in RT ) {
+                            var RTItem = RT[z];
+                            if ( RTItem.timestamp == matricsItem.timestamp ) {
+                                RTItem["ReadResponseTime"] = matricsItem.ReadResponseTime;
+                                RTItem["WriteResponseTime"] = matricsItem.WriteResponseTime;
+                                isfind = true;
+                            }
+                        }
+                        if ( isfind == false ) {
+                            var RTItem = {};
+                            RTItem["timestamp"] = matricsItem.timestamp;
+                            RTItem["ReadResponseTime"] = matricsItem.ReadResponseTime;
+                            RTItem["WriteResponseTime"] = matricsItem.WriteResponseTime;
+                            RT.push(RTItem);
+                        }
+
+                        // --- IO Size ---
+                        var IOSizeItem = {};
+                        IOSizeItem["timestamp"] = matricsItem.timestamp;
+                        IOSizeItem["ReadIOSize"] = matricsItem.ReadIOSize;
+                        IOSizeItem["WriteIOSize"] = matricsItem.WriteIOSize;
+                        IOSIZE.push(IOSizeItem);
+                        
+                        // --- IO Percent ---
+                        var IOPercentItem = {};
+                        IOPercentItem["timestamp"] = matricsItem.timestamp;
+                        IOPercentItem["SequentialRead"] = matricsItem.SequentialReadRequestsPercent;
+                        IOPercentItem["RandomReadMiss"] = matricsItem.RandomReadMissRequestsPercent;
+                        IOPercentItem["RandomReadHit"] = matricsItem.SequentialReadRequestsPercent;
+                        IOPercent.push(IOPercentItem);
+                        
+
+
+                    }
+ 
+                }
+
+                var IOPSResult = {"Title": "Volume (" + volume + ") IOPS"};
+                IOPSResult["dataset"] = IOPS;
+
+                var RTResult = {"Title": "Volume (" + volume + ") Response Time(ms)"};
+                RTResult["dataset"] = RT;
+
+                
+                var IOSIZEResult = {"Title": "Volume (" + volume + ") : IO Size"};
+                IOSIZEResult["dataset"] = IOSIZE;
+
+                var IOPercentResult = {"Title": "Volume (" + volume + ") : IO Percent (%)"};
+                IOPercentResult["dataset"] = IOPercent;
+
+                var result={};
+                result["IOPS"] = IOPSResult;
+                result["ResponseTime"] = RTResult;
+                result["IOSize"] = IOSIZEResult;
+                result["IOPercent"] = IOPercentResult;
+                callback(null, result);
     
             }); 
 
-        },
-        function(arg,  callback) { 
-
-            var IOPSResult = {}; 
-            for ( var i in arg[0].matrics ) {
-                var item = arg[0].matrics[i]; 
-                for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("Requests") < 0 && fieldName.indexOf("timestamp")) continue; 
-
-                    var isfind = false ;
-                    for ( var fieldName1 in IOPSResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            IOPSResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var ResultItem = [];  
-                        ResultItem.push(item[fieldName]);
-                        IOPSResult[fieldName] = ResultItem; 
-                    }
-                }
-            }
-
-            var RTResult = {}; 
-            for ( var i in arg[0].matrics ) {
-                var item = arg[0].matrics[i]; 
-                for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("ResponseTime") < 0 && fieldName.indexOf("timestamp")) continue; 
-
-                    var isfind = false ;
-                    for ( var fieldName1 in RTResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            RTResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var ResultItem = [];  
-                        ResultItem.push(item[fieldName]);
-                        RTResult[fieldName] = ResultItem; 
-                    }
-                }
-            }
-
-            var IOSizeResult = {}; 
-            for ( var i in arg[0].matrics ) {
-                var item = arg[0].matrics[i]; 
-                for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("IOSize") < 0 && fieldName.indexOf("timestamp")) continue; 
-
-                    var isfind = false ;
-                    for ( var fieldName1 in IOSizeResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            IOSizeResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var ResultItem = [];  
-                        ResultItem.push(item[fieldName]);
-                        IOSizeResult[fieldName] = ResultItem; 
-                    }
-                }
-            }
-
-
-            var IOPercentResult = {}; 
-            for ( var i in arg[0].matrics ) {
-                var item = arg[0].matrics[i]; 
-                for ( var fieldName in item ) { 
-                    if ( fieldName.indexOf("Percent") < 0 && fieldName.indexOf("timestamp")) continue; 
-
-                    var isfind = false ;
-                    for ( var fieldName1 in IOPercentResult ) { 
-                        if ( fieldName1 == fieldName ) {
-                            IOPercentResult[fieldName1].push(item[fieldName]);
-                            isfind = true;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var ResultItem = [];  
-                        ResultItem.push(item[fieldName]);
-                        IOPercentResult[fieldName] = ResultItem; 
-                    }
-                }
-            }
-
-            var finalResult = {};
-            finalResult.dataset = {};
-            finalResult.dataset["IOPS"] = IOPSResult;
-            finalResult.dataset["ResponseTime"] = RTResult;
-            finalResult.dataset["IOSize"] = IOSizeResult;
-            finalResult.dataset["IOPercent"] = IOPercentResult;
-                        
-            callback(null,finalResult);
-
-        } ,
-        function(arg, callback ) {
-
-            callback(null,arg);
         }
     ], function (err, result) { 
 

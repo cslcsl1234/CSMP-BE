@@ -20,8 +20,8 @@
     "BASE_FILTER": ""
   },
   "SERVER": {
-    "HOST": "192.168.17.201",
-    "PORT": 8080
+    "HOST": "10.62.38.239",
+    "PORT": 9090
   },
   "ProductType": "Test",
   "ProductTypeDesc": [
@@ -31,7 +31,7 @@
   ],
   "SRMDevLastDT-DLBank": "2018-01-25T14:00:00+08:00",
   "SRMDevLastDT-AirChina": "2017-11-27T08:00:00+08:00",
-  "SRMDevLastDT": "2018-06-20T11:00:00+08:00",
+  "SRMDevLastDT": "2018-07-01T11:00:00+08:00",
   "SMS": {
     "ServiceIP": "10.188.80.33",
     "ServicePort": 6821,

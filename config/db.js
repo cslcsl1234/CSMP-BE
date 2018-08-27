@@ -35,6 +35,8 @@ require('./../models/appTopologyModel');
 require('./../models/arraySGRedoVolumeModel');
 require('./../models/mgmtObjectInfoModel');
 require('./../models/IOLimitEventModel');
+require('./../models/taskmonitorModel');
+
 
 
 

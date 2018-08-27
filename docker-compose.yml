@@ -3,6 +3,9 @@ services:
   app:
     container_name: app
     build: .
+    extra_hosts:
+      - "csmpcollecter:10.62.38.238"
+      - "csmpcollecter_pb:10.62.38.237"
     ports:
       - "8000:8080"
     links:
