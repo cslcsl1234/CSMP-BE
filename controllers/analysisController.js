@@ -526,8 +526,7 @@ var analysisController = function (app) {
                                         item.redovol = redoItem.redovol;
                                     }
                                 }
-                            } 
-                            
+                            }  
                         }
                         callback(null, param); 
                     });   
@@ -768,6 +767,15 @@ var analysisController = function (app) {
                     callback(null, arg1 ); 
                 });
 
+            }
+            , function ( arg, callback ) {
+                for ( var fieldname in arg ) {
+                    for ( var i in arg[fieldname].dataset ) {
+                        var item = arg[fieldname].dataset[i];
+                        item['timestamp'] = moment.unix(item.timestamp).format('YYYY-MM-DD HH')
+                    }
+                }
+                callback(null,arg);
             }
         ], function (err, result) { 
 
@@ -1196,6 +1204,15 @@ var analysisController = function (app) {
                 });
                 //callback(null,arg);
             }
+            , function ( arg, callback ) {
+                for ( var fieldname in arg ) {
+                    for ( var i in arg[fieldname].dataset ) {
+                        var item = arg[fieldname].dataset[i];
+                        item['timestamp'] = moment.unix(item.timestamp).format('YYYY-MM-DD HH')
+                    }
+                }
+                callback(null,arg);
+            }
         ], function (err, result) {  
 
             res.json(200, result );
@@ -1536,6 +1553,15 @@ var analysisController = function (app) {
 
                     callback(null,arg1);
                 });
+            }
+            , function ( arg, callback ) {
+                for ( var fieldname in arg ) {
+                    for ( var i in arg[fieldname].dataset ) {
+                        var item = arg[fieldname].dataset[i];
+                        item['timestamp'] = moment.unix(item.timestamp).format('YYYY-MM-DD HH')
+                    }
+                }
+                callback(null,arg);
             }
 
         ], function (err, result) { 
@@ -2000,6 +2026,15 @@ app.get('/api/analysis/storage/volume', function (req, res) {
     
             }); 
 
+        }
+        , function ( arg, callback ) {
+            for ( var fieldname in arg ) {
+                for ( var i in arg[fieldname].dataset ) {
+                    var item = arg[fieldname].dataset[i];
+                    item['timestamp'] = moment.unix(item.timestamp).format('YYYY-MM-DD HH')
+                }
+            }
+            callback(null,arg);
         }
     ], function (err, result) { 
 
