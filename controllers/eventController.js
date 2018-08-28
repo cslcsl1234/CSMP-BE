@@ -271,7 +271,7 @@ var eventController = function (app) {
                                     if (err == 400 )  { 
                                         console.log("Duplicate Record : ", thor , " ; ignore insert." ); 
                                     }  else {
-                                        console.log('insert record :', resItem.id);
+                                        //console.log('insert record :', resItem.id);
                                         results.push(resItem);
                                     }
                                 }); 
@@ -280,7 +280,7 @@ var eventController = function (app) {
                         }
                     }
 
-                    console.log(results.length);
+                    //console.log(results.length);
                     callback (null, results);
                 }
             ], function (err, result) { 
@@ -347,7 +347,7 @@ var eventController = function (app) {
                                 resItem["eventCatalog"] = "性能";
                                 resItem["eventName"] = "IOLimit Exceeded";
                                 resItem["timestamp"] = item.timestamp;
-                                resItem["eventDescription"] = "应用[" + item.appname + "] 存储["+item.arrayname+"]-SG[" + item.sgname + "]超出设定["+item.iolimit+"] " + item.HostIOLimitExceededPercent + "%";
+                                resItem["eventDescription"] = "应用:[" + (item.appname===undefined?"unknow":item.appname) + "], 存储:["+(item.arrayname===undefined?item.array:item.arrayname)+"]; SG: [" + item.sgname + "] 超出IOLimit设定 ["+item.iolimit+"] " + item.HostIOLimitExceededPercent + "%";
                                 resItem["acknowlaged"] = item.acknowlaged;
                                 resItem["detailinfo"] = item;
 

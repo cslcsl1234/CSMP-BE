@@ -466,6 +466,7 @@ var analysisController = function (app) {
                             retItem["devicesn"] = item.array ;
                             retItem["model"] = "";
                             retItem["sgname"] =  item.SG; 
+                            retItem["volumes"] = item.devices;
                             retItem["redovol"] = [];
                             var director = item.arrayport.split(':')[0];
                             retItem["FEDirector"] = director;
