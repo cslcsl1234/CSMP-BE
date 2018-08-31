@@ -81,7 +81,7 @@ var appController = function (app) {
 
         var app = req.body;
 
-        AppObj.findOne({"name" : app.name}, function (err, doc) {
+        AppObj.findOne({"id" : app.id}, function (err, doc) {
             //system error.
             if (err) {
                 return   done(err);
