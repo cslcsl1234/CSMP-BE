@@ -649,6 +649,7 @@ var hostController = function (app) {
             var configuration = {};
             var baseinfo = {};
             var maintenance = {};
+            configuration["id"]              = fields[j]; j++;             
             configuration["model"]           = fields[j]; j++; 
             configuration["sn"]              = fields[j]; j++;
             configuration["HA"]              = fields[j]; j++;
