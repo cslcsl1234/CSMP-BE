@@ -312,7 +312,7 @@ var eventController = function (app) {
  *            type: array 
  */ 
     app.get('/api/event/performance/sg/iolimit/query', function (req, res) {   
-        var acknowlaged_param = req.query.acknowlaged;
+        var acknowlaged_param = req.query.acknowledge;
         if ( acknowlaged_param !== undefined ) {
             if ( acknowlaged_param == 'false' ) 
                 var acknowlaged = false;
@@ -324,6 +324,7 @@ var eventController = function (app) {
             var filter = {};
         } 
 
+        console.log(acknowlaged_param);
         var retData = {};
 
         async.waterfall(
@@ -461,13 +462,23 @@ app.post('/api/event/performance/sg/iolimit/update', function (req, res) {
  *         schema:
  *            type: array 
  */ 
-app.get('/api/event/performance/sg/iolimit/statistics', function (req, res) {   
-    var filter; 
-                //if ( filter === undefined ) filter = {acknowlaged: false};
-    filter = {}; 
-    IOLimitEventObj.find({}).select({ "__v": 0, "_id": 0}).exec(  function (err, doc) {
-        //system error.
-        console.log(err);
+app.get('/api/event/performance/sg/iolimit/statistics', function (req, res) {
+    var start = req.query.from;
+    var end = req.query.to;
+    
+    
+    var filter = {}; 
+    if ( start === undefined | end === undefined  ) {
+        filter = {}; 
+    } else {
+        var startTimestamp = moment(start).unix();
+        var endTimestamp = moment(end).unix();
+        filter =  {"$and":[{"timestamp":{"$gt":startTimestamp}},{"timestamp":{"$lt":endTimestamp}}]}
+    }
+    
+    var finalResult = {};
+    IOLimitEventObj.find(filter).select({ "__v": 0, "_id": 0}).exec(  function (err, doc) {
+        //system error. 
         if (err) {
             return   done(err);
         }
@@ -476,21 +487,62 @@ app.get('/api/event/performance/sg/iolimit/statistics', function (req, res) {
         }
         else {    
             var resResult = [];
+
+            var statisticResult = [];
             for ( var i in doc ) {
                 var item = doc[i];
                 var resItem={}
+                
                 resItem["id"] = item.id;
                 resItem["eventCatalog"] = "性能";
                 resItem["eventName"] = "IOLimit Exceeded";
                 resItem["timestamp"] = item.timestamp;
+                resItem["happendHour"] = moment.unix(item.timestamp).format('HH');
+                resItem["HappendTime"] = moment.unix(item.timestamp).format('YYYY-MM-DD HH:mm:ss'); 
                 resItem["eventDescription"] = "应用[" + item.appname + "] 存储["+item.arrayname+"]-SG[" + item.sgname + "]超出设定["+item.iolimit+"] " + item.HostIOLimitExceededPercent + "%";
-                resItem["acknowlaged"] = item.acknowlaged;
-                resItem["detailinfo"] = item;
+                resItem["acknowlaged"] = item.acknowlaged; 
 
-                resResult.push(resItem);
+                var isfind = false;
+                for ( var j in statisticResult ) {
+                    var statItem = statisticResult[j];
+                    if ( item.array == statItem.array & item.sgname == statItem.sgname )  {
+                        isfind = true;
+                        if ( resItem.happendHour >= 8 & resItem.happendHour <= 18 ) {
+                            statItem.workingtime++;
+                        } else {
+                            statItem.no_workingtime++;
+                        }
+                        
+                        statItem.detail.push(resItem); 
+                        break;
+                    }
+
+                    
+                }
+                if ( isfind == false ) {
+                    var statItem = {};
+                    statItem.array = item.array;
+                    statItem.sgname = item.sgname;
+                    if ( resItem.happendHour >= 8 & resItem.happendHour <= 18 ) {
+                        statItem.workingtime = 1 ;
+                        statItem.no_workingtime = 0 ;
+                    } else {
+                        statItem.workingtime = 0 ;
+                        statItem.no_workingtime = 1 ;
+                    }        
+                    
+                    statItem["detail"] = [];
+                    statItem.detail.push(resItem);  
+                    
+                    statisticResult.push(statItem);  
+                }
+
+
+               // resResult.push(statisticResult);
                     
             }
-            res.json(200 ,resResult); 
+ 
+            res.json(200 ,statisticResult); 
         }
     });   
     

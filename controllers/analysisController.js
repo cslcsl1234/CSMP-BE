@@ -417,9 +417,10 @@ var analysisController = function (app) {
                             res.json(200 , []); 
                         }
                         else {
-                            console.log(moment.utc(Date.now()).format() + " mongodb has return. ");
+                           
                             var lastRecord ;
                             for ( var i in doc ) {
+                                console.log(moment.utc(Date.now()).format() + " mongodb has return. ");
                                 var item = doc[i];
                                 var generateDT = new Date(item.metadata.generateDatetime);
                                 if ( lastRecord === undefined ) {
@@ -432,7 +433,8 @@ var analysisController = function (app) {
                             } 
                             console.log(moment.utc(Date.now()).format() + " It has got the last record.");
 
-                            //console.log(lastRecord.data); 
+                            console.log(lastRecord.metadata); 
+                            console.log(lastRecord.data.length);
                             callback(null,lastRecord.data); 
                         } 
                     }); 
@@ -441,8 +443,10 @@ var analysisController = function (app) {
  
                     var ret = [];
                     for ( var i in arg ) {
-                        var item = arg[i]; 
-                        if ( item.arraytype != 'high' ) continue;
+                        var item = arg[i];  
+                        //if ( item.arraytype != 'high' ) continue;
+                        if ( item.array === undefined ) continue;
+                        if ( item.array.indexOf("VNX") >= 0 ) continue;
                         var isfind = false;
                         for ( var j in ret ) {
                             var retItem = ret[j];
@@ -452,7 +456,7 @@ var analysisController = function (app) {
                                 retItem.devicesn == item.array &&
                                 retItem.sgname == item.SG
                             ) {
-                                var director = item.arrayport.split(':')[0];
+                                var director = item.arrayport===undefined ? "": item.arrayport.split(':')[0];
                                 if ( retItem.FEDirector.indexOf(director) < 0 ) 
                                     retItem.FEDirector += ',' + director;
                                 isfind = true;
@@ -462,18 +466,19 @@ var analysisController = function (app) {
                         if ( isfind == false ) {
                             var retItem = {};
                             retItem["appname"] = item.app;
-                            retItem["device"] = item.arrayname ;
+                            retItem["device"] = item.arrayname===undefined ? item.array : item.arrayname ;
                             retItem["devicesn"] = item.array ;
                             retItem["model"] = "";
                             retItem["sgname"] =  item.SG; 
                             retItem["volumes"] = item.devices;
                             retItem["redovol"] = [];
-                            var director = item.arrayport.split(':')[0];
+                            var director = item.arrayport===undefined? "":item.arrayport.split(':')[0];
                             retItem["FEDirector"] = director;
                             retItem["Capacity"] = item.Capacity;
                             ret.push(retItem);
                         }
                     }
+                    console.log("Step 3: " , ret.length);
                     callback(null,ret); 
                 } ,
                 function( arg , callback ) {
@@ -762,6 +767,7 @@ var analysisController = function (app) {
                     }
                     var REDOResult = {};
                     REDOResult["Title"] = "REDO volume performance";
+                    REDOResult["charttype"] = "MultipleValue";
                     REDOResult["dataset"] = REDO;
                     arg1["REDO"] = REDOResult;
 
@@ -2218,9 +2224,7 @@ app.get('/api/analysis/app/workload/relateDistribution', function (req, res) {
             dataset["appname"] = appname;
             dataset["array"] = device;
             dataset["sgname"] = sgname;
-            dataset["associateSgName"] = data.relaSGName;
-            dataset["IOPS"] = [];
-            dataset["MBPS"] = [];
+            dataset["associateSgName"] = data.relaSGName; 
 
             var IOPS = [];
             var MBPS = [];
@@ -2263,29 +2267,29 @@ app.get('/api/analysis/app/workload/relateDistribution', function (req, res) {
 
                 }
             }
-            dataset["IOPS"] = {};
-            dataset["IOPS"]["title"] = "关联SG IOPS";
-            dataset["IOPS"]["dataset"] = IOPS;
+            var datasetChart = {};
+            datasetChart["IOPS"] = {};
+            datasetChart["IOPS"]["Title"] = "关联SG IOPS";
+            datasetChart["IOPS"]["dataset"] = IOPS;
             
-            dataset["MBPS"] = {};
-            dataset["MBPS"]["title"] = "关联SG MBPS";
-            dataset["MBPS"]["dataset"] = MBPS;
+            datasetChart["MBPS"] = {};
+            datasetChart["MBPS"]["Title"] = "关联SG MBPS";
+            datasetChart["MBPS"]["dataset"] = MBPS;
             
-            data["output"] = dataset;
-            callback(null, data );
+            dataset["chart"] = datasetChart; 
+            callback(null, dataset );
 
         }        
         , function ( arg1, callback ) {
-            var arg = arg1.output;
-            for ( var fieldname in arg ) {
-                console.log(fieldname);
+            var arg = arg1.chart;
+            for ( var fieldname in arg ) { 
                 if ( arg[fieldname].dataset === undefined ) continue;
                 for ( var i in arg[fieldname].dataset ) {
                     var item = arg[fieldname].dataset[i];
                     item['timestamp'] = moment.unix(item.timestamp).format(dateFormat)
                 }
             }
-            callback(null,arg);
+            callback(null,arg1);
         }
     ], function (err, result) { 
 
@@ -2477,10 +2481,7 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
             var dataset = {};
             dataset["appname"] = appname;
             dataset["array"] = device;
-            dataset["sgname"] = sgname;
-            dataset["IOPS"] = [];
-            dataset["MBPS"] = [];
-
+            dataset["sgname"] = sgname; 
             var IOPS = [];
             
             var MBPS = [];
@@ -2566,25 +2567,24 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
                     }
                 }
             }
-
-            dataset["IOPS"] = {};
-            dataset["IOPS"]["title"] = "关联SG IOPS";
-            dataset["IOPS"]["dataset"] = IOPS;
+            var datasetChart = {};
+            datasetChart["IOPS"] = {};
+            datasetChart["IOPS"]["Title"] = "关联SG IOPS";
+            datasetChart["IOPS"]["dataset"] = IOPS;
             
-            dataset["MBPS"] = {};
-            dataset["MBPS"]["title"] = "关联SG MBPS";
-            dataset["MBPS"]["dataset"] = MBPS;
+            datasetChart["MBPS"] = {};
+            datasetChart["MBPS"]["Title"] = "关联SG MBPS";
+            datasetChart["MBPS"]["dataset"] = MBPS;
             
-            data["output"] = dataset;
-            callback(null, data );
+            dataset["chart"] = datasetChart;
+            callback(null, dataset );
 
         }
         , function ( arg, callback ) { 
-            var origData = arg.output;
+            var origData = arg.chart;
 
             
-            for ( var fieldname in origData ) {
-                console.log(fieldname);
+            for ( var fieldname in origData ) { 
                 if ( origData[fieldname].dataset === undefined ) continue;
 
                 for ( var i in origData[fieldname].dataset ) {
@@ -2597,7 +2597,7 @@ app.get('/api/analysis/app/workload/compareDistribution', function (req, res) {
         }
     ], function (err, result) { 
 
-        res.json(200, result.output );
+        res.json(200, result );
     }); 
 
 
@@ -3082,7 +3082,7 @@ app.get('/api/analysis/app/workload/historypeak', function (req, res) {
 
                     if ( resRecord[fieldname] === undefined ) {
                         resRecord[fieldname] = {};
-                        resRecord[fieldname]['title'] = fieldname;
+                        resRecord[fieldname]['Title'] = fieldname;
                         resRecord[fieldname]['dataset'] = [];
                     }
 
@@ -3269,7 +3269,7 @@ app.get('/api/analysis/app/workload/historypeak', function (req, res) {
 
                     if ( resRecord[fieldname] === undefined ) {
                         resRecord[fieldname] = {};
-                        resRecord[fieldname]['title'] = fieldname;
+                        resRecord[fieldname]['Title'] = fieldname;
                         resRecord[fieldname]['dataset'] = [];
                     }
 
@@ -3461,16 +3461,16 @@ app.get('/api/analysis/app/workload/distribution1', function (req, res) {
             }
             var dataset = {};
             dataset["IOPS"] = {};
-            dataset["IOPS"]["title"] = "IOPS";
+            dataset["IOPS"]["Title"] = "IOPS";
             dataset["IOPS"]["dataset"] = IOPS;
 
             dataset["MBPS"] = {};
-            dataset["MBPS"]["title"] = "MBPS";
+            dataset["MBPS"]["Title"] = "MBPS";
             dataset["MBPS"]["dataset"] = MBPS;
 
 
             dataset["ResponseTime"] = {};
-            dataset["ResponseTime"]["title"] = "Response Time(ms)";
+            dataset["ResponseTime"]["Title"] = "Response Time(ms)";
             dataset["ResponseTime"]["dataset"] = ResponseTime;
 
             callback(null,dataset);
@@ -3587,7 +3587,7 @@ app.get('/api/analysis/array/frontend/historypeak', function (req, res) {
 
                         if ( resData[fieldname] === undefined ) {
                             resData[fieldname] = {};
-                            resData[fieldname]['title'] = fieldname;
+                            resData[fieldname]['Title'] = fieldname;
                             resData[fieldname]['dataset'] = [];
                         }
 
@@ -3950,7 +3950,7 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
                 callback(null, data); 
             } else {
                 callback(null, data); 
-                //Analysis.GenerateBaseLine(data, function(result) {
+               // Analysis.GenerateBaseLine(data, function(result) {
                 //    callback(null, result);
                 //})
             }

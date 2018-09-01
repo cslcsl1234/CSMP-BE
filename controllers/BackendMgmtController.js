@@ -493,6 +493,13 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                 ], function (err, result) {
                     // result now equals 'done'
                     var fs = require('fs');
+
+                    // Transfer timestamp to String display format
+                    for ( var i in result ) {
+                        var item = result[i];
+                        var timestamp = item.timestamp;
+                        item['timestamp'] = moment.unix(timestamp).format("YYYY-MM-DD HH:mm:ss");
+                    }
                     fs.writeFile('./data/server_status.json',JSON.stringify(result), function(err) {
                         if ( err ) throw err;
                         res1.json(200 ,result);
