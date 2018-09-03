@@ -69,6 +69,8 @@ require('./controllers/analysisController')(app);
 
 // ---- CEB Project ------
 require('./controllers/cebPerformanceProviderController')(app);
+require('./controllers/cebAPIController')(app);
+
 
 
 

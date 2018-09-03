@@ -954,8 +954,8 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                                 var resultItem = {};
                                 resultItem["taskname"] = item.jobName;
                                 resultItem["task_desc"] = item.jobDesc;
-                                resultItem["status"] = item.status==true?"FINISHED":"FAILED";
-                                resultItem["status_msg"] = item.status==true?item.filename+":文件存在":item.dbname+":文件不存在";
+                                resultItem["status"] = item.isExist==true?"FINISHED":"FAILED";
+                                resultItem["status_msg"] = item.isExist==true?item.filename+":文件存在":item.filename+":文件不存在";
                                 resultItem["status_timestamp"] = item.timestamp;
 
                                 finalresult.push(resultItem);
@@ -965,8 +965,8 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                                 var resultItem = {};
                                 resultItem["taskname"] = item.jobName;
                                 resultItem["task_desc"] = item.jobDesc;
-                                resultItem["status"] = item.status==true?"FINISHED":"FAILED";
-                                resultItem["status_msg"] = item.status==true?item.dbname+":进程状态正常":item.dbname+":进程状态不正常";
+                                resultItem["status"] = item.isExist==true?"FINISHED":"FAILED";
+                                resultItem["status_msg"] = item.isExist==true?item.dbname+":进程状态正常":item.dbname+":进程状态不正常";
                                 resultItem["status_timestamp"] = item.timestamp;
 
                                 finalresult.push(resultItem);

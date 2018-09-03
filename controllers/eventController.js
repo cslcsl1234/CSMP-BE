@@ -394,7 +394,10 @@ var eventController = function (app) {
 app.post('/api/event/performance/sg/iolimit/update', function (req, res) {   
         var reqBody = req.body;
 
-        console.log(reqBody);
+        if ( reqBody.acknowlaged == 'true' ) 
+            reqBody.acknowlaged = true;
+        else 
+            reqBody.acknowlaged = false;
 
         IOLimitEventObj.findOne({"id" : reqBody.id}, function (err, doc) {
             //system error.

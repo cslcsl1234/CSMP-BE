@@ -215,8 +215,36 @@ var datacenterController = function (app) {
 
     app.get('/ceb/storageSet/list', function (req, res) {   
         var filter = {};
+        var finalResult = [];
         deviceMgmt.getMgmtObjectInfo(filter, function(devInfo) {
-            res.json(200,devInfo);
+            for ( var i in devInfo ) {
+                var item=devInfo[i]; 
+
+                var resultItem = {};
+                resultItem["resourcePoolVo"] = [];
+                resultItem["resourcePoolVoSize"] = 0;
+                resultItem["storageSN"] = item.sn;
+                resultItem["name"] = item.name;
+                resultItem["model"] = "VMAX";
+                resultItem["address"] = "";
+                resultItem["datacenter"] = item.datacenter;
+                resultItem["datacenterName"] = item.datacenter==1?"SDDataCenter":"JXQDataCenter";
+                resultItem["room"] = "2";
+                resultItem["type"] = item.type=='high'?"高端":"中端";
+                resultItem["used"] =  item.specialInfo.used == 'general'?"一般应用":"其他应用";
+                resultItem["lifeCycle"] = "";
+                resultItem["maintenanceInfo"] = "";
+                resultItem["providerid"] = "";
+                resultItem["updatedDate"] = item.createData;
+                resultItem["maxCache"] = "";
+                resultItem["maxDisks"] = "";
+                resultItem["maxPorts"] = "";
+                resultItem["id"] = item.sn;
+
+                finalResult.push(resultItem);
+            }
+
+            res.json(200,finalResult);
         })
     });
     
