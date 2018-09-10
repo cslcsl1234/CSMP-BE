@@ -2367,7 +2367,7 @@ var reportingController = function (app) {
                     //var ret = require("../demodata/sg_top10_iops");
                     var device;
                     var period = 86400;
-                    var valuetype = 'last'; 
+                    var valuetype = 'average'; 
                     VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) { 
                         var rets = [];
                         for ( var i in rest ) {
@@ -2415,10 +2415,10 @@ var reportingController = function (app) {
                 function(param,  callback){ 
                     //var ret = require("../demodata/sg_top10_iops");
                     var device;
-                    var period = 604800;
+                    var period = 86400;
                     var valuetype = 'average';
-                    var start = util.getLastYear().firstDay;
-                    var end = util.getLastYear().lastDay ;
+                    var start = util.getLastMonth().firstDay;
+                    var end = util.getLastMonth().lastDay ; 
                     VMAX.GetStorageGroupsPerformance(device, period, start,end,  valuetype, function(rest) { 
                         var rets = [];
                         for ( var i in rest ) {

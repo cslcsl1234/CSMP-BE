@@ -431,12 +431,12 @@ var cebPerformanceProviderController = function (app) {
 
             var finalResult = {};
             finalResult.vnxCap = {};
-            finalResult.vnxCap.sum = resItem.VNX.sum   ;
-            finalResult.vnxCap.allot = resItem.VNX.allot   ;
+            finalResult.vnxCap.sum = resItem.VNX === undefined ? 0 : resItem.VNX.sum   ;
+            finalResult.vnxCap.allot = resItem.VNX === undefined ? 0 : resItem.VNX.allot   ;
 
             finalResult.vmaxCap = {};
-            finalResult.vmaxCap.sum = resItem.Symmetrix.sum  ;
-            finalResult.vmaxCap.allot = resItem.Symmetrix.allot   ;
+            finalResult.vmaxCap.sum = resItem.Symmetrix === undefined ? 0 : resItem.Symmetrix.sum  ;
+            finalResult.vmaxCap.allot = resItem.Symmetrix === undefined ? 0 : resItem.Symmetrix.allot   ;
             
             res.json(200,finalResult);   
         
