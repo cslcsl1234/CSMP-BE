@@ -252,7 +252,7 @@ var eventController = function (app) {
 
                         for ( var j in item.matrics ) {
                             var ioItem = item.matrics[j];
-                            if ( ioItem.HostIOLimitExceededPercent > 0 ) {
+                            if ( ioItem.HostIOLimitExceededPercent >= 80 ) {
                                 var resItem = {};
                                 resItem["id"] = item.device+":"+item.sgname+":"+ioItem.timestamp;
                                 resItem["array"] = item.device;
@@ -494,8 +494,10 @@ app.get('/api/event/performance/sg/iolimit/statistics', function (req, res) {
             var statisticResult = [];
             for ( var i in doc ) {
                 var item = doc[i];
+                if ( item.HostIOLimitExceededPercent < 80 ) continue; 
+
                 var resItem={}
-                
+
                 resItem["id"] = item.id;
                 resItem["eventCatalog"] = "性能";
                 resItem["eventName"] = "IOLimit Exceeded";
@@ -510,11 +512,20 @@ app.get('/api/event/performance/sg/iolimit/statistics', function (req, res) {
                     var statItem = statisticResult[j];
                     if ( item.array == statItem.array & item.sgname == statItem.sgname )  {
                         isfind = true;
+
                         if ( resItem.happendHour >= 8 & resItem.happendHour <= 18 ) {
-                            statItem.workingtime++;
+                            if ( item.HostIOLimitExceededPercent >= 100 ) {
+                                statItem.workingtime_100++ ;
+                            } else if ( item.HostIOLimitExceededPercent >= 80 ) {
+                                statItem.workingtime_80++ ;
+                            }  
                         } else {
-                            statItem.no_workingtime++;
-                        }
+                            if ( item.HostIOLimitExceededPercent >= 100 ) {
+                                statItem.no_workingtime_100++ ;
+                            } else if ( item.HostIOLimitExceededPercent >= 80 ) {
+                                statItem.no_workingtime_80++ ;
+                            }  
+                        }   
                         
                         statItem.detail.push(resItem); 
                         break;
@@ -526,12 +537,24 @@ app.get('/api/event/performance/sg/iolimit/statistics', function (req, res) {
                     var statItem = {};
                     statItem.array = item.array;
                     statItem.sgname = item.sgname;
+
+                    statItem.workingtime_80 = 0 ;
+                    statItem.workingtime_100 = 0 ;
+                    statItem.no_workingtime_80 = 0 ;
+                    statItem.no_workingtime_100 = 0 ;
+
                     if ( resItem.happendHour >= 8 & resItem.happendHour <= 18 ) {
-                        statItem.workingtime = 1 ;
-                        statItem.no_workingtime = 0 ;
+                        if ( item.HostIOLimitExceededPercent >= 100 ) {
+                            statItem.workingtime_100 = 1 ;
+                        } else if ( item.HostIOLimitExceededPercent >= 80 ) {
+                            statItem.workingtime_80 = 1 ;
+                        }  
                     } else {
-                        statItem.workingtime = 0 ;
-                        statItem.no_workingtime = 1 ;
+                        if ( item.HostIOLimitExceededPercent >= 100 ) {
+                            statItem.no_workingtime_100 = 1 ;
+                        } else if ( item.HostIOLimitExceededPercent >= 80 ) {
+                            statItem.no_workingtime_80 = 1 ;
+                        }  
                     }        
                     
                     statItem["detail"] = [];
