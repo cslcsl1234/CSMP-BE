@@ -185,31 +185,15 @@ var datacenterController = function (app) {
         data["specialInfo"] = JSON.stringify(specialInfo);
 
 
-        console.log("|"+ data.toString() + "|");
-        MgmtObjectInfoObject.findOne({"sn" : data.sn }, function (err, doc) {
-            //system error.
-            if (err) {
-                return   done(err);
+        deviceMgmt.putMgmtObjectInfo(data, function(result) {
+            if ( result.status == 'FAIL' ) {
+                return res.json(400, result);
+            } else {
+                return res.json(200, result);
             }
-            if (!doc) { //user doesn't exist.
-                console.log("Management Object  is not exist. insert it."); 
-    
-                var newmgmtobj = new MgmtObjectInfoObject(data);
-                newmgmtobj.save(function(err, thor) {
-                  if (err)  {
-                    console.dir(thor);
-                    return res.json(400 , err);
-                  } else 
-                    return res.json(200, {status:"SUCCESS", info: "The management object insert is succeeds!"});
-                });
-            }
-            else {  
-                doc.update(data, function(error, course) {
-                    if(error) return next(error);
-                });
-                return  res.json(200 , {status:"SUCCESS", info: "The management object has exist! Update it."});
-            }
-        });
+        })
+
+        
     });
     
 

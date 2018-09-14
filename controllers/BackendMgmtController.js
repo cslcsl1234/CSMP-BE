@@ -490,7 +490,12 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         var config = configger.load();
 
+        var exeType = req.body.exe_type;
+
         backendMgmt.testCollectObject(req.body, function( result ) {
+            if ( exeType = 'test&save' ) {
+                
+            }
             res1.json(200,result);
         });
 
