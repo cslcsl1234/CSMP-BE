@@ -293,6 +293,141 @@ var eventController = function (app) {
     }); 
 
 
+    //
+    // Monitor Array Resource statistisc event 
+    //
+
+    app.get('/api/event/array/resource', function (req, res) {  
+        var device;
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString();  
+        var timestamp = moment(req.query.to).unix();
+        var dateinfo = moment.unix(timestamp).format('YYYY-MM-DD HH:mm:ss')
+        async.waterfall(
+            [
+                function(callback){
+                    Report.getArrayResourceLimits(start,end, function(result) {
+                        callback(null,result);
+                    })
+                },
+                function ( arg, callback ) {
+
+                    var results = [];
+                    var array_statistic = arg.array_statistic; 
+                    for ( var i in array_statistic ) {
+                        var item = array_statistic[i]; 
+
+                        
+
+                        if ( item.RDFCountPercent >= 80 ) {
+                            var resItem = {};
+                            
+                            resItem["id"] = item.device_sn+":RDFCount:"+timestamp;
+                            resItem["eventdisplayname"] = "RDF Group数量超过80%";
+                            resItem["severity"] = 2;
+                            resItem["customerSeverity"] = 2;
+                            resItem["state"] = "";
+                            resItem["ProcessMethod"] = "";
+                            resItem["eventCatalog"] = "ManagementEvent";
+                            resItem["timestamp"] = timestamp;
+                            resItem["eventDescription"] ="["+dateinfo+"]"+ item.device_sn+ " RDF Group数量超过80%(Current="+item.rdfCount +";MAX="+item.MaxRDFCount +")";
+                            resItem["acknowlaged"] = false;
+                            resItem["detailinfo"] = JSON.stringify(item); 
+
+                            var newRecord = new EventObj(resItem);
+
+                            newRecord.save(function(err, thor) {  
+                                if (err == 400 )  { 
+                                    console.log("Duplicate Record : ", thor , " ; ignore insert." ); 
+                                }  else {
+                                    console.log('insert record :', resItem.id); 
+                                }
+                            });    
+                            
+                            results.push(resItem);
+
+                        }
+
+                        if ( item.pariCountPercent >= 80 ) {
+                            var resItem = {};
+                            
+                            resItem["id"] = item.device_sn+":PairCount:"+timestamp;
+                            resItem["eventdisplayname"] = "RDF Pair 数量超过80%";
+                            resItem["severity"] = 2;
+                            resItem["customerSeverity"] = 2;
+                            resItem["state"] = "";
+                            resItem["ProcessMethod"] = "";
+                            resItem["eventCatalog"] = "ManagementEvent";
+                            resItem["timestamp"] = timestamp;
+                            resItem["eventDescription"] ="["+dateinfo+"] "+ item.device_sn + " RDF Pair 数量超过80%(Current="+item.pairCount +";MAX="+item.MaxPairCount +")";
+                            resItem["acknowlaged"] = false;
+                            resItem["detailinfo"] = JSON.stringify(item); 
+
+                            var newRecord = new EventObj(resItem);
+
+                            newRecord.save(function(err, thor) {  
+                                if (err == 400 )  { 
+                                    console.log("Duplicate Record : ", thor , " ; ignore insert." ); 
+                                }  else {
+                                    console.log('insert record :', resItem.id); 
+                                }
+                            });     
+
+                            results.push(resItem);
+
+                        }
+
+
+                    }
+ 
+                    callback (null, arg);
+                },
+                function ( arg, callback ) {
+ 
+                    var arrayfe_statistic = arg.arrayfe_statistic; 
+                    for ( var i in arrayfe_statistic ) {
+                        var item = arrayfe_statistic[i]; 
+ 
+                        var resItem = {};
+                        
+                        resItem["id"] = item.device+":FEDirectorAddress:"+ item.director+":"+timestamp;
+                        resItem["eventdisplayname"] = "前端控制器分配地址数量超过80%";
+                        resItem["severity"] = 2;
+                        resItem["customerSeverity"] = 2;
+                        resItem["state"] = "";
+                        resItem["ProcessMethod"] = "";
+                        resItem["eventCatalog"] = "ManagementEvent";
+                        resItem["timestamp"] = timestamp;
+                        resItem["eventDescription"] ="["+dateinfo+"] "+ item.device+ ":" + item.director +":前端控制器分配地址数量超过80%(Current="+item.availableAddress +";MAX="+item.maxAvailableAddress +")";
+                        resItem["acknowlaged"] = false;
+                        resItem["detailinfo"] = JSON.stringify(item); 
+
+                        var newRecord = new EventObj(resItem);
+
+                        newRecord.save(function(err, thor) {  
+                            if (err == 400 )  { 
+                                console.log("Duplicate Record : ", thor , " ; ignore insert." ); 
+                            }  else {
+                                console.log('insert record :', resItem.id); 
+                            }
+                        });     
+                    }
+ 
+                    //console.log(results.length);
+                    callback (null, arg);
+                }
+            ], function (err, result) { 
+                var output = {};
+                output.begintime = start;
+                output.endtime = end;
+                output.InsertedRecords = result.length;
+                res.json(200 ,output);
+            });
+    }); 
+
+
+
+
 /**
  * @swagger
  * /api/event/performance/sg/iolimit/query:
@@ -357,12 +492,40 @@ var eventController = function (app) {
                             }
 
                             retData.detail = resResult;
-                            res.json(200 ,retData); 
+                            callback(null ,retData); 
                         }
                     });   
                 } ,
                 function ( arg, callback ) {
-                    callback (null, arg);
+                    console.log(filter);
+                    EventObj.find(filter).select({ "__v": 0, "_id": 0}).exec(  function (err, doc) {
+                        //system error. 
+                        if (err) {
+                            return   done(err);
+                        }
+                        if (!doc) { //user doesn't exist. 
+                            res.json(200,[]);
+                        }
+                        else {    
+                            var resResult = [];
+                            for ( var i in doc ) {
+                                var item = doc[i];
+                                var resItem={}
+                                resItem["id"] = item.id;
+                                resItem["eventCatalog"] = item.eventCatalog;
+                                resItem["eventName"] = item.eventdisplayname;
+                                resItem["timestamp"] = item.timestamp;
+                                resItem["eventDescription"] = item.eventDescription;
+                                resItem["acknowlaged"] = item.acknowlaged;
+                                resItem["detailinfo"] = item.detailinfo;
+
+                                arg.detail.push(resItem);
+                                    
+                            }
+ 
+                            callback(null,arg)
+                        }
+                    });    
 
                 }  
             ], function (err, result) {  
@@ -399,36 +562,66 @@ app.post('/api/event/performance/sg/iolimit/update', function (req, res) {
         else 
             reqBody.acknowlaged = false;
 
-        IOLimitEventObj.findOne({"id" : reqBody.id}, function (err, doc) {
-            //system error.
-            if (err) {
-                return   done(err);
+            if ( reqBody.eventCatalog =="ManagementEvent") {
+                EventObj.findOne({"id" : reqBody.id}, function (err, doc) {
+                    //system error.
+                    if (err) {
+                        return   done(err);
+                    }
+                    if (!doc) { //user doesn't exist.
+                        console.log("app is not exist. insert it."); 
+        
+                        var newapp = new EventObj(reqBody); 
+                        newapp.save(function(err, thor) { 
+                        if (err)  {
+                            console.dir(thor);
+                            return res.json(400 , err);
+                        } else 
+                            return res.json(200, reqBody);
+                        });
+                    }
+                    else { 
+        
+                        doc.update(reqBody, function(error, course) {
+                            if(error) return next(error);
+                        }); 
+                        return  res.json(200 , {status: "The ManagementEvent has exist! Update it."});
+                    }
+        
+                });     
+            } else {
+                IOLimitEventObj.findOne({"id" : reqBody.id}, function (err, doc) {
+                    //system error.
+                    if (err) {
+                        return   done(err);
+                    }
+                    if (!doc) { //user doesn't exist.
+                        console.log("app is not exist. insert it."); 
+        
+                        var newapp = new IOLimitEventObj(reqBody);
+                        console.log('Test1');
+                        newapp.save(function(err, thor) {
+                        console.log('Test2');
+                        if (err)  {
+                            console.dir(thor);
+                            return res.json(400 , err);
+                        } else 
+                            return res.json(200, reqBody);
+                        });
+                    }
+                    else { 
+        
+                        doc.update(reqBody, function(error, course) {
+                            if(error) return next(error);
+                        });
+        
+        
+                        return  res.json(200 , {status: "The IOLimitEvent has exist! Update it."});
+                    }
+        
+                });     
             }
-            if (!doc) { //user doesn't exist.
-                console.log("app is not exist. insert it."); 
 
-                var newapp = new IOLimitEventObj(reqBody);
-                console.log('Test1');
-                newapp.save(function(err, thor) {
-                console.log('Test2');
-                if (err)  {
-                    console.dir(thor);
-                    return res.json(400 , err);
-                } else 
-                    return res.json(200, reqBody);
-                });
-            }
-            else { 
-
-                doc.update(reqBody, function(error, course) {
-                    if(error) return next(error);
-                });
-
-
-                return  res.json(200 , {status: "The IOLimitEvent has exist! Update it."});
-            }
-
-        });     
             
 }); 
 

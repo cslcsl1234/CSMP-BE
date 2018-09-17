@@ -329,6 +329,9 @@ var testController = function (app) {
         res.setTimeout(1200*1000);
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         
+        var from = req.query.from;
+        var to = req.query.to;
+        
         var device = req.query.device; 
         var period = 86400; 
         var eventParam = {};
@@ -368,6 +371,9 @@ var testController = function (app) {
          //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
           //function GetFCSwitchPart(devtype,parttype,callback) { 
           //  Report.getAppStorageRelation( function (result )  {  res.json(200,result) });
+
+          Report.getArrayResourceLimits(from,to, function (result )  {  res.json(200,result) });
+
             //CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
        // Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
@@ -414,7 +420,7 @@ var testController = function (app) {
         //res.json(200,apps);
         //VNX.GetSPs(device, function(ret) {     res.json(200,ret);        });
         var sgname; 
-        VNX.GetUnity_FileSystem(device, function(ret) {     res.json(200,ret);        });
+        //VNX.GetUnity_FileSystem(device, function(ret) {     res.json(200,ret);        });
         
         //var finalResult={};
         //VNX.GetUnity_FileSystem(device,function(result) {  res.json(200,result); });

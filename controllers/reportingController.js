@@ -2401,16 +2401,6 @@ var reportingController = function (app) {
                         callback(null,rets);  
                     });
                 },
-                function(arg1, callback ) {
-
-                    arg1.sort(sortBy("-iops_avg"));
-                    var ret = []; 
-                    for ( var i=0; i<10; i++ ) {
-                        ret.push(arg1[i]);
-                    }
-  
-                    callback(null,ret);
-                },
                 // Get The last year performance 
                 function(param,  callback){ 
                     //var ret = require("../demodata/sg_top10_iops");
@@ -2438,6 +2428,16 @@ var reportingController = function (app) {
                         callback(null,param);  
                     });
                 } ,
+                function(arg1, callback ) {
+
+                    arg1.sort(sortBy("-iops_avg_increase"));
+                    var ret = []; 
+                    for ( var i=0; i<10; i++ ) {
+                        ret.push(arg1[i]);
+                    }
+  
+                    callback(null,ret);
+                }, 
                 function (arg, callback) {
                     Report.getAppStorageRelation( function (result )  {   
                         
@@ -2950,6 +2950,45 @@ var reportingController = function (app) {
             });
     }); 
 
+
+    /*  
+        Array's FE Direcoor using the number of address, when exceed 80% then export to report;
+        Array's total number of SRDF Group , total number of RDF pair statistics to report;
+    */
+    app.get('/api/reports/array/resource/statistics', function (req, res) { 
+        res.setTimeout(1200*1000);
+        var device;
+        var start = moment(req.query.from).toISOString(); 
+        var end = moment(req.query.to).toISOString(); 
+        var ReportOutputPath = req.query.path;
+
+        async.waterfall(
+            [
+                function(callback){
+                    
+                    Report.getArrayResourceLimits(start,end, function(result) {
+                        callback(null,result);
+                    })
+                },
+                // Get All Localtion Records
+                function(arg1,  callback){ 
+                    
+                    var FEDirector = arg1.arrayfe_statistic;
+                    var fs = require('fs');
+                    var json2xls = require('json2xls');
+            
+                    var xls = json2xls(FEDirector);
+            
+                    var outputFilename = ReportOutputPath + '//' + 'ArrayResource.xlsx';
+                    console.log("Write Result to file [" + outputFilename + "]");
+                    fs.writeFileSync(outputFilename, xls, 'binary');
+                    callback(null,arg1);
+ 
+                }
+            ], function (err, result) {
+                  res.json(200 ,result);
+            });
+    }); 
 
 };
 

@@ -43,8 +43,22 @@ eventSchema = new Schema({
 	// -- the management ip address of host
         ProcessMethod:{
             type: String
+        },
+        eventCatalog : {
+            type: String
+        },
+        timestamp: {
+            type: String
+        },
+        eventDescription: {
+            type: String
+        },
+        acknowlaged: {
+            type: Boolean
+        },
+        detailinfo: {
+            type: String
         }
- 
 
 });
 

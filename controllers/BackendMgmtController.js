@@ -493,9 +493,6 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
         var exeType = req.body.exe_type;
 
         backendMgmt.testCollectObject(req.body, function( result ) {
-            if ( exeType = 'test&save' ) {
-                
-            }
             res1.json(200,result);
         });
 
