@@ -816,7 +816,13 @@ var analysisController = function (app) {
  *         description: 存储序列号
  *         required: true
  *         type: string
- *         example: 000492600255
+ *         example: 000497000437
+ *       - in: query
+ *         name: sgname
+ *         description: Storage name
+ *         required: true
+ *         type: string
+ *         example: ECM_DB_SG
  *       - in: query
  *         name: from
  *         description: 性能指标采样起始时间(格式:ISO 8601)
@@ -836,11 +842,18 @@ var analysisController = function (app) {
 
     app.get('/api/analysis/part/workload', function (req, res) {  
         var device = req.query.devicesn;  
+        var sgname = req.query.sgname;
 
         if ( device === undefined | device == null ) {
             res.json(400, 'Must be special a storage!');
             return;
         }; 
+
+        if ( sgname === undefined | sgname == null ) {
+            res.json(400, 'Must be special a sgname!');
+            return;
+        }; 
+
 
         if ( req.query.from === undefined ||  !moment(req.query.from).isValid() ) {
             res.json(400, 'Must be special a valid start time!');
@@ -858,7 +871,92 @@ var analysisController = function (app) {
         var valuetype = 'max'; 
 
         async.waterfall([
-            function(callback){  
+            function(callback) {
+                var param = {};  
+                param['keys'] = ['device','sgname','srdfrgrp'];  
+                param['filter'] = '(datagrp=\'VMAX-RDFREPLICAS\'&parttype=\'LUN\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&sgname==\''+sgname+'\'&'+param.filter;
+                }  
+  
+                var result = {};
+                CallGet.CallGet(param, function(param) {
+
+                    if ( param.result.length > 0 ) 
+                        result["relaObj"] = param.result[0]; 
+                    else {
+                        result["relaObj"] = {};
+                        result.relaObj["device"] = device;
+                        result.relaObj["sgname"] = sgname;
+                    }
+                        
+                    callback(null,result);
+                } );
+
+            },
+            function(arg, callback) {
+                var param = {};  
+                param['keys'] = ['device','sgname','initgrp'];  
+                param['filter'] = '(datagrp=\'VMAX-ACCESS\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&sgname==\''+sgname+'\'&'+param.filter;
+                }  
+   
+                CallGet.CallGet(param, function(param) {
+                    var initgrp;
+                    for ( var i in param.result ) {
+                        var item = param.result[i];
+
+                        if ( initgrp === undefined ) initgrp = item.initgrp;
+                        else initgrp += ',' + item.initgrp;
+
+                    }
+
+                    arg.relaObj["initgrp"] = initgrp;
+                        
+                    callback(null,arg);
+                } );
+
+            },
+            function(arg, callback) {
+
+                var initgrps = arg.relaObj.initgrp;
+                var initgrp = initgrps.split(',');
+                var initgrp_filter;
+                for ( var i in initgrp ) {
+                    var initgrpname = initgrp[i];
+                    if ( initgrp_filter === undefined ) {
+                        initgrp_filter = 'initgrp=\'' + initgrpname + '\'';
+                    } else {
+                        initgrp_filter += '|initgrp=\'' + initgrpname + '\'';
+                    }
+                }
+                initgrp_filter =  '(' + initgrp_filter + ')' ;
+
+                var param = {};  
+                param['keys'] = ['device','initwwn','initgrp'];  
+                param['filter'] = '(datagrp=\'VMAX-ACCESS-INITIATOR-PORT\'&parttype=\'AccessToInitiatorPort\')';
+                if (typeof device !== 'undefined') { 
+                    param['filter'] = 'device=\''+device+'\'&'+param.filter + '&' + initgrp_filter;
+                }  
+   
+                CallGet.CallGet(param, function(param) {
+                    var initwwn;
+                    for ( var i in param.result ) {
+                        var item = param.result[i];
+
+                        if ( initwwn === undefined ) initwwn = item.initwwn;
+                        else initwwn += ',' + item.initwwn;
+
+                    }
+
+                    arg.relaObj["initwwn"] = initwwn;
+                        
+                    callback(null,arg);
+                } );
+
+            },
+            function(finalResult, callback){  
                 var param = {}; 
                 param['device'] = device;
                 param['keys'] = ['device'];
@@ -868,8 +966,7 @@ var analysisController = function (app) {
                 param['end'] = end;
                 param['filter'] = '!parttype&source=\'VMAX-Collector\'';
                 param['filter_name'] = '(name==\'HitPercent\')';
-
-                var finalResult = {};
+ 
                 CallGet.CallGetPerformance(param, function(result) {   
  
                     var HIT = [];
@@ -1064,6 +1161,19 @@ var analysisController = function (app) {
             },
             function ( arg1, callback ) {
 
+                var initwwn_filter;
+
+                var initwwns = arg1.relaObj.initwwn.split(',');
+                for ( var i in initwwns ) {
+                    var initwwnItem = initwwns[i];
+                    if ( initwwn_filter === undefined ) {
+                        initwwn_filter = 'part=\'' + initwwnItem.toLowerCase() + '\'';
+                    } else {
+                        initwwn_filter += '|part=\'' + initwwnItem.toLowerCase() + '\'';
+                    }
+                }
+                initwwn_filter = '(' + initwwn_filter + ')';
+                
                 // VMAX3's Initiator HostIOs
                 var param = {};
                 param['device'] = device;
@@ -1074,7 +1184,10 @@ var analysisController = function (app) {
                 param['filter_name'] = '(name=\'HostIOs\')';
                 param['keys'] = ['device','part'];
                 param['fields'] = ['name'];  
-                param['filter'] = 'datagrp=\'VMAX-Initiator\'';
+                if ( initwwn_filter === undefined )
+                    param['filter'] = 'datagrp=\'VMAX-Initiator\'';
+                else 
+                    param['filter'] = 'datagrp=\'VMAX-Initiator\'' + '&' + initwwn_filter;
         
                 CallGet.CallGetPerformance(param, function(result) {    
 
@@ -1210,6 +1323,99 @@ var analysisController = function (app) {
                     callback(null,arg);
                 });
                 //callback(null,arg);
+            },
+            function ( arg1, callback ){ 
+                var param = {};
+                param['device'] = device;
+                param['period'] = period;
+                param['start'] = start;
+                param['end'] = end;
+                param['type'] = valuetype;
+                param['filter_name'] = '(name=\'RdfWritesPerSec\'|name=\'WPCount\')';
+                param['keys'] = ['device','part','srdfgpnm'];
+                param['fields'] = ['name'];  
+
+                if ( arg1.relaObj.srdfrgrp === undefined  ) 
+                    param['filter'] = 'datagrp=\'VMAX-RDFGROUPS\'';
+                else {
+                    var rdfg = arg1.relaObj.srdfrgrp;
+                    param['filter'] = 'datagrp=\'VMAX-RDFGROUPS\'' + '&part=\''+rdfg+'\'';
+                }
+
+        
+                CallGet.CallGetPerformance(param, function(result) {    
+
+                    var RDFG_MBPS = []; 
+                    for ( var i in result) {
+                        var item = result[i];
+
+                        for ( var j in item.matrics ) {
+                            var matricsItem = item.matrics[j]; 
+
+                            // ---  ---
+                            var isfind  = false;
+                            for ( var z in RDFG_MBPS ) {
+                                var MBPSItem = RDFG_MBPS[z];
+                                if ( MBPSItem.timestamp == matricsItem.timestamp ) {
+                                    MBPSItem[item.part ] = matricsItem.RdfWritesPerSec; 
+                                    isfind = true;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var MBPSItem = {};
+                                MBPSItem["timestamp"] = matricsItem.timestamp;
+                                MBPSItem[item.part ] = matricsItem.RdfWritesPerSec;  
+
+                                RDFG_MBPS.push(MBPSItem);
+                            } 
+
+
+                        }
+
+                    }  
+                    var RDFG_GBPS_Result = {};
+                    RDFG_GBPS_Result["Title"] = "RDFS Group BE RDF Copy (IOPS)";
+                    RDFG_GBPS_Result["dataset"] = RDFG_MBPS;
+                    arg1["RDFSGroup_MBPS"] = RDFG_GBPS_Result;
+ 
+
+                    
+                    var RDFG_WPCount = []; 
+                    for ( var i in result) {
+                        var item = result[i];
+
+                        for ( var j in item.matrics ) {
+                            var matricsItem = item.matrics[j]; 
+
+                            // ---  ---
+                            var isfind  = false;
+                            for ( var z in RDFG_WPCount ) {
+                                var MBPSItem = RDFG_WPCount[z];
+                                if ( MBPSItem.timestamp == matricsItem.timestamp ) {
+                                    MBPSItem[item.part ] = matricsItem.WPCount; 
+                                    isfind = true;
+                                }
+                            }
+                            if ( isfind == false ) {
+                                var MBPSItem = {};
+                                MBPSItem["timestamp"] = matricsItem.timestamp;
+                                MBPSItem[item.part ] = matricsItem.WPCount;  
+
+                                RDFG_WPCount.push(MBPSItem);
+                            } 
+
+
+                        }
+
+                    }  
+                    var RDFG_WPCount_Result = {};
+                    RDFG_WPCount_Result["Title"] = "RDFS Group WP Count";
+                    RDFG_WPCount_Result["dataset"] = RDFG_WPCount;
+                    arg1["RDFSGroup_WPCount"] = RDFG_WPCount_Result;
+ 
+
+                    callback(null, arg1 ); 
+                });
             }
             , function ( arg, callback ) {
                 for ( var fieldname in arg ) {

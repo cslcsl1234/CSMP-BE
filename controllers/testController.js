@@ -316,12 +316,28 @@ var testController = function (app) {
     
     app.get('/test4',function(req, res) {
         
-        var start = '2018-05-01T00:00:00.000Z';
-        var end = '2018-05-30T00:00:00.000Z';
-        var period = util.getPeriod(start, end);
 
-        var r = {"period": period};
-        res.json(200,r);
+        var param = {};  
+        param['keys'] = ['device','srdfgrpn','devconf','srcarray','part'];  
+        param['filter'] = '(datagrp=\'VMAX-RDFREPLICAS\')'; 
+
+        var resItem = {};
+        CallGet.CallGet(param, function(param) {    
+            var rdfGroupCount = {};
+            for ( var i in param.result ) {  
+                var item = param.result[i];
+                if ( rdfGroupCount[item.device] == undefined ) {
+                    rdfGroupCount[item.device] = {};
+                    rdfGroupCount[item.device]["rdfCount"] = 1;
+                } else {
+                    rdfGroupCount[item.device]["rdfCount"]++;
+                }
+            }
+            
+
+            ret.json(200,rdfGroupCount);
+        });
+
 
     });
     
