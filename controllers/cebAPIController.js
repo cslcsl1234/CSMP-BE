@@ -33,8 +33,7 @@ var AppTopologyObj = mongoose.model('AppTopology');
 var DeviceMgmt = require('../lib/DeviceManagement');
 var Report = require('../lib/Reporting');
 var Analysis = require('../lib/analysis'); 
-var topos= require('../lib/topos');
-
+var topos= require('../lib/topos'); 
 
 var cebAPIController = function (app) {
 
@@ -563,8 +562,143 @@ var cebAPIController = function (app) {
     });
 
 
+
+
+    app.get('/ssmp/rest/vmax/rdfgroup', function (req, res) {
+
+
+        var device = req.params.device;
+ 
+        var realtimeDatetime = util.getRealtimeDateTimeByDay(-1); 
+        var start = realtimeDatetime.begin;
+        var end = realtimeDatetime.end;
+
+
+        async.waterfall([
+
+            function( callback) {
+                Report.getArrayResourceLimits(start, end,  function(result) {  
+                    callback(null, result ); 
+                });
+            }
+        ], function (err, result) { 
+           
+            res.json(200,result);
+        });
+
+    });
     
 
+    app.get('/ceb/storageSet/addOrUpdate', function (req, res) {  
+        var data ={};
+        data["sn"] = req.query.storageSN;
+        data["name"] = req.query.name;
+        data["datacenter"] = req.query.datacenter;
+        data["level"] = req.query.type;
+        data["type"] = "array";
+        data["createdData"] = "";
+        data["updatedData"] = "";
+        data["specialInfo"] = "";
+
+        var specialInfo = {};
+        specialInfo["used"] = req.query.used;
+        specialInfo["maxCache"] = req.query.maxCache;
+        specialInfo["maxDisks"] = req.query.maxDisks
+        specialInfo["maxPorts"] = req.query.maxPorts;
+        specialInfo["lifeCycle"] = req.query.lifeCycle;
+        specialInfo["maintenanceInfo"] = req.query.maintenanceInfo;
+        data["specialInfo"] = JSON.stringify(specialInfo);
+
+
+        DeviceMgmt.putMgmtObjectInfo(data, function(result) {
+            if ( result.status == 'FAIL' ) {
+                return res.json(400, result);
+            } else {
+                return res.json(200, result);
+            }
+        })
+
+        
+    });
+    
+
+    app.get('/ceb/storageSet/list', function (req, res) {   
+        var filter = {};
+        var finalResult = [];
+        DeviceMgmt.getMgmtObjectInfo(filter, function(devInfo) {
+            for ( var i in devInfo ) {
+                var item=devInfo[i]; 
+
+                var resultItem = {};
+                resultItem["resourcePoolVo"] = [];
+                resultItem["resourcePoolVoSize"] = 0;
+                resultItem["storageSN"] = item.sn;
+                resultItem["name"] = item.name;
+                resultItem["model"] = "VMAX";
+                resultItem["address"] = "";
+                resultItem["datacenter"] = item.datacenter;
+                resultItem["datacenterName"] = item.datacenter==1?"SDDataCenter":"JXQDataCenter";
+                resultItem["room"] = "2";
+                resultItem["type"] = item.type=='high'?"高端":"中端";
+                resultItem["used"] =  item.specialInfo.used == 'general'?"一般应用":"其他应用";
+                resultItem["lifeCycle"] = "";
+                resultItem["maintenanceInfo"] = "";
+                resultItem["providerid"] = "";
+                resultItem["updatedDate"] = item.createData;
+                resultItem["maxCache"] = "";
+                resultItem["maxDisks"] = "";
+                resultItem["maxPorts"] = "";
+                resultItem["id"] = item.sn;
+
+                finalResult.push(resultItem);
+            }
+
+            res.json(200,finalResult);
+        })
+    });
+
+
+    app.get('/ceb/storageSet/getStorageById', function (req, res) {   
+        var storagesn = req.query.id;
+        var filter = {"sn": storagesn }; 
+        DeviceMgmt.getMgmtObjectInfo(filter, function(devInfo) {
+            for ( var i in devInfo ) {
+                var item=devInfo[i]; 
+
+                var resultItem = {}; 
+                resultItem["storageSN"] = item.sn;
+                resultItem["name"] = item.name;
+                resultItem["model"] = "VMAX";
+                resultItem["address"] = "";
+                resultItem["datacenter"] = item.datacenter;
+                resultItem["datacenterName"] = item.datacenter==1?"SDDataCenter":"JXQDataCenter";
+                resultItem["room"] = "2";
+                resultItem["type"] = item.type;
+                resultItem["used"] =  item.specialInfo.used;
+                resultItem["lifeCycle"] = "";
+                resultItem["maintenanceInfo"] = "";
+                resultItem["providerid"] = "";
+                resultItem["updatedDate"] = item.createData;
+                resultItem["maxCache"] = "";
+                resultItem["maxDisks"] = "";
+                resultItem["maxPorts"] = "";
+                resultItem["id"] = item.sn;
+
+                res.json(200,resultItem);
+            }
+
+            
+        })
+    });
+
+    
+    app.get('/ceb/system/datacenter/list', function (req, res) {   
+        var filter = {};
+        var finalResult = [{"name":"SDDataCenter","description":"上地数据中心","address":" 上地","city":"上地","updatedOn":0,"createdOn":0,"id":1}];
+        res.json(200,finalResult);
+        
+    });
+    
 
 
 
