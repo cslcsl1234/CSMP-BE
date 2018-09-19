@@ -109,7 +109,7 @@ var cebAPIController = function (app) {
                         resItem["address"] = "";
                         resItem["maxDisks"] = 0;
                         resItem["storageName"] = "";
-                        resItem["maxPorts"] = "";
+                        resItem["maxPorts"] = ""; 
                         resItem["portCount"] = 0;
                         resItem["devices"] = item.matricsStat.TotalLun===undefined ? 0 : item.matricsStat.TotalLun.max;
                         resItem["cacheSize"] = (item.matricsStat.TotalMemory===undefined?0:item.matricsStat.TotalMemory.max)/1024;
@@ -135,6 +135,9 @@ var cebAPIController = function (app) {
                                 item["maxCache"] = infoItem.specialInfo.maxCache;
                                 item["maxDisks"] = infoItem.specialInfo.maxDisks;
                                 item["maxPorts"] = infoItem.specialInfo.maxPorts;
+                                item["maxlundirector"] = (infoItem.specialInfo.maxlundirector === undefined ? 0 : infoItem.specialInfo.maxlundirector);
+                                item["SRDFPairThreshold"] = (infoItem.specialInfo.SRDFPairThreshold === undefined? 0: infoItem.specialInfo.SRDFPairThreshold);
+                                item["SRDFGroupThreshold"] = (infoItem.specialInfo.SRDFGroupThreshold === undefined ? 0 :infoItem.specialInfo.SRDFGroupThreshold);
                                 item["lifeCycle"] = infoItem.specialInfo.lifeCycle;
                                 break;
                             }
@@ -279,6 +282,10 @@ var cebAPIController = function (app) {
                                 item["maxCache"] = infoItem.specialInfo.maxCache;
                                 item["maxDisks"] = infoItem.specialInfo.maxDisks;
                                 item["maxPorts"] = infoItem.specialInfo.maxPorts;
+                                item["maxlundirector"] = infoItem.specialInfo.maxlundirector;
+                                item["SRDFPairThreshold"] = infoItem.specialInfo.SRDFPairThreshold;
+                                item["SRDFGroupThreshold"] = infoItem.specialInfo.SRDFGroupThreshold;
+                                
                                 item["lifeCycle"] = infoItem.specialInfo.lifeCycle;
                                 break;
                             }
@@ -607,6 +614,9 @@ var cebAPIController = function (app) {
         specialInfo["maxPorts"] = req.query.maxPorts;
         specialInfo["lifeCycle"] = req.query.lifeCycle;
         specialInfo["maintenanceInfo"] = req.query.maintenanceInfo;
+        specialInfo["maxlundirector"] = req.query.maxlundirector;
+        specialInfo["SRDFPairThreshold"] = req.query.SRDFPairThreshold;
+        specialInfo["SRDFGroupThreshold"] = req.query.SRDFGroupThreshold;
         data["specialInfo"] = JSON.stringify(specialInfo);
 
 
@@ -644,10 +654,14 @@ var cebAPIController = function (app) {
                 resultItem["lifeCycle"] = "";
                 resultItem["maintenanceInfo"] = "";
                 resultItem["providerid"] = "";
+                resultItem["maxlundirector"] = item.specialInfo.maxlundirector;
+                resultItem["SRDFPairThreshold"] = item.specialInfo.SRDFPairThreshold;
+                resultItem["SRDFGroupThreshold"] = item.specialInfo.SRDFGroupThreshold;
+
                 resultItem["updatedDate"] = item.createData;
                 resultItem["maxCache"] = "";
                 resultItem["maxDisks"] = "";
-                resultItem["maxPorts"] = "";
+                resultItem["maxPorts"] = item.specialInfo.maxPorts;;
                 resultItem["id"] = item.sn;
 
                 finalResult.push(resultItem);
@@ -678,6 +692,9 @@ var cebAPIController = function (app) {
                 resultItem["lifeCycle"] = "";
                 resultItem["maintenanceInfo"] = "";
                 resultItem["providerid"] = "";
+                resultItem["maxlundirector"] = item.specialInfo.maxlundirector;
+                resultItem["SRDFPairThreshold"] = item.specialInfo.SRDFPairThreshold;
+                resultItem["SRDFGroupThreshold"] = item.specialInfo.SRDFGroupThreshold;
                 resultItem["updatedDate"] = item.createData;
                 resultItem["maxCache"] = "";
                 resultItem["maxDisks"] = "";
