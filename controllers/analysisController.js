@@ -3000,6 +3000,10 @@ app.get('/api/analysis/app/workload/distribution', function (req, res) {
                 for ( var i in arg[fieldname].dataset ) {
                     var item = arg[fieldname].dataset[i];
                     item['timestamp'] = moment.unix(item.timestamp).format(dateFormat); 
+                    if ( item[fieldname] < item.BL_BOTTOM | item[fieldname] > item.BL_TOP ) {
+                        item["customBullet"] = "../assets_ssm/images/analyse/redstar.png";
+                    }
+
                 }
             }
             callback(null,arg); 

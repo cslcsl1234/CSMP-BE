@@ -316,28 +316,53 @@ var testController = function (app) {
     
     app.get('/test4',function(req, res) {
         
+        var sgname;
+        var period = 86400;
+        
+        var valuetype = 'average';
+        //var start  = util.getPerfStartTime(); 
+        var start = '2018-08-01T16:00:00.000Z';
+        var end = '2018-09-01T16:00:00.000Z';;
+        var part;
 
-        var param = {};  
-        param['keys'] = ['device','srdfgrpn','devconf','srcarray','part'];  
-        param['filter'] = '(datagrp=\'VMAX-RDFREPLICAS\')'; 
+        var param = {};
+                
+        if (typeof device !== 'undefined') {  
+            param['filter'] = 'device=\''+arraysn+'\'&!parttype&(source=\'VMAX-Collector\'|source==\'VNXBlock-Collector\'|source==\'VNXUnity-Collector\')';
+        } else { 
+            //param['filter'] = '!parttype&(source=\'VMAX-Collector\'|source==\'VNXBlock-Collector\'|source==\'VNXUnity-Collector\')';
+            param['filter'] = '!parttype&(source=\'VMAX-Collector\'|source==\'VNXBlock-Collector\')';
+        } 
 
-        var resItem = {};
-        CallGet.CallGet(param, function(param) {    
-            var rdfGroupCount = {};
-            for ( var i in param.result ) {  
-                var item = param.result[i];
-                if ( rdfGroupCount[item.device] == undefined ) {
-                    rdfGroupCount[item.device] = {};
-                    rdfGroupCount[item.device]["rdfCount"] = 1;
-                } else {
-                    rdfGroupCount[item.device]["rdfCount"]++;
-                }
+        param['filter_name'] = '(name=\'ConfiguredUsableCapacity\'|name=\'UsedCapacity\'|name=\'FreeCapacity\')';
+
+        param['keys'] = ['serialnb','sstype','arraytyp','device','device','model','vendor','devdesc']; 
+        param['period'] =  util.getPeriod(start,end);
+        param['start'] = start;
+        param['end'] = end; 
+
+        CallGet.CallGetPerformance(param, function(retcap) {   
+            var result = [];
+            for ( var i in retcap  ) {
+                var item = retcap[i];
+
+                var newItem = {};
+                newItem["devdesc"] =  item.devdesc;
+                newItem["serialnb"] =  item.serialnb;
+                newItem["sstype"] =  item.sstype;
+                newItem["vendor"] =  item.vendor;
+                newItem["name"] =  "";
+                newItem["model"] =  item.model;
+                newItem["device"] =  item.device;
+                newItem["FreeCapacity"] =  item.matricsStat.FreeCapacity.max;
+                newItem["LastTS"] =  "";
+                newItem["UsedCapacity"] =  item.matricsStat.UsedCapacity.max;
+                newItem["ConfiguredUsableCapacity"] =  item.matricsStat.ConfiguredUsableCapacity.max;
+
+                result.push(newItem);
             }
-            
-
-            ret.json(200,rdfGroupCount);
+            res.json(200,result);
         });
-
 
     });
     
@@ -379,8 +404,8 @@ var testController = function (app) {
           
           var valuetype = 'average';
           //var start  = util.getPerfStartTime(); 
-          var start = '2018-05-30T16:00:00.000Z';
-          var end = '2018-06-29T16:00:00.000Z';;
+          var start = '2018-09-01T16:00:00.000Z';
+          var end = '2018-09-14T16:00:00.000Z';;
           var part;
 
          // VMAX.GetFEPortsOnly(device,function(rest) {             res.json(200,rest);        });
@@ -388,21 +413,21 @@ var testController = function (app) {
           //function GetFCSwitchPart(devtype,parttype,callback) { 
           //  Report.getAppStorageRelation( function (result )  {  res.json(200,result) });
 
-          Report.getArrayResourceLimits(from,to, function (result )  {  res.json(200,result) });
+          //Report.getArrayResourceLimits(from,to, function (result )  {  res.json(200,result) });
 
-            //CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
-       // Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
+       // CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
+        Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
 
         //SWITCH.GetSwitchPorts(device, function(rest) {             res.json(200,rest);        });
        // SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
-       // VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
+       // VMAX.GetStorageGroups(device, function(result) {   res.json(200,res   ult);   }); 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
         //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
         //VMAX.GetArrays(  function(ret) {  res.json(200,ret);   }); 
         //Report.GetStoragePorts(function(ret) {
-        //Report.GetArraysIncludeHisotry(device, function(ret) {  
+
         
         //VMAX.GetSGTop20ByCapacity(device, function(ret) {
         //Capacity.GetArrayCapacity(device, function(ret) {     res.json(200,ret);        });
@@ -439,8 +464,7 @@ var testController = function (app) {
         //VNX.GetUnity_FileSystem(device, function(ret) {     res.json(200,ret);        });
         
         //var finalResult={};
-        //VNX.GetUnity_FileSystem(device,function(result) {  res.json(200,result); });
-
+        //VNX.GetUnity_FileSystem(device,function(result) {  res.json(200,result); }); 
     });
 
 
