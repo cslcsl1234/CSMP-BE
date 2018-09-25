@@ -897,7 +897,7 @@ var reportingController = function (app) {
                 param['filter_name'] = '(name=\'Capacity\')';
                 param['keys'] = ['device','sgname','lunname']; 
                 param['fields'] = ['devcount','sgcount','iolimit','parttype'];
-                param['period'] = 86400; 
+                param['period'] = 86400;  
                 param['type'] = 'last';
                 param['start'] = start;
                 param['end'] = end;
@@ -949,7 +949,7 @@ var reportingController = function (app) {
                 param['filter_name'] = '(name=\'Capacity\')';
                 param['keys'] = ['device','sgname','lunname']; 
                 param['fields'] = ['devcount','sgcount','iolimit','parttype'];
-                param['period'] = 86400; 
+                param['period'] = 86400;  
                 param['type'] = 'last';
                 param['start'] = lastYear.firstDay;
                 param['end'] = lastYear.lastDay;
@@ -1286,6 +1286,7 @@ var reportingController = function (app) {
                 param['keys'] = ['device','sgname']; 
                 param['fields'] = ['devcount','sgcount','iolimit','bwlimit','parttype'];
                 param['period'] = 86400; 
+                param['limit'] = 1000000;
                 param['type'] = 'max';
                 param['start'] = start;
                 param['end'] = end;
@@ -1339,6 +1340,7 @@ var reportingController = function (app) {
                 param['fields'] = ['devcount','sgcount','iolimit','bwlimit','parttype'];
                 param['period'] = 86400; 
                 param['type'] = 'average';
+                param['limit'] = 1000000;
                 param['start'] = start;
                 param['end'] = end;
                 param['filter'] = '(source=\'VMAX-Collector\'&parttype=\'Storage Group\')';
@@ -1389,6 +1391,7 @@ var reportingController = function (app) {
                 param['fields'] = ['devcount','sgcount','iolimit','bwlimit','parttype'];
                 param['period'] = 86400; 
                 param['type'] = 'max'; 
+                param['limit'] = 1000000;
                 param['start'] = lastYear.firstDay;
                 param['end'] = lastYear.lastDay;
                 param['filter'] = '(source=\'VMAX-Collector\'&parttype=\'Storage Group\')';
@@ -1443,6 +1446,7 @@ var reportingController = function (app) {
                 param['fields'] = ['devcount','sgcount','iolimit','bwlimit','parttype'];
                 param['period'] = 86400; 
                 param['type'] = 'average'; 
+                param['limit'] = 1000000;
                 param['start'] = lastYear.firstDay;
                 param['end'] = lastYear.lastDay;
                 param['filter'] = '(source=\'VMAX-Collector\'&parttype=\'Storage Group\')';
@@ -1492,6 +1496,7 @@ var reportingController = function (app) {
                 param['fields'] = ['devcount','sgcount','iolimit','bwlimit','parttype'];
                 param['period'] = 86400; 
                 param['type'] = 'max'; 
+                param['limit'] = 1000000;
                 param['start'] = lastYear.firstDay;
                 param['end'] = lastYear.lastDay;
                 param['filter'] = '(source=\'VMAX-Collector\'&parttype=\'Storage Group\')';
@@ -1542,6 +1547,7 @@ var reportingController = function (app) {
                 param['fields'] = ['devcount','sgcount','iolimit','bwlimit','parttype'];
                 param['period'] = 86400; 
                 param['type'] = 'average'; 
+                param['limit'] = 1000000;
                 param['start'] = lastYear.firstDay;
                 param['end'] = lastYear.lastDay;
                 param['filter'] = '(source=\'VMAX-Collector\'&parttype=\'Storage Group\')';
@@ -1630,6 +1636,7 @@ var reportingController = function (app) {
                     param['period'] = 3600;
                     param['start'] = start;
                     param['end'] = end;
+                    param['limit'] = 1000000;
                     param['filter'] = '!parttype&source=\'VMAX-Collector\'';
                     param['filter_name'] = '(name==\'ReadRequests\'|name==\'WriteRequests\')';
     
@@ -1680,6 +1687,7 @@ var reportingController = function (app) {
                     param['start'] = lastMonth.firstDay;
                     param['end'] = lastMonth.lastDay;
                     param['filter'] = '!parttype&source=\'VMAX-Collector\'';
+                    param['limit'] = 1000000;
                     param['filter_name'] = '(name==\'ReadRequests\'|name==\'WriteRequests\')';
     
             
@@ -1718,6 +1726,7 @@ var reportingController = function (app) {
                         param['start'] = lastYear.firstDay;
                         param['end'] = lastYear.lastDay;
                         param['filter'] = '!parttype&source=\'VMAX-Collector\'';
+                        param['limit'] = 1000000;
                         param['filter_name'] = '(name==\'ReadRequests\'|name==\'WriteRequests\')';
         
                 
@@ -1819,6 +1828,7 @@ var reportingController = function (app) {
                     param['start'] = start;
                     param['end'] = end;
                     param['filter'] = '!parttype&source=\'VMAX-Collector\'';
+                    param['limit'] = 1000000;
                     param['filter_name'] = '(name==\'ReadThroughput\'|name==\'WriteThroughput\')';
     
             
@@ -1868,6 +1878,7 @@ var reportingController = function (app) {
                     param['start'] = lastMonth.firstDay;
                     param['end'] = lastMonth.lastDay;
                     param['filter'] = '!parttype&source=\'VMAX-Collector\'';
+                    param['limit'] = 1000000;
                     param['filter_name'] = '(name==\'ReadThroughput\'|name==\'WriteThroughput\')';
     
             
@@ -1906,6 +1917,7 @@ var reportingController = function (app) {
                         param['start'] = lastYear.firstDay;
                         param['end'] = lastYear.lastDay;
                         param['filter'] = '!parttype&source=\'VMAX-Collector\'';
+                        param['limit'] = 1000000;
                         param['filter_name'] = '(name==\'ReadThroughput\'|name==\'WriteThroughput\')';
         
                 
@@ -2032,6 +2044,7 @@ var reportingController = function (app) {
                     param['type'] = 'last';
                     param['start'] = start;
                     param['end'] = end;
+                    param['limit'] = 1000000;
                     param['filter'] = '(source=\'VMAX-Collector\'&datagrp=\'VMAX-STORAGE-GROUPS\'&parttype=\'Storage Group\')';
                     if (typeof device !== 'undefined') { 
                         param['filter'] = 'device=\''+device+'\'&'+param.filter;
@@ -2261,6 +2274,7 @@ var reportingController = function (app) {
                     param['filter_name'] = '(name=\'TotalThroughput\'|name=\'TotalBandwidth\'|name=\'ResponseTime\')';
                     param['keys'] = ['serialnb','part'];
                     param['fields'] = ['device','sgname'];
+                    param['limit'] = 1000000;
                     param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
         
                     CallGet.CallGetPerformance(param, function(rest) {  
@@ -2286,7 +2300,6 @@ var reportingController = function (app) {
                                     sgItem.sg_name = item.sgname; 
                                     sgItem.iops_avg = item.matricsStat.TotalThroughput.avg;
                                     sgItem.iops_max = item.matricsStat.TotalThroughput.max;
-
                                     result.push(sgItem);
                                 }
                             }
@@ -2491,6 +2504,7 @@ var reportingController = function (app) {
                     param['filter_name'] = '(name=\'TotalThroughput\')';
                     param['keys'] = ['serialnb','part'];
                     param['fields'] = ['device','sgname'];
+                    param['limit'] = 1000000;
                     param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
         
                     CallGet.CallGetPerformance(param, function(rest) {  
@@ -2548,6 +2562,7 @@ var reportingController = function (app) {
                     param['filter_name'] = '(name=\'TotalThroughput\')';
                     param['keys'] = ['serialnb','part'];
                     param['fields'] = ['device','sgname'];
+                    param['limit'] = 1000000;
                     param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
         
                     CallGet.CallGetPerformance(param, function(rest) {  
@@ -2888,6 +2903,7 @@ var reportingController = function (app) {
                     param['filter_name'] = '(name=\'TotalThroughput\'|name=\'TotalBandwidth\'|name=\'ResponseTime\')';
                     param['keys'] = ['serialnb','part'];
                     param['fields'] = ['device','sgname'];
+                    param['limit'] = 1000000;
                     param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
         
                     CallGet.CallGetPerformance(param, function(rest) {  
