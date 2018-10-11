@@ -30,3 +30,10 @@ service mongod start
 ## ------------------------
 grunt
 
+
+
+###---------------------- Deploy Check List -------
+#1. update config/config.jso : 
+#   - SERVER.HOST & PORT
+#   - ProductType = "Prod"
+#2. reexecute script/dailyTask.sh

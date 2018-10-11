@@ -44,6 +44,6 @@
   "Analysis": {
     "baselinePeriod": 4,
     "PeriodNumber": 604800,
-    "baselinePercent": 30
+    "baselinePercent": 50
   }
 }

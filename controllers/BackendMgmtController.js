@@ -321,8 +321,8 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                     req.end(function (res) {
                         if (res.error) console.log(res.error);
                         var xmlstr = "<div>" + res.body + "</div>";
-                        var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.\-=\"]*)(">)/g,'$1"\/>').replace("\"data-default=\"","\" data-default=\"");
-                        
+                        var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.\-=_\"]*)(">)/g,'$1"\/>').replace(/\"data-default=\"/g,'" data-default="');
+                            
                         var options = {
                             object: true 
                         }; 
@@ -340,9 +340,12 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                 for ( var i in tbody ) {
                     var item = tbody[i];
                     if ( item.class == "device-location") {
-                        var elementItem = item.div[0].div[2];
+                        console.log(JSON.stringify(item));
+                        //var elementItem = item.div[0].div[2];
+                        var elementItem = item.div;
 
                         var server = [];
+                        /**
                         for ( var j in elementItem.select.option ) {
                             var optionItem = elementItem.select.option[j];
                             var serverItem = {};
@@ -351,6 +354,20 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
 
                             server.push(serverItem);
                         }
+                         * 
+                         */
+                        var serverItem = {};
+                        for ( var j in elementItem ) {
+                            var optionItem = elementItem[j];
+                            if ( optionItem.input.name == 'server') 
+                                serverItem["serverid"] = optionItem.input.value;
+                           if ( optionItem.input.name == 'instance') 
+                            serverItem["servername"] = optionItem.input.value;
+
+                        }
+                        server.push(serverItem);
+
+
                         callback( null , server ) ;
                         break;
 
@@ -371,7 +388,77 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
         });
     });
 
-
+    app.get('/api/backendmgmt/discocenter/devicemgmt/add1', function (req, res1) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        var query = {};
+        if ( req.query["sp-id"] === undefined ) {
+            res1.json(400, 'Must be have sp-id!')
+            return;
+        }
+        if (  req.query["spb-id"] === undefined ) {
+            res1.json(400, 'Must be have spb-id!')
+            return;
+        }
+        if ( req.query["spb-version"] === undefined ) {
+            res1.json(400, 'Must be have spb-version!')
+            return;
+        }
+        if ( req.query["export-id"] === undefined ) {
+            res1.json(400, 'Must be have export-id!')
+            return;
+        }
+        query.spId = req.query["sp-id"];
+        query.spbId = req.query["spb-id"];
+        query.spbVersion = req.query["spb-version"];
+        query.exportId = req.query["export-id"];
+    
+    
+        var config = configger.load();
+    
+        var REQUIRE_URL = config.BackendMgmt.URL+"/discocenter/devicemgmt/edit";
+    
+        async.waterfall(
+            [
+                function(callback){
+                    backendMgmt.BackEndLogin(function(sso_token) { 
+            
+                        var req = unirest( "GET", REQUIRE_URL );
+    
+                        req.query(query);
+    
+                        req.headers({ 
+                        "content-type": "application/x-www-form-urlencoded",
+                        "referer": config.BackendMgmt.URL,
+                        "cookie": "JSESSIONIDSSO="+sso_token
+                        });
+                        
+                        req.end(function (res) {
+                            if (res.error) console.log(res.error);
+                            var xmlstr = "<div>" + res.raw_body + "</div>";
+                            var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.\-=_\"]*)(">)/g,'$1"\/>').replace(/\"data-default=\"/g,'" data-default="');
+                            
+                            var options = {
+                                object: true 
+                            }; 
+ 
+                            var json = xml2json.toJson(newdata,options);  
+                            callback(null,json);
+    
+                            //res1.json(200 ,newdata);
+                        });
+                    });
+                    
+                }
+ 
+            ], function (err, result) {
+                  // result now equals 'done'
+    
+                  res1.json(200 ,result);
+            });
+        });
+    
+    
+    
 
 /**
  * @swagger
@@ -402,6 +489,8 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
     app.post('/api/backendmgmt/discocenter/devicemgmt/test', function (req, res1) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         var config = configger.load();
+
+        var exeType = req.body.exe_type;
 
         backendMgmt.testCollectObject(req.body, function( result ) {
             res1.json(200,result);
@@ -493,6 +582,13 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                 ], function (err, result) {
                     // result now equals 'done'
                     var fs = require('fs');
+
+                    // Transfer timestamp to String display format
+                    for ( var i in result ) {
+                        var item = result[i];
+                        var timestamp = item.timestamp;
+                        item['timestamp'] = moment.unix(timestamp).format("YYYY-MM-DD HH:mm:ss");
+                    }
                     fs.writeFile('./data/server_status.json',JSON.stringify(result), function(err) {
                         if ( err ) throw err;
                         res1.json(200 ,result);
@@ -947,8 +1043,8 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                                 var resultItem = {};
                                 resultItem["taskname"] = item.jobName;
                                 resultItem["task_desc"] = item.jobDesc;
-                                resultItem["status"] = item.status==true?"FINISHED":"FAILED";
-                                resultItem["status_msg"] = item.status==true?item.filename+":文件存在":item.dbname+":文件不存在";
+                                resultItem["status"] = item.isExist==true?"FINISHED":"FAILED";
+                                resultItem["status_msg"] = item.isExist==true?item.filename+":文件存在":item.filename+":文件不存在";
                                 resultItem["status_timestamp"] = item.timestamp;
 
                                 finalresult.push(resultItem);
@@ -958,8 +1054,8 @@ app.get('/api/backendmgmt/discocenter/devicemgmt/add', function (req, res1) {
                                 var resultItem = {};
                                 resultItem["taskname"] = item.jobName;
                                 resultItem["task_desc"] = item.jobDesc;
-                                resultItem["status"] = item.status==true?"FINISHED":"FAILED";
-                                resultItem["status_msg"] = item.status==true?item.dbname+":进程状态正常":item.dbname+":进程状态不正常";
+                                resultItem["status"] = item.isExist==true?"FINISHED":"FAILED";
+                                resultItem["status_msg"] = item.isExist==true?item.dbname+":进程状态正常":item.dbname+":进程状态不正常";
                                 resultItem["status_timestamp"] = item.timestamp;
 
                                 finalresult.push(resultItem);

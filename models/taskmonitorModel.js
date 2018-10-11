@@ -40,6 +40,9 @@ taskMonitorSchema = new Schema({
         },
         status:{
             type: Boolean
+        },
+        isExist: {
+            type: Boolean
         }
 
 });

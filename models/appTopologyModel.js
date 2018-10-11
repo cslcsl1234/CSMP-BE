@@ -88,6 +88,7 @@ var appTopologyItemSchema = new Schema({
     app  :String,
     appManagerA  :String,
     host  :String,
+    hostip : String,
     hostStatus :String,
     hbawwn  :String,
     connect_hba_swport :String,

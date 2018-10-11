@@ -172,6 +172,7 @@ var topologyController = function (app) {
                    retItem.app = "";
                     retItem.appManagerA = "";
                     retItem.host = "";
+                    retItem.hostip = "";
                     retItem.hostStatus = "";
 
                     for ( var z in topoItem ) {
@@ -186,6 +187,7 @@ var topologyController = function (app) {
                             retItem["app"] = appItem["app"];
                             retItem["appManagerA"] = appItem["appManagerA"];
                             retItem["host"] = appItem["host"];   
+                            retItem["hostip"] = appItem["hostIP"];
                             retItem["hostStatus"] = appItem["hostRunType"];
                         }
                     }
