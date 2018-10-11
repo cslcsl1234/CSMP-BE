@@ -351,7 +351,7 @@ var testController = function (app) {
 
            //Switch.getFabric(fabwwn,function(resultJson) {    res.json(200,resultJson);       });
 
-       // Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
+       Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
 
           //VMAX.getArrayPerformance1( function(result) {            res.json(200,result);       }); 
           // VMAX.GetCapacity(device, function(result) {            res.json(200,result);       });  
@@ -413,8 +413,8 @@ var testController = function (app) {
         //var apps = Report.ApplicationCapacityAnalysis("","");
         //res.json(200,apps);
         //VNX.GetSPs(device, function(ret) {     res.json(200,ret);        });
-        var sgname; 
-        VNX.GetUnity_FileSystem(device, function(ret) {     res.json(200,ret);        });
+        //var sgname; 
+        //VNX.GetUnity_FileSystem(device, function(ret) {     res.json(200,ret);        });
         
         //var finalResult={};
         //VNX.GetUnity_FileSystem(device,function(result) {  res.json(200,result); });
