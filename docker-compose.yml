@@ -14,6 +14,8 @@ services:
   csmpdbserver:
     container_name: csmpdbserver
     image: mongo
+    volumes:
+      - ./:/csmp
     ports:
       - "27017:27017"
 
