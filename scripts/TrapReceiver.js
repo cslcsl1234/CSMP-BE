@@ -54,58 +54,106 @@ trapd.on('trap', function(msg){
 		console.log(srmevent);
 		//
 		//
-		if ( srmevent.partinfo !== undefined ) {
-			if ( srmevent.partinfo.lsname !== undefined ) 
-			    var relaObjectDevice = srmevent.partinfo.lsname;
-			else 
-			    var relaObjectDevice = "";
+		if ( srmevent.severity == 'info' )  return;
+
+		var isSend = false;
+
+		if ( srmevent.devtype == 'FabricSwitch' ) {
 
 
-			if ( srmevent.partinfo.ip !== undefined ) 
-			    var relaObjectDeviceIP = srmevent.partinfo.ip;
-			else 
-			    var relaObjectDeviceIP = "";
-
-			if ( srmevent.partinfo.part !== undefined ) 
-			    var relaObjectDevicePart = srmevent.partinfo.part;
-			else 
-			    var relaObjectDevicePart = "";
-
-			if ( srmevent.partinfo.connectedToAlias!== undefined ) 
-			    var relaObjectAlias  = srmevent.partinfo.connectedToAlias;
-			else 
-			    var relaObjectAlias = "";
+			if ( srmevent.partinfo !== undefined ) {
+				if ( srmevent.partinfo.lsname !== undefined ) 
+				    var relaObjectDevice = srmevent.partinfo.lsname;
+				else 
+				    var relaObjectDevice = "";
 
 
-			if ( srmevent.partinfo.connectedToDeviceType !== undefined )  {
-			    var relaObjectType = srmevent.partinfo.connectedToDeviceType;
-			    switch ( srmevent.partinfo.connectedToDeviceType ) {
-				case "Host":
-					var relaObject = "HostIP:" + srmevent.partinfo.hostip + ",Alias:"+ relaObjectAlias;
+				if ( srmevent.partinfo.ip !== undefined ) 
+				    var relaObjectDeviceIP = srmevent.partinfo.ip;
+				else 
+				    var relaObjectDeviceIP = "";
 
-					break;
+				if ( srmevent.partinfo.part !== undefined ) 
+				    var relaObjectDevicePart = srmevent.partinfo.part;
+				else 
+				    var relaObjectDevicePart = "";
 
-				default :
-					var relaObject = relaObjectDevice + ',' + relaObjectDevicePart ;
-					break;
-			    }
+				if ( srmevent.partinfo.connectedToAlias!== undefined ) 
+				    var relaObjectAlias  = srmevent.partinfo.connectedToAlias;
+				else 
+				    var relaObjectAlias = "";
+
+
+				if ( srmevent.partinfo.connectedToDeviceType !== undefined )  {
+				    var relaObjectType = srmevent.partinfo.connectedToDeviceType;
+				    switch ( srmevent.partinfo.connectedToDeviceType ) {
+					case "Host":
+						var relaObject ;
+console.log(srmevent.partinfo.hostname + "|\t|" + srmevent.partinfo.hostip + "|\t|" + srmevent.partinfo.connectedToAlias);
+						if ( srmevent.partinfo.hostname !== undefined ) {
+							relaObject = "hostname:" + srmevent.partinfo.hostname;
+console.log("TEST1:" + relaObject);
+						}
+
+						if (( srmevent.partinfo.hostip !== undefined ) & ( srmevent.partinfo.hostip !== ""))  {
+							var msg = "hostip:"+srmevent.partinfo.hostip
+							relaObject = (relaObject === undefined)?msg:relaObject+";"+msg;
+console.log("TEST2:" + relaObject);
+						}
+
+						if (( srmevent.partinfo.connectedToAlias !== undefined ) & ( srmevent.partinfo.connectedToAlias !== "" ))  {
+							var msg = "Alias:"+srmevent.partinfo.connectedToAlias;
+							relaObject = (relaObject === undefined)?msg:relaObject+";"+msg;
+console.log("TEST3:" + relaObject);
+						}
+
+						
+						//var relaObject = "HostIP:" + srmevent.partinfo.hostip + ",Alias:"+ relaObjectAlias;
+
+						break;
+
+					default :
+						var relaObject = relaObjectDevice + ',' + relaObjectDevicePart ;
+						break;
+				    }
+				}
+				else  {
+					var relaObject = relaObjectAlias;
+					var relaObjectType = "unknow";
+				}
+
+			} else {
+				var relaObject = "NotFound";
+				var relaObjectDevice = "";
+				var relaObjectType = "N/A"
+				var relaObject = "N/A"
+				if ( srmevent.switchinfo !== undefined ) {
+					var relaObjectDevice = srmevent.switchinfo.device;
+				} 
+			    	var relaObjectDeviceIP = srmevent.sourceip;
+			    	var relaObjectDevicePart = srmevent.part;
 			}
-			else  {
-				var relaObject = relaObjectAlias;
-				var relaObjectType = "unknow";
-			}
 
-		} else {
-			var relaObject = "NotFound";
-			var relaObjectType = "unknow";
+
+
+			var sendMsg = "["+srmevent.openedat+"]:["+srmevent.severity+"]:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"].设备:[" + relaObjectDevice + ", IP: "+ relaObjectDeviceIP +" ],部件:["+ relaObjectDevicePart +"]." 
+					+ (relaObjectType=='N/A'?"": "关联类型:[\"" +  relaObjectType +" \"], " )
+					+ ( relaObject=='N/A'?"": "关联对象:[\"" + relaObject +"]\";" )
+			isSend = true;
+
+		} else if ( srmevent.devtype == 'Array' ) {
+			if ( srmevent.eventstate == 'ACTIVE' ) {
+
+
+			var sendMsg = "["+srmevent.openedat+"]:["+srmevent.severity+"]:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"],事件来源:[" + srmevent.sourceip + "]";
+
+			isSend = true;
+		    }
+
 		}
 
-
-
-		var sendMsg = "["+srmevent.openedat+"]:["+srmevent.severity+"]:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"].设备:[" + relaObjectDevice + ", IP: "+ relaObjectDeviceIP +" ],部件:["+ relaObjectDevicePart +"]. 关联类型:[" + relaObjectType +"], 关联对象:[" + relaObject +"]";
-
 		logger.info(sendMsg);
-		if ( phones.length > 0 )
+		if ( ( phones.length > 0 ) && ( isSend == true ) ) 
 		   for ( var i in phones ) {
 			var phone = phones[i];	
 			SMS.SendSMS(sendMsg,phone ,function(res) {
@@ -200,13 +248,25 @@ function relationWithPort(event, callback1 ) {
     async.waterfall([
         function(callback){ 
             var device;
+	    var ret = {};
             func.GetSwitchPorts(function(ports) {
-                callback(null,ports);
+		ret["swports"] = ports ;
+                callback(null,ret);
+	
+            })
+
+        },
+        function(arg1, callback){ 
+            func.GetSwitchs(function(switchs) {
+		arg1["switchs"] = switchs;
+                callback(null,arg1);
+	
             })
 
         },
         function(arg1, callback) {
-            var swports = arg1;
+            var swports = arg1.swports;
+            var switchs = arg1.switchs;
 
             var eventItem = event;
 
@@ -214,7 +274,9 @@ function relationWithPort(event, callback1 ) {
                 case 'FabricSwitch':
                     if ( eventItem.parttype == 'Port') {
 
-			eventItem.part = parseInt(eventItem.part) - 1;
+			//eventItem.part = parseInt(eventItem.part) ;
+			if ( eventItem.part.indexOf('fc') < 0 )
+				eventItem.part = parseInt(eventItem.part) - 1;
                         
                         for ( var j in swports ) {
                             var portItem = swports[j];
@@ -224,9 +286,30 @@ function relationWithPort(event, callback1 ) {
                                 break;
                             }
                         }
-                    } else {
+                    } 
+                    else if ( eventItem.parttype == 'FRU') {
+
+			for ( var j in switchs ) {
+	
+				var switchItem = switchs[j];
+
+				if ( switchItem.ip == eventItem.sourceip ) {
+
+                                	eventItem["switchinfo"] = switchItem;
+					break;
+
+				}
+			}
+
+
+
+                    } 
+
+		    else {
                         console.log("Not Support Device Part type ["+eventItem.devtype+"], partype=["+eventItem.parttype+"]")
                     }
+
+
                     break;
 
                 default:

@@ -1,0 +1,4 @@
+{ "_id" : { "$oid" : "5957b54a28dba8940f000011" }, "username" : "admin", "email" : "admin1@example.com", "password" : "password", "roleList" : [ "admin" ], "__v" : 0, "sendsms" : true, "phone" : "13478687993" }
+{ "_id" : { "$oid" : "5957b54a28dba8940f000012" }, "username" : "guest", "email" : "guest@qq.com", "password" : "password", "roleList" : [ "guest" ], "__v" : 0, "sendsms" : true, "phone" : "13910084247" }
+{ "_id" : { "$oid" : "5a67eeb57df67c0000000007" }, "username" : "Longde", "password" : "123456", "email" : "longde@email.com", "phone" : "18098800004", "roleList" : [ "admin" ], "sendsms" : true, "__v" : 0 }
+{ "_id" : { "$oid" : "5a67ef357df67c0000000008" }, "username" : "lixinggang", "password" : "123456", "email" : "lixinggang@email.com", "phone" : "15698887636", "roleList" : [ "admin" ], "sendsms" : true, "__v" : 0 }

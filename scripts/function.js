@@ -6,6 +6,7 @@ var csmpserver = "csmpserver:" + Config.SERVER.PORT;
 
 module.exports = {
 	GetSwitchPorts,
+	GetSwitchs,
 	GetAuthKey,
 	GetUsers
 }
@@ -38,6 +39,37 @@ function GetSwitchPorts(callback) {
 
 
 };
+
+
+function GetSwitchs(callback) {
+
+	GetAuthKey(function (authKey) {
+
+	  if ( authKey == null )  {
+		console.log("Error: getAuthKey.");
+		callback(null);
+	  }
+	  else {
+		var req = unirest("GET", "http://"+csmpserver+"/api/switchs");
+
+		req.headers({
+		  "authorization": authKey,
+		  "content-type": "application/json"
+		});
+
+		req.end(function (res) {
+		  if (res.error) throw new Error(res.error);
+
+			var result = res.body;
+			callback(result);
+		});
+	  }
+
+	});
+
+
+};
+
 
 function GetUsers(callback) {
 
