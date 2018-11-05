@@ -830,6 +830,7 @@ var reportingController = function (app) {
                 appCapacity.sort(sortBy("-sg_capacity_GB"));
                 var result = [];
                 for ( var i=0;i<20;i++) {
+                    if ( appCapacity[i] === undefined ) break;
                     var appCapacityItem = appCapacity[i];
                     for ( var j in arg1 ) {
                         var item = arg1[j];
