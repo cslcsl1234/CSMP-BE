@@ -250,7 +250,7 @@ function relationWithPort(event, callback1 ) {
             var device;
 	    var ret = {};
             func.GetSwitchPorts(function(ports) {
-		ret["swports"] = ports ;
+				ret["swports"] = ports ;
                 callback(null,ret);
 	
             })
@@ -258,7 +258,7 @@ function relationWithPort(event, callback1 ) {
         },
         function(arg1, callback){ 
             func.GetSwitchs(function(switchs) {
-		arg1["switchs"] = switchs;
+				arg1["switchs"] = switchs;
                 callback(null,arg1);
 	
             })
@@ -266,57 +266,41 @@ function relationWithPort(event, callback1 ) {
         },
         function(arg1, callback) {
             var swports = arg1.swports;
-            var switchs = arg1.switchs;
-
+            var switchs = arg1.switchs; 
             var eventItem = event;
 
             switch ( eventItem.devtype ) {
                 case 'FabricSwitch':
                     if ( eventItem.parttype == 'Port') {
 
-			//eventItem.part = parseInt(eventItem.part) ;
-			if ( eventItem.part.indexOf('fc') < 0 )
-				eventItem.part = parseInt(eventItem.part) - 1;
+						//eventItem.part = parseInt(eventItem.part) ;
+						if ( eventItem.part.indexOf('fc') < 0 )
+							eventItem.part = parseInt(eventItem.part) - 1;
                         
                         for ( var j in swports ) {
-                            var portItem = swports[j];
-         
+                            var portItem = swports[j]; 
                             if ( eventItem.sourceip == portItem.ip && eventItem.part == portItem.partid ) {
                                 eventItem["partinfo"] = portItem;
                                 break;
                             }
                         }
                     } 
-                    else if ( eventItem.parttype == 'FRU') {
-
-			for ( var j in switchs ) {
-	
-				var switchItem = switchs[j];
-
-				if ( switchItem.ip == eventItem.sourceip ) {
-
-                                	eventItem["switchinfo"] = switchItem;
-					break;
-
-				}
-			}
-
-
-
-                    } 
-
-		    else {
+                    else if ( eventItem.parttype == 'FRU') { 
+						for ( var j in switchs ) { 
+							var switchItem = switchs[j]; 
+							if ( switchItem.ip == eventItem.sourceip ) { 
+								eventItem["switchinfo"] = switchItem;
+								break; 
+							}
+						} 
+                    }  
+		    		else {
                         console.log("Not Support Device Part type ["+eventItem.devtype+"], partype=["+eventItem.parttype+"]")
-                    }
-
-
+                    } 
+                    break; 
+                default: 
                     break;
-
-                default:
-
-                    break;
-            } 
-
+            }  
             callback(null,event); 
         }
     ], function (err, result) {

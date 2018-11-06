@@ -16,23 +16,23 @@ function GetSwitchPorts(callback) {
 	GetAuthKey(function (authKey) {
 
 	  if ( authKey == null )  {
-		console.log("Error: getAuthKey.");
-		callback(null);
+			console.log("Error: getAuthKey.");
+			callback(null);
 	  }
 	  else {
-		var req = unirest("GET", "http://"+csmpserver+"/api/switch/ports");
+			var req = unirest("GET", "http://"+csmpserver+"/api/switch/ports");
 
-		req.headers({
-		  "authorization": authKey,
-		  "content-type": "application/json"
-		});
+			req.headers({
+				"authorization": authKey,
+				"content-type": "application/json"
+			});
 
-		req.end(function (res) {
-		  if (res.error) throw new Error(res.error);
+			req.end(function (res) {
+				if (res.error) throw new Error(res.error);
 
-			var result = res.body;
-			callback(result);
-		});
+				var result = res.body;
+				callback(result);
+			});
 	  }
 
 	});
