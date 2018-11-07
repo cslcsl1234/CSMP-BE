@@ -688,6 +688,26 @@ function GetSwitchInfo(callback) {
                 callback(null,result);
             }); 
         }, 
+        function(arg1, callback ) {
+            // 20181108 add "ZoneName" field for SMS alert at Dalian bank;
+            var fabric;
+            SWITCH.getFabric(fabric, function(result) {
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+                    for ( var j in result ) {
+                        var FabricItem = result[j];
+                        if ( FabricItem.pswwn == item.fabwwn & FabricItem.zmemid == item.connectedToWWN ) {
+                            if ( item.ZoneName === undefined )
+                                item["ZoneName"] = FabricItem.zname;
+                            else 
+                                item["ZoneName"] = item.ZoneName +',' + FabricItem.zname;
+                        }
+                    }
+                }
+
+                callback(null, arg1);
+            })
+        },
         function(arg1, callback){ 
 
             if ( isPortStatics === undefined ) 

@@ -62,8 +62,12 @@ trapd.on('trap', function(msg){
 
 
 			if ( srmevent.partinfo !== undefined ) {
-				if ( srmevent.partinfo.lsname !== undefined ) 
-				    var relaObjectDevice = srmevent.partinfo.lsname;
+				if ( srmevent.partinfo.lsname !== undefined )  {
+				    if ( srmevent.partinfo.vendor == 'Cisco Systems' ) 
+				    	var relaObjectDevice = srmevent.partinfo.device;
+				    else 
+				    	var relaObjectDevice = srmevent.partinfo.lsname;
+				}
 				else 
 				    var relaObjectDevice = "";
 
@@ -80,9 +84,11 @@ trapd.on('trap', function(msg){
 
 				if ( srmevent.partinfo.connectedToAlias!== undefined ) 
 				    var relaObjectAlias  = srmevent.partinfo.connectedToAlias;
+				else if ( srmevent.partinfo.ZoneName !== undefined ) 
+				    var relaObjectAlias  = srmevent.partinfo.ZoneName.split(',')[0];
 				else 
-				    var relaObjectAlias = "";
-
+				    var relaObjectAlias = "N/A";
+					
 
 				if ( srmevent.partinfo.connectedToDeviceType !== undefined )  {
 				    var relaObjectType = srmevent.partinfo.connectedToDeviceType;
@@ -133,12 +139,10 @@ console.log("TEST3:" + relaObject);
 			    	var relaObjectDeviceIP = srmevent.sourceip;
 			    	var relaObjectDevicePart = srmevent.part;
 			}
-
-
-
-			var sendMsg = "["+srmevent.openedat+"]:["+srmevent.severity+"]:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"].设备:[" + relaObjectDevice + ", IP: "+ relaObjectDeviceIP +" ],部件:["+ relaObjectDevicePart +"]." 
-					+ (relaObjectType=='N/A'?"": "关联类型:[\"" +  relaObjectType +" \"], " )
-					+ ( relaObject=='N/A'?"": "关联对象:[\"" + relaObject +"]\";" )
+ 
+			var sendMsg = "["+srmevent.openedat+"]:["+srmevent.severity+"]:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"].设备:[IP: "+ relaObjectDeviceIP +" ],部件:["+ relaObjectDevicePart +"]." 
+					 + (relaObjectAlias=='N/A'?"": "Zone:[\"" +  relaObjectAlias +" \"], " )
+					// + ( relaObject=='N/A'?"": "关联对象:[\"" + relaObject +"]\";" )
 			isSend = true;
 
 		} else if ( srmevent.devtype == 'Array' ) {
@@ -276,10 +280,13 @@ function relationWithPort(event, callback1 ) {
 						//eventItem.part = parseInt(eventItem.part) ;
 						if ( eventItem.part.indexOf('fc') < 0 )
 							eventItem.part = parseInt(eventItem.part) - 1;
+
+						if ( eventItem.userdefined1 == 'null' ) break;
                         
                         for ( var j in swports ) {
                             var portItem = swports[j]; 
-                            if ( eventItem.sourceip == portItem.ip && eventItem.part == portItem.partid ) {
+                            if ( eventItem.sourceip == portItem.ip && eventItem.userdefined1 == portItem.partid ) { 
+                            	console.log( eventItem.sourceip +'\t'+ portItem.ip +'\t'+eventItem.userdefined1+'\t'+ portItem.partid ) ;
                                 eventItem["partinfo"] = portItem;
                                 break;
                             }
