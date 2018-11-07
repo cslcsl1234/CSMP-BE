@@ -2768,7 +2768,7 @@ var arrayController = function (app) {
         var arraysn = req.query.device; 
         var rule17= req.query.rule17;
 
-console.log("RULE17="+rule17);
+        console.log("RULE17="+rule17);
 
         VMAX.GetFEPorts(arraysn, function(result) {
  
@@ -2845,7 +2845,7 @@ console.log("RULE17="+rule17);
 
             }
 
-            // Chart Header
+            // Chart Header 
             var chartHeader = {} ;
             chartHeader["leftTitle"] = "映射逻辑磁盘数量";
             chartHeader["rightTitle"] = "Throughput (MB/s)";
@@ -2853,8 +2853,8 @@ console.log("RULE17="+rule17);
             finalResult1["chartHeader"] = chartHeader;
             finalResult1["chartData"] = chartData;
 
-            finalResult["stackedbar"] = finalResult1;
-
+            finalResult["stackedbar"] = finalResult1; 
+           
             // ---------------- Table data -----------------------
             var tableHead = [];
             var tableHeadItem = {};
@@ -3712,7 +3712,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
             
             function(arg1, callback) {
 
-               VMAX.getArrayPerformance1(  function(result) {  
+               VMAX.getArrayPerformanceV2(  function(result) {  
                 
                    for ( var i in result ) {
                        var item = result[i];

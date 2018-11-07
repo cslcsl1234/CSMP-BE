@@ -326,58 +326,8 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
         async.waterfall([
             function(callback){ 
                 var finalResult = [];
-                VMAX.getArrayPerformance(  function(result) {  
-
-                    var ReadIOPS = [];
-                    var WriteIOPS = [];
-                    for ( var i in result.values ) {
-                        var item = result.values[i];
-                        var prop = item.properties;
-                        var perf = item.points;
-
-                        for ( var j in perf ) {
-                            var perfItem = perf[j];
-                            var dt = perfItem[0];
-                            var value = perfItem[1];
-
-                            var resultItem = {};
-                            //resultItem["DT1"] = dt;
-                            //var DT =  moment.unix(parseInt(dt)).format("MM-DD HH:mm");
-                            resultItem["DT"] = dt;
-                            resultItem["device"] = prop.device;
-                            resultItem["value"] = value;
-                            if ( prop.name == 'ReadRequests' ) ReadIOPS.push(resultItem);
-                            if ( prop.name == 'WriteRequests' ) WriteIOPS.push(resultItem);
-                        }
-                    }
-
-                    for ( var j in ReadIOPS ) {
-                        var item = ReadIOPS[j];
-                        for ( var z in WriteIOPS ) {
-                            var item1 = WriteIOPS[z];
-                            if ( item.DT==item1.DT && item.device == item1.device ) {
-                                var isFind = false;
-                                for ( var x in finalResult ) {
-                                    var finalItem = finalResult[x];
-                                    var itemDT =  moment.unix(parseInt(item.DT)).format("MM-DD HH:mm");
-                                    if ( finalItem.DT == itemDT ){
-                                        finalItem[item.device] = parseFloat(item.value) + parseFloat(item1.value);
-                                        isFind = true;
-                                    }
-                                }
-                                if ( isFind == false ) {
-
-                                    var newitem = {};
-                                    var DT =  moment.unix(parseInt(item.DT)).format("MM-DD HH:mm");
-                                    newitem["DT"] = DT;
-
-                                    newitem[item.device] = parseFloat(item.value) + parseFloat(item1.value); 
-                                    finalResult.push(newitem);
-                                }
-                            }
-                        }
-                    }
-                    callback(null , finalResult); 
+                VMAX.getArrayPerformanceV2(  function(result) {    
+                    callback(null,result);
                 })
 
             },
@@ -387,55 +337,42 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
                 var start;
                 var end;
                 VNX.getSPPerformance(device, part, start, end,function(result) {  
-                    var finalResult = [];
-                    for ( var i in result ) {
-                        var item = result[i];
-                        
-                        for ( var j in item.matrics ) {
-                            var matricsItem = item.matrics[j];
-                            var isfind = false;
-                            for ( var z in finalResult ) {
-                                var resultItem = finalResult[z];
-                                var matricsItemDT = moment.unix(parseInt(matricsItem.timestamp)).format("MM-DD HH:mm");
-                                if ( resultItem.DT == matricsItemDT ) {
-                                    if ( resultItem[item.device] === undefined ) resultItem[item.device] = 0;
-                                    //resultItem[item.device] += matricsItem.TotalThroughput === undefined ? 0 : matricsItem.TotalThroughput;
-                                    resultItem[item.device] += matricsItem.CurrentUtilization === undefined ? 0 : matricsItem.CurrentUtilization;
-                                    isfind = true;
-                                }
-                            }
+                    arg1  = arg1.concat(result);
+                    callback(null,arg1);
+                });
+            },
+            function(result, callback) {
 
-                            if ( isfind == false ) {
-                                var resultItem = {};
-                                var DT =  moment.unix(parseInt(matricsItem.timestamp)).format("MM-DD HH:mm");
-                                resultItem["DT"] = DT;
-                                //resultItem[item.device] = matricsItem.TotalThroughput === undefined ? 0 : matricsItem.TotalThroughput;
-                                resultItem[item.device] = matricsItem.CurrentUtilization === undefined ? 0 : matricsItem.CurrentUtilization;
-                                finalResult.push(resultItem);
-                            }
-                        }
-
-                    } 
+                var finalResult = [];
+                for ( var i in result ) {
+                    var item = result[i];
                     
-
-                    // GUOZB: NEED TO FIX BIG!!!!
-                    if ( finalResult.length > 0 ) 
-                        for ( var j in finalResult ) {
-                            var item1 = finalResult[j];
-                            for ( var i in arg1 ) {
-                                var item = arg1[i];
-                                if ( item.DT == item1.DT ) {
-                                    var keys = Object.keys(item1);
-                                    for ( var z in keys ) {
-                                        if ( keys[z] == 'DT' ) continue;
-                                        item[keys[z]] = item1[keys[z]];
-                                    }
-                                }
+                    for ( var j in item.matrics ) {
+                        var matricsItem = item.matrics[j];
+                        var isfind = false;
+                        for ( var z in finalResult ) {
+                            var resultItem = finalResult[z];
+                            var matricsItemDT = moment.unix(parseInt(matricsItem.timestamp)).format("MM-DD HH:mm");
+                            if ( resultItem.DT == matricsItemDT ) {
+                                if ( resultItem[item.device] === undefined ) resultItem[item.device] = 0;
+                                //resultItem[item.device] += matricsItem.TotalThroughput === undefined ? 0 : matricsItem.TotalThroughput;
+                                resultItem[item.device] += matricsItem.CurrentUtilization === undefined ? 0 : matricsItem.CurrentUtilization;
+                                isfind = true;
                             }
                         }
-                    callback(null,finalResult);
-            
-                }); 
+
+                        if ( isfind == false ) {
+                            var resultItem = {};
+                            var DT =  moment.unix(parseInt(matricsItem.timestamp)).format("MM-DD HH:mm");
+                            resultItem["DT"] = DT;
+                            //resultItem[item.device] = matricsItem.TotalThroughput === undefined ? 0 : matricsItem.TotalThroughput;
+                            resultItem[item.device] = matricsItem.CurrentUtilization === undefined ? 0 : matricsItem.CurrentUtilization;
+                            finalResult.push(resultItem);
+                        }
+                    }
+
+                } 
+                callback(null,finalResult);
             },
             function(arg1,  callback){ 
   
@@ -465,9 +402,7 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
 
                callback(null,result);
             }
-        ], function (err, result) {
-           // result now equals 'done' 
-
+        ], function (err, result) { 
             var perfdetail = result.perfdetail;
             perfdetail.sort(function (a, b) {
                 return a.DT.localeCompare(b.DT);
@@ -475,7 +410,6 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
 
            res.json(200, result);
         });
- 
     });
 
 };
