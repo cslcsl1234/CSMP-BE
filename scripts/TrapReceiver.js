@@ -82,7 +82,7 @@ trapd.on('trap', function(msg){
 				else 
 				    var relaObjectDevicePart = "";
 
-				if ( srmevent.partinfo.connectedToAlias!== undefined ) 
+				if ( srmevent.partinfo.connectedToAlias!== undefined &  srmevent.partinfo.connectedToAlias!= '' ) 
 				    var relaObjectAlias  = srmevent.partinfo.connectedToAlias;
 				else if ( srmevent.partinfo.ZoneName !== undefined ) 
 				    var relaObjectAlias  = srmevent.partinfo.ZoneName.split(',')[0];
@@ -123,9 +123,10 @@ console.log("TEST3:" + relaObject);
 						break;
 				    }
 				}
-				else  {
-					var relaObject = relaObjectAlias;
-					var relaObjectType = "unknow";
+				else  { 
+
+					var relaObject = "N/A";
+					var relaObjectType = "N/A";
 				}
 
 			} else {
@@ -137,23 +138,33 @@ console.log("TEST3:" + relaObject);
 					var relaObjectDevice = srmevent.switchinfo.device;
 				} 
 			    	var relaObjectDeviceIP = srmevent.sourceip;
-			    	var relaObjectDevicePart = srmevent.part;
+					var relaObjectDevicePart = srmevent.part;
+					var relaObjectAlias = "N/A";
 			}
  
-			var sendMsg = "["+srmevent.openedat+"]:["+srmevent.severity+"]:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"].设备:[IP: "+ relaObjectDeviceIP +" ],部件:["+ relaObjectDevicePart +"]." 
-					 + (relaObjectAlias=='N/A'?"": "Zone:[\"" +  relaObjectAlias +" \"], " )
-					// + ( relaObject=='N/A'?"": "关联对象:[\"" + relaObject +"]\";" )
+			var sendMsg = "["+srmevent.openedat+"]:["+srmevent.severity+"]:["+srmevent.eventdisplayname+"],事件信息:["
+			         +srmevent.fullmsg+"].设备:[IP: "
+					 + relaObjectDeviceIP +" ],部件:["+ 
+					 + relaObjectDevicePart +"]" 
+					 + (relaObjectAlias=='N/A'?"": "Zone:[\"" +  relaObjectAlias +"\"]" )
+					 + ( relaObjectType=='N/A'?"": ",关联类型:[\"" + relaObjectType +"\"];" )
+					 + ( relaObject=='N/A'?"": ",关联对象:[\"" + relaObject +"]\";" )
+					 + ".";
+
 			isSend = true;
 
 		} else if ( srmevent.devtype == 'Array' ) {
 			if ( srmevent.eventstate == 'ACTIVE' ) {
-
-
-			var sendMsg = "["+srmevent.openedat+"]:["+srmevent.severity+"]:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"],事件来源:[" + srmevent.sourceip + "]";
-
-			isSend = true;
+				var sendMsg = "["+srmevent.openedat+"]:["+srmevent.severity+"]:["+srmevent.eventdisplayname+"],事件信息:["+srmevent.fullmsg+"],事件来源:[" + srmevent.sourceip + "]";
+				isSend = true;
 		    }
 
+		}
+
+		switch ( srmevent.sourcedomainname ) {
+			case 'linkdown' :
+				isSend = false;
+				break;
 		}
 
 		logger.info(sendMsg);
