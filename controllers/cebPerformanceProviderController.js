@@ -496,7 +496,6 @@ var cebPerformanceProviderController = function (app) {
                         resultItem["viewCapacity"] = item.ConfiguredUsableCapacity.UsedCapacity; 
                         resultItem["rawCapacity"] = item.RawCapacity.RawCapacity;
                         resultItem["maxCapacity"] = 0;
-                        resultItem["viewCapacityPercent"] = item.RawCapacity.ConfiguredUsableCapacity == 0 ? 0 : ((item.ConfiguredUsableCapacity.UsedCapacity/item.RawCapacity.ConfiguredUsableCapacity) * 100).toFixed(2) + "%";
                         resultItem["plannedCapacity"] = 0
                         resultItem["storageSn"] = item.device;
  
@@ -508,7 +507,13 @@ var cebPerformanceProviderController = function (app) {
                                 break;
                             }
                         }  
-                        resultItem["logicCapacity"] =  item.RawCapacity.ConfiguredUsableCapacity;
+                        // Update by guozb at 20181111 for the issue that ConfiguredUsableCapacity less then UsedCapacity.
+                       // resultItem["logicCapacity"] =  item.RawCapacity.ConfiguredUsableCapacity;
+                        resultItem["logicCapacity"] = item.ConfiguredUsableCapacity.UsedCapacity + 
+                                                      item.ConfiguredUsableCapacity.PoolFreeCapacity + 
+                                                      item.ConfiguredUsableCapacity.FreeCapacity;
+                        resultItem["viewCapacityPercent"] = resultItem["logicCapacity"] == 0 ? 0 : ((item.ConfiguredUsableCapacity.UsedCapacity/resultItem["logicCapacity"]) * 100).toFixed(2) + "%";
+                        
         
                         switch ( item.arraytyp ) {
                             case "Symmetrix" :
