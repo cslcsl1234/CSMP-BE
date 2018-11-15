@@ -221,7 +221,13 @@ var topologyController = function (app) {
 
  
 
-                 var fs = require('fs');
+                 var fs = require('fs'); 
+
+                 var outputJsonFilename = ReportOutputPath + '//' + 'topology.json';
+                 var dataJson = JSON.stringify(finalRecords_new);
+                 fs.writeFile(ReportOutputPath, dataJson);
+
+
                  var json2xls = require('json2xls');
         
                  var xls = json2xls(finalRecords_new);

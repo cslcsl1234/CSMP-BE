@@ -66,6 +66,8 @@ require('./controllers/BackendMgmtController')(app);
 require('./controllers/testController')(app);
 require('./controllers/analysisController')(app);
 
+require('./controllers/automationController')(app);
+
 
 // ---- CEB Project ------
 require('./controllers/cebPerformanceProviderController')(app);

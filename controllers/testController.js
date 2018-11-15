@@ -366,6 +366,16 @@ var testController = function (app) {
 
     });
     
+    app.get('/test/users', function (req, res) {
+        var existentUsernames = ["Joe"];  
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,Keep-Alive,X-Requested-With,If-Modified-Since");
+        res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+        res.header('Access-Control-Expose-Headers', '*');
+
+        res.json(200,{exists: false});
+      } );
+
     app.get('/api/test', function (req, res) {
         res.setTimeout(1200*1000);
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -393,7 +403,7 @@ var testController = function (app) {
             
            // SWITCH.getZone1(device, function(zonelist) { res.json(200 , zonelist); });
 
-           Switch.getFabric(fabwwn,function(resultJson) {    res.json(200,resultJson);       });
+          // Switch.getFabric(fabwwn,function(resultJson) {    res.json(200,resultJson);       });
 
        //Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
 
@@ -408,7 +418,7 @@ var testController = function (app) {
           var end = '2018-09-14T16:00:00.000Z';;
           var part;
 
-         // VMAX.GetFEPortsOnly(device,function(rest) {             res.json(200,rest);        });
+        VMAX.GetFEPorts(device,function(rest) {             res.json(200,rest);        });
          //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
           //function GetFCSwitchPart(devtype,parttype,callback) { 
           //  Report.getAppStorageRelation( function (result )  {  res.json(200,result) });
@@ -416,7 +426,7 @@ var testController = function (app) {
           //Report.getArrayResourceLimits(from,to, function (result )  {  res.json(200,result) });
 
        // CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
-        Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
+        //Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
 
