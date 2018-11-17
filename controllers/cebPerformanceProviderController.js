@@ -1030,6 +1030,8 @@ var cebPerformanceProviderController = function (app) {
     app.get('/rest/config/configQuery', function (req, res) { 
         res.setTimeout(1200*1000);
 
+        var fs = require('fs');
+                     
         var storageTmp = req.query.storage.replace(" _ ",',');
 
         var storageType = storageTmp.split(",")[0];
@@ -1037,15 +1039,19 @@ var cebPerformanceProviderController = function (app) {
 
         var director = req.query.director.replace(' ','');
         var port = req.query.port;
+        var ReportOutputPath = config.Reporting.OutputPath;
 
-        console.log(storageTmp+"\t"+storageSn+"\t"+storageType+"\t"+director);
+        console.log(Date() + '\t' + storageTmp+"\t"+storageSn+"\t"+storageType+"\t"+director);
  
         var device;
         async.auto(
             {
                 apptopo: function( callback, result ) {
+
                     Analysis.getAppTopology(function(apptopo) {
-                        var appTopo1 = [];
+                        
+                        var appTopo1 = []; 
+                        console.log(Date() + '\t' + "apptopo="+apptopo.length);
                         for ( var i in apptopo) {
                             var item = apptopo[i];
                             if ( director != 'all' && port != 'all') {
@@ -1062,10 +1068,12 @@ var cebPerformanceProviderController = function (app) {
                         callback(null,appTopo1);
                     })
                 } ,
-                appinfo: function ( callback, result ) {
+                appinfo: function ( callback, result ) {  
                     Report.GetApplicationInfo( function (ret) {
+                        console.log(Date() + '\t' + "GetApplicationInfo="+ret.length); 
+                        //var appJson = JSON.parse(ret); 
                         callback(null,(ret));
-                    });   
+                    });    
                 },
                 mergeResult: ["apptopo","appinfo",  function(callback, result ) {
 
@@ -1078,6 +1086,7 @@ var cebPerformanceProviderController = function (app) {
                             var app = {} ;
                             for ( var z in result.appinfo ) {
                                 var appitem = result.appinfo[z];
+                                //if ( appitem.WWN === undefined ) console.log(appitem);
                                 if ( appitem.WWN == item.hbawwn ) 
                                     app = appitem;
                             }
@@ -1209,7 +1218,7 @@ var cebPerformanceProviderController = function (app) {
                 }]
             }, function(err, result ) {
 
-
+                console.log(Date() + '\t' + "Finished");
                 res.json(200,result.mergeResult);
             }
             
@@ -1238,6 +1247,7 @@ var cebPerformanceProviderController = function (app) {
             {
                 apptopo: function( callback, result ) {
                     Analysis.getAppTopology(function(apptopo) {
+                        console.log(Date() + "TEST0");
                         var appTopo1 = [];
                         for ( var i in apptopo) {
                             var item = apptopo[i];
@@ -1278,16 +1288,18 @@ var cebPerformanceProviderController = function (app) {
                             if ( isfind == false ) returnData.push(item);
 
                         }
+                        console.log(Date() + "TEST2");
                         callback(null,returnData);
                     })
                 } ,
                 appinfo: function ( callback, result ) {
                     Report.GetApplicationInfo( function (ret) {
+                        console.log(Date() + "TEST3");
                         callback(null,(ret));
                     });   
                 },
                 mergeResult: ["apptopo","appinfo",  function(callback, result ) {
-
+                    console.log(Date() + "TEST4");
                  
                     for ( var i in result.apptopo ) {
                         var item = result.apptopo[i];
@@ -1308,13 +1320,13 @@ var cebPerformanceProviderController = function (app) {
                         item["searchCode"] = app.searchCode;  
                         item["usePurpose"] = app.appLevel; 
                     } 
-             
+                    console.log(Date() + "TEST6");
                     callback(null,result.apptopo);
 
                 }]
             }, function(err, result ) {
 
-
+                console.log(Date() + "TEST7");
                 res.json(200,result.mergeResult);
             }
             
