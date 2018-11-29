@@ -5,6 +5,7 @@
     "start": "node --max-old-space-size=2048 app.js "
   },
   "dependencies": {
+    "app-root-path": "^2.1.0",
     "body-parser": "*",
     "debug": "^2.6.3",
     "express": "~3.1.0",
