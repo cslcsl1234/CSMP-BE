@@ -513,6 +513,14 @@ var cebPerformanceProviderController = function (app) {
                                                       item.ConfiguredUsableCapacity.PoolFreeCapacity + 
                                                       item.ConfiguredUsableCapacity.FreeCapacity;
                         resultItem["viewCapacityPercent"] = resultItem["logicCapacity"] == 0 ? 0 : ((item.ConfiguredUsableCapacity.UsedCapacity/resultItem["logicCapacity"]) * 100).toFixed(2) + "%";
+
+
+			if ( resultItem.logicCapacity >= resultItem.rawCapacity ) 
+				resultItem.logicCapacity = resultItem.logicCapacity + '  (!! > RawCapacity)'; 
+
+			if ( resultItem.viewCapacity >= resultItem.logicCapacity ) 
+				resultItem.viewCapacity = resultItem.viewCapacity + '  (!! > LogicalCapacity)'; 
+
                         
         
                         switch ( item.arraytyp ) {
