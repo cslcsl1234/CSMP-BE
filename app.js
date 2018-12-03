@@ -73,6 +73,7 @@ require('./controllers/automationController')(app);
 require('./controllers/cebPerformanceProviderController')(app);
 require('./controllers/cebAPIController')(app);
 
+require('./controllers/simulateServicesController')(app);
 
 
 

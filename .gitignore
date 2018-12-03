@@ -6,3 +6,4 @@ node_modules
 scripts/nohup.out
 scripts/*.out
 data/*.json
+demodata/VPLEX/*.json

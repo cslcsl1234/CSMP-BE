@@ -145,7 +145,7 @@ var automationController = function (app) {
     });
 
     app.get('/auto/testget', function (req, res) {
-        var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
+        var arrayInfo = Auto.GetArrayInfoObject("SMIULATE-VPLEX");
 
 
         /* -------TEST CASE ------------- */
@@ -155,11 +155,11 @@ var automationController = function (app) {
 
         //Auto.GetExtents(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
         //Auto.GetClaimedExtentsByArray(arrayInfo,'cluster-2',function(result) {  res.json(200,result);   }) 
-        //Auto.GetStorageVolumes(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
+        Auto.GetStorageVolumes(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
 
         //Auto.GetStorageView(arrayInfo, 'cluster-1', 'ebankwebesxi_VW', function (result) { res.json(200, result); })
         //Auto.GetConsistencyGroups(arrayInfo,function(result) {  res.json(200,result);   }) 
-        Auto.GetConsistencyGroup(arrayInfo, 'cluster-1', 'ebankwebesxi_CG_Prod', function (result) { res.json(200, result); })
+        //Auto.GetConsistencyGroup(arrayInfo, 'cluster-1', 'ebankwebesxi_CG_Prod', function (result) { res.json(200, result); })
         //Auto.GetStorageViews(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
 
 
@@ -250,7 +250,29 @@ var automationController = function (app) {
             viewname: 'TC_ebankwebesxi_VW',   // The view to add the virtual-volumes to.
             virtualvolumes: ['dd_Symm0192_00FF_Symm0706_0261_vol'] // Comma-separated list of virtual-volumes or (lun, virtual-volume) pairs.
         }
-        Auto.AssignStorageView(AssignStorageViewParamater, function (result) { res.json(200, result); })
+        //Auto.AssignStorageView(AssignStorageViewParamater, function (result) { res.json(200, result); })
+
+
+        var AssignConsistencyGroupParamater =       {
+            "method": "AssignConsistencyGroup",
+            "DependOnAction": "CreateDistributedDevice",
+            "virtual_volume": "dd_Symm0192_00F7_Symm0706_0253_vol",
+            "consistoncy_group": "ebankwebesxi_CG_Prod",
+            "array": arrayInfo
+          }
+
+         Auto.AssignConsistencyGroup(AssignConsistencyGroupParamater, function (result) { res.json(200, result); })
+
+
+
+          var CreateDistributedVirtualVolumeParamater = {
+            method: 'CreateDistributedVirtualVolume',
+            DependOnAction: "CreateDistributedDevice",
+            devicename: 'dd_Symm0192_00F7_Symm0706_0253',
+            "array": arrayInfo
+        }
+        //Auto.CreateVirtualVolume(CreateDistributedVirtualVolumeParamater, function (result) { res.json(200, result); })
+
 
     });
 
@@ -267,10 +289,13 @@ var automationController = function (app) {
 
 
     app.get('/api/auto/service/block/provisioning', function (req, res) {
+        res.setTimeout(3600*1000);
+
+
         var RequestParamater = {
             appname: "ebankwebesxi",
             usedfor: "oraredo",
-            capacity: 5,
+            capacity: 202,
             resourceLevel: "Gold",
             ProtectLevel: {
                 "DR_SameCity":true,
@@ -278,7 +303,8 @@ var automationController = function (app) {
                 "Backup":true,
                 "AppVerification_SameCity":false,
                 "AppVerification_DiffCity":false
-            }
+            },
+            opsType : "review"    // [ review | execute ]
         };
 
         async.waterfall(
