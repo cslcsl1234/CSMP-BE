@@ -596,7 +596,7 @@ var reportingController = function (app) {
     // CEB Report 1.2
     app.get('/api/reports/capacity/details', function (req, res) {
         res.setTimeout(1200 * 1000);
-        var device;
+        var device = req.query.device;
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
         async.waterfall([
@@ -2215,6 +2215,10 @@ var reportingController = function (app) {
                 },
                 function (arg1, callback) {
 
+                    for ( var i in arg1 ) { 
+                        if ( isNaN(parseFloat(arg1[i].iops_avg)) ) 
+                            arg1[i]["iops_avg"] = 0;
+                    }
                     arg1.sort(sortBy("-iops_avg"));
 
                     callback(null, arg1);
@@ -2453,6 +2457,7 @@ var reportingController = function (app) {
                     var UNKNOW = [];
                     for (var i in arg) {
                         var item = arg[i];
+                        if ( item.sg_name == 'XIAOI_SG') console.log(item);
                         if (item.device_name === undefined) UNKNOW.push(item);
                         else if (item.device_name.indexOf('JXQ') > 0) JXQ.push(item);
                         else if (item.device_name.indexOf('SD') > 0) SD.push(item);
@@ -2462,10 +2467,14 @@ var reportingController = function (app) {
                     var newResult = [];
                     for (var i in JXQ) {
                         var JXQItem = JXQ[i];
+                        var JXQDeviceName = JXQItem.device_name.split('-')[0];
                         for (var j in SD) {
                             var SDItem = SD[j];
-                            if (JXQItem.sg_name == SDItem.sg_name) {
+                            var SDDeviceName = SDItem.device_name.split('-')[0];
+
+                            if (JXQItem.sg_name == SDItem.sg_name && JXQDeviceName == SDDeviceName ) {
                                 var newItem = {};
+
                                 if (JXQItem.iops_avg > SDItem.iops_avg) {
                                     newItem["app_name"] = JXQItem.app_name;
                                     newItem["device_name"] = JXQItem.device_name;
@@ -2881,7 +2890,10 @@ var reportingController = function (app) {
                     });
                 },
                 function (arg1, callback) {
-
+                    for ( var i in arg1 ) { 
+                        if ( isNaN(parseFloat(arg1[i].response_time_ms)) ) 
+                            arg1[i]["response_time_ms"] = 0;
+                    }
                     arg1.sort(sortBy("-response_time_ms"));
 
                     callback(null, arg1);
