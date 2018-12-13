@@ -334,25 +334,31 @@ var automationController = function (app) {
 
 
 
+/*
+    Body:         
 
-    app.get('/api/auto/service/block/provisioning', function (req, res) {
-        res.setTimeout(3600*1000);
+{
+    "appname": "ebankwebesxi",
+    "usedfor": "oraredo",
+    "capacity": 202,
+    "resourceLevel": "Gold",
+    "ProtectLevel": {
+        "DR_SameCity":true,
+        "DR_DiffCity":false,
+        "Backup":true,
+        "AppVerification_SameCity":false,
+        "AppVerification_DiffCity":false
+    },
+    "opsType" : "review"   // [ review | execute ]
+}
 
+*/
+    app.post('/api/auto/service/block/provisioning', function (req, res) {
+        res.setTimeout(3600*1000); 
 
-        var RequestParamater = {
-            appname: "ebankwebesxi",
-            usedfor: "oraredo",
-            capacity: 202,
-            resourceLevel: "Gold",
-            ProtectLevel: {
-                "DR_SameCity":true,
-                "DR_DiffCity":false,
-                "Backup":true,
-                "AppVerification_SameCity":false,
-                "AppVerification_DiffCity":false
-            },
-            opsType : "review"    // [ review | execute ]
-        };
+        var RequestParamater =  req.body;
+        
+
 
         async.waterfall(
             [

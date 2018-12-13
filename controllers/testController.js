@@ -316,14 +316,31 @@ var testController = function (app) {
 
     app.get('/test4', function (req, res) {
 
-                var masking = require('C:\\CSMP\\reporting\\tmp\\masking');
-                var apps = require('C:\\CSMP\\CSMP-BE\\data\\appinfo');
+        var start =  '2018-09-01T16:00:00.000Z';
+         var end = '2018-10-30T16:00:00.000Z';
+      
+        var param = {};
+        var device = '000496700235';
+        if (typeof device !== 'undefined') {  
+            param['filter'] = '!parttype&device=\''+device+'\'&(source=\'VMAX-Collector\'|source==\'VNXBlock-Collector\'|source==\'VNXUnity-Collector\')';
+        } else { 
+            //param['filter'] = '!parttype&(source=\'VMAX-Collector\'|source==\'VNXBlock-Collector\'|source==\'VNXUnity-Collector\')';
+            param['filter'] = '!parttype&(source=\'VMAX-Collector\'|source==\'VNXBlock-Collector\')';
+        } 
 
-                console.log( masking.length );
-                console.log("========================================================");
-                Report.ApplicationCapacityAnalysis(masking, apps, function(result ) {
 
-                    res.json(200,result); 
+        param['filter_name'] = '(name=\'UsedCapacity\')';
+        param['keys'] = ['serialnb'];
+        param['fields'] = ['sstype','device','model','vendor','devdesc'];
+        param['period'] = 86400;
+        param['start'] = start;
+        param['end'] = end
+        param['type'] = 'max';
+
+            
+        CallGet.CallGetPerformance(param, function(retcap) {   
+
+                    res.json(200,retcap); 
                 });
                  
 
@@ -377,8 +394,13 @@ var testController = function (app) {
 
         var valuetype = 'average';
         //var start  = util.getPerfStartTime(); 
-        var start = '2018-09-01T16:00:00.000Z';
-        var end = '2018-09-14T16:00:00.000Z';;
+        var start = '2018-10-31T16:00:00.000Z';
+        var end = '2018-11-30T16:00:00.000Z';
+
+        //var start = '2018-10-01T16:00:00.000Z';
+        //var end = '2018-10-30T16:00:00.000Z';
+
+        var device = '000292604241';
         var part;
 
         //VMAX.GetFEPorts(device, function (rest) { res.json(200, rest); });
@@ -389,7 +411,7 @@ var testController = function (app) {
         //Report.getArrayResourceLimits(from,to, function (result )  {  res.json(200,result) });
 
         // CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
-        //Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
+        Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
 
@@ -427,7 +449,7 @@ var testController = function (app) {
         //VMAX.GetAssignedHosts(device, function(rest) { res.json(200,rest); });
 
         //Report.E2ETopology(device, function(ret) {   res.json(200,ret); });
-        Report.GetApplicationInfo( function (ret) {  res.json(200,ret); });
+        //Report.GetApplicationInfo( function (ret) {  res.json(200,ret); });
         //Analysis.getAppTopology(function(apptopo) {            res.json(200,apptopo);        })
         // DeviceMgmt.getMgmtObjectInfo(device, function(ret) {     res.json(200,ret);        });
         //var apps = Report.ApplicationCapacityAnalysis("","");

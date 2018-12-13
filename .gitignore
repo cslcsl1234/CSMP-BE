@@ -7,3 +7,6 @@ scripts/nohup.out
 scripts/*.out
 data/*.json
 demodata/VPLEX/*.json
+demodata/VPLEX/*.rar
+demodata/VPLEX/*/*.json
+demodata/VPLEX/*.gz
