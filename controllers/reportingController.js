@@ -542,6 +542,8 @@ var reportingController = function (app) {
                         resItem['allocated_capacity_PB'] += (isNaN(item['allocated_capacity_PB']) == true) ? 0 : item['allocated_capacity_PB'];
                         resItem['allocated_capacity_last_year_PB'] += (isNaN(item['allocated_capacity_last_year_PB']) == true) ? 0 : item['allocated_capacity_last_year_PB'];
                         resItem['allocated_capacity_last_month_PB'] += (isNaN(item['allocated_capacity_last_month_PB']) == true) ? 0 : item['allocated_capacity_last_month_PB'];
+                        resItem['allocated_capacity_increase_PB'] = resItem['allocated_capacity_PB'] -  resItem['allocated_capacity_last_month_PB'];
+                        
                         isFind = true;
                         break;
                     }
