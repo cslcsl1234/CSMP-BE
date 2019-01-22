@@ -155,13 +155,60 @@ var automationController = function (app) {
 
         //Auto.GetExtents(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
         //Auto.GetClaimedExtentsByArray(arrayInfo,'cluster-2',function(result) {  res.json(200,result);   }) 
-        Auto.GetStorageVolumes(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
+        //Auto.GetStorageVolumes(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
 
         //Auto.GetStorageView(arrayInfo, 'cluster-1', 'ebankwebesxi_VW', function (result) { res.json(200, result); })
         //Auto.GetConsistencyGroups(arrayInfo,function(result) {  res.json(200,result);   }) 
         //Auto.GetConsistencyGroup(arrayInfo, 'cluster-1', 'ebankwebesxi_CG_Prod', function (result) { res.json(200, result); })
         //Auto.GetStorageViews(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
+  
 
+        Auto.GetStorageViewsV1(arrayInfo,'cluster-2',function(result) {  
+            
+            var finalResult = [];
+            var res1 = result.response.context;
+            for ( var i in res1 ) {
+                var item = res1[i];
+                var newItem = {};
+                for ( var j in item.attributes )  {
+                    var item1 = item.attributes[j];
+                    if ( ( item1.name == 'name')  ) {
+                        newItem['name'] = item1.value; 
+                    }
+                    if ( ( item1.name == 'virtual-volumes') )  {  
+                        var vvols = [];
+                        var ps = [];
+                        for ( var z in item1.value ) {
+                            var vvol = item1.value[z].split(',')[1];
+                            if ( vvol.indexOf('dd_') == 0 ) {
+                                vvols.push(vvol);
+                                var pname = vvol.split('_')[1];
+                                var sname = vvol.split('_')[3];
+                                var psname = pname+'_'+sname;
+                                var isfind = false;
+                                for ( var jj in ps ) {
+                                    var psItem = ps[jj];
+                                    if ( psItem == psname ) {
+                                        isfind = true;
+                                        break;;
+                                    }
+                                }
+                                if ( isfind == false )
+                                    ps.push(pname+'_'+sname);
+                            }
+                                
+                        }
+                        
+                        //newItem['virtualvolumes'] = vvols;
+                        newItem['ps'] = ps;
+                    }
+                }
+                finalResult.push(newItem);
+            }
+            res.json(200,finalResult);   
+        
+        
+        }) 
 
 
 

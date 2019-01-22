@@ -77,6 +77,16 @@ var simulateServicesController = function (app) {
 
 
 
+
+    app.get('/vplex/clusters/:clustername/exports/storage-views/*', function (req, res) { 
+        
+        var clustername = req.params.clustername; 
+
+        var data = require('../demodata/VPLEX/'+clustername+'_storage-views'); 
+        res.json(200,data); 
+    });
+
+
     app.get('/vplex/clusters/:clustername/exports/storage-views/:svname', function (req, res) {
         var clustername = req.params.clustername;
         var svname = req.params.svname;
