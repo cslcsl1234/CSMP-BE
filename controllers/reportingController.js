@@ -1645,7 +1645,7 @@ var reportingController = function (app) {
                     param['limit'] = 1000000;
                     param['filter'] = '!parttype&source=\'VMAX-Collector\'';
                     param['filter_name'] = '(name==\'ReadRequests\'|name==\'WriteRequests\')';
-
+                    param['type'] = 'average';
 
                     CallGet.CallGetPerformance(param, function (result) {
 
@@ -1695,6 +1695,7 @@ var reportingController = function (app) {
                     param['filter'] = '!parttype&source=\'VMAX-Collector\'';
                     param['limit'] = 1000000;
                     param['filter_name'] = '(name==\'ReadRequests\'|name==\'WriteRequests\')';
+                    param['type'] = 'average';
 
 
                     CallGet.CallGetPerformance(param, function (result) {
@@ -1734,7 +1735,7 @@ var reportingController = function (app) {
                     param['filter'] = '!parttype&source=\'VMAX-Collector\'';
                     param['limit'] = 1000000;
                     param['filter_name'] = '(name==\'ReadRequests\'|name==\'WriteRequests\')';
-
+                    param['type'] = 'average';
 
                     CallGet.CallGetPerformance(param, function (result) {
 
@@ -1836,7 +1837,7 @@ var reportingController = function (app) {
                     param['filter'] = '!parttype&source=\'VMAX-Collector\'';
                     param['limit'] = 1000000;
                     param['filter_name'] = '(name==\'ReadThroughput\'|name==\'WriteThroughput\')';
-
+                    param['type'] = 'average';
 
                     CallGet.CallGetPerformance(param, function (result) {
 
@@ -1886,7 +1887,7 @@ var reportingController = function (app) {
                     param['filter'] = '!parttype&source=\'VMAX-Collector\'';
                     param['limit'] = 1000000;
                     param['filter_name'] = '(name==\'ReadThroughput\'|name==\'WriteThroughput\')';
-
+                    param['type'] = 'average';
 
                     CallGet.CallGetPerformance(param, function (result) {
 
@@ -1925,7 +1926,7 @@ var reportingController = function (app) {
                     param['filter'] = '!parttype&source=\'VMAX-Collector\'';
                     param['limit'] = 1000000;
                     param['filter_name'] = '(name==\'ReadThroughput\'|name==\'WriteThroughput\')';
-
+                    param['type'] = 'average';
 
                     CallGet.CallGetPerformance(param, function (result) {
 
