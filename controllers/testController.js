@@ -394,24 +394,24 @@ var testController = function (app) {
 
         var valuetype = 'average';
         //var start  = util.getPerfStartTime(); 
-        var start = '2018-10-31T16:00:00.000Z';
+        var start = '2018-11-21T16:00:00.000Z';
         var end = '2018-11-30T16:00:00.000Z';
 
         //var start = '2018-10-01T16:00:00.000Z';
         //var end = '2018-10-30T16:00:00.000Z';
 
-        var device = '000292604241';
+        var device = '000292600886';
         var part;
 
         //VMAX.GetFEPorts(device, function (rest) { res.json(200, rest); });
-        //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
+        VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
         //function GetFCSwitchPart(devtype,parttype,callback) { 
-        //  Report.getAppStorageRelation( function (result )  {  res.json(200,result) });
+        //Report.getAppStorageRelationV2(device, function (result )  {  res.json(200,result) });
 
         //Report.getArrayResourceLimits(from,to, function (result )  {  res.json(200,result) });
 
         // CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
-        Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
+       // Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
 
@@ -442,7 +442,7 @@ var testController = function (app) {
 
         //VNX.GetArrayType(device,  function(result) {   res.json(200,result);   }); 
 
-
+        //Report.initiatalApplicationInfo( function (ret ) { res.json(200,ret); });
         //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
         //VMAX.GetMaskViews(device, function(ret) { res.json(200,ret); });
         // Report.ArrayAccessInfos(device, function(ret) {  res.json(200,ret);        });
@@ -451,7 +451,7 @@ var testController = function (app) {
         //Report.E2ETopology(device, function(ret) {   res.json(200,ret); });
         //Report.GetApplicationInfo( function (ret) {  res.json(200,ret); });
         //Analysis.getAppTopology(function(apptopo) {            res.json(200,apptopo);        })
-        // DeviceMgmt.getMgmtObjectInfo(device, function(ret) {     res.json(200,ret);        });
+       // DeviceMgmt.getMgmtObjectInfo(device, function(ret) {     res.json(200,ret);        });
         //var apps = Report.ApplicationCapacityAnalysis("","");
         //res.json(200,apps);
         //VNX.GetSPs(device, function(ret) { res.json(200,ret); });
