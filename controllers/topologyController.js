@@ -182,6 +182,7 @@ var topologyController = function (app) {
 
                 var finalRecords_new = [];
                 var finalRecords_null = [];
+                var finalRecords_all = [];
                 for (var j in finalRecords) {
                     var topoItem = finalRecords[j];
 
@@ -212,7 +213,7 @@ var topologyController = function (app) {
                             retItem["hostStatus"] = appItem["hostRunType"];
                         }
                     }
-
+                    finalRecords_all.push(retItem);
                     if (retItem.marched_type == 'find') {
                         delete retItem.marched_type;
 
@@ -247,6 +248,21 @@ var topologyController = function (app) {
                 fs.writeFileSync(fsname, '[\n');
                 for (var i in finalRecords_new) {
                     var item = finalRecords_new[i];
+
+                    //console.log(item.maskingview);
+                    if (i == 0)
+                        fs.appendFileSync(fsname, JSON.stringify(item) + '\n');
+                    else
+                        fs.appendFileSync(fsname, ', ' + JSON.stringify(item) + '\n');
+                }
+                fs.appendFileSync(fsname, ']\n');
+
+                console.log("finalRecords_all record number: " + finalRecords_all.length);
+
+                var fsname = ReportOutputPath + '//' + 'topology_all.json';
+                fs.writeFileSync(fsname, '[\n');
+                for (var i in finalRecords_all) {
+                    var item = finalRecords_all[i];
 
                     //console.log(item.maskingview);
                     if (i == 0)
