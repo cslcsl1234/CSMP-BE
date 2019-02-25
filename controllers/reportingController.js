@@ -3068,6 +3068,314 @@ var reportingController = function (app) {
             });
     });
 
+
+
+
+    /* 
+        20190223 add: weekly report
+
+    */
+
+    
+    // CEB Report 2.2.1
+    app.get('/api/reports/weeklyreport/performance/applications', function (req, res) {
+
+        res.setTimeout(1200 * 1000);
+        var device = req.query.device ;
+        var start = moment(req.query.from).toISOString();
+        var end = moment(req.query.to).toISOString();
+
+        var start_dt = moment(start).format('YYYYMMDD');
+        var end_dt = moment(end).format('YYYYMMDD');
+
+        var period = 86400;
+        var valuetype = 'average';
+
+        var config = configger.load(); 
+        var ReportTmpDataPath = config.Reporting.TmpDataPath;
+        var ReportOutputPath = config.Reporting.OutputPath;
+
+        var outputFilename = ReportOutputPath + '//' + 'WeeklyReport_'+start_dt+'-'+end_dt+'.xlsx'; 
+                   
+        console.log("Report output filename: " + outputFilename);
+
+        var data = {};
+
+        async.waterfall(
+            [ 
+                function ( callback) {
+                    Report.getAppStorageRelationV2(device, function (result) { 
+                        callback(null, result); 
+                    }); 
+                },
+                // Get IOPS peak value 
+                function (arg1, callback) {   
+                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function (rest) {
+                        var rets = [];
+
+                        for ( var i in arg1 ) {
+                            var appItem = arg1[i];
+                       
+                            for (var j in rest) {
+                                var item = rest[j];
+
+
+                                
+                                if ( item === undefined || item == null || item == "null" ) continue;
+                                if ( item.device == appItem.device && item.sgname == appItem.sgname ) {
+
+
+
+                                    appItem["perf"] = item;
+                                    break;
+                                }
+                            }     
+                        }
+                        data["data"] = arg1;
+                        callback(null, data);
+                    });
+                } ,
+                function(arg1 , callback) {
+                    var finalRecords = {}; 
+                      
+                    /* {appname:"",
+                            array:"",
+                            responsetime:[ {
+                                time:"",
+                                value:""
+                            }]
+                            } */
+                    for ( var i in arg1.data ) {
+                        var item = arg1.data[i];
+
+                        for ( var appItem in item.appinfo ) {
+                            var appname = item.appinfo[appItem].app;
+                            if ( appname === "" || appname === undefined ) 
+                                console.log(JSON.stringify(item));
+                        }
+                        
+                        if ( item.arrayname === undefined ) {
+                            var array = item.device; 
+                            var sgmember = array +'~' + item.sgname + '~' + item.Capacity;
+                        } 
+                        else {
+                            var array = item.arrayname.split('-')[0];
+                            var sgmember = item.arrayname +'~' + item.sgname + '~' + item.Capacity;
+                        }
+
+ 
+                         
+                        if ( finalRecords[appname] === undefined ) {
+                            var record = {};
+
+                            record["appname"] = appname;
+                            record["array"] = array;
+                            record["sgmember"] = [];
+                            record["sgmember"].push(sgmember);
+    
+                            record["sgname"] = [];
+                            record.sgname.push(item.perf);
+    
+                            finalRecords[appname] = record;
+                        }
+                        else {
+                            if ( finalRecords[appname].array.indexOf(array) < 0  )
+                                finalRecords[appname].array = finalRecords[appname].array +',' + array;
+
+                            finalRecords[appname].sgmember.push(sgmember);
+  
+                            
+                            if ( item.perf === undefined ) {
+                                console.log("Not Exist Performance Data ====\n" + finalRecords[appname].sgname.length );
+                                console.log(JSON.stringify(item)); 
+                            } else 
+                                finalRecords[appname].sgname.push(item.perf);
+                        }
+                    }
+                    callback(null, finalRecords);
+                } ,
+                function( arg1, callback ) {
+                    var outputRecords = [];
+                    for ( var i in arg1 ) {
+                        var item = arg1[i];
+                        var record = {};
+                        record["系统名称"] = item.appname;
+                        record["所属存储"] = item.array;
+                        record["sgmember"] = item.sgmember;
+                        record["ResponseTime"] = {};
+                        record["ThroughputDetail"] = {};
+
+                        for ( var j in item.sgname ) {
+                            var sgperf = item.sgname[j];
+
+
+
+                            if ( sgperf === undefined ) {
+                                console.log("====================\n" + j );
+                                //console.log(JSON.stringify(item) );
+                                continue;
+                            }
+
+                            if ( sgperf.matrics === undefined ) continue;
+                            // for matrics for each sgname performance
+                            for ( var z in sgperf.matrics ) {
+                                var sgperfMatrics = sgperf.matrics[z];
+
+                                // ResponseTime
+                                if ( record.ResponseTime[sgperfMatrics.timestamp] === undefined ) 
+                                    record.ResponseTime[sgperfMatrics.timestamp] = sgperfMatrics.ResponseTime ;
+                                else if ( record.ResponseTime[sgperfMatrics.timestamp] < sgperfMatrics.ResponseTime) 
+                                    record.ResponseTime[sgperfMatrics.timestamp] = sgperfMatrics.ResponseTime ;; 
+
+                                // Throughput
+                                if ( record.ThroughputDetail[sgperfMatrics.timestamp] === undefined ) 
+                                    record.ThroughputDetail[sgperfMatrics.timestamp] = sgperfMatrics.WriteThroughput + sgperfMatrics.ReadThroughput ;
+                                else
+                                    record.ThroughputDetail[sgperfMatrics.timestamp] += sgperfMatrics.WriteThroughput + sgperfMatrics.ReadThroughput ;
+
+                            }
+
+
+                        }
+                        outputRecords.push(record);
+                            
+
+                    }
+                    callback( null, outputRecords) ;
+                },
+
+                function( arg1 , callback ) {
+
+                    var responseTimeRecords = [];
+                    var ThroughputRecords = [];
+                    for ( var i in arg1 ) {
+                        var item = arg1[i];
+
+                        var record = {};
+                        record["系统名称"] = item["系统名称"];
+                        record["所属存储"] = item["所属存储"];
+
+                        var totalValue = 0;
+                        var totalCount = 0;
+                        for ( var timestamp in item.ResponseTime ) {
+                            var value1 = item.ResponseTime[timestamp];
+                            var dt = moment.unix(timestamp).format('YYYY-MM-DD');
+                            var week;
+                            switch ( moment.unix(timestamp).format('d') ) {
+                                case '0': 
+                                    week = "星期日";
+                                    break;
+                                case '1':
+                                    week = "星期一";
+                                    break;
+                                case '2':
+                                    week = "星期二";
+                                    break;
+                                case '3':
+                                    week = "星期三";
+                                    break;
+                                case '4':
+                                    week = "星期四";
+                                    break;
+                                case '5':
+                                    week = "星期五";
+                                    break;
+                                case '6':
+                                    week = "星期六";
+                                    break;
+                                 
+                            }
+                            var dtname = dt +" " + week;
+                            record[dtname] = value1;
+                            totalValue += value1;
+                            totalCount++;
+                        } 
+                        record["本周日均响应时间峰值"] = (totalCount ==0)?0:totalValue/totalCount;
+                        record["SG成员"] = JSON.stringify(item["sgmember"]);
+
+                        responseTimeRecords.push(record);
+
+                        
+
+
+                        var record = {};
+                        record["系统名称"] = item["系统名称"];
+                        record["所属存储"] = item["所属存储"];
+
+                        var totalValue = 0;
+                        var totalCount = 0;
+                        for ( var timestamp in item.ThroughputDetail ) {
+                            var value1 = item.ThroughputDetail[timestamp];
+                            var dt = moment.unix(timestamp).format('YYYY-MM-DD');
+                            var week;
+                            
+                            switch ( moment.unix(timestamp).format('d') ) {
+                                case '0': 
+                                    week = "星期日";
+                                    break;
+                                case '1':
+                                    week = "星期一";
+                                    break;
+                                case '2':
+                                    week = "星期二";
+                                    break;
+                                case '3':
+                                    week = "星期三";
+                                    break;
+                                case '4':
+                                    week = "星期四";
+                                    break;
+                                case '5':
+                                    week = "星期五";
+                                    break;
+                                case '6':
+                                    week = "星期六";
+                                    break;
+                                 
+                            }
+                            var dtname = dt +" " + week;
+                            record[dtname] = value1;
+                            totalValue += value1;
+                            totalCount++;
+                        } 
+                        record["本周日均响应时间峰值"] = (totalCount ==0)?0:totalValue/totalCount;
+                        record["SG成员"] = JSON.stringify(item["sgmember"]);
+
+
+                        ThroughputRecords.push(record);
+                        
+
+                    } 
+ 
+
+
+                    var XLSX = require('xlsx');
+
+                    var wb = XLSX.utils.book_new();
+
+                    /* make the worksheet */
+                    var ws1 = XLSX.utils.json_to_sheet(ThroughputRecords);
+                    /* add to workbook */
+                    XLSX.utils.book_append_sheet(wb, ws1, "系统存储磁盘读写吞吐量");
+
+
+                    /* make the worksheet */
+                    var ws2 = XLSX.utils.json_to_sheet(responseTimeRecords);
+                    /* add to workbook */ 
+                    XLSX.utils.book_append_sheet(wb, ws2, "系统存储IO响应时间"); 
+                    
+                    /* generate an XLSX file */
+                    XLSX.writeFile(wb, outputFilename);
+
+                    callback(null,arg1);
+                }
+            ], function (err, result) { 
+                res.json(200, result);
+            });
+
+    });
+
+
 };
 
 
