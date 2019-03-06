@@ -388,6 +388,7 @@ var testController = function (app) {
         //Switch.GetSwitchPorts(device, function(result) {            res.json(200,result);       });
 
         //VMAX.getArrayPerformance1( function(result) {            res.json(200,result);       }); 
+
         // VMAX.GetCapacity(device, function(result) {            res.json(200,result);       });  
         var sgname;
         var period = 86400;
@@ -400,11 +401,15 @@ var testController = function (app) {
         //var start = '2018-10-01T16:00:00.000Z';
         //var end = '2018-10-30T16:00:00.000Z';
 
-        var device = '000292600886';
+        var device = '000295700790';
         var part;
 
         //VMAX.GetFEPorts(device, function (rest) { res.json(200, rest); });
-        VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
+
+        VMAX.getArrayPerformanceV3( device, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
+        
+
+        //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
         //function GetFCSwitchPart(devtype,parttype,callback) { 
         //Report.getAppStorageRelationV2(device, function (result )  {  res.json(200,result) });
 
