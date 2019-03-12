@@ -3418,6 +3418,43 @@ var reportingController = function (app) {
                 },
                 function(arg1,callback ) {
                     var device;  
+                    var period_detail = 3600;
+                    var arrayinfos = arg1.data.arrayinfo;
+                    VMAX.getArrayPerformanceV3( device, start, end , valuetype, period_detail, function(result) {            
+                        var records = [];
+                        for ( var i in result) {
+                            var item = result[i];
+
+                            var ArrayName = item.device;
+                            for ( var z in arrayinfos ) {
+                                var infoItem = arrayinfos[z];
+                                if ( item.device == infoItem.sn ) {
+                                    ArrayName = infoItem.name; 
+                                    break;
+                                }
+                            }
+                            for ( var j in item.matrics ) {
+                                var perfitem = item.matrics[j];
+                                var timestamp = perfitem.timestamp;
+                                var dt = moment.unix(timestamp).format('YYYY-MM-DD HH:mm:ss');  
+
+                                var record = {};
+                                record["系统名称"] = ArrayName;
+                                record["存储序列号"] = item.device;
+                                record["时间"] = dt;
+                                record["IOPS"] = perfitem.ReadRequests + perfitem.WriteRequests;
+                                records.push(record);
+                            }
+                        }
+
+                        if ( arg1.result["array"] === undefined ) arg1.result["array"] = {};
+                        arg1.result["array"]["IOPS_HOURS"] = records;
+
+                        callback(null, arg1);
+                    })
+                },
+                function(arg1,callback ) {
+                    var device;  
                     var arrayinfos = arg1.data.arrayinfo;
                     VMAX.getArrayPerformanceV3( device, start, end , valuetype, period, function(result) {            
                         
@@ -3508,7 +3545,7 @@ var reportingController = function (app) {
 
                         }
 
-                        arg1.result["array"] = {};
+                        if ( arg1.result["array"] === undefined ) arg1.result["array"] = {};
                         arg1.result["array"]["IOPS"] = records;
 
                         callback( null, arg1 );
@@ -3647,6 +3684,12 @@ var reportingController = function (app) {
                     var ws3 = XLSX.utils.json_to_sheet(ArrayIOPS); 
                     XLSX.utils.book_append_sheet(wb, ws3, "存储资源IOPS均值");
                      
+                    
+                    var ArrayIOPSHours = arg1["array"]["IOPS_HOURS"];
+                    var ws4 = XLSX.utils.json_to_sheet(ArrayIOPSHours); 
+                    XLSX.utils.book_append_sheet(wb, ws4, "存储资源IOPS均值(HOURS)");
+                     
+
                     XLSX.writeFile(wb, outputFilename);  
                     callback(null,arg1);
                 } 
