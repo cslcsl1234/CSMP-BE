@@ -1,0 +1,10 @@
+0 2 2 * * sh /csmp/CSMP-BE/scripts/ceb_monthly_report.sh >> /csmp/CSMP-BE/scripts/ceb_monthly_report.log
+
+0 2 * * * sh /csmp/CSMP-BE/scripts/ceb_topo.sh >> /csmp/CSMP-BE/scripts/ceb_topo.log
+0 1 * * * sh /csmp/CSMP-BE/scripts/dailyTask.sh >> /csmp/CSMP-BE/scripts/dailyTask.log
+
+## execute every friday for storage weekly report, result file upload to 10.1.7.109:/StorageWeeklyReport
+0 8 * * 5 sh /csmp/CSMP-BE/scripts/ceb_weekly_report.sh >> /csmp/CSMP-BE/scripts/ceb_weekly_report.log
+
+0 * * * * sh /csmp/CSMP-BE/run.sh 
+

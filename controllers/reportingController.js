@@ -3082,8 +3082,10 @@ var reportingController = function (app) {
 
         res.setTimeout(1200 * 1000);
         var device = req.query.device ;
-        var start = moment(req.query.from).utc(8).format('YYYY-MM-DDTHH:mm:ss') + 'Z'
-        var end = moment(req.query.to).utc(8).format('YYYY-MM-DDTHH:mm:ss') + 'Z'
+        //ar start = moment(req.query.from).utc(8).format('YYYY-MM-DDTHH:mm:ss') + 'Z'
+        //var end = moment(req.query.to).utc(8).format('YYYY-MM-DDTHH:mm:ss') + 'Z'
+        var start = moment(req.query.from).toISOString();
+        var end = moment(req.query.to).toISOString();
 
         var start_dt = moment(start).format('YYYYMMDD');
         //var priv_dt = moment(start).subtract(1, 'days').format('YYYYMMDD');
@@ -3140,9 +3142,14 @@ var reportingController = function (app) {
                     Report.getAppStorageRelationV2(device, function (result) { 
                         arg1.data["AppStorageRelation"] = result;
 
+                        var DataFilename = '/csmp/reporting/test/test.json';
+                        fs.writeFile(DataFilename, JSON.stringify(arg1), function (err) {
+                            if (err) throw err; 
+                        });
+
                         callback(null, arg1); 
                     });  
-                    //var aaa = require("c:\\test.json");
+                    //var aaa = require("/csmp/reporting/test/test.json");
                     //callback(null, aaa);
                 },
 
@@ -3416,6 +3423,9 @@ var reportingController = function (app) {
                         callback(null,arg1); 
                     });               
                 },
+                // --------------------------------
+                // 存储资源IOPS日间及夜间峰值 
+                // --------------------------------
                 function(arg1,callback ) {
                     var device;  
                     var period_detail = 3600;
@@ -3433,18 +3443,27 @@ var reportingController = function (app) {
                                     break;
                                 }
                             }
+
+                            var record = {};
+                            record["系统名称"] = ArrayName;
+                            record["存储序列号"] = item.device;
+
+
                             for ( var j in item.matrics ) {
                                 var perfitem = item.matrics[j];
                                 var timestamp = perfitem.timestamp;
-                                var dt = moment.unix(timestamp).format('YYYY-MM-DD HH:mm:ss');  
+                                var dt = moment.unix(timestamp).format('YYYY-MM-DD');  
+                                var hour = moment.unix(timestamp).format('HH');   
 
-                                var record = {};
-                                record["系统名称"] = ArrayName;
-                                record["存储序列号"] = item.device;
-                                record["时间"] = dt;
-                                record["IOPS"] = perfitem.ReadRequests + perfitem.WriteRequests;
-                                records.push(record);
+                                if ( hour >= 9 && hour < 18 )  {
+                                    if ( record[dt+"_day"] === undefined ) record[dt+"_day"] = 0
+                                    record[dt+"_day"] += perfitem.IORate;
+                                } else {
+                                    if ( record[dt+"_night"] === undefined ) record[dt+"_night"] = 0;
+                                    record[dt+"_night"] += perfitem.IORate;
+                                } 
                             }
+                            records.push(record);
                         }
 
                         if ( arg1.result["array"] === undefined ) arg1.result["array"] = {};
@@ -3504,13 +3523,15 @@ var reportingController = function (app) {
                                      
                                 }
                                 var dtname = dt +" " + week;
-                                record[dtname] = perfitem.ReadRequests + perfitem.WriteRequests;
+                                record[dtname] = perfitem.IORate;
                             }
                             if ( record.localtion == "JXQ" ) JXQ.push(record);
                             else SD.push(record);
 
                             
                         }
+
+
 
                         
                         for ( var i in SD ) {
@@ -3687,7 +3708,7 @@ var reportingController = function (app) {
                     
                     var ArrayIOPSHours = arg1["array"]["IOPS_HOURS"];
                     var ws4 = XLSX.utils.json_to_sheet(ArrayIOPSHours); 
-                    XLSX.utils.book_append_sheet(wb, ws4, "存储资源IOPS均值(HOURS)");
+                    XLSX.utils.book_append_sheet(wb, ws4, "存储资源IOPS日间及夜间峰值");
                      
 
                     XLSX.writeFile(wb, outputFilename);  
