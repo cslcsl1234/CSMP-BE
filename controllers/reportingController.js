@@ -542,8 +542,8 @@ var reportingController = function (app) {
                         resItem['allocated_capacity_PB'] += (isNaN(item['allocated_capacity_PB']) == true) ? 0 : item['allocated_capacity_PB'];
                         resItem['allocated_capacity_last_year_PB'] += (isNaN(item['allocated_capacity_last_year_PB']) == true) ? 0 : item['allocated_capacity_last_year_PB'];
                         resItem['allocated_capacity_last_month_PB'] += (isNaN(item['allocated_capacity_last_month_PB']) == true) ? 0 : item['allocated_capacity_last_month_PB'];
-                        resItem['allocated_capacity_increase_PB'] = resItem['allocated_capacity_PB'] -  resItem['allocated_capacity_last_month_PB'];
-                        
+                        resItem['allocated_capacity_increase_PB'] = resItem['allocated_capacity_PB'] - resItem['allocated_capacity_last_month_PB'];
+
                         isFind = true;
                         break;
                     }
@@ -2218,8 +2218,8 @@ var reportingController = function (app) {
                 },
                 function (arg1, callback) {
 
-                    for ( var i in arg1 ) { 
-                        if ( isNaN(parseFloat(arg1[i].iops_avg)) ) 
+                    for (var i in arg1) {
+                        if (isNaN(parseFloat(arg1[i].iops_avg)))
                             arg1[i]["iops_avg"] = 0;
                     }
                     arg1.sort(sortBy("-iops_avg"));
@@ -2433,8 +2433,8 @@ var reportingController = function (app) {
                     var period = 86400;
                     var valuetype = 'average';
                     var lastMonth_start = util.getlastYearByDate(start).firstDay;
-                    var lastMonth_end = util.getlastYearByDate(start).lastDay ; 
-                    VMAX.GetStorageGroupsPerformance(device, period, lastMonth_start,lastMonth_end,  valuetype, function(rest) { 
+                    var lastMonth_end = util.getlastYearByDate(start).lastDay;
+                    VMAX.GetStorageGroupsPerformance(device, period, lastMonth_start, lastMonth_end, valuetype, function (rest) {
                         var rets = [];
                         for (var i in rest) {
                             var item = rest[i];
@@ -2460,7 +2460,7 @@ var reportingController = function (app) {
                     var UNKNOW = [];
                     for (var i in arg) {
                         var item = arg[i];
-                        if ( item.sg_name == 'XIAOI_SG') console.log(item);
+                        if (item.sg_name == 'XIAOI_SG') console.log(item);
                         if (item.device_name === undefined) UNKNOW.push(item);
                         else if (item.device_name.indexOf('JXQ') > 0) JXQ.push(item);
                         else if (item.device_name.indexOf('SD') > 0) SD.push(item);
@@ -2475,7 +2475,7 @@ var reportingController = function (app) {
                             var SDItem = SD[j];
                             var SDDeviceName = SDItem.device_name.split('-')[0];
 
-                            if (JXQItem.sg_name == SDItem.sg_name && JXQDeviceName == SDDeviceName ) {
+                            if (JXQItem.sg_name == SDItem.sg_name && JXQDeviceName == SDDeviceName) {
                                 var newItem = {};
 
                                 if (JXQItem.iops_avg > SDItem.iops_avg) {
@@ -2893,8 +2893,8 @@ var reportingController = function (app) {
                     });
                 },
                 function (arg1, callback) {
-                    for ( var i in arg1 ) { 
-                        if ( isNaN(parseFloat(arg1[i].response_time_ms)) ) 
+                    for (var i in arg1) {
+                        if (isNaN(parseFloat(arg1[i].response_time_ms)))
                             arg1[i]["response_time_ms"] = 0;
                     }
                     arg1.sort(sortBy("-response_time_ms"));
@@ -3076,12 +3076,12 @@ var reportingController = function (app) {
 
     */
 
-    
+
     // CEB Weekly Report
     app.get('/api/reports/weeklyreport/performance/applications', function (req, res) {
 
         res.setTimeout(1200 * 1000);
-        var device = req.query.device ;
+        var device = req.query.device;
         //ar start = moment(req.query.from).utc(8).format('YYYY-MM-DDTHH:mm:ss') + 'Z'
         //var end = moment(req.query.to).utc(8).format('YYYY-MM-DDTHH:mm:ss') + 'Z'
         var start = moment(req.query.from).toISOString();
@@ -3095,14 +3095,14 @@ var reportingController = function (app) {
         var period = 86400;
         var valuetype = 'average';
 
-        var config = configger.load(); 
+        var config = configger.load();
         var ReportTmpDataPath = config.Reporting.TmpDataPath;
         var ReportOutputPath = config.Reporting.OutputPath;
 
-        var outputFilename = ReportOutputPath + '//' + 'WeeklyReport_'+start_dt+'-'+end_dt+'.xlsx'; 
-        var DataFilename = ReportOutputPath + '//' + 'RecordData_WeeklyReport.json'; 
+        var outputFilename = ReportOutputPath + '//' + 'WeeklyReport_' + start_dt + '-' + end_dt + '.xlsx';
+        var DataFilename = ReportOutputPath + '//' + 'RecordData_WeeklyReport.json';
         console.log("Report output filename: " + outputFilename);
-        console.log("Data filename:" + DataFilename );
+        console.log("Data filename:" + DataFilename);
         console.log("Priv Data:" + priv_dt);
 
         var data = {};
@@ -3121,51 +3121,49 @@ var reportingController = function (app) {
 
 
         */
- 
+
         async.waterfall(
-            [   
-                function( callback ) {
- 
-                        var result = {};
-                        result["data"] = {};
-                        result["result"] = {};
-                        result["result"]["application"] = {};
-                        result["result"]["application"]["Throughput"] = {};
-                        result["result"]["application"]["ResponseTime"] = {};
+            [
+                function (callback) {
 
- 
-                        callback(null, result);
- 
+                    var result = {};
+                    result["data"] = {};
+                    result["result"] = {};
+                    result["result"]["application"] = {};
+                    result["result"]["application"]["Throughput"] = {};
+                    result["result"]["application"]["ResponseTime"] = {};
 
-                },  
-                function ( arg1, callback) {
-                    /* 
-                    Report.getAppStorageRelationV2(device, function (result) { 
-                        arg1.data["AppStorageRelation"] = result;
 
-                        var DataFilename = '/csmp/reporting/test/test.json';
-                        fs.writeFile(DataFilename, JSON.stringify(arg1), function (err) {
-                            if (err) throw err; 
-                        });
+                    callback(null, result);
 
-                        callback(null, arg1); 
-                    });  
-                    */
-                    var aaa = require("/csmp/reporting/test/test.json");
-                    callback(null, aaa);
+
                 },
-                function(arg1, callback ) {
+                function (arg1, callback) { 
+                                        Report.getAppStorageRelationV2(device, function (result) { 
+                                            arg1.data["AppStorageRelation"] = result;
+                    
+                                            var DataFilename = '/csmp/reporting/test/test.json';
+                                            fs.writeFile(DataFilename, JSON.stringify(arg1), function (err) {
+                                                if (err) throw err; 
+                                            });
+                    
+                                            callback(null, arg1); 
+                                        });   
+                    //var aaa = require("/csmp/reporting/test/test.json");
+                    //callback(null, aaa);
+                }, 
+                function (arg1, callback) {
                     var AppStorageelation = arg1.data.AppStorageRelation;
                     var AppSGMapping = [];
-                    for ( var i in AppStorageelation ) {
+                    for (var i in AppStorageelation) {
                         var item = AppStorageelation[i];
                         var newItem = {};
                         newItem["device"] = item.device;
                         newItem["arrayname"] = item.arrayname;
                         newItem["sgname"] = item.sgname;
-                        if ( item.appinfo !== undefined && item.appinfo.length > 0 )
-                            newItem["appname"] = item.appinfo[0].app; 
-                        else 
+                        if (item.appinfo !== undefined && item.appinfo.length > 0)
+                            newItem["appname"] = item.appinfo[0].app;
+                        else
                             newItem["appname"] = "";
                         AppSGMapping.push(newItem);
                     }
@@ -3173,7 +3171,7 @@ var reportingController = function (app) {
                     callback(null, arg1);
                 },
                 // calculate response time for each storage group
-                function(arg1, callback) {
+                function (arg1, callback) {
                     console.log("================== Begin GetStorageGroupsPerformance ================");
                     var period_detail = 3600;
                     VMAX.GetStorageGroupsPerformance(device, period_detail, start, end, valuetype, function (rest) {
@@ -3181,44 +3179,46 @@ var reportingController = function (app) {
                         var retArray = [];
                         var sgperf_result = [];
                         var appResult = {};
-                        /*
-                        for ( var i in rest ) {
-                            var item = rest[i];
-                            for ( var j in CEB_Core_Application_SG ) {
-                                var sgname = CEB_Core_Application_SG[j];
-*/
-                        for ( var j in CEB_Core_Application_SG ) {
+
+                        for (var j in CEB_Core_Application_SG) {
                             var sgname = CEB_Core_Application_SG[j];
-                            appResult[sgname] = []; 
+                            appResult[sgname] = [];
 
-                            for ( var i in rest ) {
-                                var item = rest[i];                            
+                            for (var i in rest) {
+                                var item = rest[i];
 
-                                if ( sgname == item.sgname ) {  
+
+
+                                if (sgname == item.sgname) {
                                     delete item.matricsStat;
                                     var matricsbyday = {};
-                                    for ( var j in item.matrics ) {
-                                        var MatricsItem = item.matrics[j];
+                                    for (var jj in item.matrics) {
+                                        var MatricsItem = item.matrics[jj];
                                         var date = moment.unix(MatricsItem.timestamp).format("YYYY-MM-DD");
-                                        var hour  = moment.unix(MatricsItem.timestamp).format("HH");
-                                        if ( matricsbyday[date] === undefined ) matricsbyday[date] = [];
+                                        var hour = moment.unix(MatricsItem.timestamp).format("HH");
+                                        if (matricsbyday[date] === undefined) matricsbyday[date] = [];
                                         var mItem = {};
                                         mItem["hour"] = hour;
                                         mItem["IORate"] = MatricsItem.IORate;
                                         mItem["ResponseTime"] = MatricsItem.ResponseTime;
-                                        
+
                                         matricsbyday[date].push(mItem);
                                     }
                                     item["day"] = matricsbyday;
                                     item["ResponeTimeByDay"] = {};
 
-                                    
+                                    if (item.sgname == 'EBMOP_SG') {
+                                        console.log(item);
+                                        console.log("**************");
+                                    }
+
+
                                     var totalResponseTime = 0;
-                                    for ( var date in matricsbyday ) {
+                                    for (var date in matricsbyday) {
                                         var totalTime = 0;
                                         var totalIOPS = 0;
                                         var ResponeTimeValue = 0;
-                                        for ( var j in matricsbyday[date]) {
+                                        for (var j in matricsbyday[date]) {
                                             var dayItem = matricsbyday[date][j];
                                             totalTime += dayItem.IORate * dayItem.ResponseTime;
                                             totalIOPS += dayItem.IORate;
@@ -3230,68 +3230,69 @@ var reportingController = function (app) {
 
                                     item["ResponeTimeTotal"] = totalResponseTime;
 
-                                    var itemResult = {};
+
                                     var appSGMapping = arg1.data.AppSGMapping;
-                                    for ( var z in appSGMapping ) {
+                                    for (var z in appSGMapping) {
                                         var mappingItem = appSGMapping[z];
-                                        if ( item.device == mappingItem.device && item.sgname == mappingItem.sgname ) {
+                                        if (item.device == mappingItem.device && item.sgname == mappingItem.sgname) {
+                                            var itemResult = {};
                                             itemResult["device"] = mappingItem.device;
                                             itemResult["arrayname"] = mappingItem.arrayname;
                                             itemResult["sgname"] = mappingItem.sgname;
                                             itemResult["appname"] = mappingItem.appname;
                                             itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
                                             itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
+                                            appResult[sgname].push(itemResult);
                                         }
                                     }
-                                    appResult[sgname].push(itemResult); 
-                                    retArray.push(item); 
-                                    break;
+                                    retArray.push(item);
                                 }
-                            }   
-                        } 
+                            }
+                        }
 
-                        for ( var sgname in appResult ) {
+                        for (var sgname in appResult) {
                             var item = appResult[sgname];
                             var totalRT = 0;
                             var totalRTResult = {};
                             totalRTResult["sgname"] = sgname;
- 
-                            for ( var i in item ) {
+
+                            for (var i in item) {
                                 var perfItem = item[i];
-                                if ( perfItem.ResponeTimeTotal > totalRT ) {
+                                if (perfItem.ResponeTimeTotal > totalRT) {
                                     totalRT = perfItem.ResponeTimeTotal;
                                     totalRTResult = perfItem;
                                 }
-                            }  
+                            }
                             sgperf_result.push(totalRTResult);
                         }
 
                         // the finalrecord of responsetime for each application 
                         var responseTimeRecords = [];
-                        for ( var i in sgperf_result ) {
+                        for (var i in sgperf_result) {
                             var item = sgperf_result[i];
 
                             var record = {};
                             record["系统名称"] = item["appname"];
                             record["所属存储"] = item["arrayname"];
                             record["SG成员"] = item.sgname;
-    
+
                             var totalValue = 0;
                             var totalCount = 0;
-                            for ( var dtname in item.ResponeTimeByDay ) {
-                                var value1 = item.ResponeTimeByDay[dtname];  
+                            for (var dtname in item.ResponeTimeByDay) {
+                                var value1 = item.ResponeTimeByDay[dtname];
                                 record[dtname] = value1;
                                 totalValue += value1;
                                 totalCount++;
-                            } 
-                            record["本周日均响应时间峰值"] = (totalCount ==0)?0:totalValue/totalCount; 
+                            }
+                            record["本周日均响应时间峰值"] = (totalCount == 0) ? 0 : totalValue / totalCount;
                             responseTimeRecords.push(record);
-    
+
                         }
 
                         arg1["data"]["SGPerfDetail"] = retArray;
                         arg1["data"]["SGPerfResponeTimeResult"] = sgperf_result;
-                        arg1["result"]["application"]["ResponseTime"] = responseTimeRecords; 
+                        arg1["data"]["APPResult"] = appResult;
+                        arg1["result"]["application"]["ResponseTime"] = responseTimeRecords;
                         callback(null, arg1);
 
                     })
@@ -3299,103 +3300,103 @@ var reportingController = function (app) {
                 // -------------------------------------
                 // Get IOPS peak value 
                 // -----------------------------------------
-                function (data , callback) {   
+                function (data, callback) {
                     console.log("================== Begin GetStorageGroupsPerformance ================");
                     VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function (rest) {
                         var rets = [];
                         var arg1 = data.data.AppStorageRelation;
 
-                        for ( var i in arg1 ) {
+                        for (var i in arg1) {
                             var appItem = arg1[i];
-                       
+
                             for (var j in rest) {
-                                var item = rest[j]; 
-                                if ( item === undefined || item == null || item == "null" ) continue;
-                                if ( item.device == appItem.device && item.sgname == appItem.sgname ) { 
+                                var item = rest[j];
+                                if (item === undefined || item == null || item == "null") continue;
+                                if (item.device == appItem.device && item.sgname == appItem.sgname) {
                                     appItem["perf"] = item;
                                     break;
                                 }
-                            }     
-                        } 
+                            }
+                        }
                         callback(null, data);
                     });
-                } ,
-                function( arg1, callback ) {
+                },
+                function (arg1, callback) {
                     var records = {};
                     var retArray = [];
-                    for ( var i in arg1.data.AppStorageRelation ) {
+                    for (var i in arg1.data.AppStorageRelation) {
                         var item = arg1.data.AppStorageRelation[i];
 
                         // filter the sg in the CEB-Core-Application-sg 
-                        for ( var j in CEB_Core_Application_SG ) {
+                        for (var j in CEB_Core_Application_SG) {
                             var sgname = CEB_Core_Application_SG[j];
-                            if ( sgname == item.sgname ) { 
-                                retArray.push(item); 
+                            if (sgname == item.sgname) {
+                                retArray.push(item);
                                 break;
                             }
-                        }  
+                        }
                     }
                     arg1["data"].AppStorageRelation = retArray;
-                    
-                    callback(null, arg1);
-                } 
-                ,
-                function(arg1 , callback) {
-                    var finalRecords = {}; 
-                       
-                    for ( var i in arg1.data.AppStorageRelation ) {
-                        var item = arg1.data.AppStorageRelation[i]; 
 
-                        for ( var appItem in item.appinfo ) {
+                    callback(null, arg1);
+                }
+                ,
+                function (arg1, callback) {
+                    var finalRecords = {};
+
+                    for (var i in arg1.data.AppStorageRelation) {
+                        var item = arg1.data.AppStorageRelation[i];
+
+                        for (var appItem in item.appinfo) {
                             var appname = item.appinfo[appItem].app;
-                            if ( appname === "" || appname === undefined ) 
+                            if (appname === "" || appname === undefined)
                                 console.log(JSON.stringify(item));
                         }
-                        
-                        if ( item.arrayname === undefined ) {
-                            var array = item.device; 
-                            var sgmember = array +'~' + item.sgname + '~' + item.Capacity;
-                        } 
+
+                        if (item.arrayname === undefined) {
+                            var array = item.device;
+                            var sgmember = array + '~' + item.sgname + '~' + item.Capacity;
+                        }
                         else {
                             var array = item.arrayname.split('-')[0];
-                            var sgmember = item.arrayname +'~' + item.sgname + '~' + item.Capacity;
+                            var sgmember = item.arrayname + '~' + item.sgname + '~' + item.Capacity;
                         }
 
-  
-                        if ( finalRecords[appname] === undefined ) {
+
+                        if (finalRecords[appname] === undefined) {
                             var record = {};
 
                             record["appname"] = appname;
                             record["array"] = array;
                             record["sgmember"] = [];
                             record["sgmember"].push(sgmember);
-    
+
                             record["sgname"] = [];
                             record.sgname.push(item.perf);
-     
+
                             finalRecords[appname] = record;
                         }
                         else {
-                            if ( finalRecords[appname].array.indexOf(array) < 0  )
-                                finalRecords[appname].array = finalRecords[appname].array +',' + array;
+                            if (finalRecords[appname].array.indexOf(array) < 0)
+                                finalRecords[appname].array = finalRecords[appname].array + ',' + array;
 
                             finalRecords[appname].sgmember.push(sgmember);
-  
-                            
-                            if ( item.perf === undefined ) {
-                                console.log("Not Exist Performance Data ====\n" + finalRecords[appname].sgname.length );
-                                console.log(JSON.stringify(item)); 
-                            } else 
+
+
+                            if (item.perf === undefined) {
+                                console.log("Not Exist Performance Data ====\n" + finalRecords[appname].sgname.length);
+                                console.log(JSON.stringify(item));
+                            } else
                                 finalRecords[appname].sgname.push(item.perf);
                         }
-                    } 
+                    }
 
                     arg1.data.array_sg_performance = finalRecords;
                     callback(null, arg1);
-                } ,
-                function( arg1, callback ) {
+                },
+                function (arg1, callback) {
                     var outputRecords = [];
-                    for ( var i in arg1.data.array_sg_performance ) {
+                    for (var i in arg1.data.array_sg_performance) {
                         var item = arg1.data.array_sg_performance[i];
                         var record = {};
                         record["系统名称"] = item.appname;
@@ -3404,44 +3405,44 @@ var reportingController = function (app) {
                         record["ResponseTime"] = {};
                         record["ThroughputDetail"] = {};
 
-                        for ( var j in item.sgname ) {
+                        for (var j in item.sgname) {
                             var sgperf = item.sgname[j];
 
-                            if ( sgperf === undefined ) {
-                                console.log("====================\n" + j );
+                            if (sgperf === undefined) {
+                                console.log("====================\n" + j);
                                 //console.log(JSON.stringify(item) );
                                 continue;
                             }
 
-                            if ( sgperf.matrics === undefined ) continue;
+                            if (sgperf.matrics === undefined) continue;
                             // for matrics for each sgname performance
-                            for ( var z in sgperf.matrics ) {
-                                var sgperfMatrics = sgperf.matrics[z]; 
+                            for (var z in sgperf.matrics) {
+                                var sgperfMatrics = sgperf.matrics[z];
 
                                 // Throughput
-                                if ( record.ThroughputDetail[sgperfMatrics.timestamp] === undefined ) 
-                                    record.ThroughputDetail[sgperfMatrics.timestamp] = sgperfMatrics.WriteThroughput + sgperfMatrics.ReadThroughput ;
+                                if (record.ThroughputDetail[sgperfMatrics.timestamp] === undefined)
+                                    record.ThroughputDetail[sgperfMatrics.timestamp] = sgperfMatrics.WriteThroughput + sgperfMatrics.ReadThroughput;
                                 else
-                                    record.ThroughputDetail[sgperfMatrics.timestamp] += sgperfMatrics.WriteThroughput + sgperfMatrics.ReadThroughput ;
+                                    record.ThroughputDetail[sgperfMatrics.timestamp] += sgperfMatrics.WriteThroughput + sgperfMatrics.ReadThroughput;
 
                             }
 
 
                         }
                         outputRecords.push(record);
-                            
+
 
                     }
                     arg1.data.output = outputRecords;
-                    callback( null, arg1) ;
+                    callback(null, arg1);
                 },
 
-                function( arg1 , callback ) {
+                function (arg1, callback) {
 
                     var responseTimeRecords = [];
                     var ThroughputRecords = [];
-                    for ( var i in arg1.data.output  ) {
-                        var item = arg1.data.output[i]; 
+                    for (var i in arg1.data.output) {
+                        var item = arg1.data.output[i];
 
                         var record = {};
                         record["系统名称"] = item["系统名称"];
@@ -3449,13 +3450,13 @@ var reportingController = function (app) {
 
                         var totalValue = 0;
                         var totalCount = 0;
-                        for ( var timestamp in item.ThroughputDetail ) {
+                        for (var timestamp in item.ThroughputDetail) {
                             var value1 = item.ThroughputDetail[timestamp];
                             var dt = moment.unix(timestamp).format('YYYY-MM-DD');
                             var week;
-                            
-                            switch ( moment.unix(timestamp).format('d') ) {
-                                case '0': 
+
+                            switch (moment.unix(timestamp).format('d')) {
+                                case '0':
                                     week = "星期日";
                                     break;
                                 case '1':
@@ -3476,109 +3477,127 @@ var reportingController = function (app) {
                                 case '6':
                                     week = "星期六";
                                     break;
-                                 
+
                             }
-                            var dtname = dt +" " + week;
+                            var dtname = dt + " " + week;
                             record[dtname] = value1;
                             totalValue += value1;
                             totalCount++;
-                        } 
-                        record["本周工作日均值"] = (totalCount ==0)?0:totalValue/totalCount;
-                       // record["SG成员"] = JSON.stringify(item["sgmember"]); 
-                        ThroughputRecords.push(record); 
+                        }
+                        record["本周工作日均值"] = (totalCount == 0) ? 0 : totalValue / totalCount;
+                        // record["SG成员"] = JSON.stringify(item["sgmember"]); 
+                        ThroughputRecords.push(record);
 
-                    }  
+                    }
                     arg1.result["application"]["Throughput"] = ThroughputRecords;
-                    callback(null, arg1 )
+                    callback(null, arg1)
 
                 },
 
- 
                 // --------------------------
                 // Statistics for Arrays
                 //----------------------------
-                function(arg1, callback ) {
-                    var device;  
-                    DeviceMgmt.GetArrayAliasName(function(arrayinfo) {   
+                function (arg1, callback) {
+                    var device;
+                    DeviceMgmt.GetArrayAliasName(function (arrayinfo) {
                         arg1["data"]["arrayinfo"] = arrayinfo;
-                        callback(null,arg1); 
-                    });               
+                        callback(null, arg1);
+                    });
                 },
                 // --------------------------------
                 // 存储资源IOPS日间及夜间峰值 
                 // --------------------------------
-                function(arg1,callback ) {
-                    var device;  
-                    var period_detail = 3600;
+                function (arg1, callback) {
+                    var device;
+                    var period_detail = 0;
                     var valuetype = 'max'
                     var arrayinfos = arg1.data.arrayinfo;
-                    VMAX.getArrayPerformanceV3( device, start, end , valuetype, period_detail, function(result) {            
+                    VMAX.getArrayPerformanceV3(device, start, end, valuetype, period_detail, function (result) {
+                        var aaa = {};
                         var records = [];
-                        for ( var i in result) {
+                        for (var i in result) {
                             var item = result[i];
 
+                            delete item.matricsStat;
+
                             var ArrayName = item.device;
-                            for ( var z in arrayinfos ) {
+                            for (var z in arrayinfos) {
                                 var infoItem = arrayinfos[z];
-                                if ( item.device == infoItem.sn ) {
-                                    ArrayName = infoItem.name; 
+                                if (item.device == infoItem.sn) {
+                                    ArrayName = infoItem.name;
                                     break;
                                 }
                             }
 
-                            var record = {};
-                            record["系统名称"] = ArrayName;
-                            record["存储序列号"] = item.device;
+                            item["ArrayName"] = ArrayName;
+                            item["NameHead"] = ArrayName.split('-')[0];
 
-
-                            for ( var j in item.matrics ) {
-                                var perfitem = item.matrics[j];
-                                var timestamp = perfitem.timestamp;
-                                var dt = moment.unix(timestamp).format('YYYY-MM-DD');  
-                                var hour = moment.unix(timestamp).format('HH');   
-
-                                if ( hour >= 9 && hour < 18 )  {
-                                    if ( record[dt+"_day"] === undefined ) record[dt+"_day"] = 0
-                                    record[dt+"_day"] += perfitem.IORate;
-                                } else {
-                                    if ( record[dt+"_night"] === undefined ) record[dt+"_night"] = 0;
-                                    record[dt+"_night"] += perfitem.IORate;
-                                } 
+                            for (var j in item.matrics) {
+                                var item1 = item.matrics[j];
+                                item1["datetime"] = moment.unix(item1.timestamp).format('YYYY-MM-DD HH:mm:ss');
                             }
-                            records.push(record);
+
+                         if ( aaa[item.NameHead] === undefined ) aaa[item.NameHead] = [];
+                         aaa[item.NameHead].push(item);
+
                         }
+
+                        arg1.data["ArrayIORateDetail"] = aaa;
+
+
 
                         // Merge the result of 2 side array
                         var mergedRecords = [];
-                        for ( var i in records ) {
-                            var item =records[i];
-                            var arrayNameHead = item["系统名称"].split('-')[0];
+                        for (var i in result) {
+                            var item = result[i];
+                            var arrayNameHead = item.NameHead;
                             var isfind = false;
-                            for ( var j in mergedRecords ) {
+                            for (var j in mergedRecords) {
                                 var mergedItem = mergedRecords[j];
-                                if ( arrayNameHead == mergedItem["系统名称"]) {
-                                    if ( arrayNameHead == "VMAX8" ) {
-                                        console.log(item);
-                                        console.log("------------------");
-                                        console.log(mergedItem);
-                                    }
+                                if (arrayNameHead == mergedItem["NameHead"]) {
                                     isfind = true;
-                                    for ( var fieldname in mergedItem ) {
-                                        if ( fieldname != '系统名称') {
-                                            mergedItem[fieldname] += item[fieldname] === undefined ? 0: item[fieldname] ;
+
+                                    mergedItem.devices += ',' + item.device;
+
+                                    for (var i1 in item.matrics) {
+
+                                        var item1 = item.matrics[i1];
+
+                                        for (var i2 in mergedItem.matrics) {
+                                            var item2 = mergedItem.matrics[i2];
+
+                                            if (item1.timestamp == item2.timestamp) {
+                                                item2.IORate += item1.IORate;
+                                                item2.IORateExpress = item2.IORateExpress + '+' + item1.IORate;
+                                            }
                                         }
+
                                     }
+
                                 }
 
                             }
-                            if ( isfind == false ) {
+
+                            if (isfind == false) {
                                 var mergedRecordItem = {};
 
-                                mergedRecordItem["系统名称"] = arrayNameHead;
-                                for ( var fieldname in item ) {
-                                    if ( fieldname != '系统名称' && fieldname != '存储序列号') {
-                                        mergedRecordItem[fieldname] = item[fieldname];
-                                    }
+                                mergedRecordItem["NameHead"] = arrayNameHead;
+                                mergedRecordItem["devices"]=item.device;
+                                mergedRecordItem["matrics"] = [];
+                                for (var i1 in item.matrics) {
+                                    var item1 = item.matrics[i1];
+                                    var newItem = {};
+                                    newItem["timestamp"] = item1["timestamp"];
+
+                                    var timestamp = item1.timestamp; 
+                                    newItem["date"] = moment.unix(timestamp).format('YYYY-MM-DD');
+                                    newItem["hour"] = moment.unix(timestamp).format('HH');
+                                    newItem["minute"] = moment.unix(timestamp).format('mm');
+
+                                    newItem["IORate"] = item1["IORate"];
+                                    newItem["IORateExpress"] = item1["IORate"];
+
+                                    mergedRecordItem.matrics.push(newItem);
                                 }
 
                                 mergedRecords.push(mergedRecordItem);
@@ -3587,41 +3606,71 @@ var reportingController = function (app) {
                         }
 
 
-                        if ( arg1.result["array"] === undefined ) arg1.result["array"] = {};
-                        arg1.result["array"]["IOPS_HOURS_DETAIL"] = records;
-                        arg1.result["array"]["IOPS_HOURS"] = mergedRecords;
+                        // Split the max value of Day and night in whole Day.
+                        var finalRecords = [];
+                        for (var i in mergedRecords) {
+                            var item = mergedRecords[i];
+
+
+                            var record = {};
+                            record["ArrayName"] = item.NameHead;
+                            for (var j in item.matrics) {
+                                var item1 = item.matrics[j];
+                                var dt = item1.date;
+                                var hour = item1.hour;
+
+                                if (hour >= 9 && hour < 18) {
+                                    if (record[dt + "_day"] === undefined) record[dt + "_day"] = item1.IORate;
+                                    else if (item1.IORate > record[dt + "_day"]) record[dt + "_day"] = item1.IORate;
+                                } else {
+                                    if (record[dt + "_night"] === undefined) record[dt + "_night"] = item1.IORate;
+                                    else if (item1.IORate > record[dt + "_night"]) record[dt + "_night"] = item1.IORate;
+                                }
+
+                            }
+
+                            finalRecords.push(record);
+
+
+
+                        }
+
+
+                        if (arg1.result["array"] === undefined) arg1.result["array"] = {};
+                        arg1.data["IOPS_HOURS_DETAIL"] = mergedRecords;
+                        arg1.result["array"]["IOPS_HOURS"] = finalRecords;
 
                         callback(null, arg1);
                     })
                 },
-                function(arg1,callback ) {
-                    var device;  
+                function (arg1, callback) {
+                    var device;
                     var arrayinfos = arg1.data.arrayinfo;
-                    VMAX.getArrayPerformanceV3( device, start, end , valuetype, period, function(result) {            
-                        
+                    VMAX.getArrayPerformanceV3(device, start, end, valuetype, period, function (result) {
+
                         var SD = [];
                         var JXQ = [];
                         var records = [];
-                        for ( var i in result) {
+                        for (var i in result) {
                             var item = result[i];
 
                             var record = {};
                             record["系统名称"] = item.device;
-                            for ( var z in arrayinfos ) {
+                            for (var z in arrayinfos) {
                                 var infoItem = arrayinfos[z];
-                                if ( item.device == infoItem.sn ) {
+                                if (item.device == infoItem.sn) {
                                     record["系统名称"] = infoItem.name.split('-')[0];
                                     record["localtion"] = infoItem.name.split('-')[1];
                                     break;
                                 }
                             }
-                            for ( var j in item.matrics ) {
+                            for (var j in item.matrics) {
                                 var perfitem = item.matrics[j];
                                 var timestamp = perfitem.timestamp;
                                 var dt = moment.unix(timestamp).format('YYYY-MM-DD');
                                 var week;
-                                switch ( moment.unix(timestamp).format('d') ) {
-                                    case '0': 
+                                switch (moment.unix(timestamp).format('d')) {
+                                    case '0':
                                         week = "星期日";
                                         break;
                                     case '1':
@@ -3642,209 +3691,210 @@ var reportingController = function (app) {
                                     case '6':
                                         week = "星期六";
                                         break;
-                                     
+
                                 }
-                                var dtname = dt +" " + week;
+                                var dtname = dt + " " + week;
                                 record[dtname] = perfitem.IORate;
                             }
-                            if ( record.localtion == "JXQ" ) JXQ.push(record);
+                            if (record.localtion == "JXQ") JXQ.push(record);
                             else SD.push(record);
 
-                            
+
                         }
 
 
 
-                        
-                        for ( var i in SD ) {
+
+                        for (var i in SD) {
                             var item_sd = SD[i];
-                            var record ;
-                            for ( var j in JXQ ) {
+                            var record;
+                            for (var j in JXQ) {
                                 var item_jxq = JXQ[j];
-                                
+
                                 //console.log(item_sd["系统名称"] +'\t'+ item_jxq["系统名称"]);
-                                if ( item_sd["系统名称"] == item_jxq["系统名称"])
-                                    for ( var name in item_jxq ) {
-                                        if ( name == '系统名称' || name == 'localtion' ) continue;
-                                        if ( item_sd[name] === undefined ) item_sd[name] = item_jxq[name];
+                                if (item_sd["系统名称"] == item_jxq["系统名称"])
+                                    for (var name in item_jxq) {
+                                        if (name == '系统名称' || name == 'localtion') continue;
+                                        if (item_sd[name] === undefined) item_sd[name] = item_jxq[name];
                                         else item_sd[name] += item_jxq[name];
                                     }
 
                             }
                             delete item_sd['localtion'];
-                            
-                            
+
+
                             var value = 0;
                             var count = 0;
-                            for ( var name in item_sd ) {
-                                if ( name == "系统名称" ) continue;
+                            for (var name in item_sd) {
+                                if (name == "系统名称") continue;
                                 else {
                                     value += item_sd[name];
                                     count++;
                                 }
                             }
-                            item_sd["本周工作日均值"] = (count>0)?value/count:0;
+                            item_sd["本周工作日均值"] = (count > 0) ? value / count : 0;
                             records.push(item_sd);
 
                         }
 
-                        if ( arg1.result["array"] === undefined ) arg1.result["array"] = {};
+                        if (arg1.result["array"] === undefined) arg1.result["array"] = {};
                         arg1.result["array"]["IOPS"] = records;
 
-                        callback( null, arg1 );
-                    }); 
-        
+                        callback(null, arg1);
+                    });
+
                 },
-                function(arg1, callback ){
+                function (arg1, callback) {
                     // Recording the data for using next week;
-                    
-                    fs.readFile(DataFilename , function(err, datarecord ) { 
-                        if ( datarecord === undefined ) {
-                            var outputRecord = {}; 
+
+                    fs.readFile(DataFilename, function (err, datarecord) {
+                        if (datarecord === undefined) {
+                            var outputRecord = {};
                         } else {
                             var outputRecord = JSON.parse(datarecord);
-                            datarecord[end_dt] = arg1.result; 
+                            datarecord[end_dt] = arg1.result;
                         }
 
 
 
                         outputRecord[end_dt] = arg1.result;
                         fs.writeFile(DataFilename, JSON.stringify(outputRecord), function (err) {
-                            if (err) throw err; 
+                            if (err) throw err;
                         });
- 
 
-                        var PrivData = outputRecord[priv_dt]; 
+
+                        var PrivData = outputRecord[priv_dt];
                         var applicationData = arg1.result["application"];
                         var arrayData = arg1.result["array"];
 
 
-                        var ThroughputRecords = applicationData["Throughput"]; 
-                        for ( var j in ThroughputRecords ) {
+                        var ThroughputRecords = applicationData["Throughput"];
+                        for (var j in ThroughputRecords) {
                             var item1 = ThroughputRecords[j];
 
-                            if ( PrivData === undefined ) {
+                            if (PrivData === undefined) {
                                 item1["上周工作日均值"] = -2;
-                            } else { 
+                            } else {
                                 var isfind = false;
 
-                                for ( var i in PrivData.application.Throughput) {
-                                    var item = PrivData.application.Throughput[i] ;
-                                    
-                                    if ( item1["系统名称"] == item["系统名称"] ) {
+                                for (var i in PrivData.application.Throughput) {
+                                    var item = PrivData.application.Throughput[i];
+
+                                    if (item1["系统名称"] == item["系统名称"]) {
                                         //console.log(item1["系统名称"] +'\t' + item["系统名称"])
                                         isfind = true;
                                         item1["上周工作日均值"] = item["本周工作日均值"];
                                         //console.log(item);
                                         //console.log(item1["系统名称"] +'\t' + item["系统名称"]+"\t"+item1["上周工作日均值"] +"\t"+ item["本周工作日均值"]);
                                         break;
-                                    }  
+                                    }
                                 }
-                                if ( isfind == false ) {
+                                if (isfind == false) {
                                     item1["上周工作日均值"] = -1;
-                                }  
+                                }
                             }
-                        } 
+                        }
 
 
-                                              
-                        var responseTimeRecords = applicationData["ResponseTime"]; 
-                        for ( var j in responseTimeRecords ) {
+
+                        var responseTimeRecords = applicationData["ResponseTime"];
+                        for (var j in responseTimeRecords) {
                             var item1 = responseTimeRecords[j];
 
-                            if ( PrivData === undefined ) {
+                            if (PrivData === undefined) {
                                 item1["上周日均响应时间峰值"] = -2;
-                            } else { 
+                            } else {
                                 var isfind = false;
 
-                                for ( var i in PrivData.application.ResponseTime) {
-                                    var item = PrivData.application.ResponseTime[i] ;
-                                    
-                                    if ( item1["系统名称"] == item["系统名称"] ) {
+                                for (var i in PrivData.application.ResponseTime) {
+                                    var item = PrivData.application.ResponseTime[i];
+
+                                    if (item1["系统名称"] == item["系统名称"]) {
                                         //console.log(item1["系统名称"] +'\t' + item["系统名称"])
                                         isfind = true;
                                         item1["上周日均响应时间峰值"] = item["本周日均响应时间峰值"];
                                         //console.log(item);
                                         //console.log(item1["系统名称"] +'\t' + item["系统名称"]+"\t"+item1["上周日均响应时间峰值"] +"\t"+ item["本周日均响应时间峰值"]);
                                         break;
-                                    }  
+                                    }
                                 }
-                                if ( isfind == false ) {
+                                if (isfind == false) {
                                     item1["上周日均响应时间峰值"] = -1;
-                                }  
+                                }
                             }
-                        } 
+                        }
 
 
 
-                        var arrayIOPS = arrayData["IOPS"]; 
-                        for ( var j in arrayIOPS ) {
+                        var arrayIOPS = arrayData["IOPS"];
+                        for (var j in arrayIOPS) {
                             var item1 = arrayIOPS[j];
 
-                            if ( PrivData === undefined ) {
+                            if (PrivData === undefined) {
                                 item1["上周工作日均值"] = -2;
-                            } else { 
+                            } else {
                                 var isfind = false;
 
-                                for ( var i in PrivData.array.IOPS) {
-                                    var item = PrivData.array.IOPS[i] ;
-                                    
-                                    if ( item1["系统名称"] == item["系统名称"] ) {
-                                       // console.log(item1["系统名称"] +'\t' + item["系统名称"])
+                                for (var i in PrivData.array.IOPS) {
+                                    var item = PrivData.array.IOPS[i];
+
+                                    if (item1["系统名称"] == item["系统名称"]) {
+                                        // console.log(item1["系统名称"] +'\t' + item["系统名称"])
                                         isfind = true;
-                                        item1["上周工作日均值"] = item["本周工作日均值"]; 
+                                        item1["上周工作日均值"] = item["本周工作日均值"];
                                         var percent = item1["上周工作日均值"] > 0 ? (item1["本周工作日均值"] - item1["上周工作日均值"]) / item1["上周工作日均值"] * 100 : 0;
                                         item1["本周IOPS增幅"] = percent.toFixed(2) + " %";
                                         break;
-                                    }  
+                                    }
                                 }
-                                if ( isfind == false ) {
+                                if (isfind == false) {
                                     item1["上周工作日均值"] = -1;
-                                }  
+                                }
                             }
-                        } 
+                        }
 
                         callback(null, arg1);
                     });
-                    
+
                 },
-                function(arg, callback ) {
+                function (arg, callback) {
                     var arg1 = arg.result;
-  
+ 
                     var ThroughputRecords = arg1["application"]["Throughput"];
                     var responseTimeRecords = arg1["application"]["ResponseTime"];
 
                     var XLSX = require('xlsx');
 
                     var wb = XLSX.utils.book_new();
- 
-                    var ws1 = XLSX.utils.json_to_sheet(ThroughputRecords); 
+
+                    var ws1 = XLSX.utils.json_to_sheet(ThroughputRecords);
                     XLSX.utils.book_append_sheet(wb, ws1, "系统存储磁盘读写吞吐量");
- 
-                    var ws2 = XLSX.utils.json_to_sheet(responseTimeRecords); 
-                    XLSX.utils.book_append_sheet(wb, ws2, "系统存储IO响应时间"); 
+
+                    var ws2 = XLSX.utils.json_to_sheet(responseTimeRecords);
+                    XLSX.utils.book_append_sheet(wb, ws2, "系统存储IO响应时间");
 
                     var ArrayIOPS = arg1["array"]["IOPS"];
-                    var ws3 = XLSX.utils.json_to_sheet(ArrayIOPS); 
+                    var ws3 = XLSX.utils.json_to_sheet(ArrayIOPS);
                     XLSX.utils.book_append_sheet(wb, ws3, "存储资源IOPS均值");
-                     
-                    
+
+
                     var ArrayIOPSHours = arg1["array"]["IOPS_HOURS"];
-                    var ws4 = XLSX.utils.json_to_sheet(ArrayIOPSHours); 
+                    var ws4 = XLSX.utils.json_to_sheet(ArrayIOPSHours);
                     XLSX.utils.book_append_sheet(wb, ws4, "存储资源IOPS日间及夜间峰值");
 
-                                        
-                    var ArrayIOPSHoursDetail = arg1["array"]["IOPS_HOURS_DETAIL"];
-                    var ws5 = XLSX.utils.json_to_sheet(ArrayIOPSHoursDetail); 
-                    XLSX.utils.book_append_sheet(wb, ws5, "存储资源IOPS日间及夜间峰值-明细表");
-  
+XLSX.writeFile(wb, outputFilename);
+ 
+                    
+                    callback(null, arg);
+                }
 
-                    XLSX.writeFile(wb, outputFilename);  
-                    callback(null,arg);
-                } 
-                
-            ], function (err, result) { 
-                res.json(200, result);
+            ], function (err, result) {
+                var DataFilename = '/csmp/reporting/weeklyreport_detail_'+end_dt+'.json'
+                fs.writeFile(DataFilename, JSON.stringify(result), function (err) {
+                    if (err) throw err;
+                });
+                res.json(200, DataFilename+','+outputFilename);
+                //res.json(200, result.data.IOPS_HOURS_DETAIL);
             });
 
     });
