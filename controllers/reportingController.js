@@ -3139,16 +3139,16 @@ var reportingController = function (app) {
 
                 },
                 function (arg1, callback) { 
-                                        Report.getAppStorageRelationV2(device, function (result) { 
-                                            arg1.data["AppStorageRelation"] = result;
-                    
-                                            var DataFilename = '/csmp/reporting/test/test.json';
-                                            fs.writeFile(DataFilename, JSON.stringify(arg1), function (err) {
-                                                if (err) throw err; 
-                                            });
-                    
-                                            callback(null, arg1); 
-                                        });   
+                    Report.getAppStorageRelationV2(device, function (result) { 
+                        arg1.data["AppStorageRelation"] = result;
+
+                        var DataFilename = '/csmp/reporting/test/test.json';
+                        fs.writeFile(DataFilename, JSON.stringify(arg1), function (err) {
+                            if (err) throw err; 
+                        });
+
+                        callback(null, arg1); 
+                    });   
                     //var aaa = require("/csmp/reporting/test/test.json");
                     //callback(null, aaa);
                 }, 
@@ -3167,21 +3167,50 @@ var reportingController = function (app) {
                             newItem["appname"] = "";
                         AppSGMapping.push(newItem);
                     }
+
                     arg1.data["AppSGMapping"] = AppSGMapping;
+
                     callback(null, arg1);
                 },
                 // calculate response time for each storage group
                 function (arg1, callback) {
                     console.log("================== Begin GetStorageGroupsPerformance ================");
+			// TEST
                     var period_detail = 3600;
-                    VMAX.GetStorageGroupsPerformance(device, period_detail, start, end, valuetype, function (rest) {
-                        // filter the sg in the CEB-Core-Application-sg 
+                    var valuetype1 = 'average';
+
+                    //VMAX.GetStorageGroupsPerformance(device, period_detail, start, end, valuetype1, function (rest) {
+
+		    var param = {};
+		    param['device'] = device;
+		    param['period'] = period_detail;
+		    param['start'] = start;
+		    param['end'] = end;
+		    param['type'] = valuetype1;
+		    param['filter_name'] = '(name=\'IORate\'|name=\'ResponseTime\')';
+		    param['keys'] = ['device', 'part'];
+		    param['fields'] = ['name', 'sgname'];
+		    param['filter'] = '(datagrp=\'VMAX-StorageGroup\'&parttype=\'Storage Group\')';
+		    param['limit'] = 100000;
+
+		    CallGet.CallGetPerformance(param, function (rest) {
+
+
+                    	console.log("filter the sg in the CEB-Core-Application-sg ");
                         var retArray = [];
                         var sgperf_result = [];
                         var appResult = {};
 
                         for (var j in CEB_Core_Application_SG) {
-                            var sgname = CEB_Core_Application_SG[j];
+
+
+			    var sgname_arrayname_head = CEB_Core_Application_SG[j].split('|')[1];
+			    var sgname = CEB_Core_Application_SG[j].split('|')[0];
+                            //var sgname = CEB_Core_Application_SG[j];
+
+			    console.log("SGName="+sgname+","+"array="+sgname_arrayname_head);
+
+
                             appResult[sgname] = [];
 
                             for (var i in rest) {
@@ -3190,6 +3219,44 @@ var reportingController = function (app) {
 
 
                                 if (sgname == item.sgname) {
+
+
+				    var isfind = false;
+				    var itemResult = {};
+
+
+				    for ( var zz in arg1.data.AppSGMapping) {
+					var zzItem = arg1.data.AppSGMapping[zz];
+
+					if ( sgname_arrayname_head !== undefined )  {
+					
+						var arrayNameHead = zzItem.arrayname.split('-')[0];
+						if (item.device == zzItem.device && item.sgname == zzItem.sgname && sgname_arrayname_head == arrayNameHead ) {
+							isfind = true;
+							itemResult["device"] = zzItem.device;
+							itemResult["arrayname"] = zzItem.arrayname;
+							itemResult["sgname"] = zzItem.sgname;
+							itemResult["appname"] = zzItem.appname;
+							break;
+						}
+
+					} else  {
+						if (item.device == zzItem.device && item.sgname == zzItem.sgname ) {
+							isfind = true;
+							itemResult["device"] = zzItem.device;
+							itemResult["arrayname"] = zzItem.arrayname;
+							itemResult["sgname"] = zzItem.sgname;
+							itemResult["appname"] = zzItem.appname;
+							break;
+						}
+					}
+				    }
+
+				    if ( isfind == false ) continue;
+
+
+
+
                                     delete item.matricsStat;
                                     var matricsbyday = {};
                                     for (var jj in item.matrics) {
@@ -3206,11 +3273,13 @@ var reportingController = function (app) {
                                     }
                                     item["day"] = matricsbyday;
                                     item["ResponeTimeByDay"] = {};
+/*
 
-                                    if (item.sgname == 'EBMOP_SG') {
+                                    if (item.sgname == 'EBPP_SG') {
                                         console.log(item);
                                         console.log("**************");
                                     }
+*/
 
 
                                     var totalResponseTime = 0;
@@ -3230,21 +3299,54 @@ var reportingController = function (app) {
 
                                     item["ResponeTimeTotal"] = totalResponseTime;
 
+				    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
+				    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
+				    appResult[sgname].push(itemResult);
+                                    if (item.sgname == 'EBPP_SG') console.log(itemResult);
 
+/*
                                     var appSGMapping = arg1.data.AppSGMapping;
                                     for (var z in appSGMapping) {
+
+
+
+
                                         var mappingItem = appSGMapping[z];
-                                        if (item.device == mappingItem.device && item.sgname == mappingItem.sgname) {
-                                            var itemResult = {};
-                                            itemResult["device"] = mappingItem.device;
-                                            itemResult["arrayname"] = mappingItem.arrayname;
-                                            itemResult["sgname"] = mappingItem.sgname;
-                                            itemResult["appname"] = mappingItem.appname;
-                                            itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
-                                            itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
-                                            appResult[sgname].push(itemResult);
-                                        }
+					var arrayNameHead = mappingItem.arrayname.split('-')[0];
+
+					if ( sgname_arrayname_head !== undefined ) {
+						if (item.device == mappingItem.device && item.sgname == mappingItem.sgname && sgname_arrayname_head == arrayNameHead ) {
+						console.log( sgname_arrayname_head +'\t'+arrayNameHead ) ;
+						    var itemResult = {};
+
+
+						    itemResult["device"] = mappingItem.device;
+						    itemResult["arrayname"] = mappingItem.arrayname;
+						    itemResult["sgname"] = mappingItem.sgname;
+						    itemResult["appname"] = mappingItem.appname;
+						    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
+						    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
+						    appResult[sgname].push(itemResult);
+						}
+
+					} else {
+						if (item.device == mappingItem.device && item.sgname == mappingItem.sgname ) {
+						    var itemResult = {};
+
+
+						    itemResult["device"] = mappingItem.device;
+						    itemResult["arrayname"] = mappingItem.arrayname;
+						    itemResult["sgname"] = mappingItem.sgname;
+						    itemResult["appname"] = mappingItem.appname;
+						    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
+						    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
+						    appResult[sgname].push(itemResult);
+						}
+
+					}
+
                                     }
+*/
                                     retArray.push(item);
                                 }
                             }
@@ -3289,6 +3391,7 @@ var reportingController = function (app) {
 
                         }
 
+
                         arg1["data"]["SGPerfDetail"] = retArray;
                         arg1["data"]["SGPerfResponeTimeResult"] = sgperf_result;
                         arg1["data"]["APPResult"] = appResult;
@@ -3329,11 +3432,32 @@ var reportingController = function (app) {
 
                         // filter the sg in the CEB-Core-Application-sg 
                         for (var j in CEB_Core_Application_SG) {
-                            var sgname = CEB_Core_Application_SG[j];
-                            if (sgname == item.sgname) {
-                                retArray.push(item);
-                                break;
-                            }
+			    var sgname_arrayname_head = CEB_Core_Application_SG[j].split('|')[1];
+			    var sgname = CEB_Core_Application_SG[j].split('|')[0];
+                            //var sgname = CEB_Core_Application_SG[j];
+			    for ( var zz in arg1.data.AppSGMapping) {
+				var zzItem = arg1.data.AppSGMapping[zz];
+
+				if ( item.device == zzItem.device && item.sgname == zzItem.sgname ) {
+					var arrayname = zzItem.arrayname;
+					break;
+				}
+
+			    }
+
+			    if ( sgname_arrayname_head !== undefined )  {
+				var aa = arrayname.split('-')[0];
+				if ( aa == sgname_arrayname_head && sgname == item.sgname ) {
+					retArray.push(item);
+					break;
+				}
+			    } else {
+				    if (sgname == item.sgname) {
+					retArray.push(item);
+					break;
+				    }
+			    }
+				
                         }
                     }
                     arg1["data"].AppStorageRelation = retArray;
@@ -3509,7 +3633,8 @@ var reportingController = function (app) {
                 // --------------------------------
                 function (arg1, callback) {
                     var device;
-                    var period_detail = 0;
+			//TEST
+                    var period_detail = 3600;
                     var valuetype = 'max'
                     var arrayinfos = arg1.data.arrayinfo;
                     VMAX.getArrayPerformanceV3(device, start, end, valuetype, period_detail, function (result) {
@@ -3607,29 +3732,33 @@ var reportingController = function (app) {
 
 
                         // Split the max value of Day and night in whole Day.
-                        var finalRecords = [];
+                        var finalRecords_day = [];
+                        var finalRecords_night = [];
                         for (var i in mergedRecords) {
                             var item = mergedRecords[i];
 
 
-                            var record = {};
-                            record["ArrayName"] = item.NameHead;
+                            var record_night = {};
+                            var record_day = {};
+                            record_day["ArrayName"] = item.NameHead;
+                            record_night["ArrayName"] = item.NameHead;
                             for (var j in item.matrics) {
                                 var item1 = item.matrics[j];
                                 var dt = item1.date;
                                 var hour = item1.hour;
 
                                 if (hour >= 9 && hour < 18) {
-                                    if (record[dt + "_day"] === undefined) record[dt + "_day"] = item1.IORate;
-                                    else if (item1.IORate > record[dt + "_day"]) record[dt + "_day"] = item1.IORate;
+                                    if (record_day[dt] === undefined) record_day[dt] = item1.IORate;
+                                    else if (item1.IORate > record_day[dt]) record_day[dt] = item1.IORate;
                                 } else {
-                                    if (record[dt + "_night"] === undefined) record[dt + "_night"] = item1.IORate;
-                                    else if (item1.IORate > record[dt + "_night"]) record[dt + "_night"] = item1.IORate;
+                                    if (record_night[dt] === undefined) record_night[dt] = item1.IORate;
+                                    else if (item1.IORate > record_night[dt]) record_night[dt] = item1.IORate;
                                 }
 
                             }
 
-                            finalRecords.push(record);
+                            finalRecords_day.push(record_day);
+                            finalRecords_night.push(record_night);
 
 
 
@@ -3638,7 +3767,8 @@ var reportingController = function (app) {
 
                         if (arg1.result["array"] === undefined) arg1.result["array"] = {};
                         arg1.data["IOPS_HOURS_DETAIL"] = mergedRecords;
-                        arg1.result["array"]["IOPS_HOURS"] = finalRecords;
+                        arg1.result["array"]["IOPS_HOURS_DAY"] = finalRecords_day;
+                        arg1.result["array"]["IOPS_HOURS_NIGHT"] = finalRecords_night;
 
                         callback(null, arg1);
                     })
@@ -3878,11 +4008,15 @@ var reportingController = function (app) {
                     XLSX.utils.book_append_sheet(wb, ws3, "存储资源IOPS均值");
 
 
-                    var ArrayIOPSHours = arg1["array"]["IOPS_HOURS"];
-                    var ws4 = XLSX.utils.json_to_sheet(ArrayIOPSHours);
-                    XLSX.utils.book_append_sheet(wb, ws4, "存储资源IOPS日间及夜间峰值");
+                    var ArrayIOPSHours_day = arg1["array"]["IOPS_HOURS_DAY"];
+                    var ws4 = XLSX.utils.json_to_sheet(ArrayIOPSHours_day);
+                    XLSX.utils.book_append_sheet(wb, ws4, "存储资源IOPS日间峰值");
 
-XLSX.writeFile(wb, outputFilename);
+                    var ArrayIOPSHours_night = arg1["array"]["IOPS_HOURS_NIGHT"];
+                    var ws5 = XLSX.utils.json_to_sheet(ArrayIOPSHours_night);
+                    XLSX.utils.book_append_sheet(wb, ws5, "存储资源IOPS夜间峰值");
+
+		            XLSX.writeFile(wb, outputFilename);
  
                     
                     callback(null, arg);
