@@ -596,15 +596,39 @@ var automationController = function (app) {
     app.post('/api/auto/service/block/provisioning-true', function (req, res) {
         res.setTimeout(3600*1000); 
 
+        console.log(JSON.stringify(req.body));  
         var RequestParamater =  req.body;
         
-
+        var newRequestParamater = {
+            "appname": "ebankwebesxi",
+            "usedfor": "oraredo",
+            "capacity": 202,
+            "resourceLevel": "Gold",
+            "ProtectLevel": {
+                "DR_SameCity":true,
+                "DR_DiffCity":false,
+                "Backup":true,
+                "AppVerification_SameCity":false,
+                "AppVerification_DiffCity":false
+            },
+            "opsType" : "review"   // [ review | execute ]
+        }
+        
+        newRequestParamater.appname = RequestParamater.appname;
+        newRequestParamater.opsType = RequestParamater.opsType;
+        newRequestParamater.capacity = RequestParamater.requests[0].capacity;
+        newRequestParamater.resourceLevel = RequestParamater.requests[0].StorageResourcePool.resourceLevel;
+        newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
+                
+                       
+               
+         
 
         async.waterfall(
             [
                 // Get All Cluster
                 function (callback) {
-                    AutoService.BuildParamaterStrucut(RequestParamater, function (AutoObject) {
+                    AutoService.BuildParamaterStrucut(newRequestParamater, function (AutoObject) {
                         callback(null, AutoObject);
                     })
                 }

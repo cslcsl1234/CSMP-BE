@@ -20,7 +20,7 @@
     "BASE_FILTER": ""
   },
   "SERVER": {
-    "HOST": "10.32.39.250",
+    "HOST": "192.168.58.136",
     "PORT": 8080
   },
   "ProductType": "Test",
