@@ -14,6 +14,7 @@ var configger = require('../config/configger');
 var unirest1 = require('unirest');
 var async = require('async');
 var CallGet = require('../lib/CallGet');
+var util = require('../lib/util');
 var Auto = require('../lib/Automation_VPLEX');
 var AutoService = require('../lib/Automation');
 
@@ -117,7 +118,7 @@ var automationController = function (app) {
                             "user"
                         ],
                         "description":"为已经使用VPLEX存储的主机(包括x86物理机和ESXi主机)扩充存储容量空间.",
-                        "detailFunctionDesc":"<ol class=\"GreenNumbers\"><li><font color=\"black\">在该服务前, 需要在VPLEX后端物理存储中分配物理卷到VPLEX中</font></li><li><font color=\"black\">该服务将自动Claim Storage Volume并随后创建一系列VPLEX逻辑对象(Extent, Device, Distrubuted Device, VirtualVolume)</font></li></ol><p class=\"ingredients\"><span>自动化规则:?</span>Milk, salt, coriander, cardamom, cinnamon, turmeric, honey, vanillaextract, regularoats, oatbran.</p>",
+                        "detailFunctionDesc":"<ol class=\"GreenNumbers\"><li><font color=\"white\">在该服务前, 需要在VPLEX后端物理存储中分配物理卷到VPLEX中</font></li><li><font color=\"white\">该服务将自动Claim Storage Volume并随后创建一系列VPLEX逻辑对象(Extent, Device, Distrubuted Device, VirtualVolume)</font></li></ol><p class=\"ingredients\"><span>自动化规则:?</span>Milk, salt, coriander, cardamom, cinnamon, turmeric, honey, vanillaextract, regularoats, oatbran.</p>",
                         "propertices":{
                             "support_host_type":[
                                 "X86物理机",
@@ -131,21 +132,49 @@ var automationController = function (app) {
                         "image":"VPLEX"
                     }
                 ]
+            },
+
+            {
+                "catalog":"File",
+                "name":"文件服务",
+                "services":[
+                    {
+                        "name":"FileCapacityProvisioning",
+                        "label":"文件系统扩容服务",
+                        "version":"v1.0",
+                        "enabled":false,
+                        "roles":[
+                            "admin",
+                            "user"
+                        ],
+                        "description":"为主机分配文件系统.",
+                        "detailFunctionDesc":"<ol class=\"GreenNumbers\"><li><font color=\"yellow\">在该服务前, 需要在VPLEX后端物理存储中分配物理卷到VPLEX中</font></li><li><font color=\"black\">该服务将自动Claim Storage Volume并随后创建一系列VPLEX逻辑对象(Extent, Device, Distrubuted Device, VirtualVolume)</font></li></ol><p class=\"ingredients\"><span>自动化规则:?</span>Milk, salt, coriander, cardamom, cinnamon, turmeric, honey, vanillaextract, regularoats, oatbran.</p>",
+                        "propertices":{
+                            "support_host_type":[
+                                "X86物理机",
+                                "IBM LPar",
+                                "VMWare ESXi"
+                            ],
+                            "estimated_execution_time":"15 min",
+                            "service_level":"Base Service",
+                            "last_month_execution_count":0
+                        },
+                        "image":"FILE"
+                    }
+                ]
             }
         ];
+ 
  
         res.json(200, serviceList);
 
 
     });
 
-    
-
-    app.get('/api/auto/service/block/provisioning/getinfo', function (req, res) {
-
+    app.get('/api/auto/service/block/provisioning/getinfo1', function (req, res) {
         var autoServiceInfo = {
             "Application":[
-                {
+                {   
                     "name":"APP1",
                     "TotalCapacity":200,
                     "UsedCapacity":100
@@ -164,7 +193,7 @@ var automationController = function (app) {
                 {
                     "name":"DR_SameCity",
                     "label":"同城容灾",
-                    "value":"true"
+                    "value":"false"
                 },
                 {
                     "name":"DR_DiffCity",
@@ -174,7 +203,7 @@ var automationController = function (app) {
                 {
                     "name":"Backup",
                     "label":"备份(NBU)",
-                    "value":"true"
+                    "value":"disable"
                 },
                 {
                     "name":"AppVerification_SameCity",
@@ -184,19 +213,107 @@ var automationController = function (app) {
                 {
                     "name":"AppVerification_DiffCity",
                     "label":"异地应用核验",
-                    "value":"disable"
+                    "value":"false"
                 }
             ]
         };
- 
+
         res.json(200, autoServiceInfo);
+
+
+    })
+
+    app.get('/api/auto/service/block/provisioning/getinfo', function (req, res) {
+
+
+        async.waterfall(
+            [
+                // Get All Cluster
+                function (callback) {
+                    var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
+                    var applist = [];
+                    Auto.GetStorageViewsV1(arrayInfo,'cluster-1',function(response) {
+                        var result = response.response;
+                        for ( var i in result ) {
+                            var item = result[i];
+                            var name = item.name;
+            
+                             
+                            var matchResult = name.match(/([A-Za-z_0-9]+)_VW/);
+                            //console.log(name+','+matchResult); 
+                            
+                            if ( matchResult != null ) {
+                                var appItem = { "name" : matchResult[1] };
+                                applist.push(appItem);
+                            }
+                        }
+                        callback(null,applist);
+                    });
+            
+                }
+                , function (applist, callback) {
+
+                    var autoServiceInfo = {
+                        "Application":[
+                            {
+                                "name":"APP1",
+                                "TotalCapacity":200,
+                                "UsedCapacity":100
+                            }
+                        ],
+                        "StorageResourcePool":[
+                            {
+                                "name":"VPLEX-高端",
+                                "resourceLevel":"Gold",
+                                "resourceType":"VPLEX",
+                                "TotalCapacity":100,
+                                "UsedCapacity":30
+                            }
+                        ],
+                        "ProtectLevel":[
+                            {
+                                "name":"DR_SameCity",
+                                "label":"同城容灾",
+                                "value":"true"
+                            },
+                            {
+                                "name":"DR_DiffCity",
+                                "label":"异地容灾",
+                                "value":"false"
+                            },
+                            {
+                                "name":"Backup",
+                                "label":"备份(NBU)",
+                                "value":"true"
+                            },
+                            {
+                                "name":"AppVerification_SameCity",
+                                "label":"同城应用核验",
+                                "value":"disable"
+                            },
+                            {
+                                "name":"AppVerification_DiffCity",
+                                "label":"异地应用核验",
+                                "value":"false"
+                            }
+                        ]
+                    };
+                    //autoServiceInfo["Application"] = applist;
+                    callback( null , autoServiceInfo);
+            
+                }
+            ], function (err, result) {
+                // result now equals 'done'
+                res.json(200, result);
+            });
+
 
 
     });
 
 
 
-    app.post('/api/auto/service/block/provisioning', function (req, res) {
+    app.post('/api/auto/service/block/provisioning-old', function (req, res) {
 
         /*  autoRequestBody = 
             {
@@ -252,21 +369,27 @@ var automationController = function (app) {
                     {
                         "method":"CreateExtent",
                         "DependOnAction":"N/A",
-                        "StorageVolumeName":"Symm0118_25D3,Symm0119_25D3"
+                        "StorageVolumeName":"Symm0118_25D3,Symm0119_25D3",
+			"response":"Succeed!Assssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+			"show": "true"
                     },
                     {
                         "method":"CreateLocalDevice",
                         "DependOnAction":"CreateExtent",
                         "devicename":"device_Symm0118_25D3",
                         "geometry":"raid-0",
-                        "extents":"extent_Symm0118_25D3_1"
+                        "extents":"extent_Symm0118_25D3_1",
+			"response":"Failed!",
+			"show": "false"
                     },
                     {
                         "method":"CreateLocalDevice",
                         "DependOnAction":"CreateExtent",
                         "devicename":"device_Symm0119_25D3",
                         "geometry":"raid-0",
-                        "extents":"extent_Symm0119_25D3_1"
+                        "extents":"extent_Symm0119_25D3_1",
+			"response":"Failed!",
+			"show": "false"
                     },
                     {
                         "method":"CreateDistributedDevice",
@@ -276,18 +399,24 @@ var automationController = function (app) {
                             "device_Symm0118_25D3",
                             "device_Symm0119_25D3"
                         ],
-                        "sourcedevice":"device_Symm0118_25D3"
+                        "sourcedevice":"device_Symm0118_25D3",
+			"response":"Failed!",
+			"show": "false"
                     },
                     {
                         "method":"CreateDistributedVirtualVolume",
                         "DependOnAction":"CreateDistributedDevice",
-                        "devicename":"dd_Symm0118_25D3_Symm0119_25D3"
+                        "devicename":"dd_Symm0118_25D3_Symm0119_25D3",
+			"response":"Failed!",
+			"show": "false"
                     },
                     {
                         "method":"AssignConsistencyGroup",
                         "DependOnAction":"CreateDistributedDevice",
                         "virtual_volume":"dd_Symm0118_25D3_Symm0119_25D3_vol",
-                        "consistoncy_group":"ebankwebesxi_CG_Prod"
+                        "consistoncy_group":"ebankwebesxi_CG_Prod",
+			"response":"Failed!",
+			"show": "false"
                     },
                     {
                         "method":"AssignStorageView",
@@ -296,7 +425,9 @@ var automationController = function (app) {
                         "viewname":"ebankwebesxi_VW",
                         "virtualvolumes":[
                             "dd_Symm0118_25D3_Symm0119_25D3_vol"
-                        ]
+                        ],
+			"response":"Failed!",
+			"show": "false"
                     },
                     {
                         "method":"AssignStorageView",
@@ -305,7 +436,9 @@ var automationController = function (app) {
                         "viewname":"RP_C2_VW",
                         "virtualvolumes":[
                             "dd_Symm0118_25D3_Symm0119_25D3_vol"
-                        ]
+                        ],
+			"response":"Failed!",
+			"show": "false"
                     },
                     {
                         "method":"AssignStorageView",
@@ -314,7 +447,9 @@ var automationController = function (app) {
                         "viewname":"TC_ebankwebesxi_VW",
                         "virtualvolumes":[
                             "dd_Symm0118_25D3_Symm0119_25D3_vol"
-                        ]
+                        ],
+			"response":"Failed!",
+			"show": "false"
                     },
                     {
                         "method":"AssignStorageView",
@@ -323,7 +458,9 @@ var automationController = function (app) {
                         "viewname":"osback1_VW",
                         "virtualvolumes":[
                             "dd_Symm0118_25D3_Symm0119_25D3_vol"
-                        ]
+                        ],
+			"response":"Failed!",
+			"show": "false"
                     }
                 ]
             },
@@ -331,6 +468,7 @@ var automationController = function (app) {
         
             ]
         };
+
  
         res.json(200, autoResponseBody);
 
@@ -385,73 +523,46 @@ var automationController = function (app) {
     });
 
     app.get('/auto/testget', function (req, res) {
-        var arrayInfo = Auto.GetArrayInfoObject("SMIULATE-VPLEX");
-
-
-        /* -------TEST CASE ------------- */
-        /* Query All of extents
-        /* ------------------------------ */
-        //Auto.GetClusters(arrayInfo,function(result) {  res.json(200,result);   }) 
-
-        //Auto.GetExtents(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
-        //Auto.GetClaimedExtentsByArray(arrayInfo,'cluster-2',function(result) {  res.json(200,result);   }) 
-        //Auto.GetStorageVolumes(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
-
-        //Auto.GetStorageView(arrayInfo, 'cluster-1', 'ebankwebesxi_VW', function (result) { res.json(200, result); })
-        //Auto.GetConsistencyGroups(arrayInfo,function(result) {  res.json(200,result);   }) 
-        //Auto.GetConsistencyGroup(arrayInfo, 'cluster-1', 'ebankwebesxi_CG_Prod', function (result) { res.json(200, result); })
-        //Auto.GetStorageViews(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
-  
-
-        Auto.GetStorageViewsV1(arrayInfo,'cluster-2',function(result) {  
-            
-            var finalResult = [];
-            var res1 = result.response.context;
-            for ( var i in res1 ) {
-                var item = res1[i];
-                var newItem = {};
-                for ( var j in item.attributes )  {
-                    var item1 = item.attributes[j];
-                    if ( ( item1.name == 'name')  ) {
-                        newItem['name'] = item1.value; 
+        var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST"); 
+        if ( util.isEmptyObject(arrayInfo) ) {
+            console.log("not find array info");
+            res.json(200,{});
+        } else {
+            /*
+            Auto.GetStorageViewsV1(arrayInfo,'cluster-1',function(response) { 
+                var result = response.response;
+                if ( result.code == 200 ) {
+                    for ( var i in result ) {
+                        var item = result[i];
+                        var name = item.name;
+        
+                        console.log(name);
+                        var matchResult = name.match(/([A-Za-z_0-9]+)_VW/);
+                        console.log(name+','+matchResult[1]); 
                     }
-                    if ( ( item1.name == 'virtual-volumes') )  {  
-                        var vvols = [];
-                        var ps = [];
-                        for ( var z in item1.value ) {
-                            var vvol = item1.value[z].split(',')[1];
-                            if ( vvol.indexOf('dd_') == 0 ) {
-                                vvols.push(vvol);
-                                var pname = vvol.split('_')[1];
-                                var sname = vvol.split('_')[3];
-                                var psname = pname+'_'+sname;
-                                var isfind = false;
-                                for ( var jj in ps ) {
-                                    var psItem = ps[jj];
-                                    if ( psItem == psname ) {
-                                        isfind = true;
-                                        break;;
-                                    }
-                                }
-                                if ( isfind == false )
-                                    ps.push(pname+'_'+sname);
-                            }
-                                
-                        }
-                        
-                        //newItem['virtualvolumes'] = vvols;
-                        newItem['ps'] = ps;
-                    }
+                    res.json(200,result);  
+                } else {
+                    res.json(200,result);
                 }
-                finalResult.push(newItem);
-            }
-            res.json(200,finalResult);   
-        
-        
-        }) 
+ 
+            });
+            */
 
+            /* -------TEST CASE ------------- */
+            /* Query All of extents
+            /* ------------------------------ */
+            //Auto.GetClusters(arrayInfo,function(result) {  res.json(200,result);   }) 
 
+            //Auto.GetExtents(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
+            //Auto.GetClaimedExtentsByArray(arrayInfo,'cluster-2',function(result) {  res.json(200,result);   }) 
+            Auto.GetStorageVolumes(arrayInfo,'cluster-2',function(result) {  res.json(200,result);   }) 
 
+            //Auto.GetStorageView(arrayInfo, 'cluster-1', 'ebankwebesxi_VW', function (result) { res.json(200, result); })
+            //Auto.GetConsistencyGroups(arrayInfo,function(result) {  res.json(200,result);   }) 
+            //Auto.GetConsistencyGroup(arrayInfo, 'cluster-1', 'ebankwebesxi_CG_Prod', function (result) { res.json(200, result); })
+            //Auto.GetStorageViews(arrayInfo,'cluster-1',function(result) {  res.json(200,result);   }) 
+    
+        }
     });
 
     app.get('/auto/test', function (req, res) {
@@ -593,7 +704,7 @@ var automationController = function (app) {
 }
 
 */
-    app.post('/api/auto/service/block/provisioning-true', function (req, res) {
+    app.post('/api/auto/service/block/provisioning', function (req, res) {
         res.setTimeout(3600*1000); 
 
         console.log(JSON.stringify(req.body));  
@@ -605,11 +716,11 @@ var automationController = function (app) {
             "capacity": 202,
             "resourceLevel": "Gold",
             "ProtectLevel": {
-                "DR_SameCity":true,
-                "DR_DiffCity":false,
-                "Backup":true,
-                "AppVerification_SameCity":false,
-                "AppVerification_DiffCity":false
+                "DR_SameCity":"true",
+                "DR_DiffCity":"false",
+                "Backup":"true",
+                "AppVerification_SameCity":"false",
+                "AppVerification_DiffCity":"false"
             },
             "opsType" : "review"   // [ review | execute ]
         }
@@ -619,11 +730,7 @@ var automationController = function (app) {
         newRequestParamater.capacity = RequestParamater.requests[0].capacity;
         newRequestParamater.resourceLevel = RequestParamater.requests[0].StorageResourcePool.resourceLevel;
         newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
-                
-                       
-               
-         
-
+ 
         async.waterfall(
             [
                 // Get All Cluster
