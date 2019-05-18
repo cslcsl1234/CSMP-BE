@@ -21,6 +21,8 @@ echo "authkey="$authkey
 echo "curl --silent -X GET http://csmpserver:8080/api/reports/weeklyreport/performance/applications?from=${begin}&to=${end} -H "Authorization: ${authkey}""
 curl --silent -X GET "http://csmpserver:8080/api/reports/weeklyreport/performance/applications?from=${begin}&to=${end}" -H "Authorization: ${authkey}"
 
+sleep 900
+
 cd /csmp/reporting
 
 if [ -f ${reportfile} ];
@@ -37,4 +39,7 @@ exit
 
 
 fi
+now=`date +%Y%m%d%H%M%S`
+echo "${now} End execute weekly report from ${begin} to ${end} "
+echo " --------------------- end  ---------------------------------" 
 

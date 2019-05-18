@@ -3302,51 +3302,7 @@ var reportingController = function (app) {
 				    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
 				    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
 				    appResult[sgname].push(itemResult);
-                                    if (item.sgname == 'EBPP_SG') console.log(itemResult);
-
-/*
-                                    var appSGMapping = arg1.data.AppSGMapping;
-                                    for (var z in appSGMapping) {
-
-
-
-
-                                        var mappingItem = appSGMapping[z];
-					var arrayNameHead = mappingItem.arrayname.split('-')[0];
-
-					if ( sgname_arrayname_head !== undefined ) {
-						if (item.device == mappingItem.device && item.sgname == mappingItem.sgname && sgname_arrayname_head == arrayNameHead ) {
-						console.log( sgname_arrayname_head +'\t'+arrayNameHead ) ;
-						    var itemResult = {};
-
-
-						    itemResult["device"] = mappingItem.device;
-						    itemResult["arrayname"] = mappingItem.arrayname;
-						    itemResult["sgname"] = mappingItem.sgname;
-						    itemResult["appname"] = mappingItem.appname;
-						    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
-						    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
-						    appResult[sgname].push(itemResult);
-						}
-
-					} else {
-						if (item.device == mappingItem.device && item.sgname == mappingItem.sgname ) {
-						    var itemResult = {};
-
-
-						    itemResult["device"] = mappingItem.device;
-						    itemResult["arrayname"] = mappingItem.arrayname;
-						    itemResult["sgname"] = mappingItem.sgname;
-						    itemResult["appname"] = mappingItem.appname;
-						    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
-						    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
-						    appResult[sgname].push(itemResult);
-						}
-
-					}
-
-                                    }
-*/
+                                    //if (item.sgname == 'EBPP_SG') console.log(itemResult);
                                     retArray.push(item);
                                 }
                             }
@@ -3471,10 +3427,14 @@ var reportingController = function (app) {
                     for (var i in arg1.data.AppStorageRelation) {
                         var item = arg1.data.AppStorageRelation[i];
 
-                        for (var appItem in item.appinfo) {
-                            var appname = item.appinfo[appItem].app;
-                            if (appname === "" || appname === undefined)
-                                console.log(JSON.stringify(item));
+                        if ( item.appinfo === undefined ) {
+                            var appname = 'NoFind';
+                        } else {
+                            for (var appItem in item.appinfo) {
+                                var appname = item.appinfo[appItem].app;
+                                if (appname === "" || appname === undefined)
+                                    console.log(JSON.stringify(item));
+                            }    
                         }
 
                         if (item.arrayname === undefined) {
@@ -3525,6 +3485,14 @@ var reportingController = function (app) {
                         var record = {};
                         record["系统名称"] = item.appname;
                         record["所属存储"] = item.array;
+                        for ( var sgi in item.sgname ) {
+                            var sgItem = item.sgname[sgi];
+                            if ( record["sgname"] === undefined ) record["sgname"] = sgItem.sgname;
+                            else {
+                                if ( record["sgname"].indexOf(sgItem.sgname) < 0 ) 
+                                    record["sgname"] = record["sgname"] + ',' + sgItem.sgname;
+                            }
+                        } 
                         record["sgmember"] = item.sgmember;
                         record["ResponseTime"] = {};
                         record["ThroughputDetail"] = {};
@@ -3571,6 +3539,7 @@ var reportingController = function (app) {
                         var record = {};
                         record["系统名称"] = item["系统名称"];
                         record["所属存储"] = item["所属存储"];
+                        record["SG成员"] = item.sgname;
 
                         var totalValue = 0;
                         var totalCount = 0;
@@ -4024,10 +3993,11 @@ var reportingController = function (app) {
 
             ], function (err, result) {
                 var DataFilename = '/csmp/reporting/weeklyreport_detail_'+end_dt+'.json'
-                fs.writeFile(DataFilename, JSON.stringify(result), function (err) {
+                fs.writeFile(DataFilename, JSON.stringify(result,null,' '), function (err) {
                     if (err) throw err;
+                    res.json(200, DataFilename+','+outputFilename);
                 });
-                res.json(200, DataFilename+','+outputFilename);
+                
                 //res.json(200, result.data.IOPS_HOURS_DETAIL);
             });
 
