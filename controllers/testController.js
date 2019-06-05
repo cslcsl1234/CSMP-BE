@@ -395,7 +395,7 @@ var testController = function (app) {
 
         var valuetype = 'average';
         //var start  = util.getPerfStartTime(); 
-        var start = '2018-11-21T16:00:00.000Z';
+        var start = '2016-11-21T16:00:00.000Z';
         var end = '2018-11-30T16:00:00.000Z';
 
         //var start = '2018-10-01T16:00:00.000Z';
@@ -405,8 +405,8 @@ var testController = function (app) {
         var part;
 
         //VMAX.GetFEPorts(device, function (rest) { res.json(200, rest); });
-
-        VMAX.getArrayPerformanceV3( device, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
+        var device1;
+        VMAX.getArrayPerformanceV3( device1, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
         
 
         //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
@@ -425,7 +425,8 @@ var testController = function (app) {
         // VMAX.GetStorageGroups(device, function(result) {   res.json(200,res   ult);   }); 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
         //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
-        //VMAX.GetArrays(  function(ret) {  res.json(200,ret);   }); 
+        var device1 ;
+        //VMAX.GetArrays( device1, function( ret) {  res.json(200,ret);   }); 
         //Report.GetStoragePorts(function(ret) {
 
 

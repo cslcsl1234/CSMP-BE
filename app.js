@@ -67,6 +67,7 @@ require('./controllers/testController')(app);
 require('./controllers/analysisController')(app);
 
 require('./controllers/automationController')(app);
+require('./controllers/grafanaController')(app);
 
 
 // ---- CEB Project ------
