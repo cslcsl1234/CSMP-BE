@@ -12,3 +12,5 @@ else
 	nohup node --max-old-space-size=4096 app.js > stdout.log 2> stderr.log &
 fi
 
+
+
