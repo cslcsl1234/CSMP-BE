@@ -406,7 +406,7 @@ var testController = function (app) {
 
         //VMAX.GetFEPorts(device, function (rest) { res.json(200, rest); });
         var device1;
-        VMAX.getArrayPerformanceV3( device1, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
+       // VMAX.getArrayPerformanceV3( device1, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
         
 
         //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
@@ -426,7 +426,7 @@ var testController = function (app) {
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
         //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
         var device1 ;
-        //VMAX.GetArrays( device1, function( ret) {  res.json(200,ret);   }); 
+        VMAX.GetArrays( device1, function( ret) {  res.json(200,ret);   }); 
         //Report.GetStoragePorts(function(ret) {
 
 

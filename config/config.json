@@ -17,21 +17,22 @@
     "SERIES_PERIOD": 3600,
     "METRICS_PROPERTIES_VALUE": "/metrics/properties/values",
     "METRICS_SERIES_VALUE": "/metrics/series/values",
+    "METRICS_AGGREGATES" : "/metrics/aggregates",
     "BASE_FILTER": ""
   },
   "SERVER": {
-    "HOST": "10.32.32.95",
+    "HOST": "192.168.58.130",
     "PORT": 8080
   },
-  "ProductType": "Test",
+  "ProductType": "Dev",
   "ProductTypeDesc": [
     "Prod",
     "Dev",
     "Test"
   ],
   "SRMDevLastDT-DLBank": "2018-01-25T14:00:00+08:00",
-  "SRMDevLastDT-AirChina": "2017-11-27T08:00:00+08:00",
-  "SRMDevLastDT": "2018-11-04T11:00:00+08:00",
+  "SRMDevLastDT-AirChina": "2018-02-10T08:00:00+08:00",
+  "SRMDevLastDT": "2018-10-28T08:00:00+08:00",
   "SMS": {
     "ServiceIP": "10.188.80.33",
     "ServicePort": 6821,
