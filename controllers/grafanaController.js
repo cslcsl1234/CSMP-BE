@@ -30,7 +30,8 @@ var SWITCH = require('../lib/Switch');
 
 var grafanaController = function (app) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-  var baseFilter = 'source==\'VMAX-Collector\'&!parttype';
+  var arrayBaseFilter = 'source==\'VMAX-Collector\'';
+  var arrayFilter = arrayBaseFilter + '&!parttype';
 
   var config = configger.load();
 
@@ -63,44 +64,96 @@ var grafanaController = function (app) {
 
   app.post('/grafana/search', function (req, res) {
     /*
-        var device1;
-        VMAX.GetArrays( device1, function( ret) {  
-            var result = [];
-            for ( var i in ret ) {
-                result.push(ret[i].device);
-            } 
-            console.log(result);
-            res.json(200 , result);
-        });  
-*/
-console.log("----------------- Search ----------------------");
-console.log(req.url);
-console.log(req.body);
+            var device1;
+            VMAX.GetArrays( device1, function( ret) {  
+                var result = [];
+                for ( var i in ret ) {
+                    result.push(ret[i].device);
+                } 
+                console.log(result);
+                res.json(200 , result);
+            });  
+    */
+    console.log("----------------- Search ----------------------");
+    console.log(req.url);
+    console.log(req.body);
 
     var fields = req.body.target;
-    if ( fields == '' ) fields = 'name';
-    var filter = baseFilter;
+    var filter;
+    switch ( fields ) {
+      case '' :
+      case 'name':
+        fields = 'datagrp,parttype,name';
+        filter = arrayBaseFilter;
 
-    var fabricResult = [];
-    unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE + '/' + fields)
-      .auth(config.Backend.USER, config.Backend.PASSWORD, true)
-      .headers({
-        'Content-Type': 'multipart/form-data'
-      })
-      .query({
-        'fields': fields,
-        'filter': filter
-      })
-      .end(function (response) {
+        console.log(filter);
 
+        unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
+        .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+        .headers({
+          'Content-Type': 'multipart/form-data'
+        })
+        .query({
+          'fields': fields,
+          'filter': filter
+        })
+        .end(function (response) {
+   
+          var resultJson = JSON.parse(response.raw_body).values;
+          var result = [];
+          for (var i in resultJson) {
+            var item = resultJson[i]; 
+            result.push( item.parttype +'+' + item.datagrp + '+' + item.name);
+          }  
+          res.json(200, result.sort());
+  
+        }); 
 
-        var resultJson = JSON.parse(response.raw_body).values;
-        var result = [];
-        for (var i in resultJson) {
-          result.push(resultJson[i]);
-        }
-        res.json(200, result);
-      });
+        break;
+      case 'sgname':
+        filter = arrayBaseFilter;
+        var device1;
+        VMAX.GetStorageGroups(device1, function(response) {   
+          var result = [];
+
+          for ( var i in response ) {
+            var item = response[i];
+            var resultItem = item.device + '+' + item.sgname;
+            result.push(resultItem);
+          }  
+          res.json(200, result.sort());
+        }); 
+
+        break;
+      default: 
+        filter = arrayFilter;
+        var fabricResult = [];
+        console.log(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE + '/' + fields);
+        console.log(fields);
+        console.log(filter);
+        unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE + '/' + fields)
+          .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+          .headers({
+            'Content-Type': 'multipart/form-data'
+          })
+          .query({
+            'fields': fields,
+            'filter': filter
+          })
+          .end(function (response) {
+     
+            var resultJson = JSON.parse(response.raw_body).values;
+            var result = [];
+            for (var i in resultJson) {
+              result.push(resultJson[i]);
+            }
+            console.log(result);
+            res.json(200, result);
+    
+          }); 
+
+        break;
+    }
 
 
   });
@@ -172,7 +225,8 @@ console.log(req.body);
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
     console.log(req.url);
-    console.log(req.body);
+    console.log(req.body); 
+
 
 
     var period = 0;
@@ -187,6 +241,9 @@ console.log(req.body);
     else 
       var device;
 
+    /*
+      adhocFilters
+    */
     var adhocFilters = req.body.adhocFilters;
     for (var i in adhocFilters) {
       var adhocItem = adhocFilters[i];
@@ -201,39 +258,90 @@ console.log(req.body);
         case 'device':
           device = adhocItem.value;
           break;
+
+        case 'sgname':
+          device = adhocItem.value.split('+')[0];
+          var part_value = adhocItem.value.split('+')[1];
+          var part_name = 'sgname';
+          break;
+
       }
     }
 
     /*
+      parse targets
+    */
+   
+   var parttype = [];
+   var datagrp = [];
+   var matrics = [];
+
+   var filter2 ;
+   for ( var i in targets ) {
+
+    var filterItem ;
+    var target = targets[i];
+    parttype = target.target.split('+')[0];
+    datagrp = target.target.split('+')[1];
+    matrics = target.target.split('+')[2];
+
+
+    if ( parttype !== undefined ) { 
+      switch ( parttype ) {
+        case 'Port':
+          var partkey = 'feport'; 
+          break;
+        case 'Storage Group':
+          var partkey = 'part';
+          var partvalue = part_value;
+          break;
+      } 
+      filterItem = 'parttype==\''+parttype+'\'';
+    }
+
+    if ( datagrp !== undefined ) {
+      if ( filterItem !== undefined ) filterItem += '&';
+      filterItem += 'datagrp==\''+datagrp+'\'';
+    }
+
+
+    if ( filterItem !== undefined ) filterItem += '&';
+    filterItem += 'name==\''+matrics + '\'';
+
+    if ( partkey == 'part' && partvalue !== undefined) filterItem += '&part==\''+partvalue+'\''; 
+
+    var filter1 = '(' + filterItem + ')';
+    if ( filter2 === undefined ) filter2 = filter1;
+    else filter2 += '|' + filter1;
+   }
+   filter2 = '(' + filter2 + ')';
+    /*
       timeserie
     */
-    if (targets[0].type == 'timeserie') {
-
+    if (targets[0].type == 'timeserie') { 
       var param = {};
       param['keys'] = ['device'];
       param['fields'] = ['device', 'name'];
+      if ( partkey !== undefined ) param.fields.push(partkey);
       param['period'] = period;
       param['start'] = start;
       param['end'] = end;
       param['type'] = valuetype;
-      if (device === undefined)
-        param['filter'] = baseFilter;
-      else
-        param['filter'] = '!parttype&source=\'VMAX-Collector\'&device=\'' + device + '\'';
 
-      param['filter_name'] = '(name==\'IORate\'|name==\'HitPercent\'|name==\'ReadRequests\'|name==\'WriteRequests\'|name==\'ReadThroughput\'|name==\'WriteThroughput\')';
+      var filter = arrayBaseFilter;
+      if ( device !== undefined ) filter += '&device=\''+device+'\'';
+ 
+      param['filter'] = filter + '&' + filter2; 
+
+      //param['filter_name'] = '(name==\'IORate\'|name==\'HitPercent\'|name==\'ReadRequests\'|name==\'WriteRequests\'|name==\'ReadThroughput\'|name==\'WriteThroughput\')';
 
       var queryString = {};
       queryString['properties'] = param.fields;
 
-      var filter = config.SRM_RESTAPI.BASE_FILTER + param.filter;
-      var matrics; 
-      if ( scopedVars.matrics !== undefined  ) 
-        matrics = 'name=\''+scopedVars.matrics.value +'\'';
-      else 
-        matrics = "name=\'IORate\'";
+      var filter = config.SRM_RESTAPI.BASE_FILTER + param.filter;  
+      queryString['filter'] = param.filter ;
 
-      queryString['filter'] = param.filter + '&(' + matrics + ')';
+      
       queryString['start'] = param.start;
       queryString['end'] = param.end;
       queryString['period'] = param.period;
@@ -261,8 +369,11 @@ console.log(req.body);
             for (var i in resultRecord.values) {
               var item = resultRecord.values[i];
 
-              var recordItem = {};
-              recordItem["target"] = item.properties.device;
+              var recordItem = {}; 
+              if ( targets.length > 1 ) 
+                recordItem["target"] = item.properties['name'];
+              else 
+                recordItem["target"] = item.properties[partkey];
 
               var newPoint = [];
               for (var j in item.points) {
@@ -354,6 +465,10 @@ console.log(req.body);
       },
       {
         type: "string",
+        text: "sgname"
+      },
+      {
+        type: "string",
         text: "periods"
       },
       {
@@ -373,7 +488,7 @@ console.log(req.body);
     switch (req.body.key) {
       case 'device':
         var fields = 'name';
-        var filter = baseFilter;
+        var filter = arrayFilter;
 
         var fabricResult = [];
         unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE + '/' + req.body.key)
@@ -426,7 +541,42 @@ console.log(req.body);
           });
 
         break;
+        
+      case 'sgname' : 
 
+          fields = 'device,part';
+          filter = arrayBaseFilter + '&datagrp==\'VMAX-StorageGroup\'';
+  
+          console.log(filter);
+  
+          unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
+          .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+          .headers({
+            'Content-Type': 'multipart/form-data'
+          })
+          .query({
+            'fields': fields,
+            'filter': filter
+          })
+          .end(function (response) {
+     
+            var resultJson = JSON.parse(response.raw_body).values;
+            var result = [];
+            for (var i in resultJson) {
+              var item = resultJson[i];  
+              var resultItem = item.device + '+' + item.part;
+              item["text"] = resultItem;
+              result.push(item);
+            }  
+
+            res.json(result.sort());
+            res.end();
+    
+          });  
+           
+
+
+          break;
     }
 
 

@@ -3487,7 +3487,11 @@ var reportingController = function (app) {
                         record["所属存储"] = item.array;
                         for ( var sgi in item.sgname ) {
                             var sgItem = item.sgname[sgi];
-                            if ( record["sgname"] === undefined ) record["sgname"] = sgItem.sgname;
+
+                            if ( sgItem === undefined ) continue;
+                            if ( sgItem.sgname === undefined ) sgItem["sgname"] = 'nosgname';
+
+                            if ( record["sgname"] === undefined ) record["sgname"] = sgItem.sgname  ;
                             else {
                                 if ( record["sgname"].indexOf(sgItem.sgname) < 0 ) 
                                     record["sgname"] = record["sgname"] + ',' + sgItem.sgname;
@@ -3705,7 +3709,6 @@ var reportingController = function (app) {
                         var finalRecords_night = [];
                         for (var i in mergedRecords) {
                             var item = mergedRecords[i];
-
 
                             var record_night = {};
                             var record_day = {};

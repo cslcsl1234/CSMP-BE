@@ -422,11 +422,11 @@ var testController = function (app) {
 
         //SWITCH.GetSwitchPorts(device, function(rest) {             res.json(200,rest);        });
         // SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
-        // VMAX.GetStorageGroups(device, function(result) {   res.json(200,res   ult);   }); 
+        VMAX.GetStorageGroups(device1, function(result) {   res.json(200,result);   }); 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
         //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
         var device1 ;
-        VMAX.GetArrays( device1, function( ret) {  res.json(200,ret);   }); 
+        //VMAX.GetArrays( device1, function( ret) {  res.json(200,ret);   }); 
         //Report.GetStoragePorts(function(ret) {
 
 
