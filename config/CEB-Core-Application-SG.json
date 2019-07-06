@@ -1,6 +1,6 @@
 [
     "EBMOP_SG",
-    "EBCPP_SG",
+    "EBCPPn_SG|VMAX11",
     "NMBFEDB_SG",
     "RACRW_DATA_SG",
     "EBMCP_SG",
@@ -15,5 +15,6 @@
     "CCS-B_SG",
     "EBIP_RAC_SG",
     "GTS_RAC_SG",
-    "ATMP_SG"
+    "ATMP_SG",
+    "IFS_SG|VMAX9"
 ]

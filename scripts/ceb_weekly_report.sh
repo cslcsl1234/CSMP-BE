@@ -39,7 +39,8 @@ exit
 
 
 fi
-now=`date +%Y%m%d%H%M%S`
-echo "${now} End execute weekly report from ${begin} to ${end} "
-echo " --------------------- end  ---------------------------------" 
 
+
+now=`date +%Y%m%d%H%M%S`
+echo "${now} end execute weekly report from ${begin} to ${end} "
+echo " --------------------- end ---------------------------------"

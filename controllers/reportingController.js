@@ -3175,8 +3175,7 @@ var reportingController = function (app) {
                 // calculate response time for each storage group
                 function (arg1, callback) {
                     console.log("================== Begin GetStorageGroupsPerformance ================");
-			// TEST
-                    var period_detail = 3600;
+                    var period_detail = 0;
                     var valuetype1 = 'average';
 
                     //VMAX.GetStorageGroupsPerformance(device, period_detail, start, end, valuetype1, function (rest) {
@@ -3302,7 +3301,51 @@ var reportingController = function (app) {
 				    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
 				    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
 				    appResult[sgname].push(itemResult);
-                                    //if (item.sgname == 'EBPP_SG') console.log(itemResult);
+                                    if (item.sgname == 'EBPP_SG') console.log(itemResult);
+
+/*
+                                    var appSGMapping = arg1.data.AppSGMapping;
+                                    for (var z in appSGMapping) {
+
+
+
+
+                                        var mappingItem = appSGMapping[z];
+					var arrayNameHead = mappingItem.arrayname.split('-')[0];
+
+					if ( sgname_arrayname_head !== undefined ) {
+						if (item.device == mappingItem.device && item.sgname == mappingItem.sgname && sgname_arrayname_head == arrayNameHead ) {
+						console.log( sgname_arrayname_head +'\t'+arrayNameHead ) ;
+						    var itemResult = {};
+
+
+						    itemResult["device"] = mappingItem.device;
+						    itemResult["arrayname"] = mappingItem.arrayname;
+						    itemResult["sgname"] = mappingItem.sgname;
+						    itemResult["appname"] = mappingItem.appname;
+						    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
+						    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
+						    appResult[sgname].push(itemResult);
+						}
+
+					} else {
+						if (item.device == mappingItem.device && item.sgname == mappingItem.sgname ) {
+						    var itemResult = {};
+
+
+						    itemResult["device"] = mappingItem.device;
+						    itemResult["arrayname"] = mappingItem.arrayname;
+						    itemResult["sgname"] = mappingItem.sgname;
+						    itemResult["appname"] = mappingItem.appname;
+						    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
+						    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
+						    appResult[sgname].push(itemResult);
+						}
+
+					}
+
+                                    }
+*/
                                     retArray.push(item);
                                 }
                             }
@@ -3488,15 +3531,15 @@ var reportingController = function (app) {
                         for ( var sgi in item.sgname ) {
                             var sgItem = item.sgname[sgi];
 
-                            if ( sgItem === undefined ) continue;
-                            if ( sgItem.sgname === undefined ) sgItem["sgname"] = 'nosgname';
+                            if (sgItem === undefined ) continue;
+                            if (sgItem.sgname === undefined ) sgItem["sgname"] = 'nosgname';
 
-                            if ( record["sgname"] === undefined ) record["sgname"] = sgItem.sgname  ;
+                            if ( record["sgname"] === undefined ) record["sgname"] = sgItem.sgname ;
                             else {
-                                if ( record["sgname"].indexOf(sgItem.sgname) < 0 ) 
+                                if ( record["sgname"].indexOf(sgItem.sgname) < 0 )
                                     record["sgname"] = record["sgname"] + ',' + sgItem.sgname;
                             }
-                        } 
+                        }
                         record["sgmember"] = item.sgmember;
                         record["ResponseTime"] = {};
                         record["ThroughputDetail"] = {};
@@ -3543,7 +3586,7 @@ var reportingController = function (app) {
                         var record = {};
                         record["系统名称"] = item["系统名称"];
                         record["所属存储"] = item["所属存储"];
-                        record["SG成员"] = item.sgname;
+		                record["SG成员"] = item.sgname;
 
                         var totalValue = 0;
                         var totalCount = 0;
@@ -3606,8 +3649,7 @@ var reportingController = function (app) {
                 // --------------------------------
                 function (arg1, callback) {
                     var device;
-			//TEST
-                    var period_detail = 3600;
+                    var period_detail = 0;
                     var valuetype = 'max'
                     var arrayinfos = arg1.data.arrayinfo;
                     VMAX.getArrayPerformanceV3(device, start, end, valuetype, period_detail, function (result) {
@@ -3763,6 +3805,14 @@ var reportingController = function (app) {
                                 if (item.device == infoItem.sn) {
                                     record["系统名称"] = infoItem.name.split('-')[0];
                                     record["localtion"] = infoItem.name.split('-')[1];
+
+                                    
+                                    var thresholdInfo = SearchArrayConfigureInfo(record["系统名称"]);
+                                    record["存储配置"] = thresholdInfo["VMAX13-Configure"];
+                                    record["存储IO推测阀值（IOPS）"] = thresholdInfo["IOPS_Threshold"];
+                                    record["总阀值的60%设定警戒阀值（IOPS）"] = thresholdInfo["IOPS_threshold_60%"];  
+                                    
+
                                     break;
                                 }
                             }
@@ -3970,24 +4020,27 @@ var reportingController = function (app) {
                     var wb = XLSX.utils.book_new();
 
                     var ws1 = XLSX.utils.json_to_sheet(ThroughputRecords);
-                    XLSX.utils.book_append_sheet(wb, ws1, "系统存储磁盘读写吞吐量");
+                    //系统存储磁盘读写吞吐量
+                    XLSX.utils.book_append_sheet(wb, ws1, "DISK_IO");
 
                     var ws2 = XLSX.utils.json_to_sheet(responseTimeRecords);
-                    XLSX.utils.book_append_sheet(wb, ws2, "系统存储IO响应时间");
+                    // 系统存储IO响应时间
+                    XLSX.utils.book_append_sheet(wb, ws2, "DISK_IO_XYSJ");
 
                     var ArrayIOPS = arg1["array"]["IOPS"];
                     var ws3 = XLSX.utils.json_to_sheet(ArrayIOPS);
-                    XLSX.utils.book_append_sheet(wb, ws3, "存储资源IOPS均值");
-
+                    //存储资源IOPS均值
+                    XLSX.utils.book_append_sheet(wb, ws3, "DISK_IOPS_AVG"); 
 
                     var ArrayIOPSHours_day = arg1["array"]["IOPS_HOURS_DAY"];
                     var ws4 = XLSX.utils.json_to_sheet(ArrayIOPSHours_day);
-                    XLSX.utils.book_append_sheet(wb, ws4, "存储资源IOPS日间峰值");
+                    //存储资源IOPS日间峰值
+                    XLSX.utils.book_append_sheet(wb, ws4, "Day_IOPS_MAX");
 
                     var ArrayIOPSHours_night = arg1["array"]["IOPS_HOURS_NIGHT"];
                     var ws5 = XLSX.utils.json_to_sheet(ArrayIOPSHours_night);
-                    XLSX.utils.book_append_sheet(wb, ws5, "存储资源IOPS夜间峰值");
-
+                    //存储资源IOPS夜间峰值
+                    XLSX.utils.book_append_sheet(wb, ws5, "Night_IOPS_MAX");
 		            XLSX.writeFile(wb, outputFilename);
  
                     
@@ -4000,12 +4053,125 @@ var reportingController = function (app) {
                     if (err) throw err;
                     res.json(200, DataFilename+','+outputFilename);
                 });
-                
+
                 //res.json(200, result.data.IOPS_HOURS_DETAIL);
             });
 
     });
 
+
+    function SearchArrayConfigureInfo(device) {
+        var arrayInfo = [
+            {
+                "ArrayName":"VMAX",
+                "Configure":"VMAX-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX1",
+                "Configure":"VMAX1-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX2",
+                "Configure":"VMAX2-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX3",
+                "Configure":"VMAX3-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX4",
+                "Configure":"VMAX4-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX5",
+                "Configure":"VMAX5-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX6",
+                "Configure":"VMAX6-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX7",
+                "Configure":"VMAX7-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX8",
+                "Configure":"VMAX8-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX9",
+                "Configure":"VMAX9-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX10",
+                "Configure":"VMAX10-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX11",
+                "Configure":"VMAX11-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX12",
+                "Configure":"VMAX12-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX13",
+                "Configure":"VMAX13-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX14",
+                "Configure":"VMAX14-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            },
+            {
+                "ArrayName":"VMAX15",
+                "Configure":"VMAX15-Configure",
+                "IOPS_Threshold":100,
+                "IOPS_threshold_60%":60
+            }
+        ]
+
+
+        for ( var i in arrayInfo) {
+            var item = arrayInfo[i];
+            if ( item.ArrayName == device ) {
+                return item;
+            }
+        }
+
+        return {};
+
+
+    }
 
 };
 

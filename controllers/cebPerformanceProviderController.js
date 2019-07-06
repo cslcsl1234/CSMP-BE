@@ -33,7 +33,9 @@ var AppTopologyObj = mongoose.model('AppTopology');
 var DeviceMgmt = require('../lib/DeviceManagement');
 var Report = require('../lib/Reporting');
 var Analysis = require('../lib/analysis'); 
+var sortBy = require('sort-by');
  
+
 var cebPerformanceProviderController = function (app) {
 
     var config = configger.load();
@@ -561,6 +563,29 @@ var cebPerformanceProviderController = function (app) {
                         "logicCapacity":"58709.5"
                     }
                     */
+		    var vmaxCapacity = require('../data/VMAXCapacity');
+
+		    
+		    for ( var i in finalResult.VMAX ) {
+			var item = finalResult.VMAX[i];
+
+			for ( var j in vmaxCapacity ) {
+				var newItem = vmaxCapacity[j];
+
+				if ( item.storageSn == newItem.storageSn ) {
+					item.rawCapacity = newItem.rawCapacity.toFixed(2);
+					item.logicCapacity = newItem.logicCapacity.toFixed(2);
+                        		item.viewCapacityPercent = item.logicCapacity == 0 ? 0 : ((item.viewCapacity / item.logicCapacity) * 100).toFixed(2) + "%";
+				}
+
+
+			} 
+
+
+		    }
+
+		    finalResult.VMAX.sort(sortBy("storageName"));
+		
                     
                     res.json(200,finalResult);   
                 

@@ -306,10 +306,6 @@ var grafanaVMAXController = function (app) {
 
       }
 
-      
-
-
-
   });
 
   app.post('/grafana/vmax/annotations', function (req, res) {

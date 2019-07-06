@@ -45,6 +45,8 @@ var Report = require('../lib/Reporting');
 var CAPACITY = require('../lib/Array_Capacity');
 var backendMgmt = require('../lib/BackendMgmt');
 var Analysis = require('../lib/analysis');
+var MongoDBFunction = require('../lib/MongoDBFunction');
+var sortBy = require('sort-by');
 
 var testController = function (app) {
 
@@ -267,31 +269,6 @@ var testController = function (app) {
 
     });
 
-    app.get('/test2', function (req, res) {
-        var masking = require('C:\\CSMP\\reporting\\tmp\\masking.json');
-        var apptopo = require('C:\\CSMP\\CSMP-BE\\data\\topology.json');
-        var lunview = topos.CombineLunTopoViews(masking, apptopo);
-
-
-
-        var fs = require('fs');
-        var wstream = fs.createWriteStream("./data/lunview.json");
-
-        wstream.write('[');
-        for (var i in lunview) {
-            var item = lunview[i];
-            if (i == 0) wstream.write(JSON.stringify(item) + '\n');
-            else wstream.write(', ' + JSON.stringify(item) + '\n');
-        }
-        wstream.write(']\n');
-        wstream.end();
-
-
-        res.json(200, "succeeds");
-    })
-
-
-
 
     app.get('/test3', function (req, res) {
         var device;
@@ -395,23 +372,23 @@ var testController = function (app) {
 
         var valuetype = 'average';
         //var start  = util.getPerfStartTime(); 
-        var start = '2016-11-21T16:00:00.000Z';
-        var end = '2018-11-30T16:00:00.000Z';
+        var start = '2019-06-21T16:00:00.000Z';
+        var end = '2019-06-26T16:00:00.000Z';
 
         //var start = '2018-10-01T16:00:00.000Z';
         //var end = '2018-10-30T16:00:00.000Z';
 
-        var device = '000295700790';
+        var device = '000297800859';
         var part;
 
         //VMAX.GetFEPorts(device, function (rest) { res.json(200, rest); });
-        var device1;
-       // VMAX.getArrayPerformanceV3( device1, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
+        VMAX.getArrayPerformanceV3( device, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
         
 
         //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
         //function GetFCSwitchPart(devtype,parttype,callback) { 
         //Report.getAppStorageRelationV2(device, function (result )  {  res.json(200,result) });
+
 
         //Report.getArrayResourceLimits(from,to, function (result )  {  res.json(200,result) });
 
@@ -422,11 +399,10 @@ var testController = function (app) {
 
         //SWITCH.GetSwitchPorts(device, function(rest) {             res.json(200,rest);        });
         // SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
-        VMAX.GetStorageGroups(device1, function(result) {   res.json(200,result);   }); 
+        // VMAX.GetStorageGroups(device, function(result) {   res.json(200,res   ult);   }); 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
         //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
-        var device1 ;
-        //VMAX.GetArrays( device1, function( ret) {  res.json(200,ret);   }); 
+        //VMAX.GetArrays(  function(ret) {  res.json(200,ret);   }); 
         //Report.GetStoragePorts(function(ret) {
 
 
@@ -526,84 +502,139 @@ var testController = function (app) {
 
 
 
-    app.get('/api/test2', function (req, res) {
+    app.get('/test2', function (req, res) {
 
-        var device = '000492600255';
-        var start = '2018-06-01T08:00:00.000+08:00';
-        var end = '2018-06-10T08:00:00.000+08:00';
+        var start = '2019-06-01T08:00:00.000+08:00';
+        var end = '2019-06-10T08:00:00.000+08:00';
         var fename = 'FA-8F';
 
-        // var baselinePeriod = 4;
-        // var PeriodNumber = 604800 ;   // One Week;
-        // var baselinePercent = 30;     // BaseLine up/down percent ; %
+	var tmpresult = {};
+
 
         var isNeedBaseLine = false;
         async.waterfall([
             function (callback) {
 
-
                 var param = {};
-                param['device'] = device;
-                param['period'] = 3600;
+                param['period'] = 86400;
                 param['start'] = start;
                 param['end'] = end;
                 param['type'] = 'max';
-                param['filter_name'] = '(name==\'Requests\'|name==\'CurrentUtilization\'|name==\'HostMBperSec\')';
-                param['keys'] = ['device', 'part'];
-                param['fields'] = ['model'];
+                param['filter_name'] = '(name==\'Capacity\')';
+                param['keys'] = ['part'];
+                param['fields'] = ['device'];
 
-                if (fename === undefined)
-                    param['filter'] = 'datagrp=\'VMAX-FEDirector\'';
-                else {
-                    param['filter'] = 'datagrp=\'VMAX-FEDirector\'&part=\'' + fename + '\'';
-                    isNeedBaseLine = true;
-                }
+                param['filter'] = 'datagrp=\'VMAX-STORAGEPOOLS\'&parttype=\'Disk Group\'';
 
 
 
                 CallGet.CallGetPerformance(param, function (feperf) {
-                    var restData = {};
-                    restData["orgiData"] = feperf[0].matrics;
 
+		    tmpresult["diskgroup"] = feperf;
+                    callback(null, tmpresult);
+                });
+            }, 
+            function (restData, callback) {
+
+                var param = {};
+                param['period'] = 86400;
+                param['start'] = start;
+                param['end'] = end;
+                param['type'] = 'max';
+                param['filter_name'] = '(name==\'Capacity\')';
+                param['keys'] = ['part'];
+                param['fields'] = ['device'];
+
+                param['filter'] = 'datagrp=\'VMAX-STORAGEPOOLS\'&parttype=\'Storage Pool\'';
+
+
+
+                CallGet.CallGetPerformance(param, function (feperf) {
+
+		    restData["pool"] = feperf;
                     callback(null, restData);
                 });
-            }, function (restData, callback) {
-                if (isNeedBaseLine == false) {
-                    callback(null, restData);
-                } else {
-                    var param = {};
-                    param['device'] = device;
-                    param['period'] = 3600;
-                    param['type'] = 'max';
-                    param['filter_name'] = '(name==\'Requests\'|name==\'CurrentUtilization\'|name==\'HostMBperSec\')';
-                    param['keys'] = ['device', 'part'];
-                    param['fields'] = ['model'];
 
-                    param['start'] = moment.unix(moment(start, moment.ISO_8601).unix() - 2419200).toISOString(true);
-                    param['end'] = start;
 
-                    if (fename === undefined)
-                        param['filter'] = 'datagrp=\'VMAX-FEDirector\'';
-                    else {
-                        param['filter'] = 'datagrp=\'VMAX-FEDirector\'&part=\'' + fename + '\'';
-                    }
+	    },
+            function (restData, callback) {
 
-                    CallGet.CallGetPerformance(param, function (feperf) {
-                        restData["baselineData"] = feperf[0].matrics;
-                        callback(null, restData);
-                    });
-                }
+		var result = [];
 
-            },
-            function (data, callback) {
 
-                Analysis.GenerateBaseLine(data, function (result) {
-                    callback(null, result);
-                })
+		for ( var i in restData.diskgroup ) {
+			var item = restData.diskgroup[i];
+			var newItem = {};
+
+			var isfind = false;
+			for ( var j in result ) {
+				var resultItem = result[j];
+				if ( resultItem.device == item.device ) {
+					isfind = true;
+					resultItem.rawCapacity += item.matricsStat.Capacity.last;
+					break;
+				}
+			}
+			if ( isfind == false ) {
+				newItem["device"] = item.device;
+				newItem["storageSn"] = item.device;
+				newItem["plannedCapacity"] = 0;
+				newItem["maxCapacity"] = 0;
+				newItem["viewCapacity"] = 0;
+				newItem["viewCapacityPercent"] = 0;
+				newItem["rawCapacity"] = item.matricsStat.Capacity.last;
+				result.push(newItem);
+			}
+		}
+
+		for ( var i in restData.pool) {
+			var item = restData.pool[i];
+			var newItem = {};
+
+			var isfind = false;
+			for ( var j in result ) {
+				var resultItem = result[j];
+				if ( resultItem.device == item.device ) {
+					isfind = true;
+					if ( resultItem.logicCapacity === undefined ) resultItem["logicCapacity"] = 0;
+					resultItem.logicCapacity += item.matricsStat.Capacity.last;
+					break;
+				}
+			}
+			if ( isfind == false ) {
+				newItem["device"] = item.device;
+				newItem["logicCapacity"] = item.matricsStat.Capacity.last;
+				result.push(newItem);
+			}
+		}
+
+
+		
+		callback(null,result);
+
             }
         ], function (err, result) {
 
-            res.json(200, result);
+		var device;
+        	DeviceMgmt.getMgmtObjectInfo(device, function(ret) {     
+	
+			for ( var i in result ) {
+				var item = result[i];
+				for ( var j in ret ) {
+					var item1 = ret[j];
+
+					if ( item.device == item1.sn ) item["storageName"] = item1.name;
+
+				}
+
+
+			}
+
+			result.sort(sortBy("storageName"));
+
+			res.json(200,result);        
+		});
+		
         });
 
 
