@@ -46,8 +46,13 @@ var reportingController = function (app) {
         docx.setDocKeywords('keywords');
         docx.setDescription('test description');
 
-        var pObj = docx.createP({ align: 'center' });
-        pObj.addText('Policy Data', { bold: true, underline: true });
+        var pObj = docx.createP({
+            align: 'center'
+        });
+        pObj.addText('Policy Data', {
+            bold: true,
+            underline: true
+        });
 
         docx.on('finalize', function (written) {
             console.log('Finish to create Word file.\nTotal bytes created: ' + written + '\n');
@@ -181,88 +186,120 @@ var reportingController = function (app) {
                         tableFontFamily: "Comic Sans MS"
                     }
 
-                    var data = [[{ align: 'right' }, {
-                        type: "text",
-                        val: "Simple"
-                    }, {
-                        type: "text",
-                        val: " with color",
-                        opt: { color: '000088' }
-                    }, {
-                        type: "text",
-                        val: "  and back color.",
-                        opt: { color: '00ffff', back: '000088' }
-                    }, {
-                        type: "linebreak"
-                    }, {
-                        type: "text",
-                        val: "Bold + underline",
-                        opt: { bold: true, underline: true }
-                    }], {
-                        type: "horizontalline"
-                    }, [{ backline: 'EDEDED' }, {
-                        type: "text",
-                        val: "  backline text1.",
-                        opt: { bold: true }
-                    }, {
-                        type: "text",
-                        val: "  backline text2.",
-                        opt: { color: '000088' }
-                    }], {
-                        type: "text",
-                        val: "Left this text.",
-                        lopt: { align: 'left' }
-                    }, {
-                        type: "text",
-                        val: "Center this text.",
-                        lopt: { align: 'center' }
-                    }, {
-                        type: "text",
-                        val: "Right this text.",
-                        lopt: { align: 'right' }
-                    }, {
-                        type: "text",
-                        val: "Fonts face only.",
-                        opt: { font_face: 'Arial' }
-                    }, {
-                        type: "text",
-                        val: "Fonts face and size.",
-                        opt: { font_face: 'Arial', font_size: 40 }
-                    }, {
-                        type: "table",
-                        val: table,
-                        opt: tableStyle
-                    }, [{}, {
-                        type: "image",
-                        path: path.resolve(__dirname, '../1.PNG')
-                    }, {
-                        type: "image",
-                        path: path.resolve(__dirname, '../1.PNG')
-                    }], {
-                        type: "pagebreak"
-                    }, [{}, {
-                        type: "numlist"
-                    }, {
-                        type: "text",
-                        text: "numList1.",
-                    }, {
-                        type: "numlist"
-                    }, {
-                        type: "text",
-                        text: "numList2.",
-                    }], [{}, {
-                        type: "dotlist"
-                    }, {
-                        type: "text",
-                        text: "dotlist1.",
-                    }, {
-                        type: "dotlist"
-                    }, {
-                        type: "text",
-                        text: "dotlist2.",
-                    }], {
-                        type: "pagebreak"
-                    }
+                    var data = [
+                        [{
+                            align: 'right'
+                        }, {
+                            type: "text",
+                            val: "Simple"
+                        }, {
+                            type: "text",
+                            val: " with color",
+                            opt: {
+                                color: '000088'
+                            }
+                        }, {
+                            type: "text",
+                            val: "  and back color.",
+                            opt: {
+                                color: '00ffff',
+                                back: '000088'
+                            }
+                        }, {
+                            type: "linebreak"
+                        }, {
+                            type: "text",
+                            val: "Bold + underline",
+                            opt: {
+                                bold: true,
+                                underline: true
+                            }
+                        }], {
+                            type: "horizontalline"
+                        },
+                        [{
+                            backline: 'EDEDED'
+                        }, {
+                            type: "text",
+                            val: "  backline text1.",
+                            opt: {
+                                bold: true
+                            }
+                        }, {
+                            type: "text",
+                            val: "  backline text2.",
+                            opt: {
+                                color: '000088'
+                            }
+                        }], {
+                            type: "text",
+                            val: "Left this text.",
+                            lopt: {
+                                align: 'left'
+                            }
+                        }, {
+                            type: "text",
+                            val: "Center this text.",
+                            lopt: {
+                                align: 'center'
+                            }
+                        }, {
+                            type: "text",
+                            val: "Right this text.",
+                            lopt: {
+                                align: 'right'
+                            }
+                        }, {
+                            type: "text",
+                            val: "Fonts face only.",
+                            opt: {
+                                font_face: 'Arial'
+                            }
+                        }, {
+                            type: "text",
+                            val: "Fonts face and size.",
+                            opt: {
+                                font_face: 'Arial',
+                                font_size: 40
+                            }
+                        }, {
+                            type: "table",
+                            val: table,
+                            opt: tableStyle
+                        },
+                        [{}, {
+                            type: "image",
+                            path: path.resolve(__dirname, '../1.PNG')
+                        }, {
+                            type: "image",
+                            path: path.resolve(__dirname, '../1.PNG')
+                        }], {
+                            type: "pagebreak"
+                        },
+                        [{}, {
+                            type: "numlist"
+                        }, {
+                            type: "text",
+                            text: "numList1.",
+                        }, {
+                            type: "numlist"
+                        }, {
+                            type: "text",
+                            text: "numList2.",
+                        }],
+                        [{}, {
+                            type: "dotlist"
+                        }, {
+                            type: "text",
+                            text: "dotlist1.",
+                        }, {
+                            type: "dotlist"
+                        }, {
+                            type: "text",
+                            text: "dotlist2.",
+                        }], {
+                            type: "pagebreak"
+                        }
                     ]
 
                     var pObj = docx.createByJson(data);
@@ -287,7 +324,8 @@ var reportingController = function (app) {
                     });
 
                 }
-            ], function (err, result) {
+            ],
+            function (err, result) {
                 // result now equals 'done'
                 res.json(200, result);
             });
@@ -343,15 +381,20 @@ var reportingController = function (app) {
             return;
         }
 
-        ReportStatusObj.find({ ReportInfoID: reportid }, { "__v": 0, "_id": 0, "ReportParamater._id": 0 }, function (err, doc) {
+        ReportStatusObj.find({
+            ReportInfoID: reportid
+        }, {
+            "__v": 0,
+            "_id": 0,
+            "ReportParamater._id": 0
+        }, function (err, doc) {
             //system error.
             if (err) {
                 return err;
             }
             if (!doc) { //user doesn't exist.
                 res.json(200, []);
-            }
-            else {
+            } else {
                 res.json(200, doc);
             }
 
@@ -384,19 +427,28 @@ var reportingController = function (app) {
 
         var reportid = req.query.ID;
         if (reportid === undefined) {
-            var query = ReportInfoObj.find({}).select({ "__v": 0, "_id": 0 });
+            var query = ReportInfoObj.find({}).select({
+                "__v": 0,
+                "_id": 0
+            });
         } else {
-            var query = ReportInfoObj.find({ ID: reportid }).select({ "__v": 0, "_id": 0 });
+            var query = ReportInfoObj.find({
+                ID: reportid
+            }).select({
+                "__v": 0,
+                "_id": 0
+            });
         }
 
         query.exec(function (err, doc) {
             if (err) {
-                res.json(500, { status: err })
+                res.json(500, {
+                    status: err
+                })
             }
             if (!doc) {
                 res.json(500, []);
-            }
-            else {
+            } else {
                 res.json(200, doc);
             }
 
@@ -410,12 +462,14 @@ var reportingController = function (app) {
 
 
     /* 
-    *  Create a report info record 
-    */
+     *  Create a report info record 
+     */
     app.post('/api/reporting/info', function (req, res) {
         var reportinfo = req.body;
 
-        ReportInfoObj.findOne({ "ID": reportinfo.ID }, function (err, doc) {
+        ReportInfoObj.findOne({
+            "ID": reportinfo.ID
+        }, function (err, doc) {
             //system error.
             if (err) {
                 return done(err);
@@ -431,17 +485,20 @@ var reportingController = function (app) {
                         return res.json(400, err);
                     } else
 
-                        return res.json(200, { status: "The Report info insert is succeeds!" });
+                        return res.json(200, {
+                            status: "The Report info insert is succeeds!"
+                        });
                 });
-            }
-            else {
+            } else {
                 console.log(reportinfo);
                 doc.update(reportinfo, function (error, course) {
                     if (error) return next(error);
                 });
 
 
-                return res.json(200, { status: "The Report info has exist! Update it." });
+                return res.json(200, {
+                    status: "The Report info has exist! Update it."
+                });
             }
 
         });
@@ -452,8 +509,8 @@ var reportingController = function (app) {
 
 
     /* 
-    *  Delete a report info record 
-    */
+     *  Delete a report info record 
+     */
     app.delete('/api/reporting/info', function (req, res) {
         var reportid = req.query.ID;
 
@@ -463,15 +520,18 @@ var reportingController = function (app) {
         }
 
         var menu = req.body;
-        var conditions = { ID: reportid };
+        var conditions = {
+            ID: reportid
+        };
         ReportInfoObj.remove(conditions, function (err, doc) {
             //system error.
             if (err) {
                 return done(err);
-            }
-            else {
+            } else {
                 console.log("the report info is remove !");
-                return res.json(200, { status: "The report info has removed!" });
+                return res.json(200, {
+                    status: "The report info has removed!"
+                });
             }
 
         });
@@ -495,9 +555,18 @@ var reportingController = function (app) {
 
         var list = [];
 
-        var item1 = { "Display": "parm1", "value": "parm1_value" };
-        var item2 = { "Display": "parm2", "value": "parm2_value" };
-        var item3 = { "Display": "parm3", "value": "parm3_value" };
+        var item1 = {
+            "Display": "parm1",
+            "value": "parm1_value"
+        };
+        var item2 = {
+            "Display": "parm2",
+            "value": "parm2_value"
+        };
+        var item3 = {
+            "Display": "parm3",
+            "value": "parm3_value"
+        };
 
         list.push(item1);
         list.push(item2);
@@ -1800,7 +1869,8 @@ var reportingController = function (app) {
                     }
                     callback(null, groups)
                 }
-            ], function (err, result) {
+            ],
+            function (err, result) {
                 // result now equals 'done'
                 var ret = {}
                 ret.data = result
@@ -1991,7 +2061,8 @@ var reportingController = function (app) {
                     }
                     callback(null, groups)
                 }
-            ], function (err, result) {
+            ],
+            function (err, result) {
                 // result now equals 'done'
                 var ret = {}
                 ret.data = result
@@ -2122,7 +2193,8 @@ var reportingController = function (app) {
                     });
 
                 }
-            ], function (err, result) {
+            ],
+            function (err, result) {
                 // result now equals 'done'
 
                 var ret = {}
@@ -2249,7 +2321,8 @@ var reportingController = function (app) {
                     });
 
                 }
-            ], function (err, result) {
+            ],
+            function (err, result) {
                 // result now equals 'done'
 
                 var ret = {}
@@ -2356,7 +2429,8 @@ var reportingController = function (app) {
                     });
 
                 }
-            ], function (err, result) {
+            ],
+            function (err, result) {
                 // result now equals 'done'
 
                 var ret = {}
@@ -2533,7 +2607,8 @@ var reportingController = function (app) {
                     });
 
                 }
-            ], function (err, result) {
+            ],
+            function (err, result) {
                 // result now equals 'done'
 
                 var ret = {}
@@ -2696,7 +2771,8 @@ var reportingController = function (app) {
                     });
 
                 }
-            ], function (err, result) {
+            ],
+            function (err, result) {
                 // result now equals 'done' 
                 var ret = {}
                 ret.data = [];
@@ -2824,7 +2900,8 @@ var reportingController = function (app) {
                     });
 
                 }
-            ], function (err, result) {
+            ],
+            function (err, result) {
                 // result now equals 'done'
                 var retData = {};
                 retData.data = result;
@@ -2924,7 +3001,8 @@ var reportingController = function (app) {
                     });
 
                 }
-            ], function (err, result) {
+            ],
+            function (err, result) {
                 // result now equals 'done'
 
                 var ret = {}
@@ -3015,7 +3093,8 @@ var reportingController = function (app) {
 
                     callback(null, arg1);
                 }
-            ], function (err, result) {
+            ],
+            function (err, result) {
                 // result now equals 'done'
 
                 var ret = {}
@@ -3063,7 +3142,8 @@ var reportingController = function (app) {
                     callback(null, arg1);
 
                 }
-            ], function (err, result) {
+            ],
+            function (err, result) {
                 res.json(200, result);
             });
     });
@@ -3099,8 +3179,13 @@ var reportingController = function (app) {
         var ReportTmpDataPath = config.Reporting.TmpDataPath;
         var ReportOutputPath = config.Reporting.OutputPath;
 
-        var outputFilename = ReportOutputPath + '//' + 'WeeklyReport_' + start_dt + '-' + end_dt + '.xlsx';
+        //var outputFilename = ReportOutputPath + '//' + 'WeeklyReport_' + start_dt + '-' + end_dt + '.xlsx';
+        //var DataFilename = ReportOutputPath + '//' + 'RecordData_WeeklyReport.json';
+        var outputFilename = ReportOutputPath + '//' + 'DISK_IO_Report_' + start_dt + '-' + end_dt + '.xlsx';
         var DataFilename = ReportOutputPath + '//' + 'RecordData_WeeklyReport.json';
+
+        
+
         console.log("Report output filename: " + outputFilename);
         console.log("Data filename:" + DataFilename);
         console.log("Priv Data:" + priv_dt);
@@ -3138,20 +3223,20 @@ var reportingController = function (app) {
 
 
                 },
-                function (arg1, callback) { 
-                    Report.getAppStorageRelationV2(device, function (result) { 
+                function (arg1, callback) {
+                    Report.getAppStorageRelationV2(device, function (result) {
                         arg1.data["AppStorageRelation"] = result;
 
                         var DataFilename = '/csmp/reporting/test/test.json';
                         fs.writeFile(DataFilename, JSON.stringify(arg1), function (err) {
-                            if (err) throw err; 
+                            if (err) throw err;
                         });
 
-                        callback(null, arg1); 
-                    });   
+                        callback(null, arg1);
+                    });
                     //var aaa = require("/csmp/reporting/test/test.json");
                     //callback(null, aaa);
-                }, 
+                },
                 function (arg1, callback) {
                     var AppStorageelation = arg1.data.AppStorageRelation;
                     var AppSGMapping = [];
@@ -3177,25 +3262,23 @@ var reportingController = function (app) {
                     console.log("================== Begin GetStorageGroupsPerformance ================");
                     var period_detail = 0;
                     var valuetype1 = 'average';
+ 
+                    var param = {};
+                    param['device'] = device;
+                    param['period'] = period_detail;
+                    param['start'] = start;
+                    param['end'] = end;
+                    param['type'] = valuetype1;
+                    param['filter_name'] = '(name=\'IORate\'|name=\'ResponseTime\')';
+                    param['keys'] = ['device', 'part'];
+                    param['fields'] = ['name', 'sgname'];
+                    param['filter'] = '(datagrp=\'VMAX-StorageGroup\'&parttype=\'Storage Group\')';
+                    param['limit'] = 100000;
 
-                    //VMAX.GetStorageGroupsPerformance(device, period_detail, start, end, valuetype1, function (rest) {
-
-		    var param = {};
-		    param['device'] = device;
-		    param['period'] = period_detail;
-		    param['start'] = start;
-		    param['end'] = end;
-		    param['type'] = valuetype1;
-		    param['filter_name'] = '(name=\'IORate\'|name=\'ResponseTime\')';
-		    param['keys'] = ['device', 'part'];
-		    param['fields'] = ['name', 'sgname'];
-		    param['filter'] = '(datagrp=\'VMAX-StorageGroup\'&parttype=\'Storage Group\')';
-		    param['limit'] = 100000;
-
-		    CallGet.CallGetPerformance(param, function (rest) {
+                    CallGet.CallGetPerformance(param, function (rest) {
 
 
-                    	console.log("filter the sg in the CEB-Core-Application-sg ");
+                        console.log("filter the sg in the CEB-Core-Application-sg ");
                         var retArray = [];
                         var sgperf_result = [];
                         var appResult = {};
@@ -3203,11 +3286,10 @@ var reportingController = function (app) {
                         for (var j in CEB_Core_Application_SG) {
 
 
-			    var sgname_arrayname_head = CEB_Core_Application_SG[j].split('|')[1];
-			    var sgname = CEB_Core_Application_SG[j].split('|')[0];
-                            //var sgname = CEB_Core_Application_SG[j];
+                            var sgname_arrayname_head = CEB_Core_Application_SG[j].split('|')[1];
+                            var sgname = CEB_Core_Application_SG[j].split('|')[0]; 
 
-			    console.log("SGName="+sgname+","+"array="+sgname_arrayname_head);
+                            console.log("SGName=" + sgname + "," + "array=" + sgname_arrayname_head);
 
 
                             appResult[sgname] = [];
@@ -3220,41 +3302,39 @@ var reportingController = function (app) {
                                 if (sgname == item.sgname) {
 
 
-				    var isfind = false;
-				    var itemResult = {};
+                                    var isfind = false;
+                                    var itemResult = {};
 
 
-				    for ( var zz in arg1.data.AppSGMapping) {
-					var zzItem = arg1.data.AppSGMapping[zz];
+                                    for (var zz in arg1.data.AppSGMapping) {
+                                        var zzItem = arg1.data.AppSGMapping[zz];
 
-					if ( sgname_arrayname_head !== undefined )  {
-					
-						var arrayNameHead = zzItem.arrayname.split('-')[0];
-						if (item.device == zzItem.device && item.sgname == zzItem.sgname && sgname_arrayname_head == arrayNameHead ) {
-							isfind = true;
-							itemResult["device"] = zzItem.device;
-							itemResult["arrayname"] = zzItem.arrayname;
-							itemResult["sgname"] = zzItem.sgname;
-							itemResult["appname"] = zzItem.appname;
-							break;
-						}
+                                        if (sgname_arrayname_head !== undefined) {
 
-					} else  {
-						if (item.device == zzItem.device && item.sgname == zzItem.sgname ) {
-							isfind = true;
-							itemResult["device"] = zzItem.device;
-							itemResult["arrayname"] = zzItem.arrayname;
-							itemResult["sgname"] = zzItem.sgname;
-							itemResult["appname"] = zzItem.appname;
-							break;
-						}
-					}
-				    }
+                                            var arrayNameHead = zzItem.arrayname.split('-')[0];
+                                            if (item.device == zzItem.device && item.sgname == zzItem.sgname && sgname_arrayname_head == arrayNameHead) {
+                                                isfind = true;
+                                                itemResult["device"] = zzItem.device;
+                                                itemResult["arrayname"] = zzItem.arrayname;
+                                                itemResult["sgname"] = zzItem.sgname;
+                                                itemResult["appname"] = zzItem.appname;
+                                                break;
+                                            }
 
-				    if ( isfind == false ) continue;
+                                        } else {
+                                            if (item.device == zzItem.device && item.sgname == zzItem.sgname) {
+                                                isfind = true;
+                                                itemResult["device"] = zzItem.device;
+                                                itemResult["arrayname"] = zzItem.arrayname;
+                                                itemResult["sgname"] = zzItem.sgname;
+                                                itemResult["appname"] = zzItem.appname;
+                                                break;
+                                            }
+                                        }
+                                    }
 
-
-
+                                    if (isfind == false) continue;
+ 
 
                                     delete item.matricsStat;
                                     var matricsbyday = {};
@@ -3272,14 +3352,13 @@ var reportingController = function (app) {
                                     }
                                     item["day"] = matricsbyday;
                                     item["ResponeTimeByDay"] = {};
-/*
+                                    /*
 
-                                    if (item.sgname == 'EBPP_SG') {
-                                        console.log(item);
-                                        console.log("**************");
-                                    }
-*/
-
+                                                                        if (item.sgname == 'EBPP_SG') {
+                                                                            console.log(item);
+                                                                            console.log("**************");
+                                                                        }
+                                    */ 
 
                                     var totalResponseTime = 0;
                                     for (var date in matricsbyday) {
@@ -3298,54 +3377,11 @@ var reportingController = function (app) {
 
                                     item["ResponeTimeTotal"] = totalResponseTime;
 
-				    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
-				    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
-				    appResult[sgname].push(itemResult);
+                                    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
+                                    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
+                                    appResult[sgname].push(itemResult);
                                     if (item.sgname == 'EBPP_SG') console.log(itemResult);
 
-/*
-                                    var appSGMapping = arg1.data.AppSGMapping;
-                                    for (var z in appSGMapping) {
-
-
-
-
-                                        var mappingItem = appSGMapping[z];
-					var arrayNameHead = mappingItem.arrayname.split('-')[0];
-
-					if ( sgname_arrayname_head !== undefined ) {
-						if (item.device == mappingItem.device && item.sgname == mappingItem.sgname && sgname_arrayname_head == arrayNameHead ) {
-						console.log( sgname_arrayname_head +'\t'+arrayNameHead ) ;
-						    var itemResult = {};
-
-
-						    itemResult["device"] = mappingItem.device;
-						    itemResult["arrayname"] = mappingItem.arrayname;
-						    itemResult["sgname"] = mappingItem.sgname;
-						    itemResult["appname"] = mappingItem.appname;
-						    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
-						    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
-						    appResult[sgname].push(itemResult);
-						}
-
-					} else {
-						if (item.device == mappingItem.device && item.sgname == mappingItem.sgname ) {
-						    var itemResult = {};
-
-
-						    itemResult["device"] = mappingItem.device;
-						    itemResult["arrayname"] = mappingItem.arrayname;
-						    itemResult["sgname"] = mappingItem.sgname;
-						    itemResult["appname"] = mappingItem.appname;
-						    itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
-						    itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
-						    appResult[sgname].push(itemResult);
-						}
-
-					}
-
-                                    }
-*/
                                     retArray.push(item);
                                 }
                             }
@@ -3403,7 +3439,7 @@ var reportingController = function (app) {
                 // Get IOPS peak value 
                 // -----------------------------------------
                 function (data, callback) {
-                    console.log("================== Begin GetStorageGroupsPerformance ================");
+                    console.log("================== Begin GetStorageGroupsPerformance (Get IOPS peak value)================");
                     VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function (rest) {
                         var rets = [];
                         var arg1 = data.data.AppStorageRelation;
@@ -3431,60 +3467,58 @@ var reportingController = function (app) {
 
                         // filter the sg in the CEB-Core-Application-sg 
                         for (var j in CEB_Core_Application_SG) {
-			    var sgname_arrayname_head = CEB_Core_Application_SG[j].split('|')[1];
-			    var sgname = CEB_Core_Application_SG[j].split('|')[0];
+                            var sgname_arrayname_head = CEB_Core_Application_SG[j].split('|')[1];
+                            var sgname = CEB_Core_Application_SG[j].split('|')[0];
                             //var sgname = CEB_Core_Application_SG[j];
-			    for ( var zz in arg1.data.AppSGMapping) {
-				var zzItem = arg1.data.AppSGMapping[zz];
+                            for (var zz in arg1.data.AppSGMapping) {
+                                var zzItem = arg1.data.AppSGMapping[zz];
 
-				if ( item.device == zzItem.device && item.sgname == zzItem.sgname ) {
-					var arrayname = zzItem.arrayname;
-					break;
-				}
+                                if (item.device == zzItem.device && item.sgname == zzItem.sgname) {
+                                    var arrayname = zzItem.arrayname;
+                                    break;
+                                }
 
-			    }
+                            }
 
-			    if ( sgname_arrayname_head !== undefined )  {
-				var aa = arrayname.split('-')[0];
-				if ( aa == sgname_arrayname_head && sgname == item.sgname ) {
-					retArray.push(item);
-					break;
-				}
-			    } else {
-				    if (sgname == item.sgname) {
-					retArray.push(item);
-					break;
-				    }
-			    }
-				
+                            if (sgname_arrayname_head !== undefined) {
+                                var aa = arrayname.split('-')[0];
+                                if (aa == sgname_arrayname_head && sgname == item.sgname) {
+                                    retArray.push(item);
+                                    break;
+                                }
+                            } else {
+                                if (sgname == item.sgname) {
+                                    retArray.push(item);
+                                    break;
+                                }
+                            }
+
                         }
                     }
                     arg1["data"].AppStorageRelation = retArray;
 
                     callback(null, arg1);
-                }
-                ,
+                },
                 function (arg1, callback) {
                     var finalRecords = {};
 
                     for (var i in arg1.data.AppStorageRelation) {
                         var item = arg1.data.AppStorageRelation[i];
 
-                        if ( item.appinfo === undefined ) {
+                        if (item.appinfo === undefined) {
                             var appname = 'NoFind';
                         } else {
                             for (var appItem in item.appinfo) {
                                 var appname = item.appinfo[appItem].app;
                                 if (appname === "" || appname === undefined)
                                     console.log(JSON.stringify(item));
-                            }    
+                            }
                         }
 
                         if (item.arrayname === undefined) {
                             var array = item.device;
                             var sgmember = array + '~' + item.sgname + '~' + item.Capacity;
-                        }
-                        else {
+                        } else {
                             var array = item.arrayname.split('-')[0];
                             var sgmember = item.arrayname + '~' + item.sgname + '~' + item.Capacity;
                         }
@@ -3502,8 +3536,7 @@ var reportingController = function (app) {
                             record.sgname.push(item.perf);
 
                             finalRecords[appname] = record;
-                        }
-                        else {
+                        } else {
                             if (finalRecords[appname].array.indexOf(array) < 0)
                                 finalRecords[appname].array = finalRecords[appname].array + ',' + array;
 
@@ -3528,15 +3561,15 @@ var reportingController = function (app) {
                         var record = {};
                         record["系统名称"] = item.appname;
                         record["所属存储"] = item.array;
-                        for ( var sgi in item.sgname ) {
+                        for (var sgi in item.sgname) {
                             var sgItem = item.sgname[sgi];
 
-                            if (sgItem === undefined ) continue;
-                            if (sgItem.sgname === undefined ) sgItem["sgname"] = 'nosgname';
+                            if (sgItem === undefined) continue;
+                            if (sgItem.sgname === undefined) sgItem["sgname"] = 'nosgname';
 
-                            if ( record["sgname"] === undefined ) record["sgname"] = sgItem.sgname ;
+                            if (record["sgname"] === undefined) record["sgname"] = sgItem.sgname;
                             else {
-                                if ( record["sgname"].indexOf(sgItem.sgname) < 0 )
+                                if (record["sgname"].indexOf(sgItem.sgname) < 0)
                                     record["sgname"] = record["sgname"] + ',' + sgItem.sgname;
                             }
                         }
@@ -3586,7 +3619,7 @@ var reportingController = function (app) {
                         var record = {};
                         record["系统名称"] = item["系统名称"];
                         record["所属存储"] = item["所属存储"];
-		                record["SG成员"] = item.sgname;
+                        record["SG成员"] = item.sgname;
 
                         var totalValue = 0;
                         var totalCount = 0;
@@ -3677,8 +3710,8 @@ var reportingController = function (app) {
                                 item1["datetime"] = moment.unix(item1.timestamp).format('YYYY-MM-DD HH:mm:ss');
                             }
 
-                         if ( aaa[item.NameHead] === undefined ) aaa[item.NameHead] = [];
-                         aaa[item.NameHead].push(item);
+                            if (aaa[item.NameHead] === undefined) aaa[item.NameHead] = [];
+                            aaa[item.NameHead].push(item);
 
                         }
 
@@ -3722,14 +3755,14 @@ var reportingController = function (app) {
                                 var mergedRecordItem = {};
 
                                 mergedRecordItem["NameHead"] = arrayNameHead;
-                                mergedRecordItem["devices"]=item.device;
+                                mergedRecordItem["devices"] = item.device;
                                 mergedRecordItem["matrics"] = [];
                                 for (var i1 in item.matrics) {
                                     var item1 = item.matrics[i1];
                                     var newItem = {};
                                     newItem["timestamp"] = item1["timestamp"];
 
-                                    var timestamp = item1.timestamp; 
+                                    var timestamp = item1.timestamp;
                                     newItem["date"] = moment.unix(timestamp).format('YYYY-MM-DD');
                                     newItem["hour"] = moment.unix(timestamp).format('HH');
                                     newItem["minute"] = moment.unix(timestamp).format('mm');
@@ -3806,12 +3839,12 @@ var reportingController = function (app) {
                                     record["系统名称"] = infoItem.name.split('-')[0];
                                     record["localtion"] = infoItem.name.split('-')[1];
 
-                                    
+
                                     var thresholdInfo = SearchArrayConfigureInfo(record["系统名称"]);
                                     record["存储配置"] = thresholdInfo["VMAX13-Configure"];
                                     record["存储IO推测阀值（IOPS）"] = thresholdInfo["IOPS_Threshold"];
-                                    record["总阀值的60%设定警戒阀值（IOPS）"] = thresholdInfo["IOPS_threshold_60%"];  
-                                    
+                                    record["总阀值的60%设定警戒阀值（IOPS）"] = thresholdInfo["IOPS_threshold_60%"];
+
 
                                     break;
                                 }
@@ -4011,7 +4044,7 @@ var reportingController = function (app) {
                 },
                 function (arg, callback) {
                     var arg1 = arg.result;
- 
+
                     var ThroughputRecords = arg1["application"]["Throughput"];
                     var responseTimeRecords = arg1["application"]["ResponseTime"];
 
@@ -4030,7 +4063,7 @@ var reportingController = function (app) {
                     var ArrayIOPS = arg1["array"]["IOPS"];
                     var ws3 = XLSX.utils.json_to_sheet(ArrayIOPS);
                     //存储资源IOPS均值
-                    XLSX.utils.book_append_sheet(wb, ws3, "DISK_IOPS_AVG"); 
+                    XLSX.utils.book_append_sheet(wb, ws3, "DISK_IOPS_AVG");
 
                     var ArrayIOPSHours_day = arg1["array"]["IOPS_HOURS_DAY"];
                     var ws4 = XLSX.utils.json_to_sheet(ArrayIOPSHours_day);
@@ -4041,17 +4074,19 @@ var reportingController = function (app) {
                     var ws5 = XLSX.utils.json_to_sheet(ArrayIOPSHours_night);
                     //存储资源IOPS夜间峰值
                     XLSX.utils.book_append_sheet(wb, ws5, "Night_IOPS_MAX");
-		            XLSX.writeFile(wb, outputFilename);
- 
-                    
+                    XLSX.writeFile(wb, outputFilename);
+
+
                     callback(null, arg);
                 }
 
-            ], function (err, result) {
-                var DataFilename = '/csmp/reporting/weeklyreport_detail_'+end_dt+'.json'
-                fs.writeFile(DataFilename, JSON.stringify(result,null,' '), function (err) {
+            ],
+            function (err, result) {
+                //var DataFilename = '/csmp/reporting/weeklyreport_detail_'+end_dt+'.json'
+                var DataFilename = '/csmp/reporting/DISK_IO_Report_'+end_dt+'.json'
+                fs.writeFile(DataFilename, JSON.stringify(result, null, ' '), function (err) {
                     if (err) throw err;
-                    res.json(200, DataFilename+','+outputFilename);
+                    res.json(200, DataFilename + ',' + outputFilename);
                 });
 
                 //res.json(200, result.data.IOPS_HOURS_DETAIL);
@@ -4061,109 +4096,108 @@ var reportingController = function (app) {
 
 
     function SearchArrayConfigureInfo(device) {
-        var arrayInfo = [
-            {
-                "ArrayName":"VMAX",
-                "Configure":"VMAX-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+        var arrayInfo = [{
+                "ArrayName": "VMAX",
+                "Configure": "VMAX-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX1",
-                "Configure":"VMAX1-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX1",
+                "Configure": "VMAX1-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX2",
-                "Configure":"VMAX2-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX2",
+                "Configure": "VMAX2-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX3",
-                "Configure":"VMAX3-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX3",
+                "Configure": "VMAX3-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX4",
-                "Configure":"VMAX4-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX4",
+                "Configure": "VMAX4-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX5",
-                "Configure":"VMAX5-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX5",
+                "Configure": "VMAX5-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX6",
-                "Configure":"VMAX6-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX6",
+                "Configure": "VMAX6-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX7",
-                "Configure":"VMAX7-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX7",
+                "Configure": "VMAX7-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX8",
-                "Configure":"VMAX8-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX8",
+                "Configure": "VMAX8-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX9",
-                "Configure":"VMAX9-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX9",
+                "Configure": "VMAX9-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX10",
-                "Configure":"VMAX10-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX10",
+                "Configure": "VMAX10-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX11",
-                "Configure":"VMAX11-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX11",
+                "Configure": "VMAX11-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX12",
-                "Configure":"VMAX12-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX12",
+                "Configure": "VMAX12-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX13",
-                "Configure":"VMAX13-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX13",
+                "Configure": "VMAX13-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX14",
-                "Configure":"VMAX14-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX14",
+                "Configure": "VMAX14-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             },
             {
-                "ArrayName":"VMAX15",
-                "Configure":"VMAX15-Configure",
-                "IOPS_Threshold":100,
-                "IOPS_threshold_60%":60
+                "ArrayName": "VMAX15",
+                "Configure": "VMAX15-Configure",
+                "IOPS_Threshold": 100,
+                "IOPS_threshold_60%": 60
             }
         ]
 
 
-        for ( var i in arrayInfo) {
+        for (var i in arrayInfo) {
             var item = arrayInfo[i];
-            if ( item.ArrayName == device ) {
+            if (item.ArrayName == device) {
                 return item;
             }
         }

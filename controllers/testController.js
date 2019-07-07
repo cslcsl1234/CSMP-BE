@@ -382,7 +382,7 @@ var testController = function (app) {
         var part;
 
         //VMAX.GetFEPorts(device, function (rest) { res.json(200, rest); });
-        VMAX.getArrayPerformanceV3( device, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
+        //VMAX.getArrayPerformanceV3( device, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
         
 
         //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
@@ -392,7 +392,7 @@ var testController = function (app) {
 
         //Report.getArrayResourceLimits(from,to, function (result )  {  res.json(200,result) });
 
-        // CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
+        CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
        // Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
@@ -541,11 +541,14 @@ var testController = function (app) {
                 param['start'] = start;
                 param['end'] = end;
                 param['type'] = 'max';
-                param['filter_name'] = '(name==\'Capacity\')';
+                //param['filter_name'] = '(name==\'Capacity\')';
+                param['filter_name'] = '!vstatus==\'inactive\'';
                 param['keys'] = ['part'];
                 param['fields'] = ['device'];
 
-                param['filter'] = 'datagrp=\'VMAX-STORAGEPOOLS\'&parttype=\'Storage Pool\'';
+                //param['filter'] = 'datagrp=\'VMAX-STORAGEPOOLS\'&parttype=\'Storage Pool\'';
+
+		param['filter'] = '((datagrp=\'VMAX-SAF\'&name=\'ThickLunCapacity\')|(datagrp=\'VMAX-STORAGEPOOLS\'&parttype=\'Storage Pool\'&name=\'Capacity\'))'
 
 
 
@@ -591,19 +594,21 @@ var testController = function (app) {
 			var item = restData.pool[i];
 			var newItem = {};
 
+	if ( item.device == '000292600901' ) console.log(item);
+
 			var isfind = false;
 			for ( var j in result ) {
 				var resultItem = result[j];
 				if ( resultItem.device == item.device ) {
 					isfind = true;
 					if ( resultItem.logicCapacity === undefined ) resultItem["logicCapacity"] = 0;
-					resultItem.logicCapacity += item.matricsStat.Capacity.last;
+					resultItem.logicCapacity += ( item.matricsStat.Capacity !== undefined?item.matricsStat.Capacity.last:0 + item.matricsStat.ThickLunCapacity!==undefined?item.matricsStat.ThickLunCapacity.last:0);
 					break;
 				}
 			}
 			if ( isfind == false ) {
 				newItem["device"] = item.device;
-				newItem["logicCapacity"] = item.matricsStat.Capacity.last;
+				newItem["logicCapacity"] =  ( item.matricsStat.Capacity !== undefined?item.matricsStat.Capacity.last:0 + item.matricsStat.ThickLunCapacity!==undefined?item.matricsStat.ThickLunCapacity.last:0);
 				result.push(newItem);
 			}
 		}
