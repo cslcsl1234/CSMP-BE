@@ -3620,7 +3620,6 @@ var reportingController = function (app) {
                         record["系统名称"] = item["系统名称"];
                         record["所属存储"] = item["所属存储"];
                         record["SG成员"] = item.sgname;
-                        record["系统吞吐量QOS设定"] = "";
 
                         var totalValue = 0;
                         var totalCount = 0;
@@ -4045,7 +4044,39 @@ var reportingController = function (app) {
 
                     var wb = XLSX.utils.book_new();
 
-                    var ws1 = XLSX.utils.json_to_sheet(ThroughputRecords);
+                    var ThroughputRecordsNew = [];
+                    for ( var i in ThroughputRecords) {
+                        var item = ThroughputRecords[i];
+                        var itemNew= {};
+
+                        for (var fieldname in item ) {
+                            switch ( fieldname ) {
+                                case 'SG成员' : 
+                                    itemNew[fieldname] = item[fieldname]; 
+                                    
+                                    switch ( item[fieldname] ) {
+                                        case "FUND_SG":
+                                        case "EBIP_RAC_SG":
+                                        case "NetBank_RAC_SG":
+                                        case "EBMCP_SG":
+                                        case "NPCP_DATA_SG":
+                                            itemNew["系统吞吐量QOS设定"] = "20000IOPS,1000MB/s"
+                                            break;
+                                        default :
+                                            itemNew["系统吞吐量QOS设定"] = "NA"
+                                            break;
+                                    }
+                                   
+                                    break;
+                                default :
+                                    itemNew[fieldname] = item[fieldname];
+                                    break;
+                            }
+                        } 
+                        ThroughputRecordsNew.push(itemNew);
+                    }
+
+                    var ws1 = XLSX.utils.json_to_sheet(ThroughputRecordsNew);
                     //系统存储磁盘读写吞吐量
                     XLSX.utils.book_append_sheet(wb, ws1, "DISK_IO");
 
@@ -4057,12 +4088,16 @@ var reportingController = function (app) {
                     var ArrayIOPSNew = [];
                     for ( var i in ArrayIOPS ) {
                         var item = ArrayIOPS[i];
+                        if ( item['系统名称'] == 'VMAX4' ) continue;
 
                         var itemNew = {};
-                        var infoItem = SearchArrayConfigureInfo(item["系统名称"]);
+                        var name =  item["系统名称"] ;
+                        if ( item["系统名称"] == 'VMAX' ) name = 'VMAX1';
+                        var infoItem = SearchArrayConfigureInfo(name);
                         for ( var fieldname in item ) {
+
                             switch ( fieldname ) {
-                                case '系统名称' :
+                                case '系统名称' : 
                                     itemNew[fieldname] = item[fieldname];
                                     itemNew["存储配置"] = infoItem==null?"":infoItem.Configure;
                                     itemNew["存储IO推荐阀值(IOPS)"] = infoItem==null?"":infoItem.IOPS_Threshold;
@@ -4072,8 +4107,7 @@ var reportingController = function (app) {
                                     itemNew[fieldname] = item[fieldname];
                                     break;
                             }
-                        }
-
+                        } 
                         ArrayIOPSNew.push(itemNew);
                     } 
                     var ws3 = XLSX.utils.json_to_sheet(ArrayIOPSNew);
@@ -4085,12 +4119,16 @@ var reportingController = function (app) {
                     var ArrayIOPSHours_day = arg1["array"]["IOPS_HOURS_DAY"];
                     for ( var i in ArrayIOPSHours_day ) {
                         var item = ArrayIOPSHours_day[i];
+                        if ( item['ArrayName'] == 'VMAX4' ) continue;
 
                         var itemDayNew = {}; 
-                        var infoItem = SearchArrayConfigureInfo(item["ArrayName"]);
+                        var name =  item["ArrayName"] ;
+                        if ( item["ArrayName"] == 'VMAX' ) name = 'VMAX1';
+                        var infoItem = SearchArrayConfigureInfo(name);
                         for ( var fieldname in item ) {
                             switch ( fieldname ) {
                                 case 'ArrayName' :
+                                    if ( item[fieldname] == 'VMAX4' ) break;
                                     itemDayNew[fieldname] = item[fieldname];
                                     itemDayNew["存储配置"] = infoItem==null?"":infoItem.Configure;
                                     itemDayNew["存储IO推荐阀值(IOPS)"] = infoItem==null?"":infoItem.IOPS_Threshold;
@@ -4100,8 +4138,7 @@ var reportingController = function (app) {
                                     itemDayNew[fieldname] = item[fieldname];
                                     break;
                             }
-                        }
-
+                        } 
                         ArrayIOPSHours_dayNew.push(itemDayNew);
                     }  
                     var ws4 = XLSX.utils.json_to_sheet(ArrayIOPSHours_dayNew);
@@ -4114,12 +4151,15 @@ var reportingController = function (app) {
                     
                     for ( var i in ArrayIOPSHours_night ) {
                         var item = ArrayIOPSHours_night[i];
+                        if ( item['ArrayName'] == 'VMAX4' ) continue;
 
                         var itemNightNew = {}; 
-                        var infoItem = SearchArrayConfigureInfo(item["ArrayName"]);
+                        var name =  item["ArrayName"] ;
+                        if ( item["ArrayName"] == 'VMAX' ) name = 'VMAX1';
+                        var infoItem = SearchArrayConfigureInfo(name);
                         for ( var fieldname in item ) {
                             switch ( fieldname ) {
-                                case 'ArrayName' :
+                                case 'ArrayName' : 
                                     itemNightNew[fieldname] = item[fieldname];
                                     itemNightNew["存储配置"] = infoItem==null?"":infoItem.Configure;
                                     itemNightNew["存储IO推荐阀值(IOPS)"] = infoItem==null?"":infoItem.IOPS_Threshold;
@@ -4129,8 +4169,7 @@ var reportingController = function (app) {
                                 itemNightNew[fieldname] = item[fieldname];
                                     break;
                             }
-                        }
-
+                        } 
                         ArrayIOPSHours_nightNew.push(itemNightNew);
                     }   
                     var ws5 = XLSX.utils.json_to_sheet(ArrayIOPSHours_nightNew);
@@ -4176,7 +4215,7 @@ var reportingController = function (app) {
                 "Configure":"二代存储VMAX20k 4引擎8控",
                 "IOPS_Threshold":"7万",
                 "IOPS_threshold_60%":"4.2万"
-            },
+            }, 
             {
                 "ArrayName":"VMAX5",
                 "Configure":"二代存储VMAX20k 4引擎8控",
