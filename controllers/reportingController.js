@@ -3181,7 +3181,7 @@ var reportingController = function (app) {
 
         //var outputFilename = ReportOutputPath + '//' + 'WeeklyReport_' + start_dt + '-' + end_dt + '.xlsx';
         //var DataFilename = ReportOutputPath + '//' + 'RecordData_WeeklyReport.json';
-        var outputFilename = ReportOutputPath + '//' + 'DISK_IO_Report_' + start_dt + '-' + end_dt + '.xlsx';
+        var outputFilename = ReportOutputPath + '//' + 'DISK_IO_Report_' + end_dt + '.xlsx';
         var DataFilename = ReportOutputPath + '//' + 'RecordData_WeeklyReport.json';
 
 
@@ -4073,6 +4073,9 @@ var reportingController = function (app) {
                                     break;
                             }
                         } 
+
+                        var percent = ( itemNew["本周工作日均值"] - itemNew["上周工作日均值"] ) / itemNew["上周工作日均值"] * 100 ;
+                        itemNew["本周增幅(%)"] = percent.toFixed(2)
                         ThroughputRecordsNew.push(itemNew);
                     }
 
@@ -4080,8 +4083,13 @@ var reportingController = function (app) {
                     //系统存储磁盘读写吞吐量
                     XLSX.utils.book_append_sheet(wb, ws1, "DISK_IO");
 
-                    var ws2 = XLSX.utils.json_to_sheet(responseTimeRecords);
                     // 系统存储IO响应时间
+                    var ws2 = XLSX.utils.json_to_sheet(responseTimeRecords);
+                    for ( var i in responseTimeRecords ) {
+                        var item = responseTimeRecords[i];
+                        var percent = ( item["本周日均响应时间峰值"] - item["上周日均响应时间峰值"] ) / item["上周日均响应时间峰值"] * 100;
+                        item["本周增幅(%)"] = percent.toFixed(2);
+                    }
                     XLSX.utils.book_append_sheet(wb, ws2, "DISK_IO_XYSJ");
 
                     var ArrayIOPS = arg1["array"]["IOPS"];
