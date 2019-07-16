@@ -3,7 +3,7 @@
         "name":"EMCCTEST",
         "type":"VPLEX",
         "endpoint": "https://10.32.32.100/vplex",
-        "auth" : { "username": "service", "password" : "password" }
+        "auth" : { "username": "service", "password" : "Mi@Dim7T" }
     },
     {
         "name":"SMIULATE-VPLEX",

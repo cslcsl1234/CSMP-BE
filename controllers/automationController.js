@@ -295,6 +295,11 @@ var automationController = function (app) {
                                 "name":"AppVerification_DiffCity",
                                 "label":"异地应用核验",
                                 "value":"false"
+                            },
+                            {
+                                "name":"AppVerification_LocalCdp",
+                                "label":"异地应用核验",
+                                "value":"false"
                             }
                         ]
                     };

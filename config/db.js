@@ -43,7 +43,7 @@ require('./../models/taskmonitorModel');
 //connect to db.
 mongoose.connect(dbUrl, function (err, res) {
     if (err) {
-        console.log('ERROR connecting to: :q!' + dbUrl + '. ' + err);
+        console.log('ERROR connecting to: :' + dbUrl + '. ' + err);
     } else {
         console.log('Successfully connected to: ' + dbUrl);
     }
