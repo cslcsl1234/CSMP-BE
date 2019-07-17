@@ -239,11 +239,11 @@ var automationController = function (app) {
                             var name = item.name;
             
                              
-                            var matchResult = name.match(/([A-Za-z_0-9]+)_VW/);
+                            var matchResult = name.match(/([A-Za-z_0-9]+)_(VW|View)/);
                             //console.log(name+','+matchResult); 
                             
                             if ( matchResult != null ) {
-                                var appItem = { "name" : matchResult[1] };
+                                var appItem = { "name" : matchResult[1], "name_ext" : matchResult[2] };
                                 applist.push(appItem);
                             }
                         }
@@ -303,7 +303,7 @@ var automationController = function (app) {
                             }
                         ]
                     };
-                    //autoServiceInfo["Application"] = applist;
+                    autoServiceInfo["Application"] = applist;
                     callback( null , autoServiceInfo);
             
                 }
@@ -731,7 +731,9 @@ var automationController = function (app) {
         }
         
         newRequestParamater.appname = RequestParamater.appname;
-        newRequestParamater.opsType = RequestParamater.opsType;
+        newRequestParamater.appname_ext = RequestParamater.appname_ext;
+        //newRequestParamater.opsType = RequestParamater.opsType;
+        newRequestParamater.opsType = "review";
         newRequestParamater.capacity = RequestParamater.requests[0].capacity;
         newRequestParamater.resourceLevel = RequestParamater.requests[0].StorageResourcePool.resourceLevel;
         newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
@@ -740,6 +742,7 @@ var automationController = function (app) {
             [
                 // Get All Cluster
                 function (callback) {
+                    console.log("AutoService.BuildParamaterStrucut:" + newRequestParamater);
                     AutoService.BuildParamaterStrucut(newRequestParamater, function (AutoObject) {
                         callback(null, AutoObject);
                     })
