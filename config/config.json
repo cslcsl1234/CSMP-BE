@@ -21,7 +21,7 @@
     "BASE_FILTER": "!vstatus=='inactive'&"
   },
   "SERVER": {
-    "HOST": "10.128.0.5",
+    "HOST": "192.168.92.129",
     "PORT": 8080
   },
   "ProductType": "Prod",
