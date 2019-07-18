@@ -735,6 +735,7 @@ var automationController = function (app) {
         //newRequestParamater.opsType = RequestParamater.opsType;
         newRequestParamater.opsType = "review";
         newRequestParamater.capacity = RequestParamater.requests[0].capacity;
+        newRequestParamater.count = RequestParamater.requests[0].count;
         newRequestParamater.resourceLevel = RequestParamater.requests[0].StorageResourcePool.resourceLevel;
         newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
  
