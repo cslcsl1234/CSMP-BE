@@ -41,7 +41,7 @@ require('./../models/taskmonitorModel');
 
 
 //connect to db.
-mongoose.connect(dbUrl, function (err, res) {
+mongoose.connect(dbUrl, { useNewUrlParser: true } , function (err, res) {
     if (err) {
         console.log('ERROR connecting to: :' + dbUrl + '. ' + err);
     } else {

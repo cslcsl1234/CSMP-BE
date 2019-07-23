@@ -19,9 +19,38 @@ rpm -ivh mongodb-org-server-4.0.10-1.el6.x86_64.rpm
 rpm -ivh mongodb-org-tools-4.0.10-1.el6.x86_64.rpm
 service mongod start
 chkconfig mongod on
-
-
+ 
 scl enable devtoolset-2 bash
+
+#====================
+#==== CentOS 7.x ====
+#====================
+yum update -y nss curl libcurl 
+yum install git -y
+yum install net-tools -y
+yum install wget -y
+yum -y install gcc
+yum install -y make gcc-c++
+
+wget https://repo.mongodb.org/yum/redhat/7/mongodb-org/4.0/x86_64/RPMS/mongodb-org-server-4.0.10-1.el7.x86_64.rpm
+wget https://repo.mongodb.org/yum/redhat/7/mongodb-org/4.0/x86_64/RPMS/mongodb-org-tools-4.0.10-1.el7.x86_64.rpm
+rpm -ivh mongodb-org-server-4.0.10-1.el6.x86_64.rpm
+rpm -ivh mongodb-org-tools-4.0.10-1.el6.x86_64.rpm
+service mongod start
+chkconfig mongod on
+
+cd /opt
+wget https://nodejs.org/dist/v10.16.0/node-v10.16.0-linux-x64.tar.gz
+tar -zxvf node-v10.16.0-linux-x64.tar.gz
+echo "export PATH=$PATH:/opt/node-v10.16.0-linux-x64/bin" >> /etc/profile
+. /etc/profile
+npm config set registry https://registry.npm.taobao.org
+npm install bower -g
+npm install gulp -g
+
+#============================
+#==== Deploy Application ====
+#============================
 
 mkdir /csmp; cd /csmp
 git clone https://linux6200:umcewT9a@github.com/linux6200/CSMP-BE.git
