@@ -1,3 +1,4 @@
+#!/usr/local/bin/expect -f
 #
 #
 
@@ -7,7 +8,7 @@ begin=`date -d "7 days ago" +%Y%m%d`
 now=`date +%Y%m%d%H%M%S`
 
 
-reportfile=/csmp/reporting/WeeklyReport_${begin}-${end}.xlsx
+reportfile=/csmp/reporting/DISK_IO_Report_${end}.xlsx
 reportfilename=`basename ${reportfile}`
 
 
@@ -37,9 +38,20 @@ put ${reportfilename}
 exit
 !
 
-
+echo "upload  ${reportfile} to External System"
+export SSHPASS=Ve@ms_a185
+/usr/local/bin/expect -c "
+spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null vemsftp@10.1.32.82
+expect \"Password:\"
+send \"Ve@ms_a185\r\"
+expect \"sftp>\"
+send \"cd /vemsftp/ftpdatas/storage\r\"
+expect \"sftp>\"
+send \"put ${reportfilename}\r\"
+expect \"sftp>\"
+send \"exit\r\"
+"
 fi
-
 
 now=`date +%Y%m%d%H%M%S`
 echo "${now} end execute weekly report from ${begin} to ${end} "
