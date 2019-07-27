@@ -828,150 +828,131 @@ var cebAPIController = function (app) {
 */
 
 
-        app.get('/ssmp/rest/vmax/available-luns/:devicesn', function (req, res) {
-            var device = req.params.devicesn;
-            var sgname = req.params.sgname;
+    app.get('/ssmp/rest/vmax/available-luns/:devicesn', function (req, res) {
+        var device = req.params.devicesn;
+        var sgname = req.params.sgname;
 
-            async.waterfall([
-                function (callback) {
-                    var finalrecord = [];
-                    VMAX.GetDevices(device, function (ret) { 
-                        for ( var i in ret ) {
-                            var item = ret[i];
-                            if ( item.ismasked !== undefined )
-                                if ( item.ismasked == "0" ) finalrecord.push(item);
-                        }
-                        callback(null,finalrecord);
-                    })
+        async.waterfall([
+            function (callback) {
+                var finalrecord = [];
+                VMAX.GetDevices(device, function (ret) {
+                    for (var i in ret) {
+                        var item = ret[i];
+                        if (item.ismasked !== undefined)
+                            if (item.ismasked == "0") finalrecord.push(item);
+                    }
+                    callback(null, finalrecord);
+                })
 
-                } ,
-                function (luns, callback) {
-                    var finalRecord = {
-                        "success": true,
-                        "data": []
+            },
+            function (luns, callback) {
+                var finalRecord = {
+                    "success": true,
+                    "data": []
+                }
+
+                for (var i in luns) {
+                    var item = luns[i];
+                    var newItem = {};
+
+                    if (item.config.indexOf("RDF") >= 0) {
+                        var type = item.config.split("+")[1];
+                        var rdfProp = item.config.split("+")[0];
+                    } else {
+                        var type = item.config;
+                        var rdfProp = "N/A";
                     }
 
-                    for ( var i in luns ) {
-                        var item = luns[i];
-                        var newItem = {};
+                    newItem["id"] = item.part;
+                    newItem["name"] = item.part;
+                    newItem["type"] = type;
+                    newItem["size(GB)"] = item.Capacity;
+                    newItem["rdfProp"] = "";
+                    newItem["rdfRelation"] = rdfProp;
 
-                        if ( item.config.indexOf("RDF") >= 0 ) {
-                            var type  = item.config.split("+")[1];
-                            var rdfProp = item.config.split("+")[0];
-                        } else {
-                            var type = item.config;
-                            var rdfProp = "N/A";
-                        }
+                    finalRecord.data.push(newItem);
+                }
 
-                        newItem["id"] = item.part;
-                        newItem["name"] = item.part;
-                        newItem["type"] = type;
-                        newItem["size(GB)"] = item.Capacity;
-                        newItem["rdfProp"] = "";
-                        newItem["rdfRelation"] = rdfProp;
-                        
-                        finalRecord.data.push(newItem);
-                    }
+                callback(null, finalRecord);
+            }
+        ], function (err, result) {
 
-                    callback(null, finalRecord);
-                } 
-            ], function (err, result) {
-
-                res.json(200, result);
-            });
-
+            res.json(200, result);
         });
 
+    });
 
 
-        // 获取某个SG相关的所有前端囗信息
-        app.get('/ssmp/rest/vmax/:devicesn/:sgname/ports', function (req, res) {
-            var device = req.params.devicesn;
-            var sgname = req.params.sgname;
 
-            async.waterfall([
-                function (callback) { 
+    // 获取某个SG相关的所有前端囗信息
+    app.get('/ssmp/rest/vmax/:devicesn/:sgname/ports', function (req, res) {
+        var device = req.params.devicesn;
+        var sgname = req.params.sgname;
+
+        async.waterfall([
+            function (callback) {
+
+                VMAX.GetMaskViews(device, function (maskings) {
+                    var isfind = false;
+                    for (var i in maskings) {
+                        var item = maskings[i];
+                        if (item.sgname == sgname) {
+                            isfind = true;
+                            callback(null, item);
+                        }
+                    }
+                    if (isfind == false)
+                        callback(null, {});
+
+                });
+
+            },
+            function (arg1, callback) {
+
+                if (JSON.stringify(arg1) == '{}') {
+
+                    callback(null, []);
+                }
+                else
                     Report.getVMAXDirectorAddress(device, function (address) {
-    
-                        var arrayDirector = []
-    
-                        for (var i in address) {
-                            var item = address[i];
-    
-                            var isfind = false;
-                            for (var j in arrayDirector) {
-                                var dirItem = arrayDirector[j];
-                                if (item.device == dirItem.device) {
-                                    dirItem.maxAvailableAddress += item.maxAvailableAddress;
-                                    dirItem.availableAddress += item.availableAddress;
-                                    isfind = true;
-                                    break;
+
+                        var feports = arg1.portgrp_member;
+
+                        for (var j in feports) {
+                            var item = feports[j];
+
+                            var feport = item.feport;
+                            var director = feport.split(':')[0];
+
+                            for (var i in address) {
+
+                                var dirItem = address[i];
+
+                                if (dirItem.director == director) {
+                                    item['availableAddress'] = dirItem.availableAddress;
+                                    item['maxAvailableAddress'] = dirItem.maxAvailableAddress;
+                                    item['isAvailableAddress'] = (dirItem.availableAddress > 0) ? 'YES' : 'NO';
+
                                 }
+
                             }
-                            if (isfind == false) {
-                                var dirItem = {};
-                                dirItem.device = item.device;
-                                dirItem.availableAddress = item.availableAddress;
-                                dirItem.maxAvailableAddress = item.maxAvailableAddress;
-    
-                                arrayDirector.push(dirItem);
-                            }
+
                         }
-    
-                        for (var j in arg1) {
-                            var arrayListItem = arg1[j];
-    
-                            for (var i in arrayDirector) {
-                                var dirItem = arrayDirector[i];
-                                if (arrayListItem.device_sn == dirItem.device) {
-                                    arrayListItem["available_port_addr_total"] = dirItem.maxAvailableAddress;
-                                    arrayListItem["allocated_port_addr_total"] = dirItem.maxAvailableAddress - dirItem.availableAddress;
-                                    arrayListItem["allocated_addr_percent"] = parseFloat(((dirItem.maxAvailableAddress - dirItem.availableAddress) / dirItem.maxAvailableAddress * 100).toFixed(0)) + " %";
-    
-                                }
-                            }
-    
-                        }
-                        callback(null, arg1);
+
+                        callback(null, feports);
                     });
 
-                } ,
-                function (luns, callback) {
-                    var finalRecord = {
-                        "success": true,
-                        "data": []
-                    }
+            },
 
-                    for ( var i in luns ) {
-                        var item = luns[i];
-                        var newItem = {};
+        ], function (err, result) {
 
-                        if ( item.config.indexOf("RDF") >= 0 ) {
-                            var type  = item.config.split("+")[1];
-                            var rdfProp = item.config.split("+")[0];
-                        } else {
-                            var type = item.config;
-                            var rdfProp = "N/A";
-                        }
-
-                        newItem["id"] = item.part;
-                        newItem["name"] = item.part;
-                        newItem["type"] = type;
-                        newItem["size(GB)"] = item.Capacity;
-                        newItem["rdfProp"] = "";
-                        newItem["rdfRelation"] = rdfProp;
-                        
-                        finalRecord.data.push(newItem);
-                    }
-
-                    callback(null, finalRecord);
-                } 
-            ], function (err, result) {
-
-                res.json(200, result);
-            });
-
+            var finalResult = {};
+            finalResult["success"] = "true";
+            finalResult["data"] = result;
+            res.json(200, finalResult);
         });
+
+    });
 
 };
 
