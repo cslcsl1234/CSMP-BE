@@ -14,23 +14,24 @@
     "jsonpath": "0.2.11",
     "memory-cache": "^0.1.6",
     "moment": "*",
-    "mongoose": "^5.6.6",
+    "mongoose": "~5.6.6",
     "mysql": "^2.15.0",
     "nconf": "*",
     "node-uuid": "*",
     "numeral": "^2.0.6",
     "officegen": "*",
-    "snmpjs": "*",
     "sort-by": "^1.2.0",
-    "sort-json-array": "^0.1.7",
     "swagger-jsdoc": "^1.3.0",
     "tempfile": "*",
     "unirest": "*",
     "urlencode": "^1.1.0",
+<<<<<<< HEAD
     "winston": "*",
+=======
+    "winston": "^3.2.1",
+>>>>>>> 28eb7f355bd613556ac65d60fcd9db7271c2c327
     "ws": "^7.1.1",
     "xls-to-json": "^0.5.0",
-    "xlsx": "^0.14.1",
     "xml2json": "^0.11.2"
   },
   "devDependencies": {
