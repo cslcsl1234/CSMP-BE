@@ -882,6 +882,97 @@ var cebAPIController = function (app) {
 
         });
 
+
+
+        // 获取某个SG相关的所有前端囗信息
+        app.get('/ssmp/rest/vmax/:devicesn/:sgname/ports', function (req, res) {
+            var device = req.params.devicesn;
+            var sgname = req.params.sgname;
+
+            async.waterfall([
+                function (callback) { 
+                    Report.getVMAXDirectorAddress(device, function (address) {
+    
+                        var arrayDirector = []
+    
+                        for (var i in address) {
+                            var item = address[i];
+    
+                            var isfind = false;
+                            for (var j in arrayDirector) {
+                                var dirItem = arrayDirector[j];
+                                if (item.device == dirItem.device) {
+                                    dirItem.maxAvailableAddress += item.maxAvailableAddress;
+                                    dirItem.availableAddress += item.availableAddress;
+                                    isfind = true;
+                                    break;
+                                }
+                            }
+                            if (isfind == false) {
+                                var dirItem = {};
+                                dirItem.device = item.device;
+                                dirItem.availableAddress = item.availableAddress;
+                                dirItem.maxAvailableAddress = item.maxAvailableAddress;
+    
+                                arrayDirector.push(dirItem);
+                            }
+                        }
+    
+                        for (var j in arg1) {
+                            var arrayListItem = arg1[j];
+    
+                            for (var i in arrayDirector) {
+                                var dirItem = arrayDirector[i];
+                                if (arrayListItem.device_sn == dirItem.device) {
+                                    arrayListItem["available_port_addr_total"] = dirItem.maxAvailableAddress;
+                                    arrayListItem["allocated_port_addr_total"] = dirItem.maxAvailableAddress - dirItem.availableAddress;
+                                    arrayListItem["allocated_addr_percent"] = parseFloat(((dirItem.maxAvailableAddress - dirItem.availableAddress) / dirItem.maxAvailableAddress * 100).toFixed(0)) + " %";
+    
+                                }
+                            }
+    
+                        }
+                        callback(null, arg1);
+                    });
+
+                } ,
+                function (luns, callback) {
+                    var finalRecord = {
+                        "success": true,
+                        "data": []
+                    }
+
+                    for ( var i in luns ) {
+                        var item = luns[i];
+                        var newItem = {};
+
+                        if ( item.config.indexOf("RDF") >= 0 ) {
+                            var type  = item.config.split("+")[1];
+                            var rdfProp = item.config.split("+")[0];
+                        } else {
+                            var type = item.config;
+                            var rdfProp = "N/A";
+                        }
+
+                        newItem["id"] = item.part;
+                        newItem["name"] = item.part;
+                        newItem["type"] = type;
+                        newItem["size(GB)"] = item.Capacity;
+                        newItem["rdfProp"] = "";
+                        newItem["rdfRelation"] = rdfProp;
+                        
+                        finalRecord.data.push(newItem);
+                    }
+
+                    callback(null, finalRecord);
+                } 
+            ], function (err, result) {
+
+                res.json(200, result);
+            });
+
+        });
+
 };
 
 module.exports = cebAPIController;

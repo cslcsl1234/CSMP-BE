@@ -1208,8 +1208,8 @@ var reportingController = function (app) {
                 });
             },
             function (arg1, callback) {
-
-                Report.getVMAXDirectorAddress(function (address) {
+                var device;
+                Report.getVMAXDirectorAddress(device, function (address) {
 
                     var arrayDirector = []
 
