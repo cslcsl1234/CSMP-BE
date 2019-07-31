@@ -18,6 +18,43 @@ var util = require('../lib/util');
 var Auto = require('../lib/Automation_VPLEX');
 var AutoService = require('../lib/Automation');
 
+var WebSocketServer = require('ws').Server
+var wss = new WebSocketServer({ port: 9000 });
+
+var wsList = {};
+
+wss.on('connection', function (ws) {
+
+    console.log("WebSocket connect" + ws);
+    var sendStockUpdates = function (ws) {
+        if (ws.readyState == 1) {
+            var DataFilename = './data.json'; 
+
+            fs.readFile(DataFilename, function (err, re1) {
+                console.log(result);
+                var result = JSON.parse(re1);
+                if (result === undefined) {
+                    var outputRecord = {};
+                } else {
+                    console.log(JSON.stringify(result.AutoInfo.ActionParamaters))
+                    ws.send(JSON.stringify(result.AutoInfo.ActionParamaters));  //需要将对象转成字符串。WebSocket只支持文本和二进制数据
+                    console.log("--------------------------------------------------------");
+                }
+            });
+        }
+    } 
+    ws.on('message', function (message) { 
+        console.log("WebSocket receive message: " + message ) ; 
+        var ms = JSON.parse(message);
+        console.log(ms.client)
+            wsList[ms.client] = ws;  
+
+    });
+});
+
+
+
+
 var automationController = function (app) {
 
     var config = configger.load();
@@ -301,8 +338,19 @@ var automationController = function (app) {
                                 "label":"异地应用核验",
                                 "value":"false"
                             }
-                        ]
+                        ],
+                        "HostDeploy" : {
+                        "label" : "主机部署模式",
+                        "items": [
+                            { "name": "生产" , "value": "SC" },
+                            { "name": "生产+同城" , "value": "TC" },
+                            { "name": "同城" , "value": "SH" }
+                        ] 
+                        }
                     };
+
+
+
                     autoServiceInfo["Application"] = applist;
                     callback( null , autoServiceInfo);
             
@@ -668,7 +716,7 @@ var automationController = function (app) {
 
 
 
-          var CreateDistributedVirtualVolumeParamater = {
+        var CreateDistributedVirtualVolumeParamater = {
             method: 'CreateDistributedVirtualVolume',
             DependOnAction: "CreateDistributedDevice",
             devicename: 'dd_Symm0192_00F7_Symm0706_0253',
@@ -709,6 +757,207 @@ var automationController = function (app) {
 }
 
 */
+
+function sleep(sleepTime) {
+	for(var start = +new Date; +new Date - start <= sleepTime;) {};
+}
+
+function sleep1(ms) {return new Promise ( resolve => {setTimeout (resolve, ms) } ) } ;
+
+
+
+app.post('/api/auto/service/block/provisioning-TEST', function (req, res) {
+    res.setTimeout(3600*1000); 
+    var testResult = {
+        "resMsg":{
+        "code":200,
+        "message":[
+            "find a match ResourcePool!",
+            "Begin execute service [ CapacityProvisingService ] !",
+            "[2018-12-11T06:15:30.649Z] # TEST",
+            "find match storage volume for request capacity [400]. [{\"cluster\":\"cluster-1\",\"name\":\"Symm0118_25D3\",\"storage-array-name\":\"EMC-SYMMETRIX-495700118\",\"capacity\":400,\"health-state\":\"ok\",\"position\":\"primary\"},{\"cluster\":\"cluster-2\",\"name\":\"Symm0119_25D3\",\"storage-array-name\":\"EMC-SYMMETRIX-495700119\",\"capacity\":400,\"health-state\":\"ok\",\"position\":\"second\"}]",
+            "[2018-12-11T06:15:32.030Z] # Operation is [ review ]. Only review execute paramaters."
+        ]
+        },
+        "request":{
+    
+        },
+        "ResourcePools":[
+    
+        ],
+        "AutoInfo":{
+        "RuleResults":{
+    
+        },
+        "ResourceInfo":{
+    
+        },
+        "ActionParamaters":[
+            {
+            "method":"CreateExtent",
+            "DependOnAction":"N/A",
+            "StorageVolumeName":"Symm0118_25D3,Symm0119_25D3",
+            "response":"Succeed!Assssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+            "show": "false"
+            },
+            {
+            "method":"CreateLocalDevice",
+            "DependOnAction":"CreateExtent",
+            "devicename":"device_Symm0118_25D3",
+            "geometry":"raid-0",
+            "extents":"extent_Symm0118_25D3_1",
+            "response":"Succeed!",
+            "show": "false"
+            },
+            {
+            "method":"CreateLocalDevice",
+            "DependOnAction":"CreateExtent",
+            "devicename":"device_Symm0119_25D3",
+            "geometry":"raid-0",
+            "extents":"extent_Symm0119_25D3_1",
+            "response":"aaaa!",
+            "show": "false"
+            },
+            {
+            "method":"CreateDistributedDevice",
+            "DependOnAction":"CreateLocalDevice",
+            "devicename":"dd_Symm0118_25D3_Symm0119_25D3",
+            "devices":[
+                "device_Symm0118_25D3",
+                "device_Symm0119_25D3"
+            ],
+            "sourcedevice":"device_Symm0118_25D3",
+            "response":"s;lkajf;lsajfd;lsakjf;ks\nlk;sjdf;lsjdf;!",
+            "show": "false"
+            },
+            {
+            "method":"CreateDistributedVirtualVolume",
+            "DependOnAction":"CreateDistributedDevice",
+            "devicename":"dd_Symm0118_25D3_Symm0119_25D3",
+            "response":"Failed!",
+            "show": "false"
+            },
+            {
+            "method":"AssignConsistencyGroup",
+            "DependOnAction":"CreateDistributedDevice",
+            "virtual_volume":"dd_Symm0118_25D3_Symm0119_25D3_vol",
+            "consistoncy_group":"ebankwebesxi_CG_Prod",
+            "response":"Failed!",
+            "show": "false"
+            },
+            {
+            "method":"AssignStorageView",
+            "DependOnAction":"CreateDistributedDevice",
+            "clustername":"cluster-1",
+            "viewname":"ebankwebesxi_VW",
+            "virtualvolumes":[
+                "dd_Symm0118_25D3_Symm0119_25D3_vol"
+            ],
+            "response":"Failed!",
+            "show": "false"
+            },
+            {
+            "method":"AssignStorageView",
+            "DependOnAction":"CreateDistributedDevice",
+            "clustername":"cluster-1",
+            "viewname":"RP_C2_VW",
+            "virtualvolumes":[
+                "dd_Symm0118_25D3_Symm0119_25D3_vol"
+            ],
+            "response":"Failed!",
+            "show": "false"
+            },
+            {
+            "method":"AssignStorageView",
+            "DependOnAction":"CreateDistributedDevice",
+            "clustername":"cluster-2",
+            "viewname":"TC_ebankwebesxi_VW",
+            "virtualvolumes":[
+                "dd_Symm0118_25D3_Symm0119_25D3_vol"
+            ],
+            "response":"Failed!",
+            "show": "false"
+            },
+            {
+            "method":"AssignStorageView",
+            "DependOnAction":"CreateDistributedDevice",
+            "clustername":"cluster-1",
+            "viewname":"osback1_VW",
+            "virtualvolumes":[
+                "dd_Symm0118_25D3_Symm0119_25D3_vol"
+            ],
+            "response":"Failed!",
+            "show": "false"
+            }
+                    ]
+                },
+                "ActionResponses":[
+        ]
+    }
+    
+        
+        console.log(JSON.stringify(req.body));  
+        var RequestParamater =  req.body;
+        
+        var newRequestParamater = {
+            "appname": "ebankwebesxi",
+            "usedfor": "oraredo",
+            "capacity": 202,
+            "resourceLevel": "Gold",
+            "ProtectLevel": {
+                "DR_SameCity":"true",
+                "DR_DiffCity":"false",
+                "Backup":"true",
+                "AppVerification_SameCity":"false",
+                "AppVerification_DiffCity":"false"
+            },
+            "opsType" : "review"   // [ review | execute ]
+        }
+        newRequestParamater.client = RequestParamater.client;
+        newRequestParamater.ws = wsList[RequestParamater.client];
+        
+        newRequestParamater.appname = RequestParamater.appname;
+        newRequestParamater.appname_ext = RequestParamater.appname_ext;
+        newRequestParamater.opsType = RequestParamater.opsType; 
+        newRequestParamater.capacity = RequestParamater.requests[0].capacity;
+        newRequestParamater.count = RequestParamater.requests[0].count;
+        newRequestParamater.resourceLevel = RequestParamater.requests[0].StorageResourcePool.resourceLevel;
+        newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
+
+        async.waterfall(
+            [
+                // Get All Cluster
+                function (callback) {
+                    console.log("AutoService.BuildParamaterStrucut:" + newRequestParamater);
+                    AutoService.BuildParamaterStrucut(newRequestParamater, function (AutoObject) {
+                        callback(null, AutoObject);
+                    })
+                }
+                , function (AutoObject, callback) {  
+                    
+                    if ( RequestParamater.opsType == 'review' ) 
+                        callback(null, testResult); 
+                    else {
+                        var ws = AutoObject.request.ws;
+                        console.log(" ----------- BEGIN ----------------");
+                        for ( var i in testResult.AutoInfo.ActionParamaters) {
+                            console.log("BEGIN ============" + i);
+                            var item = testResult.AutoInfo.ActionParamaters[i];
+                            item.show = 'true';
+                            ws.send(JSON.stringify(testResult.AutoInfo.ActionParamaters));
+                            sleep(5000);
+                            console.log("END ============" + i);
+                        } 
+                    }
+                }
+            ], function (err, result) {
+                // result now equals 'done'
+                res.json(200, result);
+            });
+ 
+  
+});
+
     app.post('/api/auto/service/block/provisioning', function (req, res) {
         res.setTimeout(3600*1000); 
 
@@ -729,11 +978,12 @@ var automationController = function (app) {
             },
             "opsType" : "review"   // [ review | execute ]
         }
+        newRequestParamater.client = RequestParamater.client;
+        newRequestParamater.ws = wsList[RequestParamater.client];
         
         newRequestParamater.appname = RequestParamater.appname;
         newRequestParamater.appname_ext = RequestParamater.appname_ext;
-        //newRequestParamater.opsType = RequestParamater.opsType;
-        newRequestParamater.opsType = "review";
+        newRequestParamater.opsType = RequestParamater.opsType; 
         newRequestParamater.capacity = RequestParamater.requests[0].capacity;
         newRequestParamater.count = RequestParamater.requests[0].count;
         newRequestParamater.resourceLevel = RequestParamater.requests[0].StorageResourcePool.resourceLevel;
@@ -748,7 +998,7 @@ var automationController = function (app) {
                         callback(null, AutoObject);
                     })
                 }
-                , function (AutoObject, callback) {
+                , function (AutoObject, callback) { 
                     AutoService.CapacityProvisingService(AutoObject, function (result) {
                         callback(null, result);
                     })
@@ -765,10 +1015,6 @@ var automationController = function (app) {
         */
 
     });
-
-
-
-
 
 };
 
