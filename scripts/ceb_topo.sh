@@ -1,3 +1,4 @@
+#!/usr/local/bin/expect -f
 #
 # the privide the topo data to CMDB For AirChina 
 #
@@ -13,16 +14,18 @@ echo "authkey="$authkey
 
 
 CMDBFILE=CMDBTOSTORAGE${YESTODAY_DD}.csv
-
-ftp -n 10.1.41.60 <<!
-user cmdbef cmdbef1234
-cd /attachment/cz/
-lcd /csmp/reporting/resource
-bin 
-get ${CMDBFILE}
-exit
-!
-
+ 
+/usr/local/bin/expect -c "
+spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbef@10.1.41.60
+expect \"Password:\"
+send \"ITSM_cmdbef#04\r\"
+expect \"sftp>\"
+send \"cd /export/home/eoms4ftp/cmdbef/attachment/cz\r\"
+expect \"sftp>\"
+send \"get /export/home/eoms4ftp/cmdbef/attachment/cz/${CMDBFILE} /csmp/reporting/resource/\r\"
+expect \"sftp>\"
+send \"exit\r\"
+"
 cd /csmp/reporting/resource 
 if [ -f ${CMDBFILE} ];
 then 
@@ -42,24 +45,36 @@ if [ -f topology.xlsx ];
 then 
 	echo "mv topology.xlsx topology${DD}.xlsx"
 	mv topology.xlsx topology${DD}.xlsx
-ftp -n 10.1.41.60 <<!
-user cmdbsb cmdbsb@1234
-bin 
-put topology${DD}.xlsx
-exit
-!
+/usr/local/bin/expect -c "
+spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbsb@10.1.41.60
+expect \"Password:\"
+send \"ITSM_sb#04\r\"
+expect \"sftp>\"
+send \"put topology${DD}.xlsx\r\"
+expect \"sftp>\"
+send \"exit\r\"
 fi
 
 if [ -f lunmapping.xlsx ];
 then 
 	echo "mv lunmapping.xlsx lunmapping${DD}.xlsx"
 	mv lunmapping.xlsx lunmapping${DD}.xlsx
-ftp -n 10.1.41.60 <<!
-user cmdbsb cmdbsb@1234
-bin 
-put lunmapping${DD}.xlsx
-exit
-!
+#spawn sftp -oPort=16022 cmdbsb@10.1.41.60
+#expect {
+#"Password:" {send "ITSM_sb#04\r";exp_continue}
+#}
+#bin 
+#put lunmapping${DD}.xlsx
+#exit
+#!
+/usr/local/bin/expect -c "
+spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbsb@10.1.41.60
+expect \"Password:\"
+send \"ITSM_sb#04\r\"
+expect \"sftp>\"
+send \"put lunmapping${DD}.xlsx\r\"
+expect \"sftp>\"
+send \"exit\r\"
 fi
 
 echo 'curl --silent -X GET http://csmpserver:8080/api/external/switchinfo -H "Authorization: ${authkey}"'
@@ -67,12 +82,15 @@ curl --silent -X GET http://csmpserver:8080/api/external/switchinfo -H "Authoriz
 if [ -f switchinfo${DD1}.csv ];
 then 
 	echo "put file switch_info${DD1}.csv"
-ftp -n 10.1.41.60 <<!
-user cmdbsb cmdbsb@1234
-bin 
-put switch_info${DD1}.csv
-exit
-!
+/usr/local/bin/expect -c "
+spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbsb@10.1.41.60
+expect \"Password:\"
+send \"ITSM_sb#04\r\"
+expect \"sftp>\"
+send \"put witch_info${DD1}.csv\r\"
+expect \"sftp>\"
+send \"exit\r\"
+"
 fi
 
 echo 'curl --silent -X GET http://csmpserver:8080/api/external/arrayinfo -H "Authorization: ${authkey}"'
@@ -80,12 +98,15 @@ curl --silent -X GET http://csmpserver:8080/api/external/arrayinfo -H "Authoriza
 if [ -f switchinfo${DD1}.csv ];
 then 
 	echo "put file array_info${DD1}.csv"
-ftp -n 10.1.41.60 <<!
-user cmdbsb cmdbsb@1234
-bin 
-put array_info${DD1}.csv
-exit
-!
+/usr/local/bin/expect -c "
+spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbsb@10.1.41.60
+expect \"Password:\"
+send \"ITSM_sb#04\r\"
+expect \"sftp>\"
+send \"put array_info${DD1}.csv\r\"
+expect \"sftp>\"
+send \"exit\r\"
+"
 fi
 
 

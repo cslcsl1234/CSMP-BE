@@ -3506,7 +3506,7 @@ var reportingController = function (app) {
                         var item = arg1.data.AppStorageRelation[i];
 
                         if (item.appinfo === undefined) {
-                            var appname = 'NoFind';
+                            var appname = item.sgname;
                         } else {
                             for (var appItem in item.appinfo) {
                                 var appname = item.appinfo[appItem].app;

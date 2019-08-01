@@ -1,11 +1,20 @@
+#!/bin/bash
+
+if [ -z "$1" ]
+  then
+    echo "Usage: $0 <customername>";
+    exit;
+fi
+
 customerdata=../CustomerData/$1
 
-mkdir -p ${customerdata}
+mkdir -p ${customerdata} 
 
-mongoexport -d csmp -c datacenters -o ${customerdata}/datacenters.dat
-mongoexport -d csmp -c hosts -o ${customerdata}/hosts.dat
-mongoexport -d csmp -c applications -o ${customerdata}/applications.dat
-mongoexport -d csmp -c arrays -o ${customerdata}/arrays.dat
-mongoexport -d csmp -c switchs -o ${customerdata}/switchs.dat
-mongoexport -d csmp -c switchs -o ${customerdata}/switchs.dat
-mongoexport -d csmp -c auths -o ${customerdata}/auths.dat
+DB=csmp
+COLLECTIONS=$(mongo localhost:27017/$DB --quiet --eval "db.getCollectionNames()" | sed 's/,/ /g')
+
+for collection in $COLLECTIONS; do
+    echo "Exporting $DB/$collection ..."
+    mongoexport -d ${DB} -c $collection -o ${customerdata}/$collection.json
+done
+
