@@ -755,18 +755,46 @@ var cebAPIController = function (app) {
                             }
                         }
                     }
-
                     callback(null, arg1);
                 })
-
-
             }
         ], function (err, result) {
 
             var finalResult = [];
             for (var i in result) {
                 var item = result[i];
-                finalResult.push(item.device);
+
+                var storageName = item.storageName.split('-')[0];
+                var localtion = item.storageName.split('-')[1];
+
+                var isfind = false;
+                for ( var j in result ) {
+                    var item1 = result[j];
+                    if ( item.device == item1.device ) continue;
+
+                    var storageName1 = item1.storageName.split('-')[0];
+                    var localtion1 = item1.storageName.split('-')[1];
+
+                    if ( storageName == storageName1 ) {
+                        var resultItem = {}; 
+                        resultItem["location"] = localtion ;
+                        resultItem["localSN"] = item.device ;
+                        resultItem["remoteSN"] = item1.device ;
+                        finalResult.push( resultItem );
+                        
+                        isfind = true;
+                        break;
+                    }
+    
+                }
+                if ( isfind == false ) {
+                    var resultItem = {}; 
+                    resultItem["location"] = localtion ;
+                    resultItem["localSN"] = item.device ;
+                    resultItem["remoteSN"] = "" ;
+                    finalResult.push( resultItem );                    
+                }
+
             }
             res.json(200, finalResult);
         });
