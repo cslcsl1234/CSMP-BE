@@ -192,18 +192,16 @@ var authController = function (app) {
     app.post('/api/login', function (req, res) {
         var headers = req.headers;
         console.log(headers["content-type"]);
-        if ( headers["content-type"].indexOf('x-www-form-urlencoded' )>0 )  {
-            console.log("---------------------");
-            var user = {
-                username: req.body.username,
-                password: req.body.password
-            };
-        } else { 
-            var user = {};
-            user.username = req.body.username;
-            user.password = req.body.password;
-    
-        }
+
+        if ( req.body.username === undefined ) {
+            var username = req.body.email;
+        } else {
+            var username = req.body.username;
+        } 
+
+        var user = {};
+        user.username = username;
+        user.password = req.body.password;
 
         if ( user.username === undefined || user.username == 'undefined') {
             res.json(400,'username is required!'); 
