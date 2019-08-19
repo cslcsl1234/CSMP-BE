@@ -3736,19 +3736,33 @@ var reportingController = function (app) {
 
                                         var item1 = item.matrics[i1];
 
+                                        var matricsIsfind = false;
                                         for (var i2 in mergedItem.matrics) {
                                             var item2 = mergedItem.matrics[i2];
 
                                             if (item1.timestamp == item2.timestamp) {
+                                                matricsIsfind = true;
                                                 item2.IORate += item1.IORate;
                                                 item2.IORateExpress = item2.IORateExpress + '+' + item1.IORate;
                                             }
                                         }
+                                        if ( matricsIsfind == false ) {
+                                            var newItem = {};
+                                            newItem["timestamp"] = item1["timestamp"];
+        
+                                            var timestamp = item1.timestamp;
+                                            newItem["date"] = moment.unix(timestamp).format('YYYY-MM-DD');
+                                            newItem["hour"] = moment.unix(timestamp).format('HH');
+                                            newItem["minute"] = moment.unix(timestamp).format('mm');
+        
+                                            newItem["IORate"] = item1["IORate"];
+                                            newItem["IORateExpress"] = item1["IORate"];
+        
+                                            mergedItem.matrics.push(newItem);
+                                        }
 
                                     }
-
                                 }
-
                             }
 
                             if (isfind == false) {

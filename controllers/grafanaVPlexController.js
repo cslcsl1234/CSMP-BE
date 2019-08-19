@@ -6,7 +6,7 @@
  * This is AOP.
  * @param app
  */
-const debug = require('debug')('grafanaController')
+const debug = require('debug')('grafanaVPlexController')
 const name = 'my-app'
 var unirest = require('unirest');
 var configger = require('../config/configger');
@@ -28,9 +28,9 @@ var VMAX = require('../lib/Array_VMAX');
 var SWITCH = require('../lib/Switch');
 
 
-var grafanaController = function (app) {
+var grafanaVPlexController = function (app) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-  var arrayBaseFilter = 'source==\'VMAX-Collector\'';
+  var arrayBaseFilter = 'source==\'VPLEX-Collector\'';
   var arrayFilter = arrayBaseFilter + '&!parttype';
 
   var config = configger.load();
@@ -52,7 +52,7 @@ var grafanaController = function (app) {
 
 
 
-  app.get('/grafana/', function (req, res) {
+  app.get('/grafana/vplex', function (req, res) {
     var hostname = req.query.device;
     var appid = req.query.appid;
     var result = {};
@@ -62,7 +62,7 @@ var grafanaController = function (app) {
   });
 
 
-  app.post('/grafana/search', function (req, res) {
+  app.post('/grafana/vplex/search', function (req, res) {
     /*
             var device1;
             VMAX.GetArrays( device1, function( ret) {  
@@ -227,7 +227,7 @@ var grafanaController = function (app) {
     }
   ]
   */
-  app.post('/grafana/query', function (req, res) {
+  app.post('/grafana/vplex/query', function (req, res) {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
     console.log(req.url);
@@ -444,7 +444,7 @@ var grafanaController = function (app) {
 
   });
 
-  app.post('/grafana/annotations', function (req, res) {
+  app.post('/grafana/vplex/annotations', function (req, res) {
 
     console.log(req.body);
 
@@ -464,7 +464,7 @@ var grafanaController = function (app) {
   });
 
 
-  app.post('/grafana/tag-keys', function (req, res) {
+  app.post('/grafana/vplex/tag-keys', function (req, res) {
     var keys = [{
         type: "string",
         text: "device"
@@ -488,7 +488,7 @@ var grafanaController = function (app) {
   });
 
 
-  app.post('/grafana/tag-values', function (req, res) {
+  app.post('/grafana/vplex/tag-values', function (req, res) {
 
     console.log(req.body);
     switch (req.body.key) {
@@ -594,4 +594,4 @@ var grafanaController = function (app) {
 
 };
 
-module.exports = grafanaController;
+module.exports = grafanaVPlexController;

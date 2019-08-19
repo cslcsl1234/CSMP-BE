@@ -2,6 +2,7 @@ echo " --------------------- begin ---------------------------------"
 TODAY_DD=`date +%Y-%m-%d`
 YESTODAY_DD=`date -d yesterday +%Y-%m-%d`
 
+cp /csmp/CSMP-BE/data/mgmtobjects_status.json /csmp/CSMP-BE/data/mgmtobjects_status.json.${YESTODAY_DD}
 
 authkey=`curl --silent -X POST http://csmpserver:8080/api/login -d "username=admin&password=password" | jq -r -S '.authKey'`
 echo "authkey="$authkey

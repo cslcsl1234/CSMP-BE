@@ -738,7 +738,7 @@ var cebAPIController = function (app) {
                         var item = arg1[i];
                         for (var j in arrayinfo) {
                             var infoItem = arrayinfo[j];
-                            if (item.storageSN == infoItem.sn) {
+                            if (item.device == infoItem.storagesn) {  
                                 item["location"] = infoItem.datacenter + ":" + infoItem.cabinet;
                                 item["type"] = infoItem.level == 'middle' ? '中端' : '高端';
                                 item["used"] = infoItem.specialInfo.used == 'general' ? '一般应用' : '应用';
@@ -795,7 +795,7 @@ var cebAPIController = function (app) {
                     finalResult.push( resultItem );                    
                 }
 
-            }
+            } 
             res.json(200, finalResult);
         });
 

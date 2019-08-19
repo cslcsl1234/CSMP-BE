@@ -1035,20 +1035,12 @@ function GetSwitchInfo(callback) {
             },
             // Get All Localtion Records
             function(wwnlist,  callback){ 
+                var device ; 
+                SWITCH.GetSwitchPorts(device, function(portlist) {
+                    
+                    var param = {};
+                    param["result"] = portlist;
 
-                var param = {};
-                if (typeof device !== 'undefined') {  
-                    param['filter'] = 'device=\''+device+'\'&!vstatus==\'inactive\'&parttype=\'Port\'&!iftype=\'Ethernet\'&!discrim=\'FCoE\'';
-                } else {
-                    param['filter'] = '!vstatus==\'inactive\'&parttype=\'Port\'&!iftype=\'Ethernet\'&!discrim=\'FCoE\'';
-                }
-
-                //param['filter_name'] = '(name=\'InCrcs\'|name=\'LinkFailures\'|name=\'SigLosses\'|name=\'SyncLosses\'|name=\'CreditLost\'|name=\'Availability\'|name=\'ifInOctets\'|name=\'ifOutOctets\')';
-                param['keys'] = ['device','partwwn'];
-                //param['fields'] = ['partid','slotnum','part','porttype','partwwn','ifname','portwwn','maxspeed','partstat','partphys','gbicstat'];
-                param['fields'] = ['partid','part','porttype','partwwn','ifname','portwwn','maxspeed','partstat','partphys','gbicstat','lswwn'];
-                
-                CallGet.CallGet(param, function(param) { 
                     var noFindPort = [];
                     for ( var i in wwnlist ) {
                          var aliasItem = wwnlist[i];
@@ -1058,7 +1050,7 @@ function GetSwitchInfo(callback) {
                          for ( var j in param.result ) {
                              var portItem = param.result[j];
                              if ( aliasItem.HBAWWN == portItem.portwwn ) {
-                                aliasItem.connectTo.push(portItem);   
+                                aliasItem.concectTo.push(portItem);   
                                 isfind = true;
 
                              }

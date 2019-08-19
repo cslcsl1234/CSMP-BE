@@ -68,6 +68,7 @@ require('./controllers/analysisController')(app);
 
 require('./controllers/automationController')(app);
 require('./controllers/grafanaController')(app);
+require('./controllers/grafanaVPlexController')(app);
 require('./controllers/grafanaVMAXController')(app);
 
 
