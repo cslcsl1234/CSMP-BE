@@ -343,18 +343,18 @@ var automationController = function (app) {
                             },
                             {
                                 "name": "AppVerification_SameCity",
-                                "label": "同城应用核验",
-                                "value": "disable"
+                                "label": "本地CDP验证xxxx",
+                                "value": "false"
                             },
                             {
                                 "name": "AppVerification_DiffCity",
-                                "label": "异地应用核验",
-                                "value": "disable"
+                                "label": "异地验证ffff",
+                                "value": "false"
                             },
                             {
                                 "name": "AppVerification_LocalCdp",
-                                "label": "异地应用核验",
-                                "value": "false"
+                                "label": "异地应用核验xxx",
+                                "value": "disable"
                             }
                         ],
                         "HostDeploy": {
