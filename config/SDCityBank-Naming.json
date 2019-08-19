@@ -1,0 +1,554 @@
+[
+ {
+   "SC": "jierupubesxi_VW",
+   "TC": "TC_jrpubesxi_VW",
+   "BACKUP": "osback1_VW",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "jrpub_CG_Prod"
+ },
+ {
+   "SC": "chxesxi_VW",
+   "TC": "TC_chxesxi_VW",
+   "BACKUP": "osback1_VW",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "chxesxi_CG_Prod"
+ },
+ {
+   "SC": "qlesxi_VW",
+   "TC": "TC_ql_VW",
+   "BACKUP": "osback1_VW",
+   "RP": "RP_C2_VW",
+   "CDP": "N/A",
+   "CG": "QLESXi_CG_Prod"
+ },
+ {
+   "SC": "cbusdb_VW",
+   "TC": "TC_cbusdb_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusdb_CG_Prod"
+ },
+ {
+   "SC": "cbusesxi_View",
+   "TC": "TC_cbusesxi_VW",
+   "BACKUP": "osback1_view",
+   "RP": "RP_SZBB_View",
+   "CDP": "N/A",
+   "CG": "cbus_ESXi_CG_Prod"
+ },
+ {
+   "SC": "WeiXin_App_View",
+   "TC": "N/A",
+   "BACKUP": "OSback2_VIEW",
+   "RP": "RP_Waiwei_View",
+   "CDP": "N/A",
+   "CG": "WeiXin_App_CG_Prod"
+ },
+ {
+   "SC": "WeiXin_Web_View",
+   "TC": "N/A",
+   "BACKUP": "OSback2_VIEW",
+   "RP": "RP_Waiwei_View",
+   "CDP": "N/A",
+   "CG": "WeiXinWeb_CG_Prod"
+ },
+ {
+   "SC": "ebankappesxi_VW",
+   "TC": "TC_ebankappesxi_VW",
+   "BACKUP": "osback1_VW",
+   "RP": "RP_C2_VW",
+   "CDP": "N/A",
+   "CG": "ebank_ESXi_CG_Prod"
+ },
+ {
+   "SC": "ebankwebesxi_VW",
+   "TC": "TC_ebankwebesxi_VW",
+   "BACKUP": "osback1_VW",
+   "RP": "RP_C2_VW",
+   "CDP": "N/A",
+   "CG": "ebankwebesxi_CG_Prod"
+ },
+ {
+   "SC": "dbus_View",
+   "TC": "TC_dbusdb_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_SZBB_View",
+   "CDP": "N/A",
+   "CG": "SZBB_CG_Prod"
+ },
+ {
+   "SC": "multicorp_SZ_View",
+   "TC": "TC_multicorp_SZ_View",
+   "BACKUP": "N/A",
+   "RP": "RP_SZBB_View",
+   "CDP": "N/A",
+   "CG": "multicorp_SZ_CG_Prod"
+ },
+ {
+   "SC": "xbusdb_view",
+   "TC": "TC_xbusdb_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_SZBB_View",
+   "CDP": "N/A",
+   "CG": "xbusdb_CG_prod"
+ },
+ {
+   "SC": "cbusapp1_VW",
+   "TC": "TC_cbusapp1_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "cbusapp2_VW",
+   "TC": "TC_cbusapp2_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "cbusapp3_VW",
+   "TC": "TC_cbusapp3_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "cbusapp4_VW",
+   "TC": "TC_cbusapp4_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "cbusapp5_VW",
+   "TC": "TC_cbusapp5_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "cbusapp6_VW",
+   "TC": "TC_cbusapp6_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "cbusapp7_VW",
+   "TC": "TC_cbusapp7_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "cbusapp8_VW",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "cbusapp9_VW",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "cbusapp10_VW",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "zlcbus1_VW",
+   "TC": "TC_zlcbus1_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "zlcbus2_VW",
+   "TC": "TC_zlcbus2_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "zlcbus3_VW",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "cbusapp_CG_Prod"
+ },
+ {
+   "SC": "cbusqry1_VW",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "cbusqry_CG_Prod"
+ },
+ {
+   "SC": "cbusqry2_VW",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "cbusqry_CG_Prod"
+ },
+ {
+   "SC": "qrtdb_VW",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "N/A"
+ },
+ {
+   "SC": "CC3_Prod_View",
+   "TC": "CCCQ_ESXI_VW",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "CCCQ_CG_Prod"
+ },
+ {
+   "SC": "wtapp_VW",
+   "TC": "N/A",
+   "BACKUP": "OSback2_VIEW",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "wtapp_CG"
+ },
+ {
+   "SC": "wtweb_VW",
+   "TC": "N/A",
+   "BACKUP": "OSback2_VIEW",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "wtweb_CG"
+ },
+ {
+   "SC": "tg_app_view",
+   "TC": "TC_tgappesxi_VW",
+   "BACKUP": "OSback2_VIEW",
+   "RP": "RP_Waiwei_View",
+   "CDP": "N/A",
+   "CG": "TG_APP_CG_Prod"
+ },
+ {
+   "SC": "tg_web_view",
+   "TC": "TC_tgwebesxi_VW",
+   "BACKUP": "OSback2_VIEW",
+   "RP": "RP_Waiwei_View",
+   "CDP": "N/A",
+   "CG": "TG_WEB_CG_Prod"
+ },
+ {
+   "SC": "WaiWei_ESXi_View",
+   "TC": "TC_waiweiesxi_VW",
+   "BACKUP": "OSback2_VIEW",
+   "RP": "RP_Waiwei_View",
+   "CDP": "N/A",
+   "CG": "Waiwei_ESXi_CG_Prod"
+ },
+ {
+   "SC": "lh_esxi_View",
+   "TC": "TC_lh_esxi_View",
+   "BACKUP": "OSback2_VIEW",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "lh_esxi_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_ebankweb_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_ebankweb_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_ebankappesxi_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_ebankappesxi_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_chxesxi_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_chxesxi_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_cbusapp1_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_cbusapp2_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_cbusapp3_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_cbusapp4_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_cbusapp5_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_cbusapp6_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_cbusapp7_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_cbusapp8_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_cbusapp9_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_cbusapp10_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_zlcbus1_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_zlcbus2_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_zlcbus3_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_cbuscor1_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_cbuscor2_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_cbusapp_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "SH_xbusdb_view",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "SH_XBUS_ESXi_CG_Prod"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "cdpyz3_VW",
+   "CG": "CCCQ_CG_Local"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "cdpyz3_VW",
+   "CG": "chxesxi_CG_Local"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "cdpyz2_VW",
+   "CG": "cbusapp_CG_Local"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "cbusdbcdp",
+   "CG": "cbusdb_CG_Local"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "cdpyz3_VW",
+   "CG": "jrpub_CG_Local"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_C1_VW",
+   "CDP": "N/A",
+   "CG": "RPC1_Hexin_system"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_C2_VW",
+   "CDP": "cdpyz3_VW",
+   "CG": "QLESXi_CG_Local"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_C2_VW",
+   "CDP": "cdpyz3_VW",
+   "CG": "ebank_ESXi_CG_Local"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_SZBB_View",
+   "CDP": "cdpyz4_view",
+   "CG": "SZBB_CG_Local"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_Waiwei_View",
+   "CDP": "CDPYZ_Waiwei_View",
+   "CG": "WeiXinApp_CG_Local"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_Waiwei_View",
+   "CDP": "CDPYZ_Waiwei_View",
+   "CG": "WeiXinWeb_CG_Local"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_SZBB_View",
+   "CDP": "cdpyz3_view",
+   "CG": "multicorp_SZ_CG_Local"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_SZBB_View",
+   "CDP": "cdpyz3_view",
+   "CG": "xbusdb_CG_local"
+ },
+ {
+   "SC": "N/A",
+   "TC": "N/A",
+   "BACKUP": "N/A",
+   "RP": "RP_Waiwei_View",
+   "CDP": "N/A",
+   "CG": "RPC3_WaiWei_system"
+ },
+ {
+   "SC": "N/A",
+   "TC": "TC_cbusapp_dr_VW",
+   "BACKUP": "N/A",
+   "RP": "N/A",
+   "CDP": "N/A",
+   "CG": "cbusapp_dr_CG"
+ }
+]
