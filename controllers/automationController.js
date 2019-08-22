@@ -52,6 +52,8 @@ wss.on('connection', function (ws) {
             var ms = JSON.parse(message);
             console.log(ms.client)
             wsList[ms.client] = ws;
+            ws.send("this is message");
+            console.log(ws);
         }
 
 
@@ -692,11 +694,13 @@ var automationController = function (app) {
         /* ------------------------------   */
         var CreateExtentParamater = {
             array: arrayInfo,
-            clustername: 'cluster-2',
-            StorageVolumeName: 'Symm0193_0161'
+            method: 'CreateExtent',
+            DependOnAction: 'N/A',
+            StorageVolumeName: 'Symm1703_016B,Symm1637_016B',
+            show: 'false'
         }
 
-        //Auto.CreateExtent(CreateExtentParamater ,function(result) {      res.json(200,result);      })  
+        Auto.CreateExtent(CreateExtentParamater ,function(result) {      res.json(200,result);      })  
 
 
         var CreateDistributedDeviceParamater = {
@@ -725,7 +729,7 @@ var automationController = function (app) {
             "array": arrayInfo
         }
 
-        Auto.AssignConsistencyGroup(AssignConsistencyGroupParamater, function (result) { res.json(200, result); })
+        //Auto.AssignConsistencyGroup(AssignConsistencyGroupParamater, function (result) { res.json(200, result); })
 
 
 
@@ -980,7 +984,7 @@ var automationController = function (app) {
 
     });
 
-    app.post('/api/auto/service/block/provisioning', function (req, res) {
+    app.post('/api/auto/service/block/provisioning/review', function (req, res) {
         res.setTimeout(3600 * 1000);
 
         //console.log(JSON.stringify(req.body));
@@ -1036,6 +1040,25 @@ var automationController = function (app) {
         */
 
     });
+
+
+    app.post('/api/auto/service/block/provisioning/execute', function (req, res) {
+        res.setTimeout(3600 * 1000); 
+        var AutoObject = req.body;
+        var ActionsParamater = AutoObject.AutoInfo.ActionParamaters;
+        var RequestParamater = AutoObject.request;
+        var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info ;
+        var ws = wsList[RequestParamater.client];
+
+        console.log(ws); 
+
+        var AutoAPI = require('../lib/Automation_VPLEX');
+        AutoAPI.ExecuteActions(ActionsParamater, arrayInfo, ws, function(result) {
+            res.json(200, result);
+        }) 
+        
+    });
+
 
 };
 

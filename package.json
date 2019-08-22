@@ -25,11 +25,7 @@
     "tempfile": "*",
     "unirest": "*",
     "urlencode": "^1.1.0",
-<<<<<<< HEAD
     "winston": "*",
-=======
-    "winston": "^3.2.1",
->>>>>>> 28eb7f355bd613556ac65d60fcd9db7271c2c327
     "ws": "^7.1.1",
     "xls-to-json": "^0.5.0",
     "xml2json": "^0.11.2"
