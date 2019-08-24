@@ -34,6 +34,7 @@ var DeviceMgmt = require('../lib/DeviceManagement');
 var Report = require('../lib/Reporting');
 var Analysis = require('../lib/analysis');
 var topos = require('../lib/topos');
+var sortBy = require('sort-by');
 
 var cebAPIController = function (app) {
 
@@ -863,15 +864,77 @@ var cebAPIController = function (app) {
         async.waterfall([
             function (callback) {
                 var finalrecord = [];
-                VMAX.GetDevices(device, function (ret) {
+ 
+                var param = {}; 
+                param['filter'] = '(parttype=\'LUN\')';
+                param['filter_name'] = '(name=\'Capacity\')';
+                param['keys'] = ['device', 'part'];
+                param['fields'] = ['model', 'parttype', 'config', 'poolemul', 'purpose', 'dgstype', 'poolname', 'partsn', 'sgname', 'ismasked', 'vmaxtype', 'disktype','dgraid'];
+                param['period'] = 86400;
+                param['start'] = util.getConfStartTime('1w');
+    
+                if (device !== undefined) {
+                    param['filter'] = 'device=\'' + device + '\'&' + param['filter'];
+                } 
+                
+                CallGet.CallGet(param, function (param) {
+                    var ret = param.result;
                     for (var i in ret) {
                         var item = ret[i];
-                        if (item.ismasked !== undefined)
-                            if (item.ismasked == "0") finalrecord.push(item);
+                        if (item.ismasked !== undefined) 
+                            if (item.ismasked == "0" && item.config.indexOf('RDF') < 0 ) {
+                                finalrecord.push(item);
+                            }
                     }
+                    finalrecord.sort(sortBy('part'));
                     callback(null, finalrecord);
-                })
+                    
+    
+                }); 
 
+            },
+            // Get partner array luns info for compare
+            function(luns,callback) { 
+                DeviceMgmt.getPartnerArrayInfo(device, function(partnerArray) {      
+                    var partnerDevice = partnerArray.sn;
+ 
+                    var finalRecord=[];
+                    // query partner luns
+                    var param = {}; 
+                    param['filter'] = '(parttype=\'LUN\')';
+                    param['filter_name'] = '(name=\'Capacity\')';
+                    param['keys'] = ['device', 'part'];
+                    param['fields'] = ['model', 'parttype', 'config', 'poolemul', 'purpose', 'dgstype', 'poolname', 'partsn', 'sgname', 'ismasked', 'vmaxtype', 'disktype','dgraid'];
+                    param['period'] = 86400;
+                    param['start'] = util.getConfStartTime('1w');
+        
+                    if (device !== undefined) {
+                        param['filter'] = 'device=\'' + partnerDevice + '\'&' + param['filter'];
+                    } 
+                    
+                    CallGet.CallGet(param, function (param) {
+                        var ret = param.result;
+                        for ( var i in luns ) {
+                            var item = luns[i];
+                            var isfind = false;
+                            for ( var j in ret ) {
+                                var partnerItem = ret[j]; 
+                                if (
+                                   ( item.ismasked == partnerItem.ismasked ) &&
+                                   ( item.part == partnerItem.part ) &&
+                                   ( item.dgraid == partnerItem.dgraid ) &&
+                                   ( item.config == partnerItem.config ) &&
+                                   ( item.Capacity == partnerItem.Capacity ) 
+                                    ) {
+                                        isfind = true;
+                                        finalRecord.push(item);
+                                        break;
+                                    }
+                            } 
+                        }  
+                        callback(null,finalRecord);    
+                    }); 
+              });
             },
             function (luns, callback) {
                 var finalRecord = {
@@ -893,7 +956,7 @@ var cebAPIController = function (app) {
 
                     newItem["id"] = item.part;
                     newItem["name"] = item.part;
-                    newItem["type"] = type;
+                    newItem["type"] = item.dgraid;
                     newItem["size(GB)"] = item.Capacity;
                     newItem["rdfProp"] = "";
                     newItem["rdfRelation"] = rdfProp;

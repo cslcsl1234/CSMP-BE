@@ -392,7 +392,7 @@ var testController = function (app) {
 
         //Report.getArrayResourceLimits(from,to, function (result )  {  res.json(200,result) });
 
-        CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
+        //CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
        // Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
@@ -408,7 +408,8 @@ var testController = function (app) {
 
         //VMAX.GetSGTop20ByCapacity(device, function(ret) {
         //Capacity.GetArrayCapacity(device, function(ret) {     res.json(200,ret);        });
-        //   DeviceMgmt.GetArrayAliasName(function(ret) {           res.json(200,ret);        });
+        //DeviceMgmt.GetArrayAliasName(function(ret) {           res.json(200,ret);        });
+        DeviceMgmt.getPartnerArrayInfo(device, function(ret) {           res.json(200,ret);        });
         //VNX.GetBlockDevices(device,  function(result) {   res.json(200,result);   }); 
         //VNX.getSPPerformance(device, part, start, end ,function(result) {  res.json(200,result);   });
 
