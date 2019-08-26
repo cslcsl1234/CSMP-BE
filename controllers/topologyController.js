@@ -12,6 +12,7 @@ var unirest = require('unirest');
 var configger = require('../config/configger');
 var util = require('../lib/util');
 var mongoose = require('mongoose');
+var async = require('async');
 
 var App = require('../lib/App');
 var topos = require('../lib/topos.js');
@@ -19,6 +20,7 @@ var Report = require('../lib/Reporting');
 var CAPACITY = require('../lib/Array_Capacity');
 
 var AppTopologyObj = mongoose.model('AppTopology');
+var VPLEX = require('../lib/Array_VPLEX');
 
 
 var topologyController = function (app) {
@@ -349,6 +351,113 @@ var topologyController = function (app) {
     });
 
 
+    app.get('/api/topology/app/vplex', function (req, res) {
+        var device;
+        async.waterfall([
+            function (callback) {
+
+                VPLEX.getVplexStorageViews(device, function (sg) {
+                    callback(null, sg);
+
+                });
+
+            },
+            function (arg1, callback) { 
+
+                var results = [];
+                for ( var i in arg1 ) {
+                    var item = arg1[i];
+                    for ( var j in item.inits ) {
+                        var initItem = item.inits[j];
+                        var hostname = initItem.replace(/_HBA[0-9]/g,''); 
+
+                        for ( var z in item.vvol ) {
+                            var vvolItem = item.vvol[z];
+                            var newItem = {};
+                            newItem["hostname"] = hostname;
+                            newItem.total_capacity = item.Capacity;
+                            newItem.vplexsn = item.device;
+                            newItem.vplex_cluster = item.cluster;
+                            newItem.vplex_svname = item.part;  
+                            newItem.vvol = vvolItem.part;
+                            newItem.vvol_capacity = vvolItem.Capacity;
+                            newItem.vplex_devicename = "";
+                            newItem.backarray = vvolItem.array;
+                            newItem.backarray_name = "";
+                            newItem.backarray_lunid = "";
+                            newItem.backarray_lunwwn = vvolItem.lunwwn;
+
+                            results.push(newItem);
+
+                        }
+                        
+                        
+                    }
+                }
+
+                var unduprecords = [];
+                // remove duplicate records
+                for ( var i in results ) {
+                    var item = results[i];
+                    var issame = false;
+                    for ( var j in unduprecords ) {
+                        var item1 = unduprecords[j]; 
+                        for ( var field in item ) {
+                            if ( item[field] == item1[field]) {
+                                issame = true;
+                                continue;
+                            }
+                            else {
+                                issame = false;
+                                break;
+                            }
+                        }
+                        if ( issame == true ) break;
+                    }
+                    
+                    if ( issame == false ) 
+                        unduprecords.push(item);
+                }
+                    callback(null, unduprecords); 
+
+            },
+            // Search back array lun info;
+            function(arg1, callback ) {
+
+                VPLEX.GetStorageVolumeByDevices(device, function(result) {
+                    for ( var i in arg1 ) {
+                        var item = arg1[i];
+                        for ( var j in result ) {
+                            var lunItem = result[j];
+                            if ( item.backarray_lunwwn == lunItem. vplexStorageVolumeSN ) {
+                                if ( item.vplex_svname.indexOf( lunItem.maskviewName ) < 0 ) 
+                                    item.vplex_svname += ',' + lunItem.maskviewName;
+                                item["vplex_devicename"] = lunItem.vplexStorageVolumeName;
+                                item["backarray_name"] = lunItem.storageName;
+                                item["backarray_lunid"] = lunItem.storageVolName;
+                            }
+                        }
+                    }
+                    callback(null, arg1);
+                })
+            }
+
+        ], function (err, result) { 
+            var config = configger.load(); 
+            var ReportOutputPath = config.Reporting.OutputPath;
+            var fs = require('fs');
+            
+            var json2xls = require('json2xls');
+            var xls = json2xls(result);
+            var outputFilename = ReportOutputPath + '//' + 'topology-vplex.xlsx';
+            console.log("Write Result to file [" + outputFilename + "]");
+            fs.writeFileSync(outputFilename, xls, 'binary');
+
+            res.json(200, result);
+        });
+
+
+    });
 
 };
 

@@ -378,14 +378,14 @@ var testController = function (app) {
         //var start = '2018-10-01T16:00:00.000Z';
         //var end = '2018-10-30T16:00:00.000Z';
 
-        var device = '000297800859';
+        //var device = '000297800859';
         var part;
 
         //VMAX.GetFEPorts(device, function (rest) { res.json(200, rest); });
         //VMAX.getArrayPerformanceV3( device, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
         
 
-        //VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
+        // VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
         //function GetFCSwitchPart(devtype,parttype,callback) { 
         //Report.getAppStorageRelationV2(device, function (result )  {  res.json(200,result) });
 
@@ -399,7 +399,7 @@ var testController = function (app) {
 
         //SWITCH.GetSwitchPorts(device, function(rest) {             res.json(200,rest);        });
         // SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
-        // VMAX.GetStorageGroups(device, function(result) {   res.json(200,res   ult);   }); 
+        // VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
         //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
         //VMAX.GetArrays(  function(ret) {  res.json(200,ret);   }); 
@@ -409,7 +409,7 @@ var testController = function (app) {
         //VMAX.GetSGTop20ByCapacity(device, function(ret) {
         //Capacity.GetArrayCapacity(device, function(ret) {     res.json(200,ret);        });
         //DeviceMgmt.GetArrayAliasName(function(ret) {           res.json(200,ret);        });
-        DeviceMgmt.getPartnerArrayInfo(device, function(ret) {           res.json(200,ret);        });
+        //DeviceMgmt.getPartnerArrayInfo(device, function(ret) {           res.json(200,ret);        });
         //VNX.GetBlockDevices(device,  function(result) {   res.json(200,result);   }); 
         //VNX.getSPPerformance(device, part, start, end ,function(result) {  res.json(200,result);   });
 
@@ -443,6 +443,11 @@ var testController = function (app) {
 
         //var finalResult={};
         //VNX.GetUnity_FileSystem(device,function(result) {  res.json(200,result); }); 
+
+
+        //VPLEX.getVplexStorageViews(device, function(ret) {  res.json(200,ret);   }); 
+        //VPLEX.GetVirtualVolumeRelationByDevices(device, function(ret) {  res.json(200,ret);   }); 
+        VPLEX.GetStorageVolumeByDevices(device, function(ret) {  res.json(200,ret);   }); 
     });
 
 

@@ -1045,6 +1045,45 @@ var cebAPIController = function (app) {
 
     });
 
+
+    // 获取所有VMAX存储中的iolimit设置情况
+    app.get('/ssmp/rest/vmax/sg-iolimit', function (req, res) {
+        var device = req.params.devicesn;
+        var sgname = req.params.sgname;
+
+        async.waterfall([
+            function (callback) {
+
+                VMAX.GetStorageGroups(device, function (sg) {
+                    callback(null, sg);
+
+                });
+
+            },
+            function (arg1, callback) {
+                var filter = {};
+                DeviceMgmt.getMgmtObjectInfo(filter, function (arrayinfo) {
+                    for ( var i in arg1 ) {
+                        var item = arg1[i];
+                        for ( var j in arrayinfo ) {
+                            var info = arrayinfo[j];
+                            if ( item.device == info.sn ) {
+                                item["arrayname"]= info.name;
+                            }
+                        }
+                    }
+                    callback(null, arg1);
+                });
+
+            }
+
+        ], function (err, result) {
+            result.sort(sortBy('arrayname'));
+            res.json(200, result);
+        });
+
+    });
+
 };
 
 module.exports = cebAPIController;
