@@ -145,23 +145,23 @@ var switchController = function (app) {
 
             }
 
-        ], function (err, result) {
+        ], function (err, result) { 
 
-
+            
             if (typeof deviceid !== 'undefined') {
                 res.json(200, result.result[0]);
             } else {
                 var ret = [];
                 if (datacenter !== undefined) {
                     for (var i in result.result) {
-                        var item = result.result[i]; 
+                        var item = result.result[i];
                         if (item.datacenter == datacenter) {
                             ret.push(item);
                         }
                     }
                 } else {
                     ret = result.result;
-                }
+                } 
 
 
                 // need physical switch only.
@@ -703,9 +703,6 @@ var switchController = function (app) {
                 // 20181108 add "ZoneName" field for SMS alert at Dalian bank;
                 var fabric;
                 SWITCH.getFabric(fabric, function (result) {
-
-                    console.log(result)
-
                     for (var i in arg1) {
                         var item = arg1[i];
                         for (var j in result) {
@@ -1049,12 +1046,20 @@ var switchController = function (app) {
                 },
                 // Get All Localtion Records
                 function (wwnlist, callback) {
-                    var device;
-                    SWITCH.GetSwitchPorts(device, function (portlist) {
 
-                        var param = {};
-                        param["result"] = portlist;
+                    var param = {};
+                    if (typeof device !== 'undefined') {
+                        param['filter'] = 'device=\'' + device + '\'&!vstatus==\'inactive\'&parttype=\'Port\'&!iftype=\'Ethernet\'&!discrim=\'FCoE\'';
+                    } else {
+                        param['filter'] = '!vstatus==\'inactive\'&parttype=\'Port\'&!iftype=\'Ethernet\'&!discrim=\'FCoE\'';
+                    }
 
+                    //param['filter_name'] = '(name=\'InCrcs\'|name=\'LinkFailures\'|name=\'SigLosses\'|name=\'SyncLosses\'|name=\'CreditLost\'|name=\'Availability\'|name=\'ifInOctets\'|name=\'ifOutOctets\')';
+                    param['keys'] = ['device', 'partwwn'];
+                    //param['fields'] = ['partid','slotnum','part','porttype','partwwn','ifname','portwwn','maxspeed','partstat','partphys','gbicstat'];
+                    param['fields'] = ['partid', 'part', 'porttype', 'partwwn', 'ifname', 'portwwn', 'maxspeed', 'partstat', 'partphys', 'gbicstat', 'lswwn'];
+
+                    CallGet.CallGet(param, function (param) {
                         var noFindPort = [];
                         for (var i in wwnlist) {
                             var aliasItem = wwnlist[i];
@@ -1064,7 +1069,7 @@ var switchController = function (app) {
                             for (var j in param.result) {
                                 var portItem = param.result[j];
                                 if (aliasItem.HBAWWN == portItem.portwwn) {
-                                    aliasItem.concectTo.push(portItem);
+                                    aliasItem.connectTo.push(portItem);
                                     isfind = true;
 
                                 }

@@ -1082,6 +1082,10 @@ var cebAPIController = function (app) {
             function (callback) {
 
                 VMAX.GetStorageGroups(device, function (sg) {
+	            for ( var i in sg ) {
+			var item = sg[i];
+			delete item.luns;
+		    }
                     callback(null, sg);
 
                 });
