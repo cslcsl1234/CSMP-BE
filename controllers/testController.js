@@ -397,7 +397,9 @@ var testController = function (app) {
 
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
 
-        //SWITCH.GetSwitchPorts(device, function(rest) {             res.json(200,rest);        });
+        //cdevice, function(rest) {             res.json(200,rest);        });
+        getTopos.getTopos(function(result) { res.json(200, result) });
+
         // SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
         // VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
@@ -447,7 +449,7 @@ var testController = function (app) {
 
         //VPLEX.getVplexStorageViews(device, function(ret) {  res.json(200,ret);   }); 
         //VPLEX.GetVirtualVolumeRelationByDevices(device, function(ret) {  res.json(200,ret);   }); 
-        VPLEX.GetStorageVolumeByDevices(device, function(ret) {  res.json(200,ret);   }); 
+        //VPLEX.GetStorageVolumeByDevices(device, function(ret) {  res.json(200,ret);   }); 
     });
 
 

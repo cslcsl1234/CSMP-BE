@@ -153,6 +153,7 @@ var menuController = function (app) {
             case "VMAX40K" :
             case "VMAX100K" :
             case "VMAX200K" :
+            case "VMAX950F" :
                 res.json(200,FunctionDefine_Array_VMAX);
                 break;
 

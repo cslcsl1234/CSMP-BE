@@ -21,6 +21,8 @@ var AutoService = require('../lib/Automation');
 var WebSocketServer = require('ws').Server
 var wss = new WebSocketServer({ port: 9000 });
 
+const ZB = require('zeebe-node');
+
 var wsList = {};
 
 wss.on('connection', function (ws) {
@@ -1050,10 +1052,12 @@ var automationController = function (app) {
         var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info ;
         var ws = wsList[RequestParamater.client];
 
-        console.log(ws); 
+        console.log("ws:"+wsList); 
+ 
 
         var AutoAPI = require('../lib/Automation_VPLEX');
-        AutoAPI.ExecuteActions(ActionsParamater, arrayInfo, ws, function(result) {
+        AutoAPI.DeployVPLEXBPMN();
+        AutoAPI.ExecuteActionsBPMN(ActionsParamater, arrayInfo, ws, function(result) {
             res.json(200, result);
         }) 
         

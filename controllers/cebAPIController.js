@@ -1045,6 +1045,33 @@ var cebAPIController = function (app) {
 
     });
 
+    
+
+    // 获取交换机端囗信息
+    app.get('/ssmp/rest/switch/:device/ports', function (req, res) {
+        var device = req.params.devicesn;
+        var sgname = req.params.sgname;
+
+        async.waterfall([
+            function (callback) {
+
+                SWITCH.GetSwitchPorts(device, function (ports) {
+                    callback(null,ports);
+
+                });
+
+            },
+            function (arg1, callback) {
+                callback(null,arg1);
+            },
+
+        ], function (err, result) {
+ 
+            res.json(200, result);
+        });
+
+    });
+
 
     // 获取所有VMAX存储中的iolimit设置情况
     app.get('/ssmp/rest/vmax/sg-iolimit', function (req, res) {
