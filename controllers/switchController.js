@@ -20,6 +20,7 @@ var SwitchObj = mongoose.model('Switch');
 var SWITCH = require('../lib/Switch');
 var VMAX = require('../lib/Array_VMAX');
 var HOST = require('../lib/Host');
+var Analysis = require('../lib/analysis'); 
 
 // -----------------------------------
 // For demo data
@@ -811,6 +812,65 @@ var switchController = function (app) {
                 });
 
 
+            }, 
+            function(arg1, callback ) {
+                Analysis.getAppTopology(function(apptopo) {            
+                    
+                    for ( var i in arg1 ) {
+                        var portItem = arg1[i];
+
+                        var portwwn = portItem.partwwn;
+                        portItem["connectedDevType"] = '';
+                        portItem["connectedDevName"] = '';
+                        portItem["connectedDevPortName"] = ''; 
+                        portItem["zoneinfo"] = [];
+
+                        for ( var j in apptopo ) {
+                            var item = apptopo[j];
+                            
+                            if ( portwwn == item.connect_hba_swport_wwn ) {
+                                portItem["connectedDevType"] = 'host';
+                                if ( portItem.connectedDevName === '' ) portItem["connectedDevName"] = item.host ;
+                                else if ( portItem.connectedDevName.indexOf(item.host) < 0  ) 
+                                    portItem["connectedDevName"] = portItem.connectedDevName + ',' + item.host ;
+ 
+                                if ( portItem.connectedDevPortName === '' ) portItem["connectedDevPortName"] = item.connect_hba_swport_alias ;
+                                else if ( portItem.connectedDevPortName.indexOf(item.connect_hba_swport_alias) < 0  ) 
+                                    portItem["connectedDevPortName"] = portItem.connectedDevPortName + ',' + item.connect_hba_swport_alias ;
+          
+                    
+                                var isfind = false;
+                                for ( var z in portItem.zoneinfo ) {
+                                    var zoneItem = portItem.zoneinfo[z];
+                                    if ( item.zname == zoneItem.zonename ) {
+                                        isfind = true;
+                                        break;
+                                    }
+                                }
+                                if ( isfind == false ) 
+                                    portItem.zoneinfo.push( { "zonename" : item.zname } )
+                            } else if ( portwwn == item.connect_arrayport_swport_wwn ) {
+                                portItem["connectedDevType"] = 'array';
+                                portItem["connectedDevName"] = item.arrayname;
+                                portItem["connectedDevPortName"] = item.arrayport;
+                                var isfind = false;
+                                for ( var z in portItem.zoneinfo ) {
+                                    var zoneItem = portItem.zoneinfo[z];
+                                    if ( item.zname == zoneItem.zonename ) {
+                                        isfind = true;
+                                        break;
+                                    }
+                                }
+                                if ( isfind == false ) 
+                                    portItem.zoneinfo.push( { "zonename" : item.zname } )
+                            } 
+                            
+                        }
+                    }
+
+                    callback(null,arg1);
+                          
+                })
             }
         ], function (err, result) {
             // result now equals 'done'  

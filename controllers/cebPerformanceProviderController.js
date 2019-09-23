@@ -880,6 +880,7 @@ var cebPerformanceProviderController = function (app) {
                 },
                 vmaxinfo: function(callback, result ) {
                     VMAX.GetFEPortsOnly(device, function(ret) {
+                        var directorList = {};
                         var vnxout = {};
                         vnxout["storageType"] = 'VMAX';
                         vnxout["storageList"] = [];
@@ -888,10 +889,22 @@ var cebPerformanceProviderController = function (app) {
                             var director = item.feport.split(":");
                             var directorname = director[0];
                             var directorport = director[1];
+ 
+                            var isfind = false; 
+                            var directorname1 = directorname.substring(0,directorname.length-1); 
+                            if ( directorList[item.device] === undefined ) directorList[item.device] = [];
+                            for ( var z in directorList[item.device] ) 
+                                if ( directorList[item.device][z] == directorname1 ) {
+                                    isfind = true;
+                                    break;
+                                }
+                            if ( isfind == false ) 
+                                directorList[item.device].push(directorname1);
+                            
 
                             var isfind = false;
-                            for ( var j in vnxout.storageList ) {
-                                var vnxoutItem = vnxout.storageList[j];
+                            for ( var j in vnxout.storageList ) { 
+                                var vnxoutItem = vnxout.storageList[j]; 
                                 if ( vnxoutItem.storageSn == item.device ) {
                                     isfind = true;
                                     var isfinddir = false;
@@ -927,6 +940,21 @@ var cebPerformanceProviderController = function (app) {
                                 vnxout.storageList.push(vnxoutItem);
                             }
 
+                        }
+                        console.log(directorList);
+                        console.log(vnxout);
+                        for ( var i in vnxout.storageList ) {
+                            var storageItem = vnxout.storageList[i];
+
+                            if ( directorList[storageItem.storageSn] === undefined ) continue ;
+
+                            for ( var j in directorList[storageItem.storageSn] ) {
+                                var directorItem = directorList[storageItem.storageSn][j];
+                                var dirItem = {};
+                                dirItem["directorName"] = directorItem;
+                                dirItem["portList"] = [];
+                                storageItem.directorList.push(dirItem);
+                            }
                         }
                         callback(null,vnxout);
                    })                     
@@ -1087,11 +1115,13 @@ var cebPerformanceProviderController = function (app) {
                         console.log(Date() + '\t' + "apptopo="+apptopo.length);
                         for ( var i in apptopo) {
                             var item = apptopo[i];
+                            item["TEST"] = director;
                             if ( director != 'all' && port != 'all') {
                                 var feport = director+':'+port;
                                 if ( item.array == storageSn && item.arrayport == feport ) 
                                     appTopo1.push(item);
                             } else if ( director != 'all' && port == 'all') {
+                                console.log(item.array + ',' + item.arrayport);
                                 if ( item.array == storageSn && item.arrayport.indexOf(director) >=0  ) 
                                     appTopo1.push(item);
 
@@ -1134,6 +1164,7 @@ var cebPerformanceProviderController = function (app) {
                             }
                             if ( isfind == false ) {
                                 var resultItem = {};
+
                                 resultItem["Type"] = []; 
                                 if ( app.appLevel !== undefined ) resultItem.Type.push(app.appLevel);
 
@@ -1196,6 +1227,7 @@ var cebPerformanceProviderController = function (app) {
                             }
                             if ( isfind == false ) {
                                 var resultItem = {};
+                                resultItem["TEST"] = director;
                                 resultItem["Type"] = []; 
                                 if ( app.appLevel !== undefined ) resultItem.Type.push(app.appLevel);
 

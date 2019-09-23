@@ -1,2 +1,3 @@
 {"_id":{"$oid":"5957b54a28dba8940f000011"},"username":"admin","email":"admin1@example.com","password":"password","roleList":["admin"],"__v":0}
 {"_id":{"$oid":"5957b54a28dba8940f000012"},"username":"guest","email":"guest@qq.com","password":"password","roleList":["guest"],"__v":0}
+{"_id":{"$oid":"5d4d10cac2d79a78d3991e45"},"username":"admin@ngx.com","email":"admin@ngx.com","password":"password","roleList":["admin"]}
