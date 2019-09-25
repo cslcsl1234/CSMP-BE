@@ -152,6 +152,7 @@ var dashboardController = function (app) {
                                             break;
 
                                         case "Array":
+                                        case "UnifiedArray":
                                             devByDCItem.Array = devByDCItem.Array + 1;
                                             break;
 
@@ -188,6 +189,7 @@ var dashboardController = function (app) {
                                         break;
 
                                     case "Array":
+                                    case "UnifiedArray":
                                         devByDCItem["Array"] = 1;
                                         break;
 
