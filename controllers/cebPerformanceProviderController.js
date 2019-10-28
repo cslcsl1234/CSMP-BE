@@ -712,7 +712,32 @@ var cebPerformanceProviderController = function (app) {
 
     });
 
- 
+         
+    /*
+        Page: 容量信息:应用容量分析 - 新增：应用使用了哪台存储的哪些容量, 按容量从大到小排列.
+    */ 
+   app.get('/ceb/rest/capacity/app/summary', function (req, res) {
+
+        var retData = require("../data/ApplicationCapacityAnalysis");
+        
+        var result = [];
+        for ( var i in retData ) {
+            var item = retData[i] ;
+            var resItem = {};
+            resItem["appName"] = item.appName;
+            resItem["logicUnitCount"] = item.logicUnitCount;
+            resItem["capacitySize"] = item.capacitySize;
+
+            result.push(resItem);
+
+        }
+
+        result.sort(sortBy("-capacitySize"));
+        res.json(200,result);
+
+
+    });
+
         
     /*
         Page: 性能信息:实时性能

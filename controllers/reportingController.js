@@ -4070,10 +4070,10 @@ var reportingController = function (app) {
                                     
                                     switch ( item[fieldname] ) {
                                         case "FUND_SG":
-                                        case "EBIP_RAC_SG":
-                                        case "NetBank_RAC_SG":
+                                        case "IFTS_SG":
+                                        case "ECIF_SG":
                                         case "EBMCP_SG":
-                                        case "NPCP_DATA_SG":
+                                        case "TPOS_SG":
                                             itemNew["系统吞吐量QOS设定"] = "20000IOPS,1000MB/s"
                                             break;
                                         default :
@@ -4097,13 +4097,13 @@ var reportingController = function (app) {
                     //系统存储磁盘读写吞吐量
                     XLSX.utils.book_append_sheet(wb, ws1, "DISK_IO");
 
-                    // 系统存储IO响应时间
-                    var ws2 = XLSX.utils.json_to_sheet(responseTimeRecords);
+                    // 系统存储IO响应时间 
                     for ( var i in responseTimeRecords ) {
                         var item = responseTimeRecords[i];
                         var percent = ( item["本周日均响应时间峰值"] - item["上周日均响应时间峰值"] ) / item["上周日均响应时间峰值"] * 100;
                         item["本周增幅(%)"] = percent.toFixed(2);
                     }
+                    var ws2 = XLSX.utils.json_to_sheet(responseTimeRecords);
                     XLSX.utils.book_append_sheet(wb, ws2, "DISK_IO_XYSJ");
 
                     var ArrayIOPS = arg1["array"]["IOPS"];
@@ -4115,21 +4115,25 @@ var reportingController = function (app) {
                         var itemNew = {};
                         var name =  item["系统名称"] ;
                         if ( item["系统名称"] == 'VMAX' ) name = 'VMAX1';
-                        var infoItem = SearchArrayConfigureInfo(name);
+                        var infoItem = SearchArrayConfigureInfo(name); 
+                        var maxvalue = 0; 
                         for ( var fieldname in item ) {
-
                             switch ( fieldname ) {
                                 case '系统名称' : 
                                     itemNew[fieldname] = item[fieldname];
                                     itemNew["存储配置"] = infoItem==null?"":infoItem.Configure;
                                     itemNew["存储IO推荐阀值(IOPS)"] = infoItem==null?"":infoItem.IOPS_Threshold;
                                     itemNew["总阀值的60%设定警戒阀值(IOPS)"] = infoItem==null?"":infoItem["IOPS_threshold_60%"];
-                                    break;
+                                    break; 
                                 default :
                                     itemNew[fieldname] = item[fieldname];
+                                    if ( fieldname.indexOf('星期') > 0 ) {
+                                        if ( maxvalue < item[fieldname] ) maxvalue = item[fieldname];
+                                    }
                                     break;
-                            }
+                            }  
                         } 
+                        itemNew["每周最高值与警戒阈值占比"] = infoItem==null?"": ((maxvalue / infoItem["IOPS_threshold_60%_number"])*100).toFixed(2) + '%';
                         ArrayIOPSNew.push(itemNew);
                     } 
                     var ws3 = XLSX.utils.json_to_sheet(ArrayIOPSNew);
@@ -4147,6 +4151,7 @@ var reportingController = function (app) {
                         var name =  item["ArrayName"] ;
                         if ( item["ArrayName"] == 'VMAX' ) name = 'VMAX1';
                         var infoItem = SearchArrayConfigureInfo(name);
+                        var maxvalue = 0; 
                         for ( var fieldname in item ) {
                             switch ( fieldname ) {
                                 case 'ArrayName' :
@@ -4158,9 +4163,13 @@ var reportingController = function (app) {
                                     break;
                                 default :
                                     itemDayNew[fieldname] = item[fieldname];
+                                    if ( fieldname.indexOf('-') > 0 ) {
+                                        if ( maxvalue < item[fieldname] ) maxvalue = item[fieldname];
+                                    }
                                     break;
                             }
-                        } 
+                        }
+                        itemDayNew["每周最高值与警戒阈值占比"] = infoItem==null?"": ((maxvalue / infoItem["IOPS_threshold_60%_number"])*100).toFixed(2) + '%';
                         ArrayIOPSHours_dayNew.push(itemDayNew);
                     }  
                     var ws4 = XLSX.utils.json_to_sheet(ArrayIOPSHours_dayNew);
@@ -4179,6 +4188,7 @@ var reportingController = function (app) {
                         var name =  item["ArrayName"] ;
                         if ( item["ArrayName"] == 'VMAX' ) name = 'VMAX1';
                         var infoItem = SearchArrayConfigureInfo(name);
+                        var maxvalue = 0; 
                         for ( var fieldname in item ) {
                             switch ( fieldname ) {
                                 case 'ArrayName' : 
@@ -4188,10 +4198,14 @@ var reportingController = function (app) {
                                     itemNightNew["总阀值的60%设定警戒阀值(IOPS)"] = infoItem==null?"":infoItem["IOPS_threshold_60%"];
                                     break;
                                 default :
-                                itemNightNew[fieldname] = item[fieldname];
+                                    itemNightNew[fieldname] = item[fieldname];
+                                    if ( fieldname.indexOf('-') > 0 ) {
+                                        if ( maxvalue < item[fieldname] ) maxvalue = item[fieldname];
+                                    }
                                     break;
                             }
                         } 
+                        itemNightNew["每周最高值与警戒阈值占比"] = infoItem==null?"": ((maxvalue / infoItem["IOPS_threshold_60%_number"])*100).toFixed(2) + '%';
                         ArrayIOPSHours_nightNew.push(itemNightNew);
                     }   
                     var ws5 = XLSX.utils.json_to_sheet(ArrayIOPSHours_nightNew);
@@ -4224,85 +4238,99 @@ var reportingController = function (app) {
                 "ArrayName":"VMAX1",
                 "Configure":"一代存储VMAX 8引擎16控",
                 "IOPS_Threshold":"6万",
-                "IOPS_threshold_60%":"3.6万"
+                "IOPS_threshold_60%":"3.6万",
+                "IOPS_threshold_60%_number":36000
             },
             {
                 "ArrayName":"VMAX2",
                 "Configure":"一代存储VMAX 4引擎8控",
                 "IOPS_Threshold":"5万",
-                "IOPS_threshold_60%":"3万"
+                "IOPS_threshold_60%":"4万",
+                "IOPS_threshold_60%_number":40000
             },
             {
                 "ArrayName":"VMAX3",
                 "Configure":"二代存储VMAX20k 4引擎8控",
                 "IOPS_Threshold":"7万",
-                "IOPS_threshold_60%":"4.2万"
+                "IOPS_threshold_60%":"4.2万",
+                "IOPS_threshold_60%_number":42000
             }, 
             {
                 "ArrayName":"VMAX5",
                 "Configure":"二代存储VMAX20k 4引擎8控",
                 "IOPS_Threshold":"5万",
-                "IOPS_threshold_60%":"3万"
+                "IOPS_threshold_60%":"3万",
+                "IOPS_threshold_60%_number":30000
             },
             {
                 "ArrayName":"VMAX6",
                 "Configure":"二代存储VMAX20k 4引擎8控",
                 "IOPS_Threshold":"6万",
-                "IOPS_threshold_60%":"3.6万"
+                "IOPS_threshold_60%":"3.6万",
+                "IOPS_threshold_60%_number":36000
             },
             {
                 "ArrayName":"VMAX7",
                 "Configure":"二代存储VMAX10k 2引擎4控",
                 "IOPS_Threshold":"2.5万",
-                "IOPS_threshold_60%":"1.5万"
+                "IOPS_threshold_60%":"1.5万",
+                "IOPS_threshold_60%_number":15000
             },
             {
                 "ArrayName":"VMAX8",
                 "Configure":"二代存储VMAX40k 4引擎8控",
                 "IOPS_Threshold":"4.6万",
-                "IOPS_threshold_60%":"2.8万"
+                "IOPS_threshold_60%":"2.8万",
+                "IOPS_threshold_60%_number":28000
             },
             {
                 "ArrayName":"VMAX9",
                 "Configure":"二代存储VMAX20k 4引擎8控",
                 "IOPS_Threshold":"6.9万",
-                "IOPS_threshold_60%":"4.1万"
+                "IOPS_threshold_60%":"4.1万",
+                "IOPS_threshold_60%_number":41000
             },
             {
                 "ArrayName":"VMAX10",
                 "Configure":"三代存储VMAX200k 2引擎4控",
                 "IOPS_Threshold":"3.3万",
-                "IOPS_threshold_60%":"2万"
+                "IOPS_threshold_60%":"2万",
+                "IOPS_threshold_60%_number":20000
             },
             {
                 "ArrayName":"VMAX11",
                 "Configure":"三代全闪存储VMAX450F2引擎4控",
                 "IOPS_Threshold":"6.7万",
-                "IOPS_threshold_60%":"4万"
+                "IOPS_threshold_60%":"4万",
+                "IOPS_threshold_60%_number":40000
             },
             {
                 "ArrayName":"VMAX12",
                 "Configure":"三代全闪存储VMAX450F2引擎4控",
                 "IOPS_Threshold":"9.2万",
-                "IOPS_threshold_60%":"5.5万"
+                "IOPS_threshold_60%":"5.5万",
+                "IOPS_threshold_60%_number":55000
             },
             {
                 "ArrayName":"VMAX13",
                 "Configure":"三代全闪存储VMAX250F2引擎4控",
                 "IOPS_Threshold":"25万",
-                "IOPS_threshold_60%":"15万"
+                "IOPS_threshold_60%":"15万",
+                "IOPS_threshold_60%_number":150000
             },
             {
                 "ArrayName":"VMAX14",
                 "Configure":"三代全闪存储VMAX950F2引擎4控",
                 "IOPS_Threshold":"36万",
-                "IOPS_threshold_60%":"22万"
+                "IOPS_threshold_60%":"22万",
+                "IOPS_threshold_60%_number":220000
             },
             {
                 "ArrayName":"VMAX15",
                 "Configure":"三代全闪存储VMAX950F2引擎4控",
                 "IOPS_Threshold":"27万",
-                "IOPS_threshold_60%":"16万"
+                "IOPS_threshold_60%":"16万",
+                "IOPS_threshold_60%_number":160000
             }
         ];
 

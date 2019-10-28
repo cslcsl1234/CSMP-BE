@@ -672,8 +672,12 @@ var testController = function (app) {
 
     });
 
+    app.get("/test13",function(req, res) {
+        var ret = require('.. /demodata/fabrics.json');
+        res.json(200,ret);
+    });
 
-    app.get('/api/test12', function (req, res) {
+    app.get('/test12', function (req, res) {
 
         var fs = require('fs');
         var parser = require('xml2json');

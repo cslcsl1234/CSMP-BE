@@ -25,6 +25,8 @@ const ZB = require('zeebe-node');
 
 var wsList = {};
 
+console.log("=========================\n\n------ automation \n\n");
+
 wss.on('connection', function (ws) {
 
     console.log("WebSocket connect" + ws);
@@ -46,8 +48,7 @@ wss.on('connection', function (ws) {
         }
     }
     ws.on('message', function (message) {
-        console.log("WebSocket receive message: [" + message + "]");
-        console.log("***\n"+Number(message)+"\n*****\n");
+        console.log("WebSocket receive message: [" + message + "]"); 
         if ( message == '     ' ) {
             console.log(" WebSocket receive data is not vaild");
         } else {
@@ -55,7 +56,7 @@ wss.on('connection', function (ws) {
             console.log(ms.client)
             wsList[ms.client] = ws;
             ws.send("this is message");
-            console.log(ws);
+            //console.log(ws);
         }
 
 
@@ -1051,15 +1052,39 @@ var automationController = function (app) {
         var RequestParamater = AutoObject.request;
         var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info ;
         var ws = wsList[RequestParamater.client];
+        if ( ws === undefined ) {
+            res.json(404,"not find the websocket client. clientID="+RequestParamater.client);
+        } else {
 
-        console.log("ws:"+wsList); 
- 
+            console.log("CLIENT NUMBER:"+RequestParamater.client);
+            console.log("ws:"+JSON.stringify(wsList)); 
+     
+            //var ws = AutoObject.request.ws;
+            console.log(" ----------- SEND WEBSOCKET BEGIN ----------------");
+            for (var i in ActionsParamater ) {
+                console.log("BEGIN ============" + i);
+                var item = ActionsParamater[i];
+                if ( i % 2 == 0 ) {
+                    item.status = 'success';
+                    item.response = "执行完成！";
+                } else {
+                    
+                    item.status = 'fail';
+                    item.response = "执行失败！";
+                }
+                console.log(JSON.stringify(item));
+                ws.send(JSON.stringify(item));
+                sleep(5000);
+                console.log("END ============" + i);
+            }
+    
+            var AutoAPI = require('../lib/Automation_VPLEX');
+            AutoAPI.DeployVPLEXBPMN();
+            AutoAPI.ExecuteActionsBPMN(ActionsParamater, arrayInfo, ws, function(result) {
+                res.json(200, result);
+            }) 
+        }
 
-        var AutoAPI = require('../lib/Automation_VPLEX');
-        AutoAPI.DeployVPLEXBPMN();
-        AutoAPI.ExecuteActionsBPMN(ActionsParamater, arrayInfo, ws, function(result) {
-            res.json(200, result);
-        }) 
         
     });
 
