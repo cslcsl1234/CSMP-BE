@@ -9,6 +9,7 @@
 const debug = require('debug')('topologyController')
 const name = 'my-app'
 var unirest = require('unirest');
+var path = require('path');
 var configger = require('../config/configger');
 var util = require('../lib/util');
 var mongoose = require('mongoose');
@@ -128,7 +129,7 @@ var topologyController = function (app) {
 
         Report.initiatalApplicationInfo(function (apps) {
             var fs = require('fs');
-            var fsname = ReportOutputPath + '//' + 'applicationInfo.json';
+            var fsname = path.join( ReportOutputPath , 'applicationInfo.json');
             fs.writeFileSync(fsname, '[\n');
             for (var i in apps) {
                 var item = apps[i];

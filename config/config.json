@@ -24,7 +24,7 @@
     "HOST": "192.168.92.200",
     "PORT": 8080
   },
-  "ProductType": "Test",
+  "ProductType": "Prod",
   "ProductTypeDesc": [
     "Prod",
     "Dev",
@@ -39,8 +39,8 @@
     "FlashPhoneInterval": 8640000
   },
   "Reporting": {
-    "TmpDataPath": "/csmp/reporting/tmp",
-    "OutputPath": "/csmp/reporting"
+    "TmpDataPath": "C:\\CSMP\\reporting\\tmp",
+    "OutputPath": "C:\\CSMP\\reporting"
   },
   "Analysis": {
     "baselinePeriod": 4,

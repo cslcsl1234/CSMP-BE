@@ -185,88 +185,21 @@ var testController = function (app) {
     }
 
 
-    app.get('/api/test1', function (req, res) {
-        var start = moment('2018-07-26').toISOString(true);
-        var end = moment('2018-07-27').toISOString(true);
+    app.get('/test1', function (req, res) {
+        var filter = {};
+        DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
+            var resInfo = {};
+            for ( var i in arrayInfo ) {
+                var item = arrayInfo[i];
 
-        var param = {};
-        param['device'] = '000297000161';
-        param['period'] = 3600;
-        param['start'] = start;
-        param['end'] = end;
-        param['type'] = 'max';
-        param['filter_name'] = '(name==\'Requests\'|name==\'CurrentUtilization\'|name==\'HostMBperSec\')';
-        //param['filter_name'] = '(name==\'Requests\')';
-        param['keys'] = ['device', 'part'];
-        param['fields'] = ['model'];
-
-        param['filter'] = 'datagrp=\'VMAX-FEDirector\'';
-
-        CallGet.CallGetPerformance(param, function (feperf) {
-
-            var resData = {};
-            for (var i in feperf) {
-                var item = feperf[i];
-                var fename = item.part;
-                var device = item.device;
-
-
-                for (var j in item.matrics) {
-                    var matricsItem = item.matrics[j];
-
-                    var timestamp;
-                    for (var fieldname in matricsItem) {
-                        if (fieldname == 'timestamp') {
-                            timestamp = matricsItem[fieldname];
-                            continue;
-                        }
-
-                        var hour = moment.unix(timestamp).format('HH');
-                        var ts = moment.unix(timestamp).format('YYYY-MM-DD');
-
-                        if (resData[fieldname] === undefined) {
-                            resData[fieldname] = {};
-                            resData[fieldname]['title'] = fieldname;
-                            resData[fieldname]['dataset'] = [];
-                        }
-
-                        var isfind = false;
-                        for (var z in resData[fieldname].dataset) {
-                            var resItem = resData[fieldname].dataset[z];
-                            if (resItem.hour == hour) {
-                                if (resItem[fename] === undefined) {
-                                    resItem[fename] = matricsItem[fieldname];
-                                    resItem[fename + "_label"] = ts + ' ' + fename + ' ' + matricsItem[fieldname];
-                                } else if (resItem[fename] < matricsItem[fieldname]) {
-                                    resItem[fename] = matricsItem[fieldname];
-                                    resItem[fename + "_label"] = ts + ' ' + fename + ' ' + matricsItem[fieldname];
-                                }
-                                isfind = true;
-                                break;
-                            }
-                        }
-                        if (isfind == false) {
-                            var resItem = {};
-                            resItem['hour'] = hour;
-                            resItem[fename] = matricsItem[fieldname];
-                            resItem[fename + "_label"] = ts + ' ' + fename + ' ' + matricsItem[fieldname];
-                            resData[fieldname].dataset.push(resItem);
-
-                        }
-                    }
-                }
-
+                if ( item.name.indexOf("VNX") >= 0 | item.name.indexOf("UNITY") >= 0  ) {
+                    resInfo[item.name] = item;
+                } else 
+                    resInfo[item.storagesn] = item;
             }
-
-            // Sort dataset by hour
-            for (var fieldname in resData) {
-                var item = resData[fieldname];
-                item["dataset"].sort(sortBy("hour"));
-            }
-
-            res.json(200, resData);
-        });
-
+            
+            res.json(200, resInfo);
+        })
     });
 
 
@@ -398,7 +331,7 @@ var testController = function (app) {
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
 
         //cdevice, function(rest) {             res.json(200,rest);        });
-        getTopos.getTopos(function(result) { res.json(200, result) });
+       //getTopos.getTopos(function(result) { res.json(200, result) });
 
         // SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
         // VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
@@ -430,10 +363,14 @@ var testController = function (app) {
         //Report.initiatalApplicationInfo( function (ret ) { res.json(200,ret); });
         //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
         //VMAX.GetMaskViews(device, function(ret) { res.json(200,ret); });
-        // Report.ArrayAccessInfos(device, function(ret) {  res.json(200,ret);        });
+
+        Report.E2ETopology(device, function(ret) {   res.json(200,ret); });
+       
+        //Report.ArrayAccessInfosTEST(device, function(ret) {    res.json(200,ret);    });
+ 
+
         //VMAX.GetAssignedHosts(device, function(rest) { res.json(200,rest); });
 
-        //Report.E2ETopology(device, function(ret) {   res.json(200,ret); });
         //Report.GetApplicationInfo( function (ret) {  res.json(200,ret); });
         //Analysis.getAppTopology(function(apptopo) {            res.json(200,apptopo);        })
        // DeviceMgmt.getMgmtObjectInfo(device, function(ret) {     res.json(200,ret);        });
@@ -447,7 +384,7 @@ var testController = function (app) {
         //VNX.GetUnity_FileSystem(device,function(result) {  res.json(200,result); }); 
 
 
-        //VPLEX.getVplexStorageViews(device, function(ret) {  res.json(200,ret);   }); 
+       // VPLEX.getVplexStorageViews(device, function(ret) {  res.json(200,ret);   }); 
         //VPLEX.GetVirtualVolumeRelationByDevices(device, function(ret) {  res.json(200,ret);   }); 
         //VPLEX.GetStorageVolumeByDevices(device, function(ret) {  res.json(200,ret);   }); 
     });

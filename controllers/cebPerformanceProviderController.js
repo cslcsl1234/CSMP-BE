@@ -1146,7 +1146,7 @@ var cebPerformanceProviderController = function (app) {
                                 if ( item.array == storageSn && item.arrayport == feport ) 
                                     appTopo1.push(item);
                             } else if ( director != 'all' && port == 'all') {
-                                console.log(item.array + ',' + item.arrayport);
+                                //console.log(item.array + ',' + item.arrayport);
                                 if ( item.array == storageSn && item.arrayport.indexOf(director) >=0  ) 
                                     appTopo1.push(item);
 
