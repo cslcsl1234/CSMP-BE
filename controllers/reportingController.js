@@ -4089,7 +4089,7 @@ var reportingController = function (app) {
                         } 
 
                         var percent = ( itemNew["本周工作日均值"] - itemNew["上周工作日均值"] ) / itemNew["上周工作日均值"] * 100 ;
-                        itemNew["本周增幅(%)"] = percent.toFixed(2)
+                        itemNew["本周增幅(%)"] = percent.toFixed(2) + '%';
                         ThroughputRecordsNew.push(itemNew);
                     }
 
@@ -4101,7 +4101,7 @@ var reportingController = function (app) {
                     for ( var i in responseTimeRecords ) {
                         var item = responseTimeRecords[i];
                         var percent = ( item["本周日均响应时间峰值"] - item["上周日均响应时间峰值"] ) / item["上周日均响应时间峰值"] * 100;
-                        item["本周增幅(%)"] = percent.toFixed(2);
+                        item["本周增幅(%)"] = percent.toFixed(2) + '%';
                     }
                     var ws2 = XLSX.utils.json_to_sheet(responseTimeRecords);
                     XLSX.utils.book_append_sheet(wb, ws2, "DISK_IO_XYSJ");
@@ -4212,7 +4212,25 @@ var reportingController = function (app) {
                     //存储资源IOPS夜间峰值
                     XLSX.utils.book_append_sheet(wb, ws5, "Night_IOPS_MAX");
                     XLSX.writeFile(wb, outputFilename);
-
+ 
+                    // 日夜间峰值的合成一个表
+                    var ArrayIOPSHours = [];
+                    for ( var i in ArrayIOPSHours_dayNew ) {
+                        var item = ArrayIOPSHours_dayNew[i] ;
+                        item["DataType"] = "日间";
+                        ArrayIOPSHours.push(item);
+                        for ( var j in ArrayIOPSHours_nightNew ) {
+                            var item1 = ArrayIOPSHours_nightNew[j];
+                            if ( item.ArrayName == item1.ArrayName) {
+                                item1["DataType"] = "夜间";
+                                ArrayIOPSHours.push(item1);
+                            }
+                        }
+                    }
+                    var ws6 = XLSX.utils.json_to_sheet(ArrayIOPSHours);
+                    //存储资源IOPS日夜间峰值
+                    XLSX.utils.book_append_sheet(wb, ws6, "IOPS_MAX");
+                    XLSX.writeFile(wb, outputFilename);
 
                     callback(null, arg);
                 }
@@ -4300,9 +4318,9 @@ var reportingController = function (app) {
             {
                 "ArrayName":"VMAX11",
                 "Configure":"三代全闪存储VMAX450F2引擎4控",
-                "IOPS_Threshold":"6.7万",
-                "IOPS_threshold_60%":"4万",
-                "IOPS_threshold_60%_number":40000
+                "IOPS_Threshold":"10万",
+                "IOPS_threshold_60%":"6万",
+                "IOPS_threshold_60%_number":60000
             },
             {
                 "ArrayName":"VMAX12",

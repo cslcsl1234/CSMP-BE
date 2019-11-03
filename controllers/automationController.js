@@ -1033,6 +1033,14 @@ var automationController = function (app) {
                 }
             ], function (err, result) {
                 // result now equals 'done'
+                var ActionParamaterLabers = {};
+                ActionParamaterLabers["method"] = "执行操作";
+                ActionParamaterLabers["DependOnAction"] = "依赖操作";
+                ActionParamaterLabers["StorageVolumeName"] = "物理存储卷名称";
+                ActionParamaterLabers["devicename"] = "卷名称";
+                ActionParamaterLabers["devicename"] = "卷保护模式";
+                
+                result.AutoInfo["ActionParamaterLabers"] = ActionParamaterLabers;
                 res.json(200, result);
             });
 
@@ -1081,6 +1089,17 @@ var automationController = function (app) {
             var AutoAPI = require('../lib/Automation_VPLEX');
             AutoAPI.DeployVPLEXBPMN();
             AutoAPI.ExecuteActionsBPMN(ActionsParamater, arrayInfo, ws, function(result) {
+
+
+                var ActionParamaterLabers = {};
+                ActionParamaterLabers["method"] = "执行操作";
+                ActionParamaterLabers["DependOnAction"] = "依赖操作";
+                ActionParamaterLabers["StorageVolumeName"] = "物理存储卷名称";
+                ActionParamaterLabers["devicename"] = "卷名称";
+                ActionParamaterLabers["devicename"] = "卷保护模式";
+                
+                result.AutoInfo["ActionParamaterLabers"] = ActionParamaterLabers;
+                
                 res.json(200, result);
             }) 
         }
