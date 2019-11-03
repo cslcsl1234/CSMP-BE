@@ -10,6 +10,8 @@
 const debug = require('debug')('automationController')
 const name = 'my-app'
 var unirest = require('unirest');
+
+
 var configger = require('../config/configger');
 var unirest1 = require('unirest');
 var async = require('async');
@@ -24,8 +26,6 @@ var wss = new WebSocketServer({ port: 9000 });
 const ZB = require('zeebe-node');
 
 var wsList = {};
-
-console.log("=========================\n\n------ automation \n\n");
 
 wss.on('connection', function (ws) {
 
@@ -62,6 +62,8 @@ wss.on('connection', function (ws) {
 
     });
 });
+
+
 
 
 

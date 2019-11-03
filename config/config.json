@@ -18,10 +18,10 @@
     "METRICS_PROPERTIES_VALUE": "/metrics/properties/values",
     "METRICS_SERIES_VALUE": "/metrics/series/values",
     "METRICS_AGGREGATES": "/metrics/aggregates",
-    "BASE_FILTER": ""
+    "BASE_FILTER": "!vstatus=='inactive'&"
   },
   "SERVER": {
-    "HOST": "192.168.92.200",
+    "HOST": "192.168.92.146",
     "PORT": 8080
   },
   "ProductType": "Prod",
@@ -46,5 +46,20 @@
     "baselinePeriod": 4,
     "PeriodNumber": 604800,
     "baselinePercent": 30
+  },
+  "kafkaConf": {
+    "group.id": "kafka",
+    "metadata.broker.list": [
+      "192.168.92.137:9092"
+    ]
+  },
+  "kafakTopics": {
+    "executeQueue" : "executeQ",
+    "statusQueue" : "statusQ"
+  },
+  "AWX" : {
+    "URL" : "http://192.168.92.147/api/v2",
+    "USER": "admin",
+    "PASSWORD": "password"
   }
 }
