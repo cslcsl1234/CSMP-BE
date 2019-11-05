@@ -47,7 +47,7 @@ var backendMgmt = require('../lib/BackendMgmt');
 var Analysis = require('../lib/analysis');
 var MongoDBFunction = require('../lib/MongoDBFunction');
 var sortBy = require('sort-by');
-var AutoVMAX = require('../lib/Automation_VMAX');
+var Ansible = require('../lib/Ansible');
 
 var testController = function (app) {
 
@@ -104,10 +104,23 @@ var testController = function (app) {
         
         var config = configger.load();
         var servicename = req.query.servicename;
-        AutoVMAX.executeAWXService(servicename, function(msg) {
+        var postbody = { "extra_vars" : {
+            "serial_no": "000297800192",
+            "password": "smc",
+            "unispherehost": "10.121.0.204",
+            "universion": "90",
+            "user": "smc",
+            "verifycert": false,
+            "factname": "vol"
+        }
+        }
+        
+        Ansible.executeAWXService(servicename, postbody, function(result) {
             console.log("executeAWXService is return. ")
-            //console.log(msg);
-            res.json(200, msg);
+            //console.log(msg); 
+                res.json( result.code, result );
+            
+            
         })
         
     });
