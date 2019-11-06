@@ -70,7 +70,7 @@ var testController = function (app) {
 
     app.get('/kafkatest', function (req, res) {
 
-        
+
         var config = configger.load();
         const kafkaConf = config.kafkaConf;
         const topics = config.kafakTopics;
@@ -78,51 +78,89 @@ var testController = function (app) {
         //AutoVMAX.createTopics();
         var key;
         var msg = Buffer.from(req.query.msg);
-        AutoVMAX.kafkaSendMsg(topicname,key,msg) ;
+        AutoVMAX.kafkaSendMsg(topicname, key, msg);
         console.log("kafka send msg is over");
-        res.json(200,'finished');
+        res.json(200, 'finished');
     });
 
     app.get('/kafkatest-receive', function (req, res) {
 
-        
+
         var config = configger.load();
         const kafkaConf = config.kafkaConf;
         const topics = config.kafakTopics;
         var topicname = topics.executeQueue;
         //AutoVMAX.createTopics();
         var key;
-        AutoVMAX.kafkaReceiveMsg(topicname,key, function(msg) {
-            console.log("kafkaReceiveMsg is return. ") 
+        AutoVMAX.kafkaReceiveMsg(topicname, key, function (msg) {
+            console.log("kafkaReceiveMsg is return. ")
             res.json(200, msg);
         })
-        
+
     });
 
     app.get('/awxtest', function (req, res) {
 
-        
+
         var config = configger.load();
-        var servicename = req.query.servicename;
-        var postbody = { "extra_vars" : {
-            "serial_no": "000297800192",
-            "password": "smc",
-            "unispherehost": "10.121.0.204",
-            "universion": "90",
-            "user": "smc",
-            "verifycert": false,
-            "factname": "vol"
-        }
-        }
+        //var servicename = req.query.servicename;
+        /*
+                var servicename = "gatherfact";
+                var postbody = { "extra_vars" : {
+                    "serial_no": "000297800192",
+                    "password": "smc",
+                    "unispherehost": "10.121.0.204",
+                    "universion": "90",
+                    "user": "smc",
+                    "verifycert": false,
+                    "factname": "sg"
+                }
+                }
+                */
+
+ 
+        var servicename = "volume-create";
+        var postbody = {
+            "extra_vars": {
+                "serial_no": "000297800193",
+                "password": "smc",
+                "unispherehost": "10.121.0.204",
+                "universion": "90",
+                "user": "smc",
+                "verifycert": false, 
+                "sg_name": "ansible-test-sg",
+                "cap_unit": "GB",
+                "capacity": "3",
+                "vol_name": "ansible-test-volume-01" 
+            }
+        } 
+
+        /*
+        var servicename = "storagegroup-create";
+        var postbody = {
+            "extra_vars":{
+                "serial_no":"000297800193",
+                "password":"smc",
+                "unispherehost":"10.121.0.204",
+                "universion":"90",
+                "user":"smc",
+                "verifycert":false,
+                "sg_name":"ansible-test-sg",
+                "service_level":  "Diamond",
+                "srp": "SRP_1"
         
-        Ansible.executeAWXService(servicename, postbody, function(result) {
+            }
+        }
+        */
+
+        Ansible.executeAWXService(servicename, postbody, function (result) {
             console.log("executeAWXService is return. ")
             //console.log(msg); 
-                res.json( result.code, result );
-            
-            
+            res.json(result.code, result);
+
+
         })
-        
+
     });
 
     function GetAssignedInitiatorByDevices(device, callback) {

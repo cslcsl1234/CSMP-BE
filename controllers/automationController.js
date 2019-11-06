@@ -48,8 +48,8 @@ wss.on('connection', function (ws) {
         }
     }
     ws.on('message', function (message) {
-        console.log("WebSocket receive message: [" + message + "]"); 
-        if ( message == '     ' ) {
+        console.log("WebSocket receive message: [" + message + "]");
+        if (message == '     ') {
             console.log(" WebSocket receive data is not vaild");
         } else {
             var ms = JSON.parse(message);
@@ -265,7 +265,7 @@ var automationController = function (app) {
 
     app.get('/api/auto/service/block/provisioning/getinfo', function (req, res) {
 
-        var config = configger.load(); 
+        var config = configger.load();
         async.waterfall(
             [
                 // Get All Cluster
@@ -339,7 +339,48 @@ var automationController = function (app) {
                                 "resourceLevel": "Gold",
                                 "resourceType": "VPLEX",
                                 "TotalCapacity": 100,
-                                "UsedCapacity": 30
+                                "UsedCapacity": 30,
+                                "backend-array": [{
+                                    "serial_no": "000297800192",
+                                    "password": "smc",
+                                    "unispherehost": "10.121.0.204",
+                                    "universion": "90",
+                                    "user": "smc",
+                                    "verifycert": false,
+                                },
+                                {
+                                    "serial_no": "000297800193",
+                                    "password": "smc",
+                                    "unispherehost": "10.121.0.204",
+                                    "universion": "90",
+                                    "user": "smc",
+                                    "verifycert": false,
+                                }
+                                ]
+                            },
+                            {
+                                "name": "VPLEX-Middle",
+                                "resourceLevel": "Gold",
+                                "resourceType": "VPLEX",
+                                "TotalCapacity": 100,
+                                "UsedCapacity": 30,
+                                "backend-array": [{
+                                    "serial_no": "000297800192",
+                                    "password": "smc",
+                                    "unispherehost": "10.121.0.204",
+                                    "universion": "90",
+                                    "user": "smc",
+                                    "verifycert": false,
+                                },
+                                {
+                                    "serial_no": "000297800193",
+                                    "password": "smc",
+                                    "unispherehost": "10.121.0.204",
+                                    "universion": "90",
+                                    "user": "smc",
+                                    "verifycert": false,
+                                }
+                                ]
                             }
                         ],
                         "ProtectLevel": [
@@ -705,7 +746,7 @@ var automationController = function (app) {
             show: 'false'
         }
 
-        Auto.CreateExtent(CreateExtentParamater ,function(result) {      res.json(200,result);      })  
+        Auto.CreateExtent(CreateExtentParamater, function (result) { res.json(200, result); })
 
 
         var CreateDistributedDeviceParamater = {
@@ -1029,7 +1070,7 @@ var automationController = function (app) {
                     })
                 }
                 , function (AutoObject, callback) {
-                    AutoService.CapacityProvisingService(AutoObject, function (result) { 
+                    AutoService.CapacityProvisingService(AutoObject, function (result) {
                         callback(null, result);
                     })
                 }
@@ -1041,7 +1082,7 @@ var automationController = function (app) {
                 ActionParamaterLabers["StorageVolumeName"] = "物理存储卷名称";
                 ActionParamaterLabers["devicename"] = "卷名称";
                 ActionParamaterLabers["devicename"] = "卷保护模式";
-                
+
                 result.AutoInfo["ActionParamaterLabers"] = ActionParamaterLabers;
                 res.json(200, result);
             });
@@ -1056,29 +1097,29 @@ var automationController = function (app) {
 
 
     app.post('/api/auto/service/block/provisioning/execute', function (req, res) {
-        res.setTimeout(3600 * 1000); 
+        res.setTimeout(3600 * 1000);
         var AutoObject = req.body;
         var ActionsParamater = AutoObject.AutoInfo.ActionParamaters;
         var RequestParamater = AutoObject.request;
-        var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info ;
+        var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info;
         var ws = wsList[RequestParamater.client];
-        if ( ws === undefined ) {
-            res.json(404,"not find the websocket client. clientID="+RequestParamater.client);
+        if (ws === undefined) {
+            res.json(404, "not find the websocket client. clientID=" + RequestParamater.client);
         } else {
 
-            console.log("CLIENT NUMBER:"+RequestParamater.client);
-            console.log("ws:"+JSON.stringify(wsList)); 
-     
+            console.log("CLIENT NUMBER:" + RequestParamater.client);
+            console.log("ws:" + JSON.stringify(wsList));
+
             //var ws = AutoObject.request.ws;
             console.log(" ----------- SEND WEBSOCKET BEGIN ----------------");
-            for (var i in ActionsParamater ) {
+            for (var i in ActionsParamater) {
                 console.log("BEGIN ============" + i);
                 var item = ActionsParamater[i];
-                if ( i % 2 == 0 ) {
+                if (i % 2 == 0) {
                     item.status = 'success';
                     item.response = "执行完成！";
                 } else {
-                    
+
                     item.status = 'fail';
                     item.response = "执行失败！";
                 }
@@ -1087,10 +1128,10 @@ var automationController = function (app) {
                 sleep(5000);
                 console.log("END ============" + i);
             }
-    
+
             var AutoAPI = require('../lib/Automation_VPLEX');
             AutoAPI.DeployVPLEXBPMN();
-            AutoAPI.ExecuteActionsBPMN(ActionsParamater, arrayInfo, ws, function(result) {
+            AutoAPI.ExecuteActionsBPMN(ActionsParamater, arrayInfo, ws, function (result) {
 
 
                 var ActionParamaterLabers = {};
@@ -1099,14 +1140,14 @@ var automationController = function (app) {
                 ActionParamaterLabers["StorageVolumeName"] = "物理存储卷名称";
                 ActionParamaterLabers["devicename"] = "卷名称";
                 ActionParamaterLabers["devicename"] = "卷保护模式";
-                
+
                 result.AutoInfo["ActionParamaterLabers"] = ActionParamaterLabers;
-                
+
                 res.json(200, result);
-            }) 
+            })
         }
 
-        
+
     });
 
 
