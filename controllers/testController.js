@@ -48,6 +48,8 @@ var Analysis = require('../lib/analysis');
 var MongoDBFunction = require('../lib/MongoDBFunction');
 var sortBy = require('sort-by');
 var Ansible = require('../lib/Ansible');
+var Automation = require('../lib/Automation');
+
 
 var testController = function (app) {
 
@@ -93,6 +95,16 @@ var testController = function (app) {
         //AutoVMAX.createTopics();
         var key;
         AutoVMAX.kafkaReceiveMsg(topicname, key, function (msg) {
+            console.log("kafkaReceiveMsg is return. ")
+            res.json(200, msg);
+        })
+
+    });
+
+    
+    app.get('/autotest', function (req, res) {
+ 
+        Automation.GetResourcePool( function (msg) {
             console.log("kafkaReceiveMsg is return. ")
             res.json(200, msg);
         })

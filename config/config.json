@@ -24,7 +24,7 @@
     "HOST": "192.168.92.146",
     "PORT": 8080
   },
-  "ProductType": "Prod",
+  "ProductType": "Test",
   "ProductTypeDesc": [
     "Prod",
     "Dev",

@@ -1,0 +1,84 @@
+[
+    {
+      "name": "VPLEX-高端",
+      "resourceLevel": "Gold",
+      "resourceType": "VPLEX",
+      "TotalCapacity": 100,
+      "UsedCapacity": 30,
+      "members": [
+        {
+          "arrayname": "EMCCTEST1",
+          "arraytype": "VPLEX",
+          "capacity": 1000,
+          "info": {
+            "name": "EMCCTEST",
+            "type": "VPLEX",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "Mi@Dim7T"
+            }
+          },
+          "backend-array": [
+            {
+              "serial_no": "000297800192",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false
+            },
+            {
+              "serial_no": "000297800193",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false
+            }
+          ]
+        }
+      ] 
+    },
+    {
+      "name": "VPLEX-Middle",
+      "resourceLevel": "Gold",
+      "resourceType": "VPLEX",
+      "TotalCapacity": 100,
+      "UsedCapacity": 30,
+      "members": [
+        {
+          "arrayname": "EMCCTEST2",
+          "arraytype": "VPLEX",
+          "capacity": 1000,
+          "info": {
+            "name": "EMCCTEST",
+            "type": "VPLEX",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "Mi@Dim7T"
+            }
+          },
+          "backend-array": [
+            {
+              "serial_no": "000297800192",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false
+            },
+            {
+              "serial_no": "000297800193",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false
+            }
+          ]
+        }
+      ] 
+    }
+  ]

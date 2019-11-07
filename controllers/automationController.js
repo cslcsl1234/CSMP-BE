@@ -265,12 +265,52 @@ var automationController = function (app) {
 
     app.get('/api/auto/service/block/provisioning/getinfo', function (req, res) {
 
+        var arrayname = req.query.arrayname;
         var config = configger.load();
+
+
+
         async.waterfall(
             [
+                function(callback ) {
+
+                    var ret = {};
+                    AutoService.GetResourcePool(function(resourcepool) {
+                        ret["resourcepool"] = resourcepool;
+                        if ( arrayname === undefined ) {
+                            var arrayinfo = resourcepool[0].members[0];
+                            ret["arrayinfo"] = arrayinfo;
+                            callback(null , ret);
+                        } else {
+                            var isfind = false;
+                            for ( var i in resourcepool ) {
+                                var item = resourcepool[i];
+                                for ( var j in item.members ) {
+                                    var arrayItem = item.members[j];
+                                    // console.log(arrayItem.arrayname+"----" + arrayname ) ;
+                                    if ( arrayItem.arrayname == arrayname ) {
+                                        isfind = true;
+                                        ret["arrayinfo"] = arrayItem;
+                                        callback(null, ret);
+                                        break;
+                                    }
+
+                                }
+                            }
+                            if ( isfind == false )
+                                callback(404, "not found the specical array name [" + arrayname +"]");
+                        }
+
+
+                    })
+            
+                },
                 // Get All Cluster
-                function (callback) {
+                function (retinfo, callback) {
+
+                    var arrayInfo = retinfo.arrayinfo;
                     var applist = [];
+ 
                     switch (config.ProductType) {
                         case 'Dev':
                         case 'Test':
@@ -291,12 +331,13 @@ var automationController = function (app) {
                                             applist.push(appItem);
                                         }
                                     }
-                                    callback(null, applist);
+                                    retinfo["applist"] = applist;
+                                    callback(null, retinfo);
                                 }
                             });
                             break;
                         case 'Prod':
-                            var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
+                            //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
 
                             Auto.GetStorageViewsV1(arrayInfo, 'cluster-1', function (response) {
                                 if (response.code !== 200) {
@@ -315,16 +356,17 @@ var automationController = function (app) {
                                             applist.push(appItem);
                                         }
                                     }
-                                    callback(null, applist);
+                                    retinfo["applist"] = applist;
+                                    callback(null, retinfo);
                                 }
                             });
                             break;
                     }
 
                 }
-                , function (applist, callback) {
-
-
+                , function (arg1, callback) {
+                    console.log(arg1);
+                    var applist = arg1.applist;
                     var autoServiceInfo = {
                         "Application": [
                             {
@@ -333,56 +375,7 @@ var automationController = function (app) {
                                 "UsedCapacity": 100
                             }
                         ],
-                        "StorageResourcePool": [
-                            {
-                                "name": "VPLEX-高端",
-                                "resourceLevel": "Gold",
-                                "resourceType": "VPLEX",
-                                "TotalCapacity": 100,
-                                "UsedCapacity": 30,
-                                "backend-array": [{
-                                    "serial_no": "000297800192",
-                                    "password": "smc",
-                                    "unispherehost": "10.121.0.204",
-                                    "universion": "90",
-                                    "user": "smc",
-                                    "verifycert": false,
-                                },
-                                {
-                                    "serial_no": "000297800193",
-                                    "password": "smc",
-                                    "unispherehost": "10.121.0.204",
-                                    "universion": "90",
-                                    "user": "smc",
-                                    "verifycert": false,
-                                }
-                                ]
-                            },
-                            {
-                                "name": "VPLEX-Middle",
-                                "resourceLevel": "Gold",
-                                "resourceType": "VPLEX",
-                                "TotalCapacity": 100,
-                                "UsedCapacity": 30,
-                                "backend-array": [{
-                                    "serial_no": "000297800192",
-                                    "password": "smc",
-                                    "unispherehost": "10.121.0.204",
-                                    "universion": "90",
-                                    "user": "smc",
-                                    "verifycert": false,
-                                },
-                                {
-                                    "serial_no": "000297800193",
-                                    "password": "smc",
-                                    "unispherehost": "10.121.0.204",
-                                    "universion": "90",
-                                    "user": "smc",
-                                    "verifycert": false,
-                                }
-                                ]
-                            }
-                        ],
+                        "StorageResourcePool": arg1.resourcepool ,
                         "ProtectLevel": [
                             {
                                 "name": "Backup",
@@ -593,7 +586,7 @@ var automationController = function (app) {
 
 
     app.get('/auto/test1', function (req, res) {
-        var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
+        //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
 
         Auto.ClaimAllStorageVolume(arrayInfo, function (result) { res.json(200, result); })
 
@@ -602,7 +595,7 @@ var automationController = function (app) {
     });
 
     app.get('/auto/testfunc', function (req, res) {
-        var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
+        //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
 
 
         //var VolName = Auto.ConvertStorageVolumeName('EMC-SYMMETRIX-296800706','VPD83T3:60000970000296800706533030323533');
@@ -637,7 +630,7 @@ var automationController = function (app) {
     });
 
     app.get('/auto/testget', function (req, res) {
-        var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
+        //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
         if (util.isEmptyObject(arrayInfo)) {
             console.log("not find array info");
             res.json(200, {});
@@ -680,7 +673,7 @@ var automationController = function (app) {
     });
 
     app.get('/auto/test', function (req, res) {
-        var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
+        //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
 
 
         /* -------TEST CASE ------------- */
@@ -1030,6 +1023,57 @@ var automationController = function (app) {
 
     });
 
+    
+    app.post('/review', function (req, res) {
+        res.setTimeout(3600 * 1000);
+
+        //console.log(JSON.stringify(req.body));
+        var RequestParamater = req.body;
+
+        var newRequestParamater = {
+            "appname": "ebankwebesxi",
+            "usedfor": "oraredo",
+            "capacity": 202,
+            "resourceLevel": "Gold",
+            "ProtectLevel": {
+                "Backup": "true",
+                "AppVerification_SameCity": "false",
+                "AppVerification_DiffCity": "false",
+                "hostDeplpy": "SC"
+            },
+            "opsType": "review"   // [ review | execute ]
+        }
+        newRequestParamater.client = RequestParamater.client;
+        newRequestParamater.ws = wsList[RequestParamater.client];
+
+        newRequestParamater.appname = RequestParamater.appname;
+        newRequestParamater.appname_ext = RequestParamater.appname_ext;
+        newRequestParamater.opsType = RequestParamater.opsType;
+        newRequestParamater.capacity = RequestParamater.requests[0].capacity;
+        newRequestParamater.count = RequestParamater.requests[0].count;
+        newRequestParamater.resourceLevel = RequestParamater.requests[0].StorageResourcePool.resourceLevel;
+        newRequestParamater.resourcePoolName = RequestParamater.requests[0].StorageResourcePool.name;
+         newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
+
+        async.waterfall(
+            [
+                // Get All Cluster
+                function (callback) {
+                    console.log("AutoService.BuildParamaterStrucut:" + newRequestParamater);
+                    AutoService.BuildParamaterStrucut(newRequestParamater, function (AutoObject) {
+                        callback(null, AutoObject);
+                    })
+                }
+                , function (AutoObject, callback) { 
+                        callback(null, AutoObject); 
+                }
+            ], function (err, result) { 
+                res.json(200, result);
+            }); 
+    });
+
+
+
     app.post('/api/auto/service/block/provisioning/review', function (req, res) {
         res.setTimeout(3600 * 1000);
 
@@ -1058,7 +1102,8 @@ var automationController = function (app) {
         newRequestParamater.capacity = RequestParamater.requests[0].capacity;
         newRequestParamater.count = RequestParamater.requests[0].count;
         newRequestParamater.resourceLevel = RequestParamater.requests[0].StorageResourcePool.resourceLevel;
-        newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
+        newRequestParamater.resourcePoolName = RequestParamater.requests[0].StorageResourcePool.name;
+         newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
 
         async.waterfall(
             [
@@ -1085,14 +1130,7 @@ var automationController = function (app) {
 
                 result.AutoInfo["ActionParamaterLabers"] = ActionParamaterLabers;
                 res.json(200, result);
-            });
-
-        /*
-        AutoService.CreateStorageDevice(RequestParamater, function(result) { 
-            res.json(200,result);
-        })
-        */
-
+            }); 
     });
 
 
@@ -1102,6 +1140,7 @@ var automationController = function (app) {
         var ActionsParamater = AutoObject.AutoInfo.ActionParamaters;
         var RequestParamater = AutoObject.request;
         var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info;
+        console.log("TEST----" + wsList);
         var ws = wsList[RequestParamater.client];
         if (ws === undefined) {
             res.json(404, "not find the websocket client. clientID=" + RequestParamater.client);
