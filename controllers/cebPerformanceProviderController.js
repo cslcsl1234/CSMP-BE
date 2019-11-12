@@ -1361,7 +1361,7 @@ var cebPerformanceProviderController = function (app) {
                         var appTopo1 = [];
                         for ( var i in apptopo) {
                             var item = apptopo[i];
-                            if ( wwpn == all ) {
+                            if ( wwpn == 'all' ) {
                                 if ( item.connect_hba_sw_id == switemsn ) {
                                     var retItem = {};
                                     retItem["hostName"] = item.host;
