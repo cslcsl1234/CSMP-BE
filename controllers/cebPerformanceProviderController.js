@@ -1086,7 +1086,24 @@ var cebPerformanceProviderController = function (app) {
                             }
                         } 
 
-                        callback(null, swportinfo ); 
+                        // add the consition for all port in a switch.
+                        var swportinfo_new = [];
+                        for ( var i in swportinfo ) {
+                            var item = swportinfo[i];
+                            var itemNew = {};
+                            itemNew["name"] = item.name;
+
+                            var wwpn = [];
+                            wwpn.push('all');
+                            for ( var j in item.wwpn ) {
+                                wwpn.push(item.wwpn[j]);
+                            }
+                            itemNew["wwpn"] = wwpn;
+                            itemNew["sn"] = item.sn;
+                            swportinfo_new.push(itemNew);
+                        }
+
+                        callback(null, swportinfo_new ); 
                     }); 
                 },
                 mergeResult: ["appinfo","arrayinfo", function(callback, result ) {
@@ -1327,8 +1344,11 @@ var cebPerformanceProviderController = function (app) {
 
         var switemsn = req.query.sn;
         var wwpn = req.query.wwpn;
-        var portid = wwpn.split('(')[0];
-        var portwwn = wwpn.split('(')[1].replace(')','');
+        if ( wwpn != 'all' ) { 
+            var portid = wwpn.split('(')[0];
+            var portwwn = wwpn.split('(')[1].replace(')','');
+        }
+
 
         console.log(switemsn+"\t"+wwpn+"\t"+portid+"\t"+portwwn);
  
@@ -1341,24 +1361,46 @@ var cebPerformanceProviderController = function (app) {
                         var appTopo1 = [];
                         for ( var i in apptopo) {
                             var item = apptopo[i];
-                            if ( item.connect_hba_swport_wwn == portwwn ) {
-                                var retItem = {};
-                                retItem["hostName"] = item.host;
-                                retItem["appAdmin"] = item.appManagerA;
-                                retItem["hostip"] = "";
-                                retItem["appName"] = item.app;
-                                retItem["masterSlave"] = "";
-                                retItem["admin"] = "";
-                                retItem["wwpn"] = portwwn;
-                                retItem["searchCode"] = 
-                                retItem["sppShortName"] =  item.appShortName;
-                                retItem["hbaWwn"] = item.hbawwn;
-                                retItem["usePurpose"] = "";
-                                retItem["switchName"] = item.connect_hba_sw;
-                                retItem["sn"] = item.connect_hba_sw_id;
-                                
-                                appTopo1.push(retItem);
+                            if ( wwpn == all ) {
+                                if ( item.connect_hba_sw_id == switemsn ) {
+                                    var retItem = {};
+                                    retItem["hostName"] = item.host;
+                                    retItem["appAdmin"] = item.appManagerA;
+                                    retItem["hostip"] = "";
+                                    retItem["appName"] = item.app;
+                                    retItem["masterSlave"] = "";
+                                    retItem["admin"] = "";
+                                    retItem["wwpn"] = portwwn;
+                                    retItem["searchCode"] = 
+                                    retItem["sppShortName"] =  item.appShortName;
+                                    retItem["hbaWwn"] = item.hbawwn;
+                                    retItem["usePurpose"] = "";
+                                    retItem["switchName"] = item.connect_hba_sw;
+                                    retItem["sn"] = item.connect_hba_sw_id;
+                                    
+                                    appTopo1.push(retItem);
+                                }
+                            } else {
+                                if ( item.connect_hba_swport_wwn == portwwn ) {
+                                    var retItem = {};
+                                    retItem["hostName"] = item.host;
+                                    retItem["appAdmin"] = item.appManagerA;
+                                    retItem["hostip"] = "";
+                                    retItem["appName"] = item.app;
+                                    retItem["masterSlave"] = "";
+                                    retItem["admin"] = "";
+                                    retItem["wwpn"] = portwwn;
+                                    retItem["searchCode"] = 
+                                    retItem["sppShortName"] =  item.appShortName;
+                                    retItem["hbaWwn"] = item.hbawwn;
+                                    retItem["usePurpose"] = "";
+                                    retItem["switchName"] = item.connect_hba_sw;
+                                    retItem["sn"] = item.connect_hba_sw_id;
+                                    
+                                    appTopo1.push(retItem);
+                                }
                             }
+
                         }
 
                         var returnData=[];

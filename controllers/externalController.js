@@ -363,7 +363,7 @@ function vplexinfo(device, callback) {
                  
                 var filename = [ReportOutputPath,'/', 'array_info', moment().format('YYYY-MM-DD') , '.csv'].join('');
                 console.log(filename);
-                fs.writeFile(filename, csv);
+                fs.writeFileSync(filename, csv);
 
                 res.json(200,finalResult);
             }
@@ -410,7 +410,7 @@ function vplexinfo(device, callback) {
              
             var filename = [ReportOutputPath,'/', 'switch_info', moment().format('YYYY-MM-DD') , '.csv'].join('');
             console.log(filename);
-            fs.writeFile(filename, csv);
+            fs.writeFileSync(filename, csv);
 
 
             res.json(200,finalResult); 

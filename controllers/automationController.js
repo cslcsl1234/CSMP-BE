@@ -285,23 +285,17 @@ var automationController = function (app) {
                             var isfind = false;
                             for ( var i in resourcepool ) {
                                 var item = resourcepool[i];
-                                for ( var j in item.members ) {
-                                    var arrayItem = item.members[j];
-                                    // console.log(arrayItem.arrayname+"----" + arrayname ) ;
-                                    if ( arrayItem.arrayname == arrayname ) {
-                                        isfind = true;
-                                        ret["arrayinfo"] = arrayItem;
-                                        callback(null, ret);
-                                        break;
-                                    }
-
+                                if ( item.name == arrayname ) {
+                                    isfind = true;
+                                    ret["arrayinfo"] = item.members[0];
+                                    callback(null, ret);
+                                    break;
                                 }
+ 
                             }
                             if ( isfind == false )
-                                callback(404, "not found the specical array name [" + arrayname +"]");
-                        }
-
-
+                                callback(504, "not found the specical array name [" + arrayname +"]");
+                        } 
                     })
             
                 },
