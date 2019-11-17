@@ -49,7 +49,7 @@ var MongoDBFunction = require('../lib/MongoDBFunction');
 var sortBy = require('sort-by');
 var Ansible = require('../lib/Ansible');
 var Automation = require('../lib/Automation');
-
+var VMAX = require('../lib/Automation_VMAX');
 
 var testController = function (app) {
 
@@ -70,19 +70,29 @@ var testController = function (app) {
 
 
 
-    app.get('/kafkatest', function (req, res) {
+    app.get('/vmaxtest', function (req, res) {
 
+        var physicalArrayInfos = [{
+            serial_no: '000296800706',
+            password: 'smc',
+            unispherehost: '10.121.0.207',
+            universion: '90',
+            user: 'smc',
+            verifycert: false
+        },
+        {
+            serial_no: '000297800193',
+            password: 'smc',
+            unispherehost: '10.121.0.204',
+            universion: '90',
+            user: 'smc',
+            verifycert: false
+        }];
 
-        var config = configger.load();
-        const kafkaConf = config.kafkaConf;
-        const topics = config.kafakTopics;
-        var topicname = topics.executeQueue;
-        //AutoVMAX.createTopics();
-        var key;
-        var msg = Buffer.from(req.query.msg);
-        AutoVMAX.kafkaSendMsg(topicname, key, msg);
-        console.log("kafka send msg is over");
-        res.json(200, 'finished');
+        VMAX.SyncDeviceID(physicalArrayInfos, function (result) {
+            console.log("----- SyncDeviceID is finished ----- " + JSON.stringify(result));
+            res.json(200,result);
+        })
     });
 
     app.get('/kafkatest-receive', function (req, res) {
@@ -101,13 +111,13 @@ var testController = function (app) {
 
     });
 
-    
+
     app.get('/autotest', function (req, res) {
- 
-        Automation.GetResourcePool( function (msg) {
-            console.log("kafkaReceiveMsg is return. ")
-            res.json(200, msg);
-        })
+        
+        VPLEX.UnitTest(arrayinfo, functionname, clustername, function( result ) {
+            res.json(200,result);
+        } );
+        
 
     });
 
@@ -130,7 +140,7 @@ var testController = function (app) {
                 }
                 */
 
- 
+
         var servicename = "volume-create";
         var postbody = {
             "extra_vars": {
@@ -139,13 +149,13 @@ var testController = function (app) {
                 "unispherehost": "10.121.0.204",
                 "universion": "90",
                 "user": "smc",
-                "verifycert": false, 
+                "verifycert": false,
                 "sg_name": "ansible-test-sg",
                 "cap_unit": "GB",
                 "capacity": "3",
-                "vol_name": "ansible-test-volume-01" 
+                "vol_name": "ansible-test-volume-03"
             }
-        } 
+        }
 
         /*
         var servicename = "storagegroup-create";

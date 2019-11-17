@@ -1,0 +1,14 @@
+[
+    {
+        "name":"EMCCTEST",
+        "type":"VPLEX",
+        "endpoint": "https://10.32.32.100/vplex",
+        "auth" : { "username": "service", "password" : "password" }
+    },
+    {
+        "name":"SMIULATE-VPLEX",
+        "type":"VPLEX",
+        "endpoint": "http://csmpserver:8080/vplex",
+        "auth" : { "username": "service", "password" : "password" }
+    }
+]

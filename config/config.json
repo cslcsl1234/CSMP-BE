@@ -18,13 +18,13 @@
     "METRICS_PROPERTIES_VALUE": "/metrics/properties/values",
     "METRICS_SERIES_VALUE": "/metrics/series/values",
     "METRICS_AGGREGATES": "/metrics/aggregates",
-    "BASE_FILTER": "!vstatus=='inactive'&"
+    "BASE_FILTER": ""
   },
   "SERVER": {
-    "HOST": "192.168.92.146",
+    "HOST": "10.121.1.120",
     "PORT": 8080
   },
-  "ProductType": "Test",
+  "ProductType": "Prod",
   "ProductTypeDesc": [
     "Prod",
     "Dev",
@@ -32,7 +32,7 @@
   ],
   "SRMDevLastDT-DLBank": "2018-01-25T14:00:00+08:00",
   "SRMDevLastDT-AirChina": "2017-11-27T08:00:00+08:00",
-  "SRMDevLastDT": "2018-01-25T14:00:00+08:00",
+  "SRMDevLastDT": "2019-11-01T14:00:00+08:00",
   "SMS": {
     "ServiceIP": "10.188.80.33",
     "ServicePort": 6821,
@@ -54,11 +54,11 @@
     ]
   },
   "kafakTopics": {
-    "executeQueue" : "executeQ",
-    "statusQueue" : "statusQ"
+    "executeQueue": "executeQ",
+    "statusQueue": "statusQ"
   },
-  "AWX" : {
-    "URL" : "http://awxserver/api/v2",
+  "AWX": {
+    "URL": "http://awxserver/api/v2",
     "USER": "admin",
     "PASSWORD": "password"
   }

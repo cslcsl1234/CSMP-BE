@@ -19,6 +19,8 @@ var CallGet = require('../lib/CallGet');
 var util = require('../lib/util');
 var Auto = require('../lib/Automation_VPLEX');
 var AutoService = require('../lib/Automation');
+var UNITY = require('../lib/Automation_UNITY');
+var VMAX = require('../lib/Automation_VMAX');
 
 var WebSocketServer = require('ws').Server
 var wss = new WebSocketServer({ port: 9000 });
@@ -272,39 +274,40 @@ var automationController = function (app) {
 
         async.waterfall(
             [
-                function(callback ) {
+                function (callback) {
 
                     var ret = {};
-                    AutoService.GetResourcePool(function(resourcepool) {
+                    AutoService.GetResourcePool(function (resourcepool) {
                         ret["resourcepool"] = resourcepool;
-                        if ( arrayname === undefined ) {
+                        if (arrayname === undefined) {
                             var arrayinfo = resourcepool[0].members[0];
-                            ret["arrayinfo"] = arrayinfo;
-                            callback(null , ret);
+                            ret["selected_resourcepool"] = arrayinfo;
+                            callback(null, ret);
                         } else {
                             var isfind = false;
-                            for ( var i in resourcepool ) {
+                            for (var i in resourcepool) {
                                 var item = resourcepool[i];
-                                if ( item.name == arrayname ) {
+                                if (item.name == arrayname) {
                                     isfind = true;
-                                    ret["arrayinfo"] = item.members[0];
+                                    var arrayinfo = item.members[0];
+                                    ret["selected_resourcepool"] = arrayinfo;
                                     callback(null, ret);
                                     break;
                                 }
- 
+
                             }
-                            if ( isfind == false )
-                                callback(504, "not found the specical array name [" + arrayname +"]");
-                        } 
+                            if (isfind == false)
+                                callback(504, "not found the specical array name [" + arrayname + "]");
+                        }
                     })
-            
+
                 },
                 // Get All Cluster
                 function (retinfo, callback) {
 
-                    var arrayInfo = retinfo.arrayinfo;
+                    var arrayInfo = retinfo.selected_resourcepool.info;
                     var applist = [];
- 
+
                     switch (config.ProductType) {
                         case 'Dev':
                         case 'Test':
@@ -369,7 +372,8 @@ var automationController = function (app) {
                                 "UsedCapacity": 100
                             }
                         ],
-                        "StorageResourcePool": arg1.resourcepool ,
+                        "StorageResourcePool": arg1.resourcepool,
+                        "selected_resourcepool": arg1.selected_resourcepool,
                         "ProtectLevel": [
                             {
                                 "name": "Backup",
@@ -580,13 +584,115 @@ var automationController = function (app) {
 
 
     app.get('/auto/test1', function (req, res) {
-        //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
+        var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
+        //Auto.StorageRediscover(arrayInfo, function( error , result ) { res.json(200,result);  })
 
-        Auto.ClaimAllStorageVolume(arrayInfo, function (result) { res.json(200, result); })
+
+        //Auto.GetStorageArray(arrayInfo, 'cluster-1', function (result) { res.json(200, result); })
+        // response
+        /*{
+            "code": 200,
+            "message": "success",
+            "response": [
+                "Dell-Compellent-497ac00",
+                "EMC-CLARiiON-CKM00140400531",
+                "EMC-SYMMETRIX-296800706",
+                "EMC-SYMMETRIX-297800193"
+            ]
+        } 
+        */
+
+        //Auto.GetStorageVolumes(arrayInfo, 'cluster-2', function (result) { res.json(200, result); })
+        //Auto.ClaimAllStorageVolume(arrayInfo, function (result) { res.json(200, result); })
 
         //Auto.CreateExtents(arrayInfo,function(result) {  res.json(200,result);   }) 
 
+        //Auto.UnitTest(arrayInfo, "GetStorageVolumes","cluster-2", function(result) {  res.json(200, result);  })
+
+        Auto.UnitTest(arrayInfo, "ClaimAllStorageVolume","cluster-2", function(result) {  res.json(200, result);  })
+
     });
+
+
+    app.get('/autotest/unity', function (req, res) {
+
+        var item = {
+            "Step":"Create device and assign to sg [ VPLEX_101_BE ] in pyhsical array [ CKM00163300785 ] , arraytype= [ Unity ]",
+            "method":"CreatePhysicalDevice_UNITY",
+            "arrayinfo":{
+                "array_type":"Unity",
+                "unity_sn":"CKM00163300785",
+                "unity_password":"P@ssw0rd",
+                "unity_hostname":"10.32.32.64",
+                "unity_pool_name":"jxl_vplex101_pool",
+                "unity_username":"admin",
+                "sgname":"VPLEX_101_BE"
+            },
+            "DependOnAction":"N/A",
+            "AsignSGName":"VPLEX_101_BE",
+            "StorageVolumeName":"ebankwebesxi_unity_785_data_1117120527_test12",
+            "capacityByte":5368709120,
+            "show":"false",
+            "execute":true
+        }
+        UNITY.CreateDevice(item.arrayinfo, item.AsignSGName, item.capacityByte, item.StorageVolumeName, function (result) {
+            if (result.code != 200) {
+                //console.log(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
+                var msg = result.data.msg.error.messages;
+                console.log(msg)
+
+                res.json(result.code, result);
+            } else {
+                console.log(result);
+                //console.log(result.code, `UNITY.CreateDevice is succeedful. array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)]`, AutoObject);
+                res.json(200, result);
+            }
+
+        })
+    })
+
+
+    
+    app.get('/autotest/vmax', function (req, res) {
+
+        var item = {
+            "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
+            "method": "CreatePhysicalDevice_VMAX",
+            "arrayinfo": {
+              "array_type": "VMAX",
+              "serial_no": "000297800193",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false,
+              "sgname": "MSCS_SG"
+            },
+            "DependOnAction": "N/A",
+            "AsignSGName": "MSCS_SG",
+            "StorageVolumeName": "ebankwebesxi_VMAX_193_data_1117145701_TEST02",
+            "capacityByte": 5368709120,
+            "show": "false",
+            "execute": true
+          }
+
+          var capacity = item.capacityByte / 1024 / 1024 / 1024;
+          var capacityBYTE = item.capacityByte;
+        VMAX.CreateDevice(item.arrayinfo, item.AsignSGName, capacity, item.StorageVolumeName, function (result) {
+            if (result.code != 200) {
+                //console.log(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
+                var msg = result.data.msg.error.messages;
+                console.log(msg)
+
+                res.json(result.code, result);
+            } else {
+                console.log(result);
+                //console.log(result.code, `UNITY.CreateDevice is succeedful. array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)]`, AutoObject);
+                res.json(200, result);
+            }
+
+        })
+    })
 
     app.get('/auto/testfunc', function (req, res) {
         //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
@@ -976,6 +1082,7 @@ var automationController = function (app) {
 
         newRequestParamater.appname = RequestParamater.appname;
         newRequestParamater.appname_ext = RequestParamater.appname_ext;
+        newRequestParamater.usedfor = RequestParamater.usedfor;
         newRequestParamater.opsType = RequestParamater.opsType;
         newRequestParamater.capacity = RequestParamater.requests[0].capacity;
         newRequestParamater.count = RequestParamater.requests[0].count;
@@ -1017,7 +1124,7 @@ var automationController = function (app) {
 
     });
 
-    
+
     app.post('/review', function (req, res) {
         res.setTimeout(3600 * 1000);
 
@@ -1047,7 +1154,7 @@ var automationController = function (app) {
         newRequestParamater.count = RequestParamater.requests[0].count;
         newRequestParamater.resourceLevel = RequestParamater.requests[0].StorageResourcePool.resourceLevel;
         newRequestParamater.resourcePoolName = RequestParamater.requests[0].StorageResourcePool.name;
-         newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
+        newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
 
         async.waterfall(
             [
@@ -1058,12 +1165,12 @@ var automationController = function (app) {
                         callback(null, AutoObject);
                     })
                 }
-                , function (AutoObject, callback) { 
-                        callback(null, AutoObject); 
+                , function (AutoObject, callback) {
+                    callback(null, AutoObject);
                 }
-            ], function (err, result) { 
+            ], function (err, result) {
                 res.json(200, result);
-            }); 
+            });
     });
 
 
@@ -1092,12 +1199,13 @@ var automationController = function (app) {
 
         newRequestParamater.appname = RequestParamater.appname;
         newRequestParamater.appname_ext = RequestParamater.appname_ext;
+        newRequestParamater.usedfor = RequestParamater.requests[0].usedfor;
         newRequestParamater.opsType = RequestParamater.opsType;
         newRequestParamater.capacity = RequestParamater.requests[0].capacity;
         newRequestParamater.count = RequestParamater.requests[0].count;
         newRequestParamater.resourceLevel = RequestParamater.requests[0].StorageResourcePool.resourceLevel;
         newRequestParamater.resourcePoolName = RequestParamater.requests[0].StorageResourcePool.name;
-         newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
+        newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
 
         async.waterfall(
             [
@@ -1110,21 +1218,29 @@ var automationController = function (app) {
                 }
                 , function (AutoObject, callback) {
                     AutoService.CapacityProvisingService(AutoObject, function (result) {
-                        callback(null, result);
+                        if (result.code == 200)
+                            callback(null, result);
+                        else
+                            callback(result.code, result);
                     })
                 }
             ], function (err, result) {
-                // result now equals 'done'
-                var ActionParamaterLabers = {};
-                ActionParamaterLabers["method"] = "执行操作";
-                ActionParamaterLabers["DependOnAction"] = "依赖操作";
-                ActionParamaterLabers["StorageVolumeName"] = "物理存储卷名称";
-                ActionParamaterLabers["devicename"] = "卷名称";
-                ActionParamaterLabers["devicename"] = "卷保护模式";
+                if (err) {
+                    res.json(result.code, result);
+                } else {
+                    var ActionParamaterLabers = {};
+                    ActionParamaterLabers["method"] = "执行操作";
+                    ActionParamaterLabers["DependOnAction"] = "依赖操作";
+                    ActionParamaterLabers["StorageVolumeName"] = "物理存储卷名称";
+                    ActionParamaterLabers["devicename"] = "卷名称";
+                    ActionParamaterLabers["devicename"] = "卷保护模式";
 
-                result.AutoInfo["ActionParamaterLabers"] = ActionParamaterLabers;
-                res.json(200, result);
-            }); 
+                    result.AutoInfo["ActionParamaterLabers"] = ActionParamaterLabers;
+                    res.json(200, result);
+                }
+                // result now equals 'done'
+
+            });
     });
 
 
