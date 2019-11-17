@@ -10,7 +10,7 @@
 const debug = require('debug')('automationController')
 const name = 'my-app'
 var unirest = require('unirest');
-
+var autologger = require('../lib/logger');
 
 var configger = require('../config/configger');
 var unirest1 = require('unirest');
@@ -372,6 +372,7 @@ var automationController = function (app) {
                                 "UsedCapacity": 100
                             }
                         ],
+
                         "StorageResourcePool": arg1.resourcepool,
                         "selected_resourcepool": arg1.selected_resourcepool,
                         "ProtectLevel": [
@@ -395,6 +396,9 @@ var automationController = function (app) {
                                 "label": "异地应用核验xxx",
                                 "value": "disable"
                             }
+                        ],
+                        "usedfor": [
+                            "os","back","data","log"
                         ],
                         "HostDeploy": {
                             "label": "主机部署模式",
@@ -609,7 +613,7 @@ var automationController = function (app) {
 
         //Auto.UnitTest(arrayInfo, "GetStorageVolumes","cluster-2", function(result) {  res.json(200, result);  })
 
-        Auto.UnitTest(arrayInfo, "ClaimAllStorageVolume","cluster-2", function(result) {  res.json(200, result);  })
+        Auto.UnitTest(arrayInfo, "ClaimAllStorageVolume", "cluster-2", function (result) { res.json(200, result); })
 
     });
 
@@ -617,23 +621,23 @@ var automationController = function (app) {
     app.get('/autotest/unity', function (req, res) {
 
         var item = {
-            "Step":"Create device and assign to sg [ VPLEX_101_BE ] in pyhsical array [ CKM00163300785 ] , arraytype= [ Unity ]",
-            "method":"CreatePhysicalDevice_UNITY",
-            "arrayinfo":{
-                "array_type":"Unity",
-                "unity_sn":"CKM00163300785",
-                "unity_password":"P@ssw0rd",
-                "unity_hostname":"10.32.32.64",
-                "unity_pool_name":"jxl_vplex101_pool",
-                "unity_username":"admin",
-                "sgname":"VPLEX_101_BE"
+            "Step": "Create device and assign to sg [ VPLEX_101_BE ] in pyhsical array [ CKM00163300785 ] , arraytype= [ Unity ]",
+            "method": "CreatePhysicalDevice_UNITY",
+            "arrayinfo": {
+                "array_type": "Unity",
+                "unity_sn": "CKM00163300785",
+                "unity_password": "P@ssw0rd",
+                "unity_hostname": "10.32.32.64",
+                "unity_pool_name": "jxl_vplex101_pool",
+                "unity_username": "admin",
+                "sgname": "VPLEX_101_BE"
             },
-            "DependOnAction":"N/A",
-            "AsignSGName":"VPLEX_101_BE",
-            "StorageVolumeName":"ebankwebesxi_unity_785_data_1117120527_test12",
-            "capacityByte":5368709120,
-            "show":"false",
-            "execute":true
+            "DependOnAction": "N/A",
+            "AsignSGName": "VPLEX_101_BE",
+            "StorageVolumeName": "ebankwebesxi_unity_785_data_1117120527_test12",
+            "capacityByte": 5368709120,
+            "show": "false",
+            "execute": true
         }
         UNITY.CreateDevice(item.arrayinfo, item.AsignSGName, item.capacityByte, item.StorageVolumeName, function (result) {
             if (result.code != 200) {
@@ -652,21 +656,21 @@ var automationController = function (app) {
     })
 
 
-    
+
     app.get('/autotest/vmax', function (req, res) {
 
         var item = {
             "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
             "method": "CreatePhysicalDevice_VMAX",
             "arrayinfo": {
-              "array_type": "VMAX",
-              "serial_no": "000297800193",
-              "password": "smc",
-              "unispherehost": "10.121.0.204",
-              "universion": "90",
-              "user": "smc",
-              "verifycert": false,
-              "sgname": "MSCS_SG"
+                "array_type": "VMAX",
+                "serial_no": "000297800193",
+                "password": "smc",
+                "unispherehost": "10.121.0.204",
+                "universion": "90",
+                "user": "smc",
+                "verifycert": false,
+                "sgname": "MSCS_SG"
             },
             "DependOnAction": "N/A",
             "AsignSGName": "MSCS_SG",
@@ -674,10 +678,10 @@ var automationController = function (app) {
             "capacityByte": 5368709120,
             "show": "false",
             "execute": true
-          }
+        }
 
-          var capacity = item.capacityByte / 1024 / 1024 / 1024;
-          var capacityBYTE = item.capacityByte;
+        var capacity = item.capacityByte / 1024 / 1024 / 1024;
+        var capacityBYTE = item.capacityByte;
         VMAX.CreateDevice(item.arrayinfo, item.AsignSGName, capacity, item.StorageVolumeName, function (result) {
             if (result.code != 200) {
                 //console.log(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
@@ -1177,9 +1181,10 @@ var automationController = function (app) {
 
     app.post('/api/auto/service/block/provisioning/review', function (req, res) {
         res.setTimeout(3600 * 1000);
-
-        //console.log(JSON.stringify(req.body));
         var RequestParamater = req.body;
+        var usedfor =  RequestParamater.requests[0].usedfor; 
+        console.log("|"+usedfor+"|---usedfor");
+        //console.log(JSON.stringify(req.body));
 
         var newRequestParamater = {
             "appname": "ebankwebesxi",
@@ -1199,7 +1204,7 @@ var automationController = function (app) {
 
         newRequestParamater.appname = RequestParamater.appname;
         newRequestParamater.appname_ext = RequestParamater.appname_ext;
-        newRequestParamater.usedfor = RequestParamater.requests[0].usedfor;
+        newRequestParamater.usedfor = ( usedfor == undefined || usedfor == "" ) ? "data" : RequestParamater.requests[0].usedfor ;
         newRequestParamater.opsType = RequestParamater.opsType;
         newRequestParamater.capacity = RequestParamater.requests[0].capacity;
         newRequestParamater.count = RequestParamater.requests[0].count;
@@ -1245,21 +1250,24 @@ var automationController = function (app) {
 
 
     app.post('/api/auto/service/block/provisioning/execute', function (req, res) {
+        var AutoAPI = require('../lib/Automation_VPLEX');
+
         res.setTimeout(3600 * 1000);
         var AutoObject = req.body;
         var ActionsParamater = AutoObject.AutoInfo.ActionParamaters;
         var RequestParamater = AutoObject.request;
         var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info;
-        console.log("TEST----" + wsList);
         var ws = wsList[RequestParamater.client];
+        //console.log(RequestParamater.client);
+        //console.log(wsList);
+
+        //var ws = AutoObject.request.ws; 
         if (ws === undefined) {
-            res.json(404, "not find the websocket client. clientID=" + RequestParamater.client);
-        } else {
+            res.json(505, "not find the websocket client. clientID=" + RequestParamater.client);
+        } else { 
+            autologger.logs(200, "Begin execute each action.", AutoObject);
 
-            console.log("CLIENT NUMBER:" + RequestParamater.client);
-            console.log("ws:" + JSON.stringify(wsList));
-
-            //var ws = AutoObject.request.ws;
+            /*
             console.log(" ----------- SEND WEBSOCKET BEGIN ----------------");
             for (var i in ActionsParamater) {
                 console.log("BEGIN ============" + i);
@@ -1278,23 +1286,34 @@ var automationController = function (app) {
                 console.log("END ============" + i);
             }
 
-            var AutoAPI = require('../lib/Automation_VPLEX');
-            AutoAPI.DeployVPLEXBPMN();
-            AutoAPI.ExecuteActionsBPMN(ActionsParamater, arrayInfo, ws, function (result) {
+            */
+
+            AutoAPI.ExecuteActions(ActionsParamater, arrayInfo, ws, function (result) {
+                AutoObject.ActionResponses = result;
+                res.json(200,AutoObject);
+                })
+
+       }
+
+        /*
+        var AutoAPI = require('../lib/Automation_VPLEX');
+        AutoAPI.DeployVPLEXBPMN();
+        AutoAPI.ExecuteActionsBPMN(ActionsParamater, arrayInfo, ws, function (result) {
 
 
-                var ActionParamaterLabers = {};
-                ActionParamaterLabers["method"] = "执行操作";
-                ActionParamaterLabers["DependOnAction"] = "依赖操作";
-                ActionParamaterLabers["StorageVolumeName"] = "物理存储卷名称";
-                ActionParamaterLabers["devicename"] = "卷名称";
-                ActionParamaterLabers["devicename"] = "卷保护模式";
+            var ActionParamaterLabers = {};
+            ActionParamaterLabers["method"] = "执行操作";
+            ActionParamaterLabers["DependOnAction"] = "依赖操作";
+            ActionParamaterLabers["StorageVolumeName"] = "物理存储卷名称";
+            ActionParamaterLabers["devicename"] = "卷名称";
+            ActionParamaterLabers["devicename"] = "卷保护模式";
 
-                result.AutoInfo["ActionParamaterLabers"] = ActionParamaterLabers;
+            result.AutoInfo["ActionParamaterLabers"] = ActionParamaterLabers;
 
-                res.json(200, result);
-            })
-        }
+            res.json(200, result);
+        })
+        */
+
 
 
     });

@@ -66,23 +66,22 @@
           "backend-array": [
             {
               "array_type": "VMAX",
-              "serial_no": "000297800192",
-              "password": "smc",
-              "unispherehost": "10.121.0.204",
-              "universion": "90",
-              "user": "smc",
-              "verifycert": false,
-              "sgname": "ansible-test-sg"
-            },
-            {
-              "array_type": "VMAX",
               "serial_no": "000297800193",
               "password": "smc",
               "unispherehost": "10.121.0.204",
               "universion": "90",
               "user": "smc",
               "verifycert": false,
-              "sgname":"ansible-test-sg"
+              "sgname": "MSCS_SG"
+            },
+            {
+              "array_type": "Unity", 
+              "unity_sn": "CKM00163300785",
+              "unity_password": "P@ssw0rd",
+              "unity_hostname": "10.32.32.64",
+              "unity_pool_name": "jxl_vplex101_pool",
+              "unity_username": "admin", 
+              "sgname": "VPLEX_101_BE"
             }
           ]
         }
