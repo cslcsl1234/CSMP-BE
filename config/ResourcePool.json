@@ -42,7 +42,13 @@
             }
           ]
         }
-      ] 
+      ],
+      "RPA": {
+        "IP": "10.32.32.185",
+        "username": "admin",
+        "password": "admin",
+        "baseurl": "/fapi/rest/5_1"
+      } 
     },
     {
       "name": "VPLEX-Middle",

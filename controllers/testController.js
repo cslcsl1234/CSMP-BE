@@ -50,6 +50,7 @@ var sortBy = require('sort-by');
 var Ansible = require('../lib/Ansible');
 var Automation = require('../lib/Automation');
 var VMAX = require('../lib/Automation_VMAX');
+var RPA = require('../lib/Automation_RPA');
 
 var testController = function (app) {
 
@@ -68,7 +69,287 @@ var testController = function (app) {
         else next();
     });
 
+    app.get('/rpatest', function (req, res) {
 
+        var resourceinfo = require("../config/ResourcePool");
+        
+        var RPAInfo ;
+        for ( var i in resourceinfo ) {
+            var item = resourceinfo[i];
+            if (item.name == "VPLEX-高端" ) {
+                RPAInfo = item.RPA;
+                break;
+            }
+        }
+        /*
+        var RPAInfo = {
+            "IP": "10.32.32.185",
+            "username": "admin",
+            "password": "admin",
+            "baseurl": "/fapi/rest/5_1"
+          } 
+          */
+
+        //RPA.GetConsistencyGroups(RPAInfo, function(result) { res.json(200, result)});
+ 
+        /*
+        RPA.GetClusters(RPAInfo, function(result) { 
+            var id = RPA.GetClusterID(result,"cluster2");
+            console.log(id);
+            res.json(200, result) ; 
+        }); 
+
+        */ 
+       // RPA.GetVolumes(RPAInfo, "cluster1", function(result) { res.json(200, result)});
+        
+
+
+
+        RPA.CreateConsistencyGroup(RPAInfo,"TESTCREATE_CG", function (result) { res.json(200, result)});
+        
+    });
+
+    app.get("/test1234", function(req, res ) {
+        var unirest = require("unirest");
+
+var req = unirest("POST", "https://10.32.32.185/fapi/rest/5_1/groups/group_and_copies");
+
+req.headers({
+  "cache-control": "no-cache",
+  "Connection": "keep-alive",
+  "content-length": "7843",
+  "accept-encoding": "gzip, deflate",
+  "Host": "10.32.32.185",
+  "Postman-Token": "3bbdc744-3f16-4cd1-a4d5-2de2e8ac6394,bc61081b-f9fb-495b-8cd7-4d500deeb989",
+  "Cache-Control": "no-cache",
+  "Accept": "*/*",
+  "User-Agent": "PostmanRuntime/7.15.0",
+  "Content-Type": "application/json",
+  "Authorization": "Basic YWRtaW46YWRtaW4="
+});
+
+req.type("json");
+req.send({
+  "groupUID": {
+    "id": 1784109767
+  },
+  "groupPolicy": {
+    "primaryRPANumber": 2,
+    "secondaryRPAsNumbers": [],
+    "reservationSupported": false,
+    "canTransferOnNonPreferredRPA": true,
+    "hostsDelayExpiryTimeoutInSeconds": null,
+    "distributedGroup": false,
+    "priority": "NORMAL",
+    "managementSettings": {
+      "managementMode": {
+        "managedByRecoverPoint": true,
+        "externalManagement": "NONE"
+      },
+      "expectedActiveCopy": null,
+      "allowTestingWhileClustersDisconnected": false,
+      "recoveryImage": null,
+      "recoveryImageExpiryDate": null
+    },
+    "readOnlyInReplicaVolumes": false,
+    "preferedClusterUID": null,
+    "powerUp": 2
+  },
+  "groupName": "TEST_CG_new",
+  "productionCopies": [
+    {
+      "groupUID": {
+        "id": 1784109767
+      },
+      "globalCopyUID": {
+        "clusterUID": {
+          "id": 5157609537127272000
+        },
+        "copyUID": 0
+      }
+    }
+  ],
+  "copiesPolicies": [
+    {
+      "copyUID": {
+        "groupUID": {
+          "id": 1784109767
+        },
+        "globalCopyUID": {
+          "clusterUID": {
+            "id": 5157609537127272000
+          },
+          "copyUID": 1
+        }
+      },
+      "copyName": "TEST_Local",
+      "copyPolicy": {
+        "JsonSubType": "ConsistencyGroupCopyPolicy",
+        "journalCompressionLevel": "NONE",
+        "requiredProtectionWindowInMicroSeconds": null,
+        "automaticSnapshotConsolidationPolicy": {
+          "enabled": false,
+          "unconsolidatedDurationInSeconds": 172800,
+          "consolidationBuckets": [
+            {
+              "periodTimeDuration": 86400,
+              "numberOfSnapshots": 5
+            },
+            {
+              "periodTimeDuration": 604800,
+              "numberOfSnapshots": 4
+            },
+            {
+              "periodTimeDuration": 2592000,
+              "numberOfSnapshots": -1
+            }
+          ]
+        },
+        "rto": null,
+        "loggedAccessAllocationProportion": 0.2,
+        "hostsOS": "OTHER_MIXED",
+        "allowDistributionOfLargeSnapshots": true,
+        "allowSymmetrixWithOneRPA": true,
+        "fastForwardBound": {
+          "timeInMicroSeconds": 0
+        },
+        "snapshotsPolicy": {
+          "numOfDesiredSnapshots": null,
+          "snapshotTimeLimitInSeconds": null
+        },
+        "shouldCleanupAutoProvisionedDevices": false
+      },
+      "dataDomainDeviceGroupInformation": null
+    },
+    {
+      "copyUID": {
+        "groupUID": {
+          "id": 1784109767
+        },
+        "globalCopyUID": {
+          "clusterUID": {
+            "id": 5157609537127272000
+          },
+          "copyUID": 0
+        }
+      },
+      "copyName": "TEST_Prod",
+      "copyPolicy": {
+        "JsonSubType": "ConsistencyGroupCopyPolicy",
+        "journalCompressionLevel": "NONE",
+        "requiredProtectionWindowInMicroSeconds": null,
+        "automaticSnapshotConsolidationPolicy": {
+          "enabled": false,
+          "unconsolidatedDurationInSeconds": 172800,
+          "consolidationBuckets": [
+            {
+              "periodTimeDuration": 86400,
+              "numberOfSnapshots": 5
+            },
+            {
+              "periodTimeDuration": 604800,
+              "numberOfSnapshots": 4
+            },
+            {
+              "periodTimeDuration": 2592000,
+              "numberOfSnapshots": -1
+            }
+          ]
+        },
+        "rto": null,
+        "loggedAccessAllocationProportion": 0.2,
+        "hostsOS": "OTHER_MIXED",
+        "allowDistributionOfLargeSnapshots": true,
+        "allowSymmetrixWithOneRPA": true,
+        "fastForwardBound": {
+          "timeInMicroSeconds": 0
+        },
+        "snapshotsPolicy": {
+          "numOfDesiredSnapshots": null,
+          "snapshotTimeLimitInSeconds": null
+        },
+        "shouldCleanupAutoProvisionedDevices": false
+      },
+      "dataDomainDeviceGroupInformation": null
+    }
+  ],
+  "linksPolicies": [
+    {
+      "linkUID": {
+        "groupUID": {
+          "id": 1784109767
+        },
+        "firstCopy": {
+          "clusterUID": {
+            "id": 5157609537127272000
+          },
+          "copyUID": 0
+        },
+        "secondCopy": {
+          "clusterUID": {
+            "id": 5157609537127272000
+          },
+          "copyUID": 1
+        }
+      },
+      "linkPolicy": {
+        "JsonSubType": "ConsistencyGroupLinkPolicy",
+        "protectionPolicy": {
+          "protectionType": "ASYNCHRONOUS",
+          "syncReplicationLatencyThresholds": {
+            "thresholdEnabled": false,
+            "startAsyncReplicationAbove": {
+              "value": 5000,
+              "type": "MICROSECONDS"
+            },
+            "resumeSyncReplicationBelow": {
+              "value": 3000,
+              "type": "MICROSECONDS"
+            }
+          },
+          "syncReplicationThroughputThresholds": {
+            "thresholdEnabled": false,
+            "startAsyncReplicationAbove": {
+              "value": 45000,
+              "type": "KB"
+            },
+            "resumeSyncReplicationBelow": {
+              "value": 35000,
+              "type": "KB"
+            }
+          },
+          "rpoPolicy": {
+            "maximumAllowedLag": {
+              "value": 25000000,
+              "type": "MICROSECONDS"
+            },
+            "allowRegulation": false,
+            "minimizationType": "IRRELEVANT"
+          },
+          "replicatingOverWAN": true,
+          "compression": "LOW",
+          "bandwidthLimit": 0,
+          "measureLagToTargetRPA": true,
+          "deduplication": false,
+          "weight": 1
+        },
+        "advancedPolicy": {
+          "performLongInitialization": true,
+          "snapshotGranularity": "DYNAMIC"
+        },
+        "snapshotShippingPolicy": null
+      }
+    }
+  ],
+  "vmReplicationSetsPolicies": []
+});
+
+req.end(function (res1) { 
+
+  res.json(200,res1);
+});
+
+    })
 
     app.get('/vmaxtest', function (req, res) {
 
@@ -411,7 +692,7 @@ var testController = function (app) {
         var ReportTmpDataPath = config.Reporting.TmpDataPath;
         //GetAssignedInitiatorByDevices1(device,function(result) {
 
-        //SWITCH.getZone(device, function(zonelist) { res.json(200 , zonelist); });
+        SWITCH.getZone(device, function(zonelist) { res.json(200 , zonelist); });
 
         // Switch.getFabric(fabwwn,function(resultJson) {    res.json(200,resultJson);       });
 
@@ -484,7 +765,7 @@ var testController = function (app) {
         //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
         //VMAX.GetMaskViews(device, function(ret) { res.json(200,ret); });
 
-        Report.E2ETopology(device, function (ret) { res.json(200, ret); });
+        //Report.E2ETopology(device, function (ret) { res.json(200, ret); });
 
         //Report.ArrayAccessInfosTEST(device, function(ret) {    res.json(200,ret);    });
 
