@@ -383,17 +383,17 @@ var automationController = function (app) {
                             },
                             {
                                 "name": "AppVerification_SameCity",
-                                "label": "本地CDP验证xxxx",
+                                "label": "本地CDP验证",
                                 "value": "false"
                             },
                             {
                                 "name": "AppVerification_DiffCity",
-                                "label": "异地验证ffff",
+                                "label": "异地验证",
                                 "value": "false"
                             },
                             {
                                 "name": "AppVerification_LocalCdp",
-                                "label": "异地应用核验xxx",
+                                "label": "异地应用核验",
                                 "value": "disable"
                             }
                         ],
@@ -1238,7 +1238,21 @@ var automationController = function (app) {
                     ActionParamaterLabers["DependOnAction"] = "依赖操作";
                     ActionParamaterLabers["StorageVolumeName"] = "物理存储卷名称";
                     ActionParamaterLabers["devicename"] = "卷名称";
-                    ActionParamaterLabers["devicename"] = "卷保护模式";
+                    ActionParamaterLabers["clustername"] = "存储存储集群";
+                    ActionParamaterLabers["viewname"] = "存储视图名称（view)";
+                    ActionParamaterLabers["virtualvolumes"] = "卷保护模式";
+                    ActionParamaterLabers["consistency_group"] = "存储存储集群";
+                    ActionParamaterLabers["virtual_volume"] = "虚拟卷名称";
+                    ActionParamaterLabers["devices"] = "卷名称（device)";
+                    ActionParamaterLabers["sourcedevice"] = "分布式卷的源端卷";
+                    ActionParamaterLabers["Step"] = "执行步骤名称";
+                    ActionParamaterLabers["extents"] = "物理数据块(Extent)";
+                    ActionParamaterLabers["geometry"] = "RAID类型";
+                    ActionParamaterLabers["AsignSGName"] = "RAID类型";
+                    ActionParamaterLabers["capacityByte"] = "容量(Byte)";
+                    ActionParamaterLabers["execute"] = "是否已执行";
+                    ActionParamaterLabers["response"] = "执行结果";
+                    ActionParamaterLabers["arrayinfo"] = "物理存储信息";
 
                     result.AutoInfo["ActionParamaterLabers"] = ActionParamaterLabers;
                     res.json(200, result);

@@ -64,13 +64,21 @@
    "CG": "ebank_ESXi_CG_Prod"
  },
  {
-   "SC": "ebankwebesxi_VW",
+   "SC": "ebankwebesxi_VW_origin",
    "TC": "TC_ebankwebesxi_VW",
    "BACKUP": "osback1_VW",
    "RP": "RP_C2_VW",
    "CDP": "N/A",
    "CG": "ebankwebesxi_CG_Prod"
  },
+ {
+  "SC": "ebankwebesxi_VW",
+  "TC": "TC_ebankwebesxi_VW",
+  "BACKUP": "osback1_VW",
+  "RP": "RP",
+  "CDP": "RP",
+  "CG": "ebankwebesxi_CG_Prod"
+},
  {
    "SC": "dbus_View",
    "TC": "TC_dbusdb_VW",
