@@ -1,0 +1,9 @@
+---
+# Variables file 'vars.yml' in the same folder as the playbook
+unity_hostname: "10.32.32.64"
+unity_username: "admin"
+unity_password: "P@ssw0rd"
+unity_pool_name: "jxl_vplex101_pool"
+unity_vol_name: "ANSIBLE-TEST-02"
+capacity: "10737418240"
+unity_host_name: "VPLEX_101_BE"

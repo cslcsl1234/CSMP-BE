@@ -1,0 +1,36 @@
+---
+- name: "Provision a new volume"
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    input: &uni_connection_vars
+      serial_no: "{{ serial_no }}"
+      password: "{{ password }}"
+      unispherehost: "{{ unispherehost }}"
+      universion: "{{ universion }}"
+      user: "{{ user }}"
+      verifycert: "{{ verifycert }}"
+
+    sg_name: "{{ sgname }}"
+    cap_unit: "{{ capacity_unit }}"
+    capacity: "{{ capacity }}"
+    vol_name: "{{ volumename }}"
+
+  tasks:
+    - name: "Create volume"
+      dellemc_powermax_volume:
+        <<: *uni_connection_vars
+        vol_name: "{{vol_name}}"
+        sg_name: "{{sg_name}}"
+        size: "{{capacity}}"
+        cap_unit: "{{cap_unit}}"
+        state: 'present'
+      register: volume_detail
+
+
+    - name: RESPONSE
+      debug: 
+        var=volume_detail
+

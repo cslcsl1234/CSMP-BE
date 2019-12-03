@@ -1,0 +1,32 @@
+---
+- name: "gatherfacts"
+  hosts: localhost
+  connection: local
+
+  vars:
+    input: &uni_connection_vars
+      serial_no: "{{ serial_no }}"
+      password: "{{ password }}"
+      unispherehost: "{{ unispherehost }}"
+      universion: "{{ universion }}"
+      user: "{{ user }}"
+      verifycert: "{{ verifycert }}"
+
+    factname: "{{ factname }}"
+    sg_name: "Ansible_SG_testing"
+    new_sg_name: "btv192"
+    cap_unit: "GB"
+    vol_name: "Ansible_Vol_1"
+
+  tasks:
+    - name: gatherfact
+      dellemc_powermax_gatherfacts:
+        <<: *uni_connection_vars
+        gather_subset:
+          - "{{ factname }}"
+      register: result
+
+
+    - name: RESPONSE 
+      debug:
+        var: result

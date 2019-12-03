@@ -13,6 +13,7 @@
           "info": {
             "name": "EMCCTEST",
             "type": "VPLEX",
+            "version": "5.5",
             "endpoint": "https://10.32.32.100/vplex",
             "auth": {
               "username": "service",
@@ -57,6 +58,7 @@
           "info": {
             "name": "EMCCTEST",
             "type": "VPLEX",
+            "version": "6.1",
             "endpoint": "https://10.32.32.111/vplex",
             "auth": {
               "username": "service",

@@ -320,7 +320,7 @@ var automationController = function (app) {
                                         var item = result[i];
                                         var name = item.name;
 
-                                        var matchResult = name.match(/([A-Za-z_0-9]+)_(VW|View)/);
+                                        var matchResult = name.match(/([A-Za-z_0-9]+)_(VW|View|view|VIEW)/);
                                         //console.log(name+','+matchResult); 
 
                                         if (matchResult != null) {
@@ -345,7 +345,7 @@ var automationController = function (app) {
                                         var item = result[i];
                                         var name = item.name;
 
-                                        var matchResult = name.match(/([A-Za-z_0-9]+)_(VW|View)/);
+                                        var matchResult = name.match(/([A-Za-z_0-9]+)_(VW|View|view|VIEW)/);
                                         //console.log(name+','+matchResult); 
 
                                         if (matchResult != null) {
