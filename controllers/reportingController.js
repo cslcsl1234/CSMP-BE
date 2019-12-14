@@ -4367,6 +4367,64 @@ var reportingController = function (app) {
 
     }
 
+
+    
+    app.get('/fullConfigIOInfos', function (req, res) {
+        var ReportOutputPath = "/csmp/reporting";
+
+        var finalRecords_new = require("/csmp/reporting/topology_all");
+
+                // 20191214: add the fullConfigIOInfo<datetime>.json file
+                var fullConfigIOInfos = [];
+                for ( var i in finalRecords_new) {
+                    var item = finalRecords_new[i];
+                    var newItem= {};
+
+                    newItem["应用ID"] =                   item.appShortName                ;
+                    newItem["应用名称"] =                 item.app                         ;
+                    newItem["管理员"] =                   item.appManagerA                 ;
+                    newItem["关联主机"] =                 item.host                        ;
+                    newItem["主备机状态"] =               item.hostStatus                  ;
+                    newItem["关联主机HbaWwn"] =           item.hbawwn                      ;
+                    newItem["主机关联交换机端口Wwpn"] =   item.connect_hba_swport_wwn      ;
+                    newItem["主机关联交换机名称"] =       item.connect_hba_sw              ;
+                    newItem["主机关联交换机SN"] =         item.connect_hba_sw_id           ;
+                    newItem["存储关联交换机SN"] =         item.connect_arrayport_sw_id     ;
+                    newItem["存储关联交换机名称"] =       item.connect_arrayport_sw        ;
+                    newItem["存储关联交换机端口Wwpn"] =   item.connect_arrayport_swport_wwn;
+                    newItem["关联存储端口号"] =           item.arrayport_wwn               ;
+                    newItem["端口名称"] =                 item.arrayport                   ;
+                    newItem["关联Device"] =               item.devices                     ;
+                    newItem["Device逻辑总容量(GB)"] =     item.Capacity                    ;
+                    newItem["存储SN"] =                   item.array                       ;
+                    newItem["存储名称"] =                 item.arrayname                   ;
+                    newItem["存储类型"] =                 item.arraytype                   ;
+                    newItem["View"] =                     item.maskingview                 ;
+                    newItem["IG"] =                       item.IG                          ;
+                    newItem["PG"] =                       item.PG                          ;
+                    newItem["SG"] =                       item.SG                          ;
+
+                    fullConfigIOInfos.push(newItem);
+
+                }
+                var fs = require("fs");
+                const Json2csvParser = require('json2csv').Parser;
+                const fields = ["应用ID","应用名称","管理员","关联主机","主备机状态","关联主机HbaWwn","主机关联交换机端口Wwpn","主机关联交换机名称","主机关联交换机SN","存储关联交换机SN","存储关联交换机名称","存储关联交>换机端口Wwpn","关联存储端口号","端口名称","关联Device","Device逻辑总容量(GB)","存储SN","存储名称","存储类型","View","IG","PG","SG"];
+
+                const json2csvParser = new Json2csvParser({ fields });
+                const csv = json2csvParser.parse(fullConfigIOInfos);
+
+                var filename = ['fullConfigIOInfos', moment().format('YYYY-MM-DD') , '.csv'].join('');
+                //console.log(csv);
+                //fs.writeFileSync(filename, csv);
+
+                res.setHeader("Content-disposition", "attachment; filename="+filename+"\"");
+                res.setHeader("Content-Type","text/csv");
+                res.status(200).send(csv);
+
+
+    });
+
 };
 
 
