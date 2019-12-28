@@ -1,0 +1,82 @@
+{
+    "CDP": {
+        "RPA": [
+            {
+                "name": "RPA-1",
+                "info": {
+                    "IP": "10.32.32.185",
+                    "username": "admin",
+                    "password": "admin",
+                    "baseurl": "/fapi/rest/5_1"
+                },
+                "backend-array": {
+                    "Prod": {
+                        "arrayinfo": {
+                            "name": "VPLEX100",
+                            "type": "VPLEX",
+                            "version": "5.5",
+                            "endpoint": "https://10.32.32.100/vplex",
+                            "auth": {
+                                "username": "service",
+                                "password": "password"
+                            }
+                        },
+                        "sgname": "RP"
+                    },
+                    "Local": {
+                        "arrayname": "EMCCTEST1",
+                        "arraytype": "VPLEX",
+                        "capacity": 1000,
+                        "sgname": "RP",
+                        "info": {
+                            "name": "EMCCTEST",
+                            "type": "VPLEX",
+                            "version": "5.5",
+                            "endpoint": "https://10.32.32.100/vplex",
+                            "auth": {
+                                "username": "service",
+                                "password": "password"
+                            }
+                        } ,
+                        "backend-array": [
+                            {
+                                "array_type": "VMAX",
+                                "serial_no": "000297800193",
+                                "password": "smc",
+                                "unispherehost": "10.121.0.204",
+                                "universion": "90",
+                                "user": "smc",
+                                "verifycert": false,
+                                "sgname": "MSCS_SG"
+                            }
+                        ]
+                    },
+                    "Remote": {
+                        "arrayinfo": {
+                            "name": "VPLEX100",
+                            "type": "VPLEX",
+                            "version": "5.5",
+                            "endpoint": "https://10.32.32.100/vplex",
+                            "auth": {
+                                "username": "service",
+                                "password": "password"
+                            }
+                        },
+                        "sgname": "RP"
+                    }
+                }
+            },
+            {
+                "name": "RPA-2",
+                "info": {
+                    "IP": "10.32.32.185",
+                    "username": "admin",
+                    "password": "admin",
+                    "baseurl": "/fapi/rest/5_1"
+                },
+                "backend-array": {}
+            }
+        ]
+    },
+    "BACKUP": {}
+}

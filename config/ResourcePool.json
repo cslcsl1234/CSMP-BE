@@ -20,6 +20,12 @@
               "password": "password"
             }
           },
+          "capability" : {
+            "CDP" : {
+              "catalog": "CDP.RPA",
+              "name": "RPA-1"
+            }
+          },
           "backend-array": [
             {
               "array_type": "VMAX",
@@ -29,7 +35,8 @@
               "universion": "90",
               "user": "smc",
               "verifycert": false,
-              "sgname": "MSCS_SG"
+              "sgname": "MSCS_SG",
+              "purpose": "Prod"
             },
             {
               "array_type": "Unity", 
@@ -38,17 +45,23 @@
               "unity_hostname": "10.32.32.64",
               "unity_pool_name": "jxl_vplex101_pool",
               "unity_username": "admin", 
-              "sgname": "VPLEX_101_BE"
+              "sgname": "VPLEX_101_BE",
+              "purpose": "Prod"
+            },
+            {
+              "array_type": "VMAX",
+              "serial_no": "000297800193",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false,
+              "sgname": "MSCS_SG",
+              "purpose": "CDP-Local"
             }
           ]
         }
-      ],
-      "RPA": {
-        "IP": "10.32.32.185",
-        "username": "admin",
-        "password": "admin",
-        "baseurl": "/fapi/rest/5_1"
-      } 
+      ] 
     },
     {
       "name": "VPLEX-Middle",
