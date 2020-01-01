@@ -47,17 +47,6 @@
               "unity_username": "admin", 
               "sgname": "VPLEX_101_BE",
               "purpose": "Prod"
-            },
-            {
-              "array_type": "VMAX",
-              "serial_no": "000297800193",
-              "password": "smc",
-              "unispherehost": "10.121.0.204",
-              "universion": "90",
-              "user": "smc",
-              "verifycert": false,
-              "sgname": "MSCS_SG",
-              "purpose": "CDP-Local"
             }
           ]
         }

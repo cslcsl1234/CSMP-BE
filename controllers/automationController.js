@@ -21,6 +21,7 @@ var Auto = require('../lib/Automation_VPLEX');
 var AutoService = require('../lib/Automation');
 var UNITY = require('../lib/Automation_UNITY');
 var VMAX = require('../lib/Automation_VMAX');
+var moment = require('moment');
 
 var WebSocketServer = require('ws').Server
 var wss = new WebSocketServer({ port: 9000 });
@@ -398,7 +399,7 @@ var automationController = function (app) {
                             }
                         ],
                         "usedfor": [
-                            "os","back","data","log"
+                            "os", "back", "data", "log"
                         ],
                         "HostDeploy": {
                             "label": "主机部署模式",
@@ -1203,8 +1204,8 @@ var automationController = function (app) {
     app.post('/api/auto/service/block/provisioning/review', function (req, res) {
         res.setTimeout(3600 * 1000);
         var RequestParamater = req.body;
-        var usedfor =  RequestParamater.requests[0].usedfor; 
-        console.log("|"+usedfor+"|---usedfor");
+        var usedfor = RequestParamater.requests[0].usedfor;
+        console.log("|" + usedfor + "|---usedfor");
         //console.log(JSON.stringify(req.body));
 
         var newRequestParamater = {
@@ -1225,13 +1226,14 @@ var automationController = function (app) {
 
         newRequestParamater.appname = RequestParamater.appname;
         newRequestParamater.appname_ext = RequestParamater.appname_ext;
-        newRequestParamater.usedfor = ( usedfor == undefined || usedfor == "" ) ? "data" : RequestParamater.requests[0].usedfor ;
+        newRequestParamater.usedfor = (usedfor == undefined || usedfor == "") ? "data" : RequestParamater.requests[0].usedfor;
         newRequestParamater.opsType = RequestParamater.opsType;
         newRequestParamater.capacity = RequestParamater.requests[0].capacity;
         newRequestParamater.count = RequestParamater.requests[0].count;
         newRequestParamater.resourceLevel = RequestParamater.requests[0].StorageResourcePool.resourceLevel;
         newRequestParamater.resourcePoolName = RequestParamater.requests[0].StorageResourcePool.name;
         newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
+        newRequestParamater.timestamp = moment().format('MMDDHHmmss');
 
         async.waterfall(
             [
@@ -1285,69 +1287,78 @@ var automationController = function (app) {
 
 
     app.post('/api/auto/service/block/provisioning/execute', function (req, res) {
-        var AutoAPI = require('../lib/Automation_VPLEX');
+        var AutoAPI = require('../lib/Automation');
 
         res.setTimeout(3600 * 1000);
         var AutoObject = req.body;
-        var ActionsParamater = AutoObject.AutoInfo.ActionParamaters;
-        var RequestParamater = AutoObject.request;
-        var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info;
-        var ws = wsList[RequestParamater.client];
-        //console.log(RequestParamater.client);
-        //console.log(wsList);
+        if (AutoObject.resMsg.code != 200) {
+            res.json(AutoObject.resMsg.code, AutoObject);
+        } else {
+            var ActionsParamater = AutoObject.AutoInfo.ActionParamaters;
+            var RequestParamater = AutoObject.request;
+            var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info;
+            var ws = wsList[RequestParamater.client];
+            //console.log(RequestParamater.client);
+            //console.log(wsList);
 
-        //var ws = AutoObject.request.ws; 
-        if (ws === undefined) {
-            res.json(505, "not find the websocket client. clientID=" + RequestParamater.client);
-        } else { 
-            autologger.logs(200, "Begin execute each action.", AutoObject);
+            //var ws = AutoObject.request.ws; 
+            if (ws === undefined) {
+                res.json(505, "not find the websocket client. clientID=" + RequestParamater.client);
+            } else {
+                autologger.logs(200, "Begin execute each action.", AutoObject);
 
-            /*
-            console.log(" ----------- SEND WEBSOCKET BEGIN ----------------");
-            for (var i in ActionsParamater) {
-                console.log("BEGIN ============" + i);
-                var item = ActionsParamater[i];
-                if (i % 2 == 0) {
-                    item.status = 'success';
-                    item.response = "执行完成！";
-                } else {
 
-                    item.status = 'fail';
-                    item.response = "执行失败！";
-                }
-                console.log(JSON.stringify(item));
-                ws.send(JSON.stringify(item));
-                sleep(5000);
-                console.log("END ============" + i);
-            }
-
-            */
-
-            AutoAPI.ExecuteActions(ActionsParamater, arrayInfo, ws, function (result) {
-                AutoObject.ActionResponses = result;
-                res.json(200,AutoObject);
+                AutoAPI.ExecuteActions(ActionsParamater, ws, function (result) {
+                    AutoObject.ActionResponses = result.data;
+                    //console.log("&&&&&\n" + JSON.stringify(result));
+                    if ( result.code != 200 )
+                        autologger.logs(result.code, "Provising execute is fail!.", AutoObject);
+                    res.json(result.code, AutoObject);
                 })
 
-       }
+            }
 
-        /*
-        var AutoAPI = require('../lib/Automation_VPLEX');
-        AutoAPI.DeployVPLEXBPMN();
-        AutoAPI.ExecuteActionsBPMN(ActionsParamater, arrayInfo, ws, function (result) {
+        }
 
 
-            var ActionParamaterLabers = {};
-            ActionParamaterLabers["method"] = "执行操作";
-            ActionParamaterLabers["DependOnAction"] = "依赖操作";
-            ActionParamaterLabers["StorageVolumeName"] = "物理存储卷名称";
-            ActionParamaterLabers["devicename"] = "卷名称";
-            ActionParamaterLabers["devicename"] = "卷保护模式";
 
-            result.AutoInfo["ActionParamaterLabers"] = ActionParamaterLabers;
+    });
 
-            res.json(200, result);
-        })
-        */
+
+
+    app.post('/api/auto/service/block/provisioning/executetest', function (req, res) {
+        var AutoAPI = require('../lib/Automation');
+
+        res.setTimeout(3600 * 1000);
+        var AutoObject = req.body;
+        if (AutoObject.resMsg.code != 200) {
+            res.json(AutoObject.resMsg.code, AutoObject);
+        } else {
+            var ActionsParamater = AutoObject.AutoInfo.ActionParamaters;
+            var RequestParamater = AutoObject.request;
+            var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info;
+            var ws = wsList[RequestParamater.client];
+            //console.log(RequestParamater.client);
+            //console.log(wsList);
+
+            //var ws = AutoObject.request.ws;  
+            autologger.logs(200, "Begin execute each action.", AutoObject);
+
+
+            AutoAPI.ExecuteActions(ActionsParamater, ws, function (result) {
+                //AutoObject.ActionResponses = result.data;
+                console.log("&&&&&\n" + JSON.stringify(result));
+                if ( result.code != 200 ) {
+                    var errmsg = "Provising execute is fail!.";
+                    if ( result.msg !== undefined ) errmsg = result.msg; 
+                    autologger.logs(result.code, errmsg , AutoObject);
+                }
+                    
+                res.json(result.code, AutoObject);
+            })
+
+
+        }
 
 
 
