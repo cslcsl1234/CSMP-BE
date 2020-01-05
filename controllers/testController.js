@@ -51,6 +51,7 @@ var Ansible = require('../lib/Ansible');
 var Automation = require('../lib/Automation');
 var VMAX = require('../lib/Automation_VMAX');
 var RPA = require('../lib/Automation_RPA');
+var Automation_VPLEX = require('../lib/Automation_VPLEX');
 
 var testController = function (app) {
 
@@ -68,22 +69,54 @@ var testController = function (app) {
     if (req.method == "OPTIONS") res.send(200);  /*让options请求快速返回*/
     else next();
   });
+  app.get('/rpa1', function (req, res) {
 
+    var resourceinfo = require("../config/ResourcePool");
+
+    var RPAInfo1 = RPA.GetRPAInfo("RPA-1");
+    var RPAInfo = RPAInfo1.info;
+
+    var CGName = 'ebankwebesxi_CG';
+    var ClusterName = 'cluster1';
+    var ReplicationsetName = 'rset0';
+
+
+    async.waterfall(
+      [
+        function (callback) {   
+          var createReplicationSetParamater = {
+            "CGName": "ebankwebesxi_CG",
+            "ReplicationsetName": "rs_1230213033os01",
+            "volume": {
+              "prod": "dd_ebankwebesxi_VMAX193_unity785_1230213033os01_vol",
+              "local": "device_ebankwebesxi_VMAX193_1230213033os01_local_vol",
+              "remote": "RPA_CDP_VNX_log_1 (2)"
+            }
+          }
+          
+       
+          RPA.CreateReplicationSet(RPAInfo, createReplicationSetParamater, function (result) { 
+            callback(null, result) 
+          });
+
+
+        } 
+
+      ], function (err, result) {
+        res.json(200, result)
+      });
+
+
+  });
 
   app.get('/rpa', function (req, res) {
 
     var resourceinfo = require("../config/ResourcePool");
 
-    var RPAInfo;
-    for (var i in resourceinfo) {
-      var item = resourceinfo[i];
-      if (item.name == "VPLEX-高端") {
-        RPAInfo = item.RPA;
-        break;
-      }
-    }
+    var RPAInfo1 = RPA.GetRPAInfo("RPA-1");
+    var RPAInfo = RPAInfo1.info;
 
-    var CGName = 'TESTCREATE_CG';
+    var CGName = 'ebankwebesxi_CG';
     var ClusterName = 'cluster1';
     var ReplicationsetName = 'rset0';
 
@@ -103,7 +136,7 @@ var testController = function (app) {
                 journalVolumeName: "sx_journals1 (60)"
               },
               "Remote": {
-                journalVolumeName: "RPA_CDP_VNX_log_1 (2)"
+                journalVolumeName: "RPA_CDP_VNX_log_2 (3)"
               }
             }
           }
@@ -120,12 +153,22 @@ var testController = function (app) {
             "CGName": CGName,
             "ReplicationsetName": ReplicationsetName,
             "volume": {
-              "prod": "dd_ebankwebesxi_VMAX193_unity785_data-1130175738-05_vol",
-              "local": "dd_ebankwebesxi_VMAX193_unity785_data-1130175738-06_vol",
+              "prod": "dd_ebankwebesxi_VMAX193_unity785_1231213659os01_vol",
+              "local": "device_ebankwebesxi_VMAX193_1231213659os01_local_vol",
               "remote": "RPA_CDP_VNX__2 (1)"
             } 
           }
       
+          var createReplicationSetParamater1 = {
+            "CGName": "ebankwebesxi_CG",
+            "ReplicationsetName": "rs_1230213033os01",
+            "volume": {
+              "prod": "dd_ebankwebesxi_VMAX193_unity785_1230213033os01_vol",
+              "local": "device_ebankwebesxi_VMAX193_1230213033os01_local_vol",
+              "remote": "RPA_CDP_VNX_log_2 (3)"
+            }
+          }
+          
        
           RPA.CreateReplicationSet(RPAInfo, createReplicationSetParamater, function (result) { 
             callback(null, result) 
@@ -150,16 +193,9 @@ var testController = function (app) {
 
   app.get('/rpa_unit_test', function (req, res) {
 
-    var resourceinfo = require("../config/ResourcePool");
+    var RPAInfo1 = RPA.GetRPAInfo("RPA-1");
+    var RPAInfo = RPAInfo1.info;
 
-    var RPAInfo;
-    for (var i in resourceinfo) {
-      var item = resourceinfo[i];
-      if (item.name == "VPLEX-高端") {
-        RPAInfo = item.RPA;
-        break;
-      }
-    }
     /*
     var RPAInfo = {
         "IP": "10.32.32.185",
@@ -169,7 +205,7 @@ var testController = function (app) {
       } 
       */
 
-    //RPA.GetConsistencyGroups(RPAInfo, function (result) { res.json(200, result) });
+    RPA.GetConsistencyGroups(RPAInfo, function (result) { res.json(200, result) });
 
     /*
     RPA.GetClusters(RPAInfo, function(result) { 
@@ -392,7 +428,7 @@ var testController = function (app) {
     }
 
 
-    RPA.CreateReplicationSet(RPAInfo, createReplicationSetParamater1, function (result) { res.json(200, result) });
+    //RPA.CreateReplicationSet(RPAInfo, createReplicationSetParamater1, function (result) { res.json(200, result) });
 
   });
 
@@ -1060,11 +1096,153 @@ var testController = function (app) {
     });
 
   });
+  app.get("/autovplex_test", function (req, res) {
+    var paramaters = {
+      "arrayinfo": {
+        "arrayname": "EMCCTEST1",
+        "arraytype": "VPLEX",
+        "capacity": 1000,
+        "info": {
+          "name": "EMCCTEST",
+          "type": "VPLEX",
+          "version": "5.5",
+          "endpoint": "https://10.32.32.100/vplex",
+          "auth": {
+            "username": "service",
+            "password": "password"
+          }
+        },
+        "capability": {
+          "CDP": {
+            "catalog": "CDP.RPA",
+            "name": "RPA-1"
+          }
+        },
+        "backend-array": [
+          {
+            "array_type": "VMAX",
+            "serial_no": "000297800193",
+            "password": "smc",
+            "unispherehost": "10.121.0.204",
+            "universion": "90",
+            "user": "smc",
+            "verifycert": false,
+            "sgname": "MSCS_SG",
+            "purpose": "Prod"
+          },
+          {
+            "array_type": "Unity",
+            "unity_sn": "CKM00163300785",
+            "unity_password": "P@ssw0rd",
+            "unity_hostname": "10.32.32.64",
+            "unity_pool_name": "jxl_vplex101_pool",
+            "unity_username": "admin",
+            "sgname": "VPLEX_101_BE",
+            "purpose": "Prod"
+          }
+        ]
+      },
+      basevolname: 'voltest',
+      appname: "appname",
+      usedfor: 'data',
+      count: 2,
+      capacityGB: 2,
+      storageviews: ['sv1','sv2']
+  }
+
+  var paramaters2 = {
+    "arrayinfo": {
+      "arrayname": "EMCCTEST1",
+      "arraytype": "VPLEX",
+      "capacity": 1000,
+      "info": {
+        "name": "EMCCTEST",
+        "type": "VPLEX",
+        "version": "5.5",
+        "endpoint": "https://10.32.32.100/vplex",
+        "auth": {
+          "username": "service",
+          "password": "password"
+        }
+      }, 
+      "backend-array": [ 
+        {
+          "array_type": "Unity",
+          "unity_sn": "CKM00163300785",
+          "unity_password": "P@ssw0rd",
+          "unity_hostname": "10.32.32.64",
+          "unity_pool_name": "jxl_vplex101_pool",
+          "unity_username": "admin",
+          "sgname": "VPLEX_101_BE",
+          "purpose": "Prod"
+        }
+      ]
+    },
+    basevolname: "voltest_\`${request.appname}\`",
+    appname: "appname",
+    usedfor: 'data',
+    count: 2,
+    capacityGB: 2,
+    storageviews: ['sv1','sv2']
+}
+    //Automation.ExecuteActions_TEST(   function(result) {res.json(200,result);   }) 
+    //Automation_VPLEX.CreateAndExportVolume_TEST(   function(result) {res.json(200,result);   })
+    Automation_VPLEX.VPlexProvising(paramaters2,function(result) {res.json(200,result);   })
+    
+  });
 
   app.get("/test13", function (req, res) {
-    var ret = require('.. /demodata/fabrics.json');
-    res.json(200, ret);
+    var arrayInfo =  {
+      "name": "EMCCTEST",
+      "type": "VPLEX",
+      "version": "5.5",
+      "endpoint": "https://10.32.32.100/vplex",
+      "auth": {
+        "username": "service",
+        "password": "password"
+      }
+    }
+
+    //Automation.ExecuteActions_TEST(   function(result) {res.json(200,result);   }) 
+    //Automation_VPLEX.CreateAndExportVolume_TEST(   function(result) {res.json(200,result);   })
+    Automation_VPLEX.GetStorageViews(arrayInfo, 'cluster-1',function(result) {res.json(200,result);   })
+    
   });
+
+  app.get("/test14", function (req, res) {
+
+    var arrayinfo = {
+      "name": "EMCCTEST",
+      "type": "VPLEX",
+      "version": "5.5",
+      "endpoint": "https://10.32.32.100/vplex",
+      "auth": {
+        "username": "service",
+        "password": "password"
+      }
+    }
+
+    var aa = [
+      {
+        "name": "VOLTEST_1228171527",
+        "lunwwn": "60000970000297800193533030303444"
+      },
+      {
+        "name": "VOLTEST_1228171527",
+        "lunwwn": "600601602f204100130a075e6f5f3475"
+      }
+    ]
+
+    Automation_VPLEX.ClaimStorageVolume(arrayinfo, aa, function(result) {
+      res.json(200,result);
+    })
+
+  });
+
+
+  
+
+
 
   app.get('/test12', function (req, res) {
 

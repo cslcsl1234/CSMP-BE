@@ -8,12 +8,10 @@
                     "IP": "10.32.32.185",
                     "username": "admin",
                     "password": "admin",
-                    "baseurl": "/fapi/rest/5_1",
-                    "cluster1": "cluster1",
-                    "cluster2": "cluster2"
+                    "baseurl": "/fapi/rest/5_1"
                 },
                 "backend-array": {
-                    "Prod": { 
+                    "Prod": {
                         "arrayinfo": {
                             "name": "VPLEX100",
                             "type": "VPLEX",
@@ -26,7 +24,7 @@
                         },
                         "sgname": "RP"
                     },
-                    "Local": { 
+                    "Local": {
                         "arrayname": "EMCCTEST1",
                         "arraytype": "VPLEX",
                         "capacity": 1000,
@@ -55,7 +53,7 @@
                             }
                         ]
                     },
-                    "Remote": { 
+                    "Remote": {
                         "arrayname": "UNITY500F",
                         "arraytype": "Unity",
                         "capacity": 1000,
