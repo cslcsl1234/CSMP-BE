@@ -4396,10 +4396,22 @@ var reportingController = function (app) {
                     newItem["SG"] == item.SG
                 ) { 
                     isfind = true;
+                    if ( newItem["关联存储端口号"] !== undefined ) {
+                        if ( newItem["关联存储端口号"].indexOf(item.arrayport_wwn) < 0 )
+                                newItem["关联存储端口号"] = newItem["关联存储端口号"] + ',' + item.arrayport_wwn;
+                    } else {
+                        newItem["关联存储端口号"] = item.arrayport_wwn;
 
-                    newItem["关联存储端口号"] = newItem["关联存储端口号"] + ',' + item.arrayport_wwn;
-                    newItem["端口名称"] = newItem["端口名称"] + ',' + item.arrayport;
- 
+                    }
+
+                    if ( newItem["端口名称"] !== undefined ) {
+                        if ( newItem["端口名称"].toString().indexOf(item.arrayport) < 0 )
+                                newItem["端口名称"] = newItem["端口名称"] + ',' + item.arrayport;
+                    } else {
+
+                        newItem["端口名称"] = item.arrayport;
+                    }
+
                     break;
                 }
             }
