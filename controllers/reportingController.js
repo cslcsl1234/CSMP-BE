@@ -3746,18 +3746,18 @@ var reportingController = function (app) {
                                                 item2.IORateExpress = item2.IORateExpress + '+' + item1.IORate;
                                             }
                                         }
-                                        if ( matricsIsfind == false ) {
+                                        if (matricsIsfind == false) {
                                             var newItem = {};
                                             newItem["timestamp"] = item1["timestamp"];
-        
+
                                             var timestamp = item1.timestamp;
                                             newItem["date"] = moment.unix(timestamp).format('YYYY-MM-DD');
                                             newItem["hour"] = moment.unix(timestamp).format('HH');
                                             newItem["minute"] = moment.unix(timestamp).format('mm');
-        
+
                                             newItem["IORate"] = item1["IORate"];
                                             newItem["IORateExpress"] = item1["IORate"];
-        
+
                                             mergedItem.matrics.push(newItem);
                                         }
 
@@ -3851,7 +3851,7 @@ var reportingController = function (app) {
                                 var infoItem = arrayinfos[z];
                                 if (item.device == infoItem.sn) {
                                     record["系统名称"] = infoItem.name.split('-')[0];
-                                    record["localtion"] = infoItem.name.split('-')[1]; 
+                                    record["localtion"] = infoItem.name.split('-')[1];
                                     break;
                                 }
                             }
@@ -4059,16 +4059,16 @@ var reportingController = function (app) {
                     var wb = XLSX.utils.book_new();
 
                     var ThroughputRecordsNew = [];
-                    for ( var i in ThroughputRecords) {
+                    for (var i in ThroughputRecords) {
                         var item = ThroughputRecords[i];
-                        var itemNew= {};
+                        var itemNew = {};
 
-                        for (var fieldname in item ) {
-                            switch ( fieldname ) {
-                                case 'SG成员' : 
-                                    itemNew[fieldname] = item[fieldname]; 
-                                    
-                                    switch ( item[fieldname] ) {
+                        for (var fieldname in item) {
+                            switch (fieldname) {
+                                case 'SG成员':
+                                    itemNew[fieldname] = item[fieldname];
+
+                                    switch (item[fieldname]) {
                                         case "FUND_SG":
                                         case "IFTS_SG":
                                         case "ECIF_SG":
@@ -4076,19 +4076,19 @@ var reportingController = function (app) {
                                         case "TPOS_SG":
                                             itemNew["系统吞吐量QOS设定"] = "20000IOPS,1000MB/s"
                                             break;
-                                        default :
+                                        default:
                                             itemNew["系统吞吐量QOS设定"] = "NA"
                                             break;
                                     }
-                                   
+
                                     break;
-                                default :
+                                default:
                                     itemNew[fieldname] = item[fieldname];
                                     break;
                             }
-                        } 
+                        }
 
-                        var percent = ( itemNew["本周工作日均值"] - itemNew["上周工作日均值"] ) / itemNew["上周工作日均值"] * 100 ;
+                        var percent = (itemNew["本周工作日均值"] - itemNew["上周工作日均值"]) / itemNew["上周工作日均值"] * 100;
                         itemNew["本周增幅(%)"] = percent.toFixed(2) + '%';
                         ThroughputRecordsNew.push(itemNew);
                     }
@@ -4098,9 +4098,9 @@ var reportingController = function (app) {
                     XLSX.utils.book_append_sheet(wb, ws1, "DISK_IO");
 
                     // 系统存储IO响应时间 
-                    for ( var i in responseTimeRecords ) {
+                    for (var i in responseTimeRecords) {
                         var item = responseTimeRecords[i];
-                        var percent = ( item["本周日均响应时间峰值"] - item["上周日均响应时间峰值"] ) / item["上周日均响应时间峰值"] * 100;
+                        var percent = (item["本周日均响应时间峰值"] - item["上周日均响应时间峰值"]) / item["上周日均响应时间峰值"] * 100;
                         item["本周增幅(%)"] = percent.toFixed(2) + '%';
                     }
                     var ws2 = XLSX.utils.json_to_sheet(responseTimeRecords);
@@ -4108,120 +4108,120 @@ var reportingController = function (app) {
 
                     var ArrayIOPS = arg1["array"]["IOPS"];
                     var ArrayIOPSNew = [];
-                    for ( var i in ArrayIOPS ) {
+                    for (var i in ArrayIOPS) {
                         var item = ArrayIOPS[i];
-                        if ( item['系统名称'] == 'VMAX4' ) continue;
+                        if (item['系统名称'] == 'VMAX4') continue;
 
                         var itemNew = {};
-                        var name =  item["系统名称"] ;
-                        if ( item["系统名称"] == 'VMAX' ) name = 'VMAX1';
-                        var infoItem = SearchArrayConfigureInfo(name); 
-                        var maxvalue = 0; 
-                        for ( var fieldname in item ) {
-                            switch ( fieldname ) {
-                                case '系统名称' : 
+                        var name = item["系统名称"];
+                        if (item["系统名称"] == 'VMAX') name = 'VMAX1';
+                        var infoItem = SearchArrayConfigureInfo(name);
+                        var maxvalue = 0;
+                        for (var fieldname in item) {
+                            switch (fieldname) {
+                                case '系统名称':
                                     itemNew[fieldname] = item[fieldname];
-                                    itemNew["存储配置"] = infoItem==null?"":infoItem.Configure;
-                                    itemNew["存储IO推荐阀值(IOPS)"] = infoItem==null?"":infoItem.IOPS_Threshold;
-                                    itemNew["总阀值的60%设定警戒阀值(IOPS)"] = infoItem==null?"":infoItem["IOPS_threshold_60%"];
-                                    break; 
-                                default :
+                                    itemNew["存储配置"] = infoItem == null ? "" : infoItem.Configure;
+                                    itemNew["存储IO推荐阀值(IOPS)"] = infoItem == null ? "" : infoItem.IOPS_Threshold;
+                                    itemNew["总阀值的60%设定警戒阀值(IOPS)"] = infoItem == null ? "" : infoItem["IOPS_threshold_60%"];
+                                    break;
+                                default:
                                     itemNew[fieldname] = item[fieldname];
-                                    if ( fieldname.indexOf('星期') > 0 ) {
-                                        if ( maxvalue < item[fieldname] ) maxvalue = item[fieldname];
+                                    if (fieldname.indexOf('星期') > 0) {
+                                        if (maxvalue < item[fieldname]) maxvalue = item[fieldname];
                                     }
                                     break;
-                            }  
-                        } 
-                        itemNew["每周最高值与警戒阈值占比"] = infoItem==null?"": ((maxvalue / infoItem["IOPS_threshold_60%_number"])*100).toFixed(2) + '%';
+                            }
+                        }
+                        itemNew["每周最高值与警戒阈值占比"] = infoItem == null ? "" : ((maxvalue / infoItem["IOPS_threshold_60%_number"]) * 100).toFixed(2) + '%';
                         ArrayIOPSNew.push(itemNew);
-                    } 
+                    }
                     var ws3 = XLSX.utils.json_to_sheet(ArrayIOPSNew);
                     //存储资源IOPS均值
                     XLSX.utils.book_append_sheet(wb, ws3, "DISK_IOPS_AVG");
 
 
-                    var ArrayIOPSHours_dayNew = []; 
+                    var ArrayIOPSHours_dayNew = [];
                     var ArrayIOPSHours_day = arg1["array"]["IOPS_HOURS_DAY"];
-                    for ( var i in ArrayIOPSHours_day ) {
+                    for (var i in ArrayIOPSHours_day) {
                         var item = ArrayIOPSHours_day[i];
-                        if ( item['ArrayName'] == 'VMAX4' ) continue;
+                        if (item['ArrayName'] == 'VMAX4') continue;
 
-                        var itemDayNew = {}; 
-                        var name =  item["ArrayName"] ;
-                        if ( item["ArrayName"] == 'VMAX' ) name = 'VMAX1';
+                        var itemDayNew = {};
+                        var name = item["ArrayName"];
+                        if (item["ArrayName"] == 'VMAX') name = 'VMAX1';
                         var infoItem = SearchArrayConfigureInfo(name);
-                        var maxvalue = 0; 
-                        for ( var fieldname in item ) {
-                            switch ( fieldname ) {
-                                case 'ArrayName' :
-                                    if ( item[fieldname] == 'VMAX4' ) break;
+                        var maxvalue = 0;
+                        for (var fieldname in item) {
+                            switch (fieldname) {
+                                case 'ArrayName':
+                                    if (item[fieldname] == 'VMAX4') break;
                                     itemDayNew[fieldname] = item[fieldname];
-                                    itemDayNew["存储配置"] = infoItem==null?"":infoItem.Configure;
-                                    itemDayNew["存储IO推荐阀值(IOPS)"] = infoItem==null?"":infoItem.IOPS_Threshold;
-                                    itemDayNew["总阀值的60%设定警戒阀值(IOPS)"] = infoItem==null?"":infoItem["IOPS_threshold_60%"];
+                                    itemDayNew["存储配置"] = infoItem == null ? "" : infoItem.Configure;
+                                    itemDayNew["存储IO推荐阀值(IOPS)"] = infoItem == null ? "" : infoItem.IOPS_Threshold;
+                                    itemDayNew["总阀值的60%设定警戒阀值(IOPS)"] = infoItem == null ? "" : infoItem["IOPS_threshold_60%"];
                                     break;
-                                default :
+                                default:
                                     itemDayNew[fieldname] = item[fieldname];
-                                    if ( fieldname.indexOf('-') > 0 ) {
-                                        if ( maxvalue < item[fieldname] ) maxvalue = item[fieldname];
+                                    if (fieldname.indexOf('-') > 0) {
+                                        if (maxvalue < item[fieldname]) maxvalue = item[fieldname];
                                     }
                                     break;
                             }
                         }
-                        itemDayNew["每周最高值与警戒阈值占比"] = infoItem==null?"": ((maxvalue / infoItem["IOPS_threshold_60%_number"])*100).toFixed(2) + '%';
+                        itemDayNew["每周最高值与警戒阈值占比"] = infoItem == null ? "" : ((maxvalue / infoItem["IOPS_threshold_60%_number"]) * 100).toFixed(2) + '%';
                         ArrayIOPSHours_dayNew.push(itemDayNew);
-                    }  
+                    }
                     var ws4 = XLSX.utils.json_to_sheet(ArrayIOPSHours_dayNew);
                     //存储资源IOPS日间峰值
                     XLSX.utils.book_append_sheet(wb, ws4, "Day_IOPS_MAX");
 
 
-                    var ArrayIOPSHours_nightNew = []; 
+                    var ArrayIOPSHours_nightNew = [];
                     var ArrayIOPSHours_night = arg1["array"]["IOPS_HOURS_NIGHT"];
-                    
-                    for ( var i in ArrayIOPSHours_night ) {
-                        var item = ArrayIOPSHours_night[i];
-                        if ( item['ArrayName'] == 'VMAX4' ) continue;
 
-                        var itemNightNew = {}; 
-                        var name =  item["ArrayName"] ;
-                        if ( item["ArrayName"] == 'VMAX' ) name = 'VMAX1';
+                    for (var i in ArrayIOPSHours_night) {
+                        var item = ArrayIOPSHours_night[i];
+                        if (item['ArrayName'] == 'VMAX4') continue;
+
+                        var itemNightNew = {};
+                        var name = item["ArrayName"];
+                        if (item["ArrayName"] == 'VMAX') name = 'VMAX1';
                         var infoItem = SearchArrayConfigureInfo(name);
-                        var maxvalue = 0; 
-                        for ( var fieldname in item ) {
-                            switch ( fieldname ) {
-                                case 'ArrayName' : 
+                        var maxvalue = 0;
+                        for (var fieldname in item) {
+                            switch (fieldname) {
+                                case 'ArrayName':
                                     itemNightNew[fieldname] = item[fieldname];
-                                    itemNightNew["存储配置"] = infoItem==null?"":infoItem.Configure;
-                                    itemNightNew["存储IO推荐阀值(IOPS)"] = infoItem==null?"":infoItem.IOPS_Threshold;
-                                    itemNightNew["总阀值的60%设定警戒阀值(IOPS)"] = infoItem==null?"":infoItem["IOPS_threshold_60%"];
+                                    itemNightNew["存储配置"] = infoItem == null ? "" : infoItem.Configure;
+                                    itemNightNew["存储IO推荐阀值(IOPS)"] = infoItem == null ? "" : infoItem.IOPS_Threshold;
+                                    itemNightNew["总阀值的60%设定警戒阀值(IOPS)"] = infoItem == null ? "" : infoItem["IOPS_threshold_60%"];
                                     break;
-                                default :
+                                default:
                                     itemNightNew[fieldname] = item[fieldname];
-                                    if ( fieldname.indexOf('-') > 0 ) {
-                                        if ( maxvalue < item[fieldname] ) maxvalue = item[fieldname];
+                                    if (fieldname.indexOf('-') > 0) {
+                                        if (maxvalue < item[fieldname]) maxvalue = item[fieldname];
                                     }
                                     break;
                             }
-                        } 
-                        itemNightNew["每周最高值与警戒阈值占比"] = infoItem==null?"": ((maxvalue / infoItem["IOPS_threshold_60%_number"])*100).toFixed(2) + '%';
+                        }
+                        itemNightNew["每周最高值与警戒阈值占比"] = infoItem == null ? "" : ((maxvalue / infoItem["IOPS_threshold_60%_number"]) * 100).toFixed(2) + '%';
                         ArrayIOPSHours_nightNew.push(itemNightNew);
-                    }   
+                    }
                     var ws5 = XLSX.utils.json_to_sheet(ArrayIOPSHours_nightNew);
                     //存储资源IOPS夜间峰值
                     XLSX.utils.book_append_sheet(wb, ws5, "Night_IOPS_MAX");
                     XLSX.writeFile(wb, outputFilename);
- 
+
                     // 日夜间峰值的合成一个表
                     var ArrayIOPSHours = [];
-                    for ( var i in ArrayIOPSHours_dayNew ) {
-                        var item = ArrayIOPSHours_dayNew[i] ;
+                    for (var i in ArrayIOPSHours_dayNew) {
+                        var item = ArrayIOPSHours_dayNew[i];
                         item["DataType"] = "日间";
                         ArrayIOPSHours.push(item);
-                        for ( var j in ArrayIOPSHours_nightNew ) {
+                        for (var j in ArrayIOPSHours_nightNew) {
                             var item1 = ArrayIOPSHours_nightNew[j];
-                            if ( item.ArrayName == item1.ArrayName) {
+                            if (item.ArrayName == item1.ArrayName) {
                                 item1["DataType"] = "夜间";
                                 ArrayIOPSHours.push(item1);
                             }
@@ -4253,102 +4253,102 @@ var reportingController = function (app) {
     function SearchArrayConfigureInfo(device) {
         var arrayInfo = [
             {
-                "ArrayName":"VMAX1",
-                "Configure":"一代存储VMAX 8引擎16控",
-                "IOPS_Threshold":"6万",
-                "IOPS_threshold_60%":"3.6万",
-                "IOPS_threshold_60%_number":36000
+                "ArrayName": "VMAX1",
+                "Configure": "一代存储VMAX 8引擎16控",
+                "IOPS_Threshold": "6万",
+                "IOPS_threshold_60%": "3.6万",
+                "IOPS_threshold_60%_number": 36000
             },
             {
-                "ArrayName":"VMAX2",
-                "Configure":"一代存储VMAX 4引擎8控",
-                "IOPS_Threshold":"5万",
-                "IOPS_threshold_60%":"4万",
-                "IOPS_threshold_60%_number":40000
+                "ArrayName": "VMAX2",
+                "Configure": "一代存储VMAX 4引擎8控",
+                "IOPS_Threshold": "5万",
+                "IOPS_threshold_60%": "4万",
+                "IOPS_threshold_60%_number": 40000
             },
             {
-                "ArrayName":"VMAX3",
-                "Configure":"二代存储VMAX20k 4引擎8控",
-                "IOPS_Threshold":"7万",
-                "IOPS_threshold_60%":"4.2万",
-                "IOPS_threshold_60%_number":42000
-            }, 
-            {
-                "ArrayName":"VMAX5",
-                "Configure":"二代存储VMAX20k 4引擎8控",
-                "IOPS_Threshold":"5万",
-                "IOPS_threshold_60%":"3万",
-                "IOPS_threshold_60%_number":30000
+                "ArrayName": "VMAX3",
+                "Configure": "二代存储VMAX20k 4引擎8控",
+                "IOPS_Threshold": "7万",
+                "IOPS_threshold_60%": "4.2万",
+                "IOPS_threshold_60%_number": 42000
             },
             {
-                "ArrayName":"VMAX6",
-                "Configure":"二代存储VMAX20k 4引擎8控",
-                "IOPS_Threshold":"6万",
-                "IOPS_threshold_60%":"3.6万",
-                "IOPS_threshold_60%_number":36000
+                "ArrayName": "VMAX5",
+                "Configure": "二代存储VMAX20k 4引擎8控",
+                "IOPS_Threshold": "5万",
+                "IOPS_threshold_60%": "3万",
+                "IOPS_threshold_60%_number": 30000
             },
             {
-                "ArrayName":"VMAX7",
-                "Configure":"二代存储VMAX10k 2引擎4控",
-                "IOPS_Threshold":"2.5万",
-                "IOPS_threshold_60%":"1.5万",
-                "IOPS_threshold_60%_number":15000
+                "ArrayName": "VMAX6",
+                "Configure": "二代存储VMAX20k 4引擎8控",
+                "IOPS_Threshold": "6万",
+                "IOPS_threshold_60%": "3.6万",
+                "IOPS_threshold_60%_number": 36000
             },
             {
-                "ArrayName":"VMAX8",
-                "Configure":"二代存储VMAX40k 4引擎8控",
-                "IOPS_Threshold":"4.6万",
-                "IOPS_threshold_60%":"2.8万",
-                "IOPS_threshold_60%_number":28000
+                "ArrayName": "VMAX7",
+                "Configure": "二代存储VMAX10k 2引擎4控",
+                "IOPS_Threshold": "2.5万",
+                "IOPS_threshold_60%": "1.5万",
+                "IOPS_threshold_60%_number": 15000
             },
             {
-                "ArrayName":"VMAX9",
-                "Configure":"二代存储VMAX20k 4引擎8控",
-                "IOPS_Threshold":"6.9万",
-                "IOPS_threshold_60%":"4.1万",
-                "IOPS_threshold_60%_number":41000
+                "ArrayName": "VMAX8",
+                "Configure": "二代存储VMAX40k 4引擎8控",
+                "IOPS_Threshold": "4.6万",
+                "IOPS_threshold_60%": "2.8万",
+                "IOPS_threshold_60%_number": 28000
             },
             {
-                "ArrayName":"VMAX10",
-                "Configure":"三代存储VMAX200k 2引擎4控",
-                "IOPS_Threshold":"3.3万",
-                "IOPS_threshold_60%":"2万",
-                "IOPS_threshold_60%_number":20000
+                "ArrayName": "VMAX9",
+                "Configure": "二代存储VMAX20k 4引擎8控",
+                "IOPS_Threshold": "6.9万",
+                "IOPS_threshold_60%": "4.1万",
+                "IOPS_threshold_60%_number": 41000
             },
             {
-                "ArrayName":"VMAX11",
-                "Configure":"三代全闪存储VMAX450F2引擎4控",
-                "IOPS_Threshold":"10万",
-                "IOPS_threshold_60%":"6万",
-                "IOPS_threshold_60%_number":60000
+                "ArrayName": "VMAX10",
+                "Configure": "三代存储VMAX200k 2引擎4控",
+                "IOPS_Threshold": "3.3万",
+                "IOPS_threshold_60%": "2万",
+                "IOPS_threshold_60%_number": 20000
             },
             {
-                "ArrayName":"VMAX12",
-                "Configure":"三代全闪存储VMAX450F2引擎4控",
-                "IOPS_Threshold":"9.2万",
-                "IOPS_threshold_60%":"5.5万",
-                "IOPS_threshold_60%_number":55000
+                "ArrayName": "VMAX11",
+                "Configure": "三代全闪存储VMAX450F2引擎4控",
+                "IOPS_Threshold": "10万",
+                "IOPS_threshold_60%": "6万",
+                "IOPS_threshold_60%_number": 60000
             },
             {
-                "ArrayName":"VMAX13",
-                "Configure":"三代全闪存储VMAX250F2引擎4控",
-                "IOPS_Threshold":"25万",
-                "IOPS_threshold_60%":"15万",
-                "IOPS_threshold_60%_number":150000
+                "ArrayName": "VMAX12",
+                "Configure": "三代全闪存储VMAX450F2引擎4控",
+                "IOPS_Threshold": "9.2万",
+                "IOPS_threshold_60%": "5.5万",
+                "IOPS_threshold_60%_number": 55000
             },
             {
-                "ArrayName":"VMAX14",
-                "Configure":"三代全闪存储VMAX950F2引擎4控",
-                "IOPS_Threshold":"36万",
-                "IOPS_threshold_60%":"22万",
-                "IOPS_threshold_60%_number":220000
+                "ArrayName": "VMAX13",
+                "Configure": "三代全闪存储VMAX250F2引擎4控",
+                "IOPS_Threshold": "25万",
+                "IOPS_threshold_60%": "15万",
+                "IOPS_threshold_60%_number": 150000
             },
             {
-                "ArrayName":"VMAX15",
-                "Configure":"三代全闪存储VMAX950F2引擎4控",
-                "IOPS_Threshold":"27万",
-                "IOPS_threshold_60%":"16万",
-                "IOPS_threshold_60%_number":160000
+                "ArrayName": "VMAX14",
+                "Configure": "三代全闪存储VMAX950F2引擎4控",
+                "IOPS_Threshold": "36万",
+                "IOPS_threshold_60%": "22万",
+                "IOPS_threshold_60%_number": 220000
+            },
+            {
+                "ArrayName": "VMAX15",
+                "Configure": "三代全闪存储VMAX950F2引擎4控",
+                "IOPS_Threshold": "27万",
+                "IOPS_threshold_60%": "16万",
+                "IOPS_threshold_60%_number": 160000
             }
         ];
 
@@ -4368,59 +4368,88 @@ var reportingController = function (app) {
     }
 
 
-    
+
     app.get('/fullConfigIOInfos', function (req, res) {
         var ReportOutputPath = "/csmp/reporting";
 
         var finalRecords_new = require("/csmp/reporting/topology_all");
 
-                // 20191214: add the fullConfigIOInfo<datetime>.json file
-                var fullConfigIOInfos = [];
-                for ( var i in finalRecords_new) {
-                    var item = finalRecords_new[i];
-                    var newItem= {};
+        // 20191214: add the fullConfigIOInfo<datetime>.json file
+        var fullConfigIOInfos = [];
+        for (var i in finalRecords_new) {
+            var item = finalRecords_new[i];
 
-                    newItem["应用ID"] =                   item.appShortName                ;
-                    newItem["应用名称"] =                 item.app                         ;
-                    newItem["管理员"] =                   item.appManagerA                 ;
-                    newItem["关联主机"] =                 item.host                        ;
-                    newItem["主备机状态"] =               item.hostStatus                  ;
-                    newItem["关联主机HbaWwn"] =           item.hbawwn                      ;
-                    newItem["主机关联交换机端口Wwpn"] =   item.connect_hba_swport_wwn      ;
-                    newItem["主机关联交换机名称"] =       item.connect_hba_sw              ;
-                    newItem["主机关联交换机SN"] =         item.connect_hba_sw_id           ;
-                    newItem["存储关联交换机SN"] =         item.connect_arrayport_sw_id     ;
-                    newItem["存储关联交换机名称"] =       item.connect_arrayport_sw        ;
-                    newItem["存储关联交换机端口Wwpn"] =   item.connect_arrayport_swport_wwn;
-                    newItem["关联存储端口号"] =           item.arrayport_wwn               ;
-                    newItem["端口名称"] =                 item.arrayport                   ;
-                    newItem["关联Device"] =               item.devices                     ;
-                    newItem["Device逻辑总容量(GB)"] =     item.Capacity                    ;
-                    newItem["存储SN"] =                   item.array                       ;
-                    newItem["存储名称"] =                 item.arrayname                   ;
-                    newItem["存储类型"] =                 item.arraytype                   ;
-                    newItem["View"] =                     item.maskingview                 ;
-                    newItem["IG"] =                       item.IG                          ;
-                    newItem["PG"] =                       item.PG                          ;
-                    newItem["SG"] =                       item.SG                          ;
+            var isfind = false;
+            for (var j in fullConfigIOInfos) {
+                var newItem = fullConfigIOInfos[j];
 
-                    fullConfigIOInfos.push(newItem);
+                //if ( newItem["应用ID"] == "FTS" ) console.log(newItem);
 
+                if (
+                    newItem["关联主机HbaWwn"] == item.hbawwn &&
+                    newItem["存储SN"] == item.array &&
+                    newItem["存储名称"] == item.arrayname &&
+                    newItem["存储类型"] == item.arraytype &&
+                    newItem["View"] == item.maskingview &&
+                    newItem["IG"] == item.IG &&
+                    newItem["PG"] == item.PG &&
+                    newItem["SG"] == item.SG
+                ) { 
+                    isfind = true;
+
+                    newItem["关联存储端口号"] = newItem["关联存储端口号"] + ',' + item.arrayport_wwn;
+                    newItem["端口名称"] = newItem["端口名称"] + ',' + item.arrayport;
+ 
+                    break;
                 }
-                var fs = require("fs");
-                const Json2csvParser = require('json2csv').Parser;
-                const fields = ["应用ID","应用名称","管理员","关联主机","主备机状态","关联主机HbaWwn","主机关联交换机端口Wwpn","主机关联交换机名称","主机关联交换机SN","存储关联交换机SN","存储关联交换机名称","存储关联交>换机端口Wwpn","关联存储端口号","端口名称","关联Device","Device逻辑总容量(GB)","存储SN","存储名称","存储类型","View","IG","PG","SG"];
+            }
 
-                const json2csvParser = new Json2csvParser({ fields });
-                const csv = json2csvParser.parse(fullConfigIOInfos);
+            if (isfind == false) {
+                var newItem = {};
 
-                var filename = ['fullConfigIOInfos', moment().format('YYYY-MM-DD') , '.csv'].join('');
-                //console.log(csv);
-                //fs.writeFileSync(filename, csv);
+                newItem["应用ID"] = item.appShortName;
+                newItem["应用名称"] = item.app;
+                newItem["管理员"] = item.appManagerA;
+                newItem["关联主机"] = item.host;
+                newItem["主备机状态"] = item.hostStatus;
+                newItem["关联主机HbaWwn"] = item.hbawwn;
+                newItem["主机关联交换机端口Wwpn"] = item.connect_hba_swport_wwn;
+                newItem["主机关联交换机名称"] = item.connect_hba_sw;
+                newItem["主机关联交换机SN"] = item.connect_hba_sw_id;
+                newItem["存储关联交换机SN"] = item.connect_arrayport_sw_id;
+                newItem["存储关联交换机名称"] = item.connect_arrayport_sw;
+                newItem["存储关联交换机端口Wwpn"] = item.connect_arrayport_swport_wwn;
+                newItem["关联存储端口号"] = item.arrayport_wwn;
+                newItem["端口名称"] = item.arrayport;
+                newItem["关联Device"] = item.devices;
+                newItem["Device逻辑总容量(GB)"] = item.Capacity;
+                newItem["存储SN"] = item.array;
+                newItem["存储名称"] = item.arrayname;
+                newItem["存储类型"] = item.arraytype;
+                newItem["View"] = item.maskingview;
+                newItem["IG"] = item.IG;
+                newItem["PG"] = item.PG;
+                newItem["SG"] = item.SG;
 
-                res.setHeader("Content-disposition", "attachment; filename="+filename+"\"");
-                res.setHeader("Content-Type","text/csv");
-                res.status(200).send(csv);
+                fullConfigIOInfos.push(newItem);
+            }
+
+
+        }
+        var fs = require("fs");
+        const Json2csvParser = require('json2csv').Parser;
+        const fields = ["应用ID", "应用名称", "管理员", "关联主机", "主备机状态", "关联主机HbaWwn", "主机关联交换机端口Wwpn", "主机关联交换机名称", "主机关联交换机SN", "存储关联交换机SN", "存储关联交换机名称", "存储关联交>换机端口Wwpn", "关联存储端口号", "端口名称", "关联Device", "Device逻辑总容量(GB)", "存储SN", "存储名称", "存储类型", "View", "IG", "PG", "SG"];
+
+        const json2csvParser = new Json2csvParser({ fields });
+        const csv = json2csvParser.parse(fullConfigIOInfos);
+
+        var filename = ['fullConfigIOInfos', moment().format('YYYY-MM-DD'), '.csv'].join('');
+        //console.log(csv);
+        //fs.writeFileSync(filename, csv);
+
+        res.setHeader("Content-disposition", "attachment; filename=" + filename + "\"");
+        res.setHeader("Content-Type", "text/csv");
+        res.status(200).send(csv);
 
 
     });
