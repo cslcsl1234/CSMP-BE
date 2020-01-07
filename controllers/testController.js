@@ -49,7 +49,7 @@ var MongoDBFunction = require('../lib/MongoDBFunction');
 var sortBy = require('sort-by');
 var Ansible = require('../lib/Ansible');
 var Automation = require('../lib/Automation');
-var VMAX = require('../lib/Automation_VMAX');
+var VMAX_AUTO = require('../lib/Automation_VMAX');
 var RPA = require('../lib/Automation_RPA');
 var Automation_VPLEX = require('../lib/Automation_VPLEX');
 
@@ -779,7 +779,7 @@ var testController = function (app) {
     var ReportTmpDataPath = config.Reporting.TmpDataPath;
     //GetAssignedInitiatorByDevices1(device,function(result) {
 
-    SWITCH.getZone(device, function (zonelist) { res.json(200, zonelist); });
+    //SWITCH.getZone(device, function (zonelist) { res.json(200, zonelist); });
 
     // Switch.getFabric(fabwwn,function(resultJson) {    res.json(200,resultJson);       });
 
@@ -852,7 +852,8 @@ var testController = function (app) {
     //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
     //VMAX.GetMaskViews(device, function(ret) { res.json(200,ret); });
 
-    //Report.E2ETopology(device, function (ret) { res.json(200, ret); });
+    Report.E2ETopology(device, function (ret) { res.json(200, ret); });
+    //VPLEX.getVplexStorageViews(device, function(ret) {  res.json(200,ret);   }); 
 
     //Report.ArrayAccessInfosTEST(device, function(ret) {    res.json(200,ret);    });
 
@@ -872,7 +873,7 @@ var testController = function (app) {
     //VNX.GetUnity_FileSystem(device,function(result) {  res.json(200,result); }); 
 
 
-    // VPLEX.getVplexStorageViews(device, function(ret) {  res.json(200,ret);   }); 
+
     //VPLEX.GetVirtualVolumeRelationByDevices(device, function(ret) {  res.json(200,ret);   }); 
     //VPLEX.GetStorageVolumeByDevices(device, function(ret) {  res.json(200,ret);   }); 
   });
