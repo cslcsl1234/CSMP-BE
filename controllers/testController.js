@@ -462,23 +462,7 @@ var testController = function (app) {
       res.json(200, result);
     })
   });
-
-  app.get('/kafkatest-receive', function (req, res) {
-
-
-    var config = configger.load();
-    const kafkaConf = config.kafkaConf;
-    const topics = config.kafakTopics;
-    var topicname = topics.executeQueue;
-    //AutoVMAX.createTopics();
-    var key;
-    AutoVMAX.kafkaReceiveMsg(topicname, key, function (msg) {
-      console.log("kafkaReceiveMsg is return. ")
-      res.json(200, msg);
-    })
-
-  });
-
+ 
 
   app.get('/autotest', function (req, res) {
 
