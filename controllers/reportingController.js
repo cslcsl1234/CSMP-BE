@@ -4253,107 +4253,118 @@ var reportingController = function (app) {
     function SearchArrayConfigureInfo(device) {
         var arrayInfo = [
             {
-                "ArrayName": "VMAX1",
-                "Configure": "一代存储VMAX 8引擎16控",
-                "IOPS_Threshold": "6万",
-                "IOPS_threshold_60%": "3.6万",
-                "IOPS_threshold_60%_number": 36000
+                "ArrayName":"VMAX1",
+                "Configure":"一代存储VMAX 8引擎16控",
+                "IOPS_Threshold":"6万",
+                "IOPS_threshold_60%":"3.6万",
+                "IOPS_threshold_60%_number":36000
             },
             {
-                "ArrayName": "VMAX2",
-                "Configure": "一代存储VMAX 4引擎8控",
-                "IOPS_Threshold": "5万",
-                "IOPS_threshold_60%": "4万",
-                "IOPS_threshold_60%_number": 40000
+                "ArrayName":"VMAX2",
+                "Configure":"一代存储VMAX 4引擎8控",
+                "IOPS_Threshold":"5万",
+                "IOPS_threshold_60%":"4万",
+                "IOPS_threshold_60%_number":40000
             },
             {
-                "ArrayName": "VMAX3",
-                "Configure": "二代存储VMAX20k 4引擎8控",
-                "IOPS_Threshold": "7万",
-                "IOPS_threshold_60%": "4.2万",
-                "IOPS_threshold_60%_number": 42000
+                "ArrayName":"VMAX3",
+                "Configure":"二代存储VMAX20k 4引擎8控",
+                "IOPS_Threshold":"7万",
+                "IOPS_threshold_60%":"4.2万",
+                "IOPS_threshold_60%_number":42000
+            }, 
+            {
+                "ArrayName":"VMAX5",
+                "Configure":"二代存储VMAX20k 4引擎8控",
+                "IOPS_Threshold":"5万",
+                "IOPS_threshold_60%":"3万",
+                "IOPS_threshold_60%_number":30000
             },
             {
-                "ArrayName": "VMAX5",
-                "Configure": "二代存储VMAX20k 4引擎8控",
-                "IOPS_Threshold": "5万",
-                "IOPS_threshold_60%": "3万",
-                "IOPS_threshold_60%_number": 30000
+                "ArrayName":"VMAX6",
+                "Configure":"二代存储VMAX20k 4引擎8控",
+                "IOPS_Threshold":"6万",
+                "IOPS_threshold_60%":"3.6万",
+                "IOPS_threshold_60%_number":36000
             },
             {
-                "ArrayName": "VMAX6",
-                "Configure": "二代存储VMAX20k 4引擎8控",
-                "IOPS_Threshold": "6万",
-                "IOPS_threshold_60%": "3.6万",
-                "IOPS_threshold_60%_number": 36000
+                "ArrayName":"VMAX7",
+                "Configure":"二代存储VMAX10k 2引擎4控",
+                "IOPS_Threshold":"2.5万",
+                "IOPS_threshold_60%":"1.5万",
+                "IOPS_threshold_60%_number":15000
             },
             {
-                "ArrayName": "VMAX7",
-                "Configure": "二代存储VMAX10k 2引擎4控",
-                "IOPS_Threshold": "2.5万",
-                "IOPS_threshold_60%": "1.5万",
-                "IOPS_threshold_60%_number": 15000
+                "ArrayName":"VMAX8",
+                "Configure":"二代存储VMAX40k 4引擎8控",
+                "IOPS_Threshold":"4.6万",
+                "IOPS_threshold_60%":"2.8万",
+                "IOPS_threshold_60%_number":28000
             },
             {
-                "ArrayName": "VMAX8",
-                "Configure": "二代存储VMAX40k 4引擎8控",
-                "IOPS_Threshold": "4.6万",
-                "IOPS_threshold_60%": "2.8万",
-                "IOPS_threshold_60%_number": 28000
+                "ArrayName":"VMAX9",
+                "Configure":"二代存储VMAX20k 4引擎8控",
+                "IOPS_Threshold":"6.9万",
+                "IOPS_threshold_60%":"4.1万",
+                "IOPS_threshold_60%_number":41000
             },
             {
-                "ArrayName": "VMAX9",
-                "Configure": "二代存储VMAX20k 4引擎8控",
-                "IOPS_Threshold": "6.9万",
-                "IOPS_threshold_60%": "4.1万",
-                "IOPS_threshold_60%_number": 41000
+                "ArrayName":"VMAX10",
+                "Configure":"三代存储VMAX200k 2引擎4控",
+                "IOPS_Threshold":"3.3万",
+                "IOPS_threshold_60%":"2万",
+                "IOPS_threshold_60%_number":20000
             },
             {
-                "ArrayName": "VMAX10",
-                "Configure": "三代存储VMAX200k 2引擎4控",
-                "IOPS_Threshold": "3.3万",
-                "IOPS_threshold_60%": "2万",
-                "IOPS_threshold_60%_number": 20000
+                "ArrayName":"VMAX11",
+                "Configure":"三代全闪存储VMAX450F2引擎4控",
+                "IOPS_Threshold":"10万",
+                "IOPS_threshold_60%":"6万",
+                "IOPS_threshold_60%_number":60000
             },
             {
-                "ArrayName": "VMAX11",
-                "Configure": "三代全闪存储VMAX450F2引擎4控",
-                "IOPS_Threshold": "10万",
-                "IOPS_threshold_60%": "6万",
-                "IOPS_threshold_60%_number": 60000
+                "ArrayName":"VMAX12",
+                "Configure":"三代全闪存储VMAX450F2引擎4控",
+                "IOPS_Threshold":"9.2万",
+                "IOPS_threshold_60%":"5.5万",
+                "IOPS_threshold_60%_number":55000
             },
             {
-                "ArrayName": "VMAX12",
-                "Configure": "三代全闪存储VMAX450F2引擎4控",
-                "IOPS_Threshold": "9.2万",
-                "IOPS_threshold_60%": "5.5万",
-                "IOPS_threshold_60%_number": 55000
+                "ArrayName":"VMAX13",
+                "Configure":"三代全闪存储VMAX250F2引擎4控",
+                "IOPS_Threshold":"25万",
+                "IOPS_threshold_60%":"15万",
+                "IOPS_threshold_60%_number":150000
             },
             {
-                "ArrayName": "VMAX13",
-                "Configure": "三代全闪存储VMAX250F2引擎4控",
-                "IOPS_Threshold": "25万",
-                "IOPS_threshold_60%": "15万",
-                "IOPS_threshold_60%_number": 150000
+                "ArrayName":"VMAX14",
+                "Configure":"三代全闪存储VMAX950F2引擎4控",
+                "IOPS_Threshold":"36万",
+                "IOPS_threshold_60%":"22万",
+                "IOPS_threshold_60%_number":220000
             },
             {
-                "ArrayName": "VMAX14",
-                "Configure": "三代全闪存储VMAX950F2引擎4控",
-                "IOPS_Threshold": "36万",
-                "IOPS_threshold_60%": "22万",
-                "IOPS_threshold_60%_number": 220000
+                "ArrayName":"VMAX15",
+                "Configure":"三代全闪存储VMAX950F2引擎4控",
+                "IOPS_Threshold":"27万",
+                "IOPS_threshold_60%":"16万",
+                "IOPS_threshold_60%_number":160000
             },
             {
-                "ArrayName": "VMAX15",
-                "Configure": "三代全闪存储VMAX950F2引擎4控",
-                "IOPS_Threshold": "27万",
-                "IOPS_threshold_60%": "16万",
-                "IOPS_threshold_60%_number": 160000
+                "ArrayName":"VMAX16",
+                "Configure":"三代全闪存储VMAX950F2引擎4控",
+                "IOPS_Threshold":"27万",
+                "IOPS_threshold_60%":"16万",
+                "IOPS_threshold_60%_number":160000
+            },
+            {
+                "ArrayName":"VMAX17",
+                "Configure":"三代全闪存储VMAX950F2引擎4控",
+                "IOPS_Threshold":"27万",
+                "IOPS_threshold_60%":"16万",
+                "IOPS_threshold_60%_number":160000
             }
         ];
-
-
-
 
         for (var i in arrayInfo) {
             var item = arrayInfo[i];
@@ -4365,8 +4376,8 @@ var reportingController = function (app) {
         return null;
 
 
-    }
 
+    }
 
 
     app.get('/fullConfigIOInfos', function (req, res) {
@@ -4457,7 +4468,7 @@ var reportingController = function (app) {
 
         var filename = ['fullConfigIOInfos', moment().format('YYYY-MM-DD'), '.csv'].join('');
         //console.log(csv);
-        //fs.writeFileSync(filename, csv);
+        fs.writeFileSync(filename, csv);
 
         res.setHeader("Content-disposition", "attachment; filename=" + filename + "\"");
         res.setHeader("Content-Type", "text/csv");

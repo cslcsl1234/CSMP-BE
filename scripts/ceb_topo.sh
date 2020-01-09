@@ -16,16 +16,19 @@ echo "authkey="$authkey
 CMDBFILE=CMDBTOSTORAGE${YESTODAY_DD}.csv
  
 /usr/local/bin/expect -c "
-spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbef@10.1.41.60
+spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbef@10.1.187.78
 expect \"Password:\"
 send \"ITSM_cmdbef#04\r\"
 expect \"sftp>\"
-send \"cd /export/home/eoms4ftp/cmdbef/attachment/cz\r\"
+send \"cd attachment/cz\r\"
 expect \"sftp>\"
-send \"get /export/home/eoms4ftp/cmdbef/attachment/cz/${CMDBFILE} /csmp/reporting/resource/\r\"
+send \"get ${CMDBFILE} /csmp/reporting/resource/\r\"
 expect \"sftp>\"
 send \"exit\r\"
 "
+echo " --------------------- download ${CMDBFILE} ---------------------------------\n"
+
+
 cd /csmp/reporting/resource 
 if [ -f ${CMDBFILE} ];
 then 
@@ -46,68 +49,74 @@ then
 	echo "mv topology.xlsx topology${DD}.xlsx"
 	mv topology.xlsx topology${DD}.xlsx
 /usr/local/bin/expect -c "
-spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbsb@10.1.41.60
+spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbsb@10.1.187.78
 expect \"Password:\"
-send \"ITSM_sb#04\r\"
+send \"ITSM_sb#68\r\"
+expect \"sftp>\"
+send \"cd attachment\r\"
 expect \"sftp>\"
 send \"put topology${DD}.xlsx\r\"
 expect \"sftp>\"
 send \"exit\r\"
+"
+echo " --------------------- upload topology${DD}.xlsx ---------------------------------\n"
 fi
 
 if [ -f lunmapping.xlsx ];
 then 
 	echo "mv lunmapping.xlsx lunmapping${DD}.xlsx"
 	mv lunmapping.xlsx lunmapping${DD}.xlsx
-#spawn sftp -oPort=16022 cmdbsb@10.1.41.60
-#expect {
-#"Password:" {send "ITSM_sb#04\r";exp_continue}
-#}
-#bin 
-#put lunmapping${DD}.xlsx
-#exit
-#!
 /usr/local/bin/expect -c "
-spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbsb@10.1.41.60
+spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbsb@10.1.187.78
 expect \"Password:\"
-send \"ITSM_sb#04\r\"
+send \"ITSM_sb#68\r\"
+expect \"sftp>\"
+send \"cd attachment\r\"
 expect \"sftp>\"
 send \"put lunmapping${DD}.xlsx\r\"
 expect \"sftp>\"
 send \"exit\r\"
+"
+echo " --------------------- upload lunmapping${DD}.xlsx ---------------------------------\n"
 fi
 
 echo 'curl --silent -X GET http://csmpserver:8080/api/external/switchinfo -H "Authorization: ${authkey}"'
 curl --silent -X GET http://csmpserver:8080/api/external/switchinfo -H "Authorization: ${authkey}"
-if [ -f switchinfo${DD1}.csv ];
+if [ -f switch_info${DD1}.csv ];
 then 
 	echo "put file switch_info${DD1}.csv"
 /usr/local/bin/expect -c "
-spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbsb@10.1.41.60
+spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbsb@10.1.187.78
 expect \"Password:\"
-send \"ITSM_sb#04\r\"
+send \"ITSM_sb#68\r\"
 expect \"sftp>\"
-send \"put witch_info${DD1}.csv\r\"
+send \"cd attachment\r\"
+expect \"sftp>\"
+send \"put switch_info${DD1}.csv\r\"
 expect \"sftp>\"
 send \"exit\r\"
 "
+echo " --------------------- upload switch_info${DD1}.csv ---------------------------------\n"
 fi
 
 echo 'curl --silent -X GET http://csmpserver:8080/api/external/arrayinfo -H "Authorization: ${authkey}"'
 curl --silent -X GET http://csmpserver:8080/api/external/arrayinfo -H "Authorization: ${authkey}"
-if [ -f switchinfo${DD1}.csv ];
+if [ -f array_info${DD1}.csv ];
 then 
 	echo "put file array_info${DD1}.csv"
 /usr/local/bin/expect -c "
-spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbsb@10.1.41.60
+spawn sftp -oPort=16022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null cmdbsb@10.1.187.78
 expect \"Password:\"
-send \"ITSM_sb#04\r\"
+send \"ITSM_sb#68\r\"
+expect \"sftp>\"
+send \"cd attachment\r\"
 expect \"sftp>\"
 send \"put array_info${DD1}.csv\r\"
 expect \"sftp>\"
 send \"exit\r\"
 "
+echo " --------------------- upload array_info${DD1}.csv ---------------------------------\n"
 fi
 
 
-echo " --------------------- end ---------------------------------"
+echo "\n --------------------- end ---------------------------------\n"

@@ -845,8 +845,40 @@ var testController = function (app) {
     //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
     //VMAX.GetMaskViews(device, function(ret) { res.json(200,ret); });
 
-    Report.E2ETopology(device, function (ret) { res.json(200, ret); });
-    //VPLEX.getVplexStorageViews(device, function(ret) {  res.json(200,ret);   }); 
+    //Report.E2ETopology(device, function (ret) { res.json(200, ret); });
+ 
+    /*
+    Report.E2ETopology(device, function (ret) { 
+      
+      var match = ret.marched;
+      
+      var result = [];
+      for ( var i in match ) {
+        var item = match[i];
+        if ( item.hbawwn == '21000024FF3FA4B5' && item.arrayport_wwn == '500014428075F000') {
+          result.push(item);
+        }
+      }
+
+      res.json(200, result); 
+    
+    }); 
+    */
+
+    /*
+     VPLEX.getVplexStorageViews(device, function(ret) {  
+       var result = [];
+       for ( var i in ret ) {
+         var item = ret[i];
+         if ( item.part == 'JXQ_BackupServer' && item.device == 'CKM00130800839') {
+           result.push(item);
+         }
+       }  
+       res.json(200,result);    
+      });
+      */
+
+    VPLEX.getVplexStorageViews(device, function(ret) {  res.json(200,ret);   }); 
 
     //Report.ArrayAccessInfosTEST(device, function(ret) {    res.json(200,ret);    });
 

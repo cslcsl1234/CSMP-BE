@@ -18,3 +18,5 @@ for collection in $COLLECTIONS; do
     mongoexport -d ${DB} -c $collection -o ${customerdata}/$collection.json
 done
 
+# mongodump -h dbhost -d dbname -o <dbdirectory>
+# mongorestore -h <hostname><:port> -d dbname <dbdirectory>
