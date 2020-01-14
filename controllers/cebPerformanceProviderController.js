@@ -458,6 +458,7 @@ var cebPerformanceProviderController = function (app) {
     var thresholdType = req.query.thresholdType;
         var result = {};
         result.data = 0;
+        /*
         mysql.yesterdayEventCount(function(count) { 
             for ( var i in count ) {
                 if ( count[i].type == thresholdType )  {
@@ -469,6 +470,8 @@ var cebPerformanceProviderController = function (app) {
             res.json(200,result);
             
         }); 
+        */
+       res.json(200,result);
 
     });
 
