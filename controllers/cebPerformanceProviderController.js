@@ -1062,7 +1062,7 @@ var cebPerformanceProviderController = function (app) {
                     param['filter'] = 'datagrp=\'BROCADE_FCSWITCH_PORT\''; 
             
                     param['keys'] = ['deviceid','partwwn']; 
-                    param['fields'] = ['partid','lsname'];
+                    param['fields'] = ['partid','lsname','devicesn'];
             
                     CallGet.CallGet(param, function(param) {  
                         var swportinfo = [];
@@ -1084,7 +1084,8 @@ var cebPerformanceProviderController = function (app) {
                                 switem["name"] = item.lsname;
                                 switem["wwpn"] = [];
                                 switem.wwpn.push(item.partid+'(' + item.partwwn + ')');
-                                switem["sn"] = item.deviceid;
+                                switem["deviceid"] = item.deviceid;
+                                switem["sn"] = item.devicesn;
                                 swportinfo.push(switem);
                             }
                         } 
@@ -1127,10 +1128,119 @@ var cebPerformanceProviderController = function (app) {
         );
     });
 
+    // http://123.56.114.249:8090/ssmp/v1/rest/config/array_host?storage=VMAX+_+000497700045
+     // 配置信息->关联关系查询-2: (存储视图->交换机端囗 )
+     // VIEW回收时对废弃主机的清理的检查。“配置查询”增加主机状态的查询项；（关联关系查询列表添加主机状态/online/offline）
+     app.get('/rest/config/array_hosts', function (req, res) { 
+        res.setTimeout(1200*1000); 
+        
+        var storageTmp = req.query.storage.replace(" _ ",',');
+
+        var storageType = storageTmp.split(",")[0];
+        var device = storageTmp.split(",")[1];
+
+        var data = {};
+        async.waterfall([
+            function (callback) {
+
+                Report.ArrayAccessInfos(device, function (maskviews) {
 
 
+                    data["maskviews"] = maskviews; 
+                    callback(null, data);
+                });
+            },
+            function (data, callback) { 
+                var swdevice;
+                SWITCH.GetSwitchPorts(swdevice, function(swports) { 
 
-    //7555http://10.62.38.246:8080/ssmp-frontend/rest/config/configQuery/?storage=VNX+_+CKM00114601261&director=all&port=all&_=1533896160718
+                    var ports = {};
+                    for ( var i in swports ) {
+                        var item = swports[i];
+                        if ( item.connectedToWWN != ' ' ) {
+                            if ( ports[item.connectedToWWN] !== undefined ) { 
+                                console.log("WARNNING: Duplicate port! " );
+                                console.log(item);
+                            } else {
+                                ports[item.connectedToWWN] = item;
+                            }
+                        }
+                    }
+                    data["swports"] = ports;
+                    callback(null, data);
+                });
+            }, 
+            function(data, callback) {
+                var maskviews = data.maskviews;
+                var swports = data.swports;
+
+                var tmp = [];
+                for ( var i in maskviews ) {
+
+                    var item = maskviews[i];
+                    var newItem = {};
+                    newItem["array"] = ( item.sn !== undefined ) ? item.sn : item.device ;
+                    newItem["viewname"] = item.part  ;
+                    newItem["sgname"] = item.sgname  ;
+                    newItem["portgrp"] = item.portgrp  ;
+                    newItem["initgrp"] = item.initgrp  ;
+
+                    var initgrp_member = [];
+                    for ( var j in item.initgrp_member) {
+                        var wwn = item.initgrp_member[j];
+                        if ( swports[wwn] !== undefined ) {
+                            initgrp_member.push(swports[wwn]);
+                        } else {
+                            var notfind = { "connectedToWWN" : wwn }
+                            initgrp_member.push(notfind);
+                        }
+                    }
+                    
+                    newItem["initgrp_member_orgi"] = item.initgrp_member;
+                    newItem["initgrp_member"] = initgrp_member;
+                    tmp.push(newItem);
+                }
+
+                data["array_host"] = tmp;
+
+                callback(null,data);
+            },
+            function( data, callback ) {
+                var array_host = data.array_host;
+
+                var results = [];
+                for ( var i in array_host ) {
+
+                    var item = array_host[i];
+                    for ( var j in item.initgrp_member ) {
+                        var initMemberItem = item.initgrp_member[j];
+
+                        var newItem = {};
+                        newItem["array"] = item.array;
+                        newItem["viewname"] = item.viewname;
+                        newItem["initgrp"] = item.initgrp;
+                        newItem["swname"] = initMemberItem.lsname;
+                        newItem["swip"] = initMemberItem.ip;
+                        newItem["swport"] = initMemberItem.part;
+                        newItem["connectedToWWN"] = initMemberItem.connectedToWWN;
+                        newItem["partphys"] = initMemberItem.partphys;
+
+                        results.push(newItem);
+                        
+                    }
+
+                }
+
+                callback(null , results);
+            }
+        ], function (err, result) { 
+            res.json(200, result);
+        });
+
+    });
+
+
+    // http://10.62.38.246:8080/ssmp-frontend/rest/config/configQuery/?storage=VNX+_+CKM00114601261&director=all&port=all&_=1533896160718
      // 配置信息->关联关系查询-2: (存储前端口->服务器 )
 
     app.get('/rest/config/configQuery', function (req, res) { 
@@ -1350,17 +1460,14 @@ var cebPerformanceProviderController = function (app) {
         if ( wwpn != 'all' ) { 
             var portid = wwpn.split('(')[0];
             var portwwn = wwpn.split('(')[1].replace(')','');
-        }
-
-
+        } 
         console.log(switemsn+"\t"+wwpn+"\t"+portid+"\t"+portwwn);
  
         var device;
         async.auto(
             {
                 apptopo: function( callback, result ) {
-                    Analysis.getAppTopology(function(apptopo) {
-                        console.log(Date() + "TEST0");
+                    Analysis.getAppTopology(function(apptopo) { 
                         var appTopo1 = [];
                         for ( var i in apptopo) {
                             var item = apptopo[i];
@@ -1373,8 +1480,8 @@ var cebPerformanceProviderController = function (app) {
                                     retItem["appName"] = item.app;
                                     retItem["masterSlave"] = "";
                                     retItem["admin"] = "";
-                                    retItem["wwpn"] = portwwn;
-                                    retItem["searchCode"] = 
+                                    retItem["wwpn"] = item.connect_hba_swport;
+                                    retItem["searchCode"] = ""
                                     retItem["sppShortName"] =  item.appShortName;
                                     retItem["hbaWwn"] = item.hbawwn;
                                     retItem["usePurpose"] = "";
@@ -1383,7 +1490,26 @@ var cebPerformanceProviderController = function (app) {
                                     
                                     appTopo1.push(retItem);
                                 }
+                                if ( item.connect_arrayport_sw_id == switemsn ) {
+                                    var retItem = {};
+                                    retItem["hostName"] = item.array;
+                                    retItem["appAdmin"] = "";
+                                    retItem["hostip"] = item.arrayport;
+                                    retItem["appName"] = item.array;
+                                    retItem["masterSlave"] = "";
+                                    retItem["admin"] = "";
+                                    retItem["wwpn"] = item.connect_arrayport_swport;
+                                    retItem["searchCode"] = item.arrayport;
+                                    retItem["sppShortName"] =  "";
+                                    retItem["hbaWwn"] = item.arrayport_wwn;
+                                    retItem["usePurpose"] = "";
+                                    retItem["switchName"] = item.connect_hba_sw;
+                                    retItem["sn"] = item.connect_hba_sw_id;
+                                    
+                                    appTopo1.push(retItem);
+                                }
                             } else {
+                                console.log(item);
                                 if ( item.connect_hba_swport_wwn == portwwn ) {
                                     var retItem = {};
                                     retItem["hostName"] = item.host;
@@ -1392,8 +1518,8 @@ var cebPerformanceProviderController = function (app) {
                                     retItem["appName"] = item.app;
                                     retItem["masterSlave"] = "";
                                     retItem["admin"] = "";
-                                    retItem["wwpn"] = portwwn;
-                                    retItem["searchCode"] = 
+                                    retItem["wwpn"] = item.connect_hba_swport;
+                                    retItem["searchCode"] = "";
                                     retItem["sppShortName"] =  item.appShortName;
                                     retItem["hbaWwn"] = item.hbawwn;
                                     retItem["usePurpose"] = "";
@@ -1414,7 +1540,8 @@ var cebPerformanceProviderController = function (app) {
                                 var retItem = returnData[j]; 
                                 if (    item.hostName == retItem.hostName && 
                                         item.appName == retItem.appName && 
-                                        item.hbawwn == retItem.hbawwn  
+                                        item.hbawwn == retItem.hbawwn  &&
+                                        item.wwpn == retItem.wwpn 
                                     ) {
                                         isfind = true;
                                         break;
@@ -1422,46 +1549,45 @@ var cebPerformanceProviderController = function (app) {
                             }
                             if ( isfind == false ) returnData.push(item);
 
-                        }
-                        console.log(Date() + "TEST2");
+                        } 
+                        returnData.sort(sortBy("wwpn")); 
                         callback(null,returnData);
                     })
                 } ,
                 appinfo: function ( callback, result ) {
-                    Report.GetApplicationInfo( function (ret) {
-                        console.log(Date() + "TEST3");
+                    Report.GetApplicationInfo( function (ret) { 
                         callback(null,(ret));
                     });   
                 },
-                mergeResult: ["apptopo","appinfo",  function(callback, result ) {
-                    console.log(Date() + "TEST4");
+                mergeResult: ["apptopo","appinfo",  function(callback, result ) { 
                  
                     for ( var i in result.apptopo ) {
                         var item = result.apptopo[i];
 
                         var app = {} ;
+                        var isfind = false
                         for ( var z in result.appinfo ) {
                             var appitem = result.appinfo[z];
                             if ( appitem.app == item.appName )  {
+                                isfind = true;
                                 app= appitem;
-                                break;
-                            }
-                                app = appitem;
-                        }
 
-                        item["hostip"] = app.hostIP; 
-                        item["masterSlave"] = app.hostRuntype;
-                        item["admin"] = app.admin; 
-                        item["searchCode"] = app.searchCode;  
-                        item["usePurpose"] = app.appLevel; 
-                    } 
-                    console.log(Date() + "TEST6");
+                                item["hostip"] = app.hostIP; 
+                                item["masterSlave"] = app.hostRuntype;
+                                item["admin"] = app.admin; 
+                                item["searchCode"] = app.searchCode;  
+                                item["usePurpose"] = app.appLevel; 
+
+                                break;
+                            } 
+                        } 
+
+                    }  
                     callback(null,result.apptopo);
 
                 }]
             }, function(err, result ) {
-
-                console.log(Date() + "TEST7");
+ 
                 res.json(200,result.mergeResult);
             }
             

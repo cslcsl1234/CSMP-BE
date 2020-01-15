@@ -3225,8 +3225,31 @@ var reportingController = function (app) {
                 },
                 function (arg1, callback) {
                     Report.getAppStorageRelationV2(device, function (result) {
-                        arg1.data["AppStorageRelation"] = result;
+                        for ( var i in result ) {
+                            var item = result[i];
+                            if ( item.appinfo === undefined ) {
+                                item["appinfo"] = [];
+                                for (var j in CEB_Core_Application_SG) {
+                                    var appinfoItem = CEB_Core_Application_SG[j];
+                                    var sgname_arrayname_head = appinfoItem.split('|')[1];
+                                    var sgname = appinfoItem.split('|')[0];
+                                    var sgname_appname = appinfoItem.split('|')[2];
+                                    
+                                    if ( item.sgname == sgname && item.arrayname.indexOf(sgname_arrayname_head) >= 0 && sgname_appname !== undefined ) { 
+                                        var item1 = { "app": sgname_appname };
+                                        item.appinfo.push(item1);
+                                        break;
+                                    } 
+        
+                                }
+                                
 
+                            }
+
+                        }
+
+
+                        arg1.data["AppStorageRelation"] = result; 
                         var DataFilename = '/csmp/reporting/test/test.json';
                         fs.writeFile(DataFilename, JSON.stringify(arg1), function (err) {
                             if (err) throw err;
@@ -3289,8 +3312,8 @@ var reportingController = function (app) {
                             var sgname_arrayname_head = CEB_Core_Application_SG[j].split('|')[1];
                             var sgname = CEB_Core_Application_SG[j].split('|')[0];
 
-                            console.log("SGName=" + sgname + "," + "array=" + sgname_arrayname_head);
 
+                            console.log("SGName=" + sgname + "," + "array=" + sgname_arrayname_head); 
 
                             appResult[sgname] = [];
 
@@ -3598,8 +3621,6 @@ var reportingController = function (app) {
                                     record.ThroughputDetail[sgperfMatrics.timestamp] += sgperfMatrics.WriteThroughput + sgperfMatrics.ReadThroughput;
 
                             }
-
-
                         }
                         outputRecords.push(record);
 
@@ -4072,7 +4093,7 @@ var reportingController = function (app) {
                                         case "FUND_SG":
                                         case "IFTS_SG":
                                         case "ECIF_SG":
-                                        case "EBMCP_SG":
+                                        //case "EBMCP_SG":
                                         case "TPOS_SG":
                                             itemNew["系统吞吐量QOS设定"] = "20000IOPS,1000MB/s"
                                             break;

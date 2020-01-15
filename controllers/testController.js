@@ -767,15 +767,16 @@ var testController = function (app) {
 
     // Switch.getFabric(fabwwn,function(resultJson) {    res.json(200,resultJson);       });
 
-    //var device = 'ED_DCX_4S_B-10000027F81E390B';
-    /*
+     //var device = 'ED_DCX_4S_B-10000027F81E390B'; 
+     //Switch.GetSwitchPorts(device, function(result) {  res.json(200,result);       }); 
+     /*
     Switch.GetSwitchPorts(device, function(result) {  
       var a = [];
       for ( var i in result) {
         var item = result[i];
-        if ( item.partwwn == '20880027F81E388C') a.push(item);
+        //if ( item.partwwn == '20880027F81E388C') a.push(item);
     }          
-    res.json(200,a);       });
+    res.json(200,a);       }); 
     */
 
     //VMAX.getArrayPerformance1( function(result) {            res.json(200,result);       }); 
@@ -843,7 +844,7 @@ var testController = function (app) {
 
     //Report.initiatalApplicationInfo( function (ret ) { res.json(200,ret); });
     //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
-    //VMAX.GetMaskViews(device, function(ret) { res.json(200,ret); });
+    VMAX.GetMaskViews(device, function(ret) { res.json(200,ret); });
 
     //Report.E2ETopology(device, function (ret) { res.json(200, ret); });
  
@@ -878,9 +879,9 @@ var testController = function (app) {
       });
       */
 
-    VPLEX.getVplexStorageViews(device, function(ret) {  res.json(200,ret);   }); 
+    //VPLEX.getVplexStorageViews(device, function(ret) {  res.json(200,ret);   }); 
 
-    //Report.ArrayAccessInfosTEST(device, function(ret) {    res.json(200,ret);    });
+    //Report.ArrayAccessInfos(device, function(ret) {    res.json(200,ret);    });
 
 
     //VMAX.GetAssignedHosts(device, function(rest) { res.json(200,rest); });
