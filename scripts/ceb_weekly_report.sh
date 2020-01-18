@@ -30,13 +30,28 @@ if [ -f ${reportfile} ];
 then 
 
 echo "upload  ${reportfile}"
-ftp -n 10.1.28.199 <<!
-user other Oct@2018
-bin 
-cd /lsp/sa/other/StorageWeeklyReport
-put ${reportfilename}
-exit
-!
+#ftp -n 10.1.28.199 <<!
+#user other Oct@2018
+#bin 
+#cd /lsp/sa/other/StorageWeeklyReport
+#put ${reportfilename}
+#exit
+#!
+
+/usr/local/bin/expect -c "
+spawn sftp -oPort=26022 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null other@10.1.28.199
+expect \"Password:\"
+send \"Oct@2018\r\"
+expect \"sftp>\"
+send \"cd /lsp/sa/other/StorageWeeklyReport\r\"
+expect \"sftp>\"
+send \"put ${reportfilename}\r\"
+expect \"sftp>\"
+send \"exit\r\"
+"
+
+
+
 
 echo "upload  ${reportfile} to External System"
 export SSHPASS=Ve@ms_a185
