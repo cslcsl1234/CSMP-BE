@@ -130,9 +130,15 @@ var cebAPIController = function (app) {
                             var infoItem = arrayinfo[j];
                             if (item.storageSN == infoItem.sn) {
                                 item["location"] = infoItem.datacenter + ":" + infoItem.cabinet;
-                                item["type"] = infoItem.level == 'middle' ? '中端' : '高端';
-                                item["used"] = infoItem.specialInfo.used == 'general' ? '一般应用' : '应用';
+                                item["type"] = infoItem.level ;
+                                item["used"] = infoItem.specialInfo.used ;
                                 item["storageName"] = infoItem.name;
+                                item["room"] = infoItem.specialInfo.room;
+                                item["address"] = infoItem.specialInfo.address;
+                                
+                                item["providerid"] = infoItem.specialInfo.providerid;
+                                item["maintenanceInfo"] = infoItem.specialInfo.maintenanceInfo;
+                                item["room"] = infoItem.specialInfo.room;
                                 item["maxCache"] = infoItem.specialInfo.maxCache;
                                 item["maxDisks"] = infoItem.specialInfo.maxDisks;
                                 item["maxPorts"] = infoItem.specialInfo.maxPorts;
@@ -140,6 +146,10 @@ var cebAPIController = function (app) {
                                 item["SRDFPairThreshold"] = (infoItem.specialInfo.SRDFPairThreshold === undefined ? 0 : infoItem.specialInfo.SRDFPairThreshold);
                                 item["SRDFGroupThreshold"] = (infoItem.specialInfo.SRDFGroupThreshold === undefined ? 0 : infoItem.specialInfo.SRDFGroupThreshold);
                                 item["lifeCycle"] = infoItem.specialInfo.lifeCycle;
+
+                                item["location"] = infoItem.datacenter + ' ' + infoItem.specialInfo.room;
+ 
+                                  
                                 break;
                             }
                         }
@@ -205,8 +215,7 @@ var cebAPIController = function (app) {
             res.json(200, result);
         });
 
-    });
-
+    }); 
 
 
     app.get('/ssmp/rest/vmax/summary/:device', function (req, res) {
@@ -597,6 +606,20 @@ var cebAPIController = function (app) {
 
     });
 
+    
+    app.get('/ceb/storageSet/batchDelete', function (req, res) {
+        var sn = req.query.ids; 
+
+        DeviceMgmt.deleteMgmtObjectInfo(data, function (result) {
+            if (result.status == 'FAIL') {
+                return res.json(400, result);
+            } else {
+                return res.json(200, result);
+            }
+        })
+
+
+    });
 
     app.get('/ceb/storageSet/addOrUpdate', function (req, res) {
         var data = {};
@@ -604,12 +627,18 @@ var cebAPIController = function (app) {
         data["name"] = req.query.name;
         data["datacenter"] = req.query.datacenter;
         data["level"] = req.query.type;
+        data["model"] = req.query.model;
         data["type"] = "array";
         data["createdData"] = "";
-        data["updatedData"] = "";
+        data["updatedData"] = req.query.updatedDate;
         data["specialInfo"] = "";
 
         var specialInfo = {};
+        specialInfo["address"] = req.query.address;
+        specialInfo["room"] = req.query.room;
+        specialInfo["providerid"] = req.query.providerid;
+        specialInfo["address"] = req.query.address;
+        
         specialInfo["used"] = req.query.used;
         specialInfo["maxCache"] = req.query.maxCache;
         specialInfo["maxDisks"] = req.query.maxDisks
@@ -619,8 +648,7 @@ var cebAPIController = function (app) {
         specialInfo["maxlundirector"] = req.query.maxlundirector;
         specialInfo["SRDFPairThreshold"] = req.query.SRDFPairThreshold;
         specialInfo["SRDFGroupThreshold"] = req.query.SRDFGroupThreshold;
-        data["specialInfo"] = JSON.stringify(specialInfo);
-
+        data["specialInfo"] = JSON.stringify(specialInfo);  
 
         DeviceMgmt.putMgmtObjectInfo(data, function (result) {
             if (result.status == 'FAIL') {
@@ -646,23 +674,23 @@ var cebAPIController = function (app) {
                 resultItem["resourcePoolVoSize"] = 0;
                 resultItem["storageSN"] = item.sn;
                 resultItem["name"] = item.name;
-                resultItem["model"] = "VMAX";
-                resultItem["address"] = "";
+                resultItem["model"] = item.model;
+                resultItem["address"] = item.specialInfo.address;
                 resultItem["datacenter"] = item.datacenter;
-                resultItem["datacenterName"] = item.datacenter == 1 ? "SDDataCenter" : "JXQDataCenter";
-                resultItem["room"] = "2";
-                resultItem["type"] = item.type == 'high' ? "高端" : "中端";
-                resultItem["used"] = item.specialInfo.used == 'general' ? "一般应用" : "其他应用";
-                resultItem["lifeCycle"] = "";
-                resultItem["maintenanceInfo"] = "";
-                resultItem["providerid"] = "";
+                resultItem["datacenterName"] = item.datacenter ;
+                resultItem["room"] = item.specialInfo.room;
+                resultItem["type"] = item.type ;
+                resultItem["used"] = item.specialInfo.used ;
+                resultItem["lifeCycle"] = item.specialInfo.lifeCycle;
+                resultItem["maintenanceInfo"] = item.specialInfo.maintenanceInfo;
+                resultItem["providerid"] = item.specialInfo.providerid;
                 resultItem["maxlundirector"] = item.specialInfo.maxlundirector;
                 resultItem["SRDFPairThreshold"] = item.specialInfo.SRDFPairThreshold;
                 resultItem["SRDFGroupThreshold"] = item.specialInfo.SRDFGroupThreshold;
 
                 resultItem["updatedDate"] = item.createData;
-                resultItem["maxCache"] = "";
-                resultItem["maxDisks"] = "";
+                resultItem["maxCache"] = item.specialInfo.maxCache;
+                resultItem["maxDisks"] = item.specialInfo.maxDisks;
                 resultItem["maxPorts"] = item.specialInfo.maxPorts;;
                 resultItem["id"] = item.sn;
 
@@ -682,25 +710,28 @@ var cebAPIController = function (app) {
                 var item = devInfo[i];
 
                 var resultItem = {};
+                resultItem["resourcePoolVo"] = [];
+                resultItem["resourcePoolVoSize"] = 0;
                 resultItem["storageSN"] = item.sn;
                 resultItem["name"] = item.name;
-                resultItem["model"] = "VMAX";
-                resultItem["address"] = "";
+                resultItem["model"] = item.model;
+                resultItem["address"] = item.specialInfo.address;
                 resultItem["datacenter"] = item.datacenter;
-                resultItem["datacenterName"] = item.datacenter == 1 ? "SDDataCenter" : "JXQDataCenter";
-                resultItem["room"] = "2";
-                resultItem["type"] = item.type;
+                resultItem["datacenterName"] = item.datacenter ;
+                resultItem["room"] = item.specialInfo.room;
+                resultItem["type"] = item.type ;
                 resultItem["used"] = item.specialInfo.used;
-                resultItem["lifeCycle"] = "";
-                resultItem["maintenanceInfo"] = "";
-                resultItem["providerid"] = "";
+                resultItem["lifeCycle"] = item.specialInfo.lifeCycle;
+                resultItem["maintenanceInfo"] = item.specialInfo.maintenanceInfo;
+                resultItem["providerid"] = item.specialInfo.providerid;
                 resultItem["maxlundirector"] = item.specialInfo.maxlundirector;
                 resultItem["SRDFPairThreshold"] = item.specialInfo.SRDFPairThreshold;
                 resultItem["SRDFGroupThreshold"] = item.specialInfo.SRDFGroupThreshold;
+
                 resultItem["updatedDate"] = item.createData;
-                resultItem["maxCache"] = "";
-                resultItem["maxDisks"] = "";
-                resultItem["maxPorts"] = "";
+                resultItem["maxCache"] = item.specialInfo.maxCache;
+                resultItem["maxDisks"] = item.specialInfo.maxDisks;
+                resultItem["maxPorts"] = item.specialInfo.maxPorts;;
                 resultItem["id"] = item.sn;
 
                 res.json(200, resultItem);
@@ -713,7 +744,26 @@ var cebAPIController = function (app) {
 
     app.get('/ceb/system/datacenter/list', function (req, res) {
         var filter = {};
-        var finalResult = [{ "name": "SDDataCenter", "description": "上地数据中心", "address": " 上地", "city": "上地", "updatedOn": 0, "createdOn": 0, "id": 1 }];
+        var finalResult = [
+            {
+                "name": "SDDataCenter",
+                "description": "上地数据中心",
+                "address": " 上地",
+                "city": "北京",
+                "updatedOn": 0,
+                "createdOn": 0,
+                "id": 1
+            },
+            {
+                "name": "JXQDataCenter",
+                "description": "酒仙桥数据中心",
+                "address": " 酒仙桥",
+                "city": "北京",
+                "updatedOn": 0,
+                "createdOn": 0,
+                "id": 2
+            }
+        ] ;
         res.json(200, finalResult);
 
     });

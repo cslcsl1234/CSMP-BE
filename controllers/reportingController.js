@@ -3846,6 +3846,8 @@ var reportingController = function (app) {
 
                         }
 
+                        finalRecords_day.sort(sortBy("ArrayName"));
+                        finalRecords_night.sort(sortBy("ArrayName"));
 
                         if (arg1.result["array"] === undefined) arg1.result["array"] = {};
                         arg1.data["IOPS_HOURS_DETAIL"] = mergedRecords;

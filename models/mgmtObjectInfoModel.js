@@ -56,6 +56,9 @@ MgmtObjectInfoSchema = new Schema({
         },  
         level: {
             type: String 
+        }, 
+        model: {
+            type: String 
         },
         type: {
             type: String,
