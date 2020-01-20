@@ -1257,7 +1257,7 @@ var cebPerformanceProviderController = function (app) {
         var port = req.query.port;
         var ReportOutputPath = config.Reporting.OutputPath;
 
-        console.log(Date() + '\t' + storageTmp+"\t"+storageSn+"\t"+storageType+"\t"+director);
+        console.log(Date() + '\t' + storageTmp+"\t"+storageSn+"\t"+storageType+"\t"+director+"\t"+port);
  
         var device;
         async.auto(
@@ -1272,17 +1272,44 @@ var cebPerformanceProviderController = function (app) {
                             var item = apptopo[i];
                             item["TEST"] = director;
                             if ( director != 'all' && port != 'all') {
-                                var feport = director+':'+port;
-                                if ( item.array == storageSn && item.arrayport == feport ) 
-                                    appTopo1.push(item);
-                            } else if ( director != 'all' && port == 'all') {
-                                //console.log(item.array + ',' + item.arrayport);
-                                if ( item.array == storageSn && item.arrayport.indexOf(director) >=0  ) 
-                                    appTopo1.push(item);
+                                var directors = director.split(',');
+                                var ports = port.split(',');
+                                for ( var dir_i in directors ) {
+                                    var directorItem = directors[dir_i];
 
+                                    for ( var port_i in ports ) {
+                                        var portItem = ports[port_i];
+
+                                        var feport = directorItem+':'+portItem;
+                                        if ( item.array == storageSn && item.arrayport == feport ) 
+                                            appTopo1.push(item);
+
+                                    }
+                                }
+
+                            } else if ( director != 'all' && port == 'all') {
+                                //console.log(item.array + ',' + item.arrayport); 
+                                    var directors = director.split(','); 
+                                    for ( var dir_i in directors ) {
+                                        var directorItem = directors[dir_i]; 
+                                        if ( item.array == storageSn && item.arrayport.indexOf(directorItem) >=0  ) 
+                                        appTopo1.push(item);
+                                    } 
+
+                            } else if ( director == 'all' && port != 'all') { 
+                                var ports = port.split(',');
+                                for ( var port_i in ports ) {
+                                    var portItem = ports[port_i];
+
+                                    var directory = item.arrayport.split(':')[0];
+                                    var feport = directory+':'+portItem;
+                                    if ( item.array == storageSn && item.arrayport == feport ) 
+                                        appTopo1.push(item); 
+                                }  
                             } else 
                                 if ( item.array == storageSn ) appTopo1.push(item);
                         }
+                        console.log("appTopo1 = " + appTopo1);
                         callback(null,appTopo1);
                     })
                 } ,
