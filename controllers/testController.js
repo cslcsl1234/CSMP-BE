@@ -816,7 +816,19 @@ var testController = function (app) {
     //getTopos.getTopos(function(result) { res.json(200, result) });
 
     // SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
-    // VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
+    //VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
+
+    var device = '000497700088';
+    VMAX.GetDevices(device, function(result) {  
+      var result1=[]; 
+      for ( var i in result ) {
+        var item = result[i];
+        if ( item.ismasked == '0' ) {
+          result1.push(item);
+        }
+      }
+      res.json(200,result1);   
+    }); 
     //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
     //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
     //VMAX.GetArrays(  function(ret) {  res.json(200,ret);   }); 
@@ -844,7 +856,7 @@ var testController = function (app) {
 
     //Report.initiatalApplicationInfo( function (ret ) { res.json(200,ret); });
     //VNX.GetMaskViews(function(ret) {  res.json(200,ret);   }); 
-    VMAX.GetMaskViews(device, function(ret) { res.json(200,ret); });
+    //VMAX.GetMaskViews(device, function(ret) { res.json(200,ret); });
 
     //Report.E2ETopology(device, function (ret) { res.json(200, ret); });
  

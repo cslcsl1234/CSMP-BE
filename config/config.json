@@ -22,9 +22,9 @@
   },
   "SERVER": {
     "HOST": "192.168.92.128",
-    "PORT": 8080
+    "PORT": 9090
   },
-  "ProductType": "Prod",
+  "ProductType": "Test",
   "ProductTypeDesc": [
     "Prod",
     "Dev",
@@ -32,7 +32,7 @@
   ],
   "SRMDevLastDT-DLBank": "2018-01-25T14:00:00+08:00",
   "SRMDevLastDT-AirChina": "2017-11-27T08:00:00+08:00",
-  "SRMDevLastDT": "2019-11-01T14:00:00+08:00",
+  "SRMDevLastDT": "2020-01-17T14:00:00+08:00",
   "SMS": {
     "ServiceIP": "10.188.80.33",
     "ServicePort": 6821,
