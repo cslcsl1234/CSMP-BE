@@ -3224,32 +3224,34 @@ var reportingController = function (app) {
 
                 },
                 function (arg1, callback) {
+                    console.log("================== Begin getAppStorageRelation ================");
                     Report.getAppStorageRelationV2(device, function (result) {
-                        for ( var i in result ) {
+                        for (var i in result) {
                             var item = result[i];
-                            if ( item.appinfo === undefined ) {
+                            if (item.appinfo === undefined) {
                                 item["appinfo"] = [];
                                 for (var j in CEB_Core_Application_SG) {
                                     var appinfoItem = CEB_Core_Application_SG[j];
                                     var sgname_arrayname_head = appinfoItem.split('|')[1];
                                     var sgname = appinfoItem.split('|')[0];
                                     var sgname_appname = appinfoItem.split('|')[2];
-                                    
-                                    if ( item.sgname == sgname && item.arrayname.indexOf(sgname_arrayname_head) >= 0 && sgname_appname !== undefined ) { 
+
+                                    if (item.arrayname === undefined) continue;
+                                    if (item.sgname == sgname && item.arrayname.indexOf(sgname_arrayname_head) >= 0 && sgname_appname !== undefined) {
                                         var item1 = { "app": sgname_appname };
                                         item.appinfo.push(item1);
                                         break;
-                                    } 
-        
+                                    }
+
                                 }
-                                
+
 
                             }
 
                         }
 
 
-                        arg1.data["AppStorageRelation"] = result; 
+                        arg1.data["AppStorageRelation"] = result;
                         var DataFilename = '/csmp/reporting/test/test.json';
                         fs.writeFile(DataFilename, JSON.stringify(arg1), function (err) {
                             if (err) throw err;
@@ -3313,7 +3315,7 @@ var reportingController = function (app) {
                             var sgname = CEB_Core_Application_SG[j].split('|')[0];
 
 
-                            console.log("SGName=" + sgname + "," + "array=" + sgname_arrayname_head); 
+                            console.log("SGName=" + sgname + "," + "array=" + sgname_arrayname_head);
 
                             appResult[sgname] = [];
 
@@ -3332,7 +3334,7 @@ var reportingController = function (app) {
                                     for (var zz in arg1.data.AppSGMapping) {
                                         var zzItem = arg1.data.AppSGMapping[zz];
 
-                                        if (sgname_arrayname_head !== undefined) {
+                                        if (sgname_arrayname_head !== undefined && zzItem.arrayname !== undefined) {
 
                                             var arrayNameHead = zzItem.arrayname.split('-')[0];
                                             if (item.device == zzItem.device && item.sgname == zzItem.sgname && sgname_arrayname_head == arrayNameHead) {
@@ -3377,10 +3379,10 @@ var reportingController = function (app) {
                                     item["ResponeTimeByDay"] = {};
                                     /*
 
-                                                                        if (item.sgname == 'EBPP_SG') {
-                                                                            console.log(item);
-                                                                            console.log("**************");
-                                                                        }
+                                        if (item.sgname == 'EBPP_SG') {
+                                            console.log(item);
+                                            console.log("**************");
+                                        }
                                     */
 
                                     var totalResponseTime = 0;
@@ -3503,7 +3505,7 @@ var reportingController = function (app) {
 
                             }
 
-                            if (sgname_arrayname_head !== undefined) {
+                            if (sgname_arrayname_head !== undefined && arrayname !== undefined) {
                                 var aa = arrayname.split('-')[0];
                                 if (aa == sgname_arrayname_head && sgname == item.sgname) {
                                     retArray.push(item);
@@ -4276,116 +4278,116 @@ var reportingController = function (app) {
     function SearchArrayConfigureInfo(device) {
         var arrayInfo = [
             {
-                "ArrayName":"VMAX1",
-                "Configure":"一代存储VMAX 8引擎16控",
-                "IOPS_Threshold":"6万",
-                "IOPS_threshold_60%":"3.6万",
-                "IOPS_threshold_60%_number":36000
+                "ArrayName": "VMAX1",
+                "Configure": "一代存储VMAX 8引擎16控",
+                "IOPS_Threshold": "6万",
+                "IOPS_threshold_60%": "3.6万",
+                "IOPS_threshold_60%_number": 36000
             },
             {
-                "ArrayName":"VMAX2",
-                "Configure":"一代存储VMAX 4引擎8控",
-                "IOPS_Threshold":"5万",
-                "IOPS_threshold_60%":"4万",
-                "IOPS_threshold_60%_number":40000
+                "ArrayName": "VMAX2",
+                "Configure": "一代存储VMAX 4引擎8控",
+                "IOPS_Threshold": "5万",
+                "IOPS_threshold_60%": "4万",
+                "IOPS_threshold_60%_number": 40000
             },
             {
-                "ArrayName":"VMAX3",
-                "Configure":"二代存储VMAX20k 4引擎8控",
-                "IOPS_Threshold":"7万",
-                "IOPS_threshold_60%":"4.2万",
-                "IOPS_threshold_60%_number":42000
-            }, 
-            {
-                "ArrayName":"VMAX5",
-                "Configure":"二代存储VMAX20k 4引擎8控",
-                "IOPS_Threshold":"5万",
-                "IOPS_threshold_60%":"3万",
-                "IOPS_threshold_60%_number":30000
+                "ArrayName": "VMAX3",
+                "Configure": "二代存储VMAX20k 4引擎8控",
+                "IOPS_Threshold": "7万",
+                "IOPS_threshold_60%": "4.2万",
+                "IOPS_threshold_60%_number": 42000
             },
             {
-                "ArrayName":"VMAX6",
-                "Configure":"二代存储VMAX20k 4引擎8控",
-                "IOPS_Threshold":"6万",
-                "IOPS_threshold_60%":"3.6万",
-                "IOPS_threshold_60%_number":36000
+                "ArrayName": "VMAX5",
+                "Configure": "二代存储VMAX20k 4引擎8控",
+                "IOPS_Threshold": "5万",
+                "IOPS_threshold_60%": "3万",
+                "IOPS_threshold_60%_number": 30000
             },
             {
-                "ArrayName":"VMAX7",
-                "Configure":"二代存储VMAX10k 2引擎4控",
-                "IOPS_Threshold":"2.5万",
-                "IOPS_threshold_60%":"1.5万",
-                "IOPS_threshold_60%_number":15000
+                "ArrayName": "VMAX6",
+                "Configure": "二代存储VMAX20k 4引擎8控",
+                "IOPS_Threshold": "6万",
+                "IOPS_threshold_60%": "3.6万",
+                "IOPS_threshold_60%_number": 36000
             },
             {
-                "ArrayName":"VMAX8",
-                "Configure":"二代存储VMAX40k 4引擎8控",
-                "IOPS_Threshold":"4.6万",
-                "IOPS_threshold_60%":"2.8万",
-                "IOPS_threshold_60%_number":28000
+                "ArrayName": "VMAX7",
+                "Configure": "二代存储VMAX10k 2引擎4控",
+                "IOPS_Threshold": "2.5万",
+                "IOPS_threshold_60%": "1.5万",
+                "IOPS_threshold_60%_number": 15000
             },
             {
-                "ArrayName":"VMAX9",
-                "Configure":"二代存储VMAX20k 4引擎8控",
-                "IOPS_Threshold":"6.9万",
-                "IOPS_threshold_60%":"4.1万",
-                "IOPS_threshold_60%_number":41000
+                "ArrayName": "VMAX8",
+                "Configure": "二代存储VMAX40k 4引擎8控",
+                "IOPS_Threshold": "4.6万",
+                "IOPS_threshold_60%": "2.8万",
+                "IOPS_threshold_60%_number": 28000
             },
             {
-                "ArrayName":"VMAX10",
-                "Configure":"三代存储VMAX200k 2引擎4控",
-                "IOPS_Threshold":"3.3万",
-                "IOPS_threshold_60%":"2万",
-                "IOPS_threshold_60%_number":20000
+                "ArrayName": "VMAX9",
+                "Configure": "二代存储VMAX20k 4引擎8控",
+                "IOPS_Threshold": "6.9万",
+                "IOPS_threshold_60%": "4.1万",
+                "IOPS_threshold_60%_number": 41000
             },
             {
-                "ArrayName":"VMAX11",
-                "Configure":"三代全闪存储VMAX450F2引擎4控",
-                "IOPS_Threshold":"10万",
-                "IOPS_threshold_60%":"6万",
-                "IOPS_threshold_60%_number":60000
+                "ArrayName": "VMAX10",
+                "Configure": "三代存储VMAX200k 2引擎4控",
+                "IOPS_Threshold": "3.3万",
+                "IOPS_threshold_60%": "2万",
+                "IOPS_threshold_60%_number": 20000
             },
             {
-                "ArrayName":"VMAX12",
-                "Configure":"三代全闪存储VMAX450F2引擎4控",
-                "IOPS_Threshold":"9.2万",
-                "IOPS_threshold_60%":"5.5万",
-                "IOPS_threshold_60%_number":55000
+                "ArrayName": "VMAX11",
+                "Configure": "三代全闪存储VMAX450F2引擎4控",
+                "IOPS_Threshold": "10万",
+                "IOPS_threshold_60%": "6万",
+                "IOPS_threshold_60%_number": 60000
             },
             {
-                "ArrayName":"VMAX13",
-                "Configure":"三代全闪存储VMAX250F2引擎4控",
-                "IOPS_Threshold":"25万",
-                "IOPS_threshold_60%":"15万",
-                "IOPS_threshold_60%_number":150000
+                "ArrayName": "VMAX12",
+                "Configure": "三代全闪存储VMAX450F2引擎4控",
+                "IOPS_Threshold": "9.2万",
+                "IOPS_threshold_60%": "5.5万",
+                "IOPS_threshold_60%_number": 55000
             },
             {
-                "ArrayName":"VMAX14",
-                "Configure":"三代全闪存储VMAX950F2引擎4控",
-                "IOPS_Threshold":"36万",
-                "IOPS_threshold_60%":"22万",
-                "IOPS_threshold_60%_number":220000
+                "ArrayName": "VMAX13",
+                "Configure": "三代全闪存储VMAX250F2引擎4控",
+                "IOPS_Threshold": "25万",
+                "IOPS_threshold_60%": "15万",
+                "IOPS_threshold_60%_number": 150000
             },
             {
-                "ArrayName":"VMAX15",
-                "Configure":"三代全闪存储VMAX950F2引擎4控",
-                "IOPS_Threshold":"27万",
-                "IOPS_threshold_60%":"16万",
-                "IOPS_threshold_60%_number":160000
+                "ArrayName": "VMAX14",
+                "Configure": "三代全闪存储VMAX950F2引擎4控",
+                "IOPS_Threshold": "36万",
+                "IOPS_threshold_60%": "22万",
+                "IOPS_threshold_60%_number": 220000
             },
             {
-                "ArrayName":"VMAX16",
-                "Configure":"三代全闪存储VMAX950F2引擎4控",
-                "IOPS_Threshold":"27万",
-                "IOPS_threshold_60%":"16万",
-                "IOPS_threshold_60%_number":160000
+                "ArrayName": "VMAX15",
+                "Configure": "三代全闪存储VMAX950F2引擎4控",
+                "IOPS_Threshold": "27万",
+                "IOPS_threshold_60%": "16万",
+                "IOPS_threshold_60%_number": 160000
             },
             {
-                "ArrayName":"VMAX17",
-                "Configure":"三代全闪存储VMAX950F2引擎4控",
-                "IOPS_Threshold":"27万",
-                "IOPS_threshold_60%":"16万",
-                "IOPS_threshold_60%_number":160000
+                "ArrayName": "VMAX16",
+                "Configure": "三代全闪存储VMAX950F2引擎4控",
+                "IOPS_Threshold": "27万",
+                "IOPS_threshold_60%": "16万",
+                "IOPS_threshold_60%_number": 160000
+            },
+            {
+                "ArrayName": "VMAX17",
+                "Configure": "三代全闪存储VMAX950F2引擎4控",
+                "IOPS_Threshold": "27万",
+                "IOPS_threshold_60%": "16万",
+                "IOPS_threshold_60%_number": 160000
             }
         ];
 
@@ -4428,19 +4430,19 @@ var reportingController = function (app) {
                     newItem["IG"] == item.IG &&
                     newItem["PG"] == item.PG &&
                     newItem["SG"] == item.SG
-                ) { 
+                ) {
                     isfind = true;
-                    if ( newItem["关联存储端口号"] !== undefined ) {
-                        if ( newItem["关联存储端口号"].indexOf(item.arrayport_wwn) < 0 )
-                                newItem["关联存储端口号"] = newItem["关联存储端口号"] + ',' + item.arrayport_wwn;
+                    if (newItem["关联存储端口号"] !== undefined) {
+                        if (newItem["关联存储端口号"].indexOf(item.arrayport_wwn) < 0)
+                            newItem["关联存储端口号"] = newItem["关联存储端口号"] + ',' + item.arrayport_wwn;
                     } else {
                         newItem["关联存储端口号"] = item.arrayport_wwn;
 
                     }
 
-                    if ( newItem["端口名称"] !== undefined ) {
-                        if ( newItem["端口名称"].toString().indexOf(item.arrayport) < 0 )
-                                newItem["端口名称"] = newItem["端口名称"] + ',' + item.arrayport;
+                    if (newItem["端口名称"] !== undefined) {
+                        if (newItem["端口名称"].toString().indexOf(item.arrayport) < 0)
+                            newItem["端口名称"] = newItem["端口名称"] + ',' + item.arrayport;
                     } else {
 
                         newItem["端口名称"] = item.arrayport;
@@ -4499,6 +4501,62 @@ var reportingController = function (app) {
 
 
     });
+
+
+    app.get('/apginfo', function (req, res) {
+        res.setTimeout(1200 * 1000);
+
+        var config = configger.load();
+
+        var start = '2010-12-18T06:00:00.000Z';
+        var end = moment().toISOString();
+
+        async.waterfall([
+            function (callback) {
+
+
+                var queryString = {};
+                queryString['properties'] = 'device,name';
+                queryString['filter'] = '!parttype&(name=\'RawCapacity\')';
+                queryString['start'] = start;
+                queryString['end'] = end;
+                queryString['period'] = 0;
+                queryString['type'] = 'last';
+
+                console.log(queryString);
+                unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE)
+                    .auth(config.Backend.USER, config.Backend.PASSWORD, true)
+                    .headers({ 'Content-Type': 'multipart/form-data' })
+                    .query(queryString)
+                    .end(function (response) {
+                        if (response.error) {
+                            console.log(response.error);
+                            return response.error;
+                        } else {
+                            //console.log(response.raw_body);   
+                            var resultRecord = JSON.parse(response.raw_body);
+                            callback(null, resultRecord.values);
+
+                        }
+
+                    });
+
+            }
+        ], function (err, result) {
+            var lastTS = 0;
+            for (var i in result) {
+                var item = result[i];
+                for (var j in item.points) {
+                    var item1 = item.points[j];
+                    if (item1[0] > lastTS) lastTS = item1[0];
+                }
+            }
+            var lastDT = moment.unix(lastTS).toISOString();
+            res.json(200, lastDT);
+        });
+
+    });
+
 
 };
 

@@ -83,7 +83,7 @@ var testController = function (app) {
 
     async.waterfall(
       [
-        function (callback) {   
+        function (callback) {
           var createReplicationSetParamater = {
             "CGName": "ebankwebesxi_CG",
             "ReplicationsetName": "rs_1230213033os01",
@@ -93,14 +93,14 @@ var testController = function (app) {
               "remote": "RPA_CDP_VNX_log_1 (2)"
             }
           }
-          
-       
-          RPA.CreateReplicationSet(RPAInfo, createReplicationSetParamater, function (result) { 
-            callback(null, result) 
+
+
+          RPA.CreateReplicationSet(RPAInfo, createReplicationSetParamater, function (result) {
+            callback(null, result)
           });
 
 
-        } 
+        }
 
       ], function (err, result) {
         res.json(200, result)
@@ -144,7 +144,7 @@ var testController = function (app) {
             if (result.code != 200) {
               callback(result.code, result);
             } else
-            callback(null, result)
+              callback(null, result)
           });
 
         },
@@ -156,9 +156,9 @@ var testController = function (app) {
               "prod": "dd_ebankwebesxi_VMAX193_unity785_1231213659os01_vol",
               "local": "device_ebankwebesxi_VMAX193_1231213659os01_local_vol",
               "remote": "RPA_CDP_VNX__2 (1)"
-            } 
+            }
           }
-      
+
           var createReplicationSetParamater1 = {
             "CGName": "ebankwebesxi_CG",
             "ReplicationsetName": "rs_1230213033os01",
@@ -168,19 +168,19 @@ var testController = function (app) {
               "remote": "RPA_CDP_VNX_log_2 (3)"
             }
           }
-          
-       
-          RPA.CreateReplicationSet(RPAInfo, createReplicationSetParamater, function (result) { 
-            callback(null, result) 
+
+
+          RPA.CreateReplicationSet(RPAInfo, createReplicationSetParamater, function (result) {
+            callback(null, result)
           });
 
-        }, 
-        function( arg1, callback ) {
-          
-          RPA.EnableConsistencyGroup(RPAInfo, CGName, function (result) { 
-            callback(null, result) 
+        },
+        function (arg1, callback) {
+
+          RPA.EnableConsistencyGroup(RPAInfo, CGName, function (result) {
+            callback(null, result)
           });
-      
+
         }
 
       ], function (err, result) {
@@ -215,7 +215,7 @@ var testController = function (app) {
     }); 
     */
 
-   //RPA.GetRPAConfigureInfo(RPAInfo, function (result) { res.json(200, result) });
+    //RPA.GetRPAConfigureInfo(RPAInfo, function (result) { res.json(200, result) });
     //RPA.GetSplitters(RPAInfo, "cluster1", function (result) { res.json(200, result) });
     //RPA.GetVolumes(RPAInfo, "cluster1", function(result) { res.json(200, result)});
     //RPA.GetCopys(RPAInfo, "ebankwebesxi_CG", function(result) { res.json(200, result)});
@@ -361,7 +361,7 @@ var testController = function (app) {
       }
     }
     //RPA.CreateLink(RPAInfo, paramater, function (result) { res.json(200, result) });
- 
+
     //RPA.EnableConsistencyGroup(RPAInfo, CGName, function (result) { res.json(200, result) });
 
     //RPA.DisableConsistencyGroup(RPAInfo, CGName, function (result) { res.json(200, result)});
@@ -414,7 +414,7 @@ var testController = function (app) {
         "prod": "dd_ebankwebesxi_VMAX193_unity785_data-1130175738-03_vol",
         "local": "dd_ebankwebesxi_VMAX193_unity785_data-1130175738-04_vol",
         "remote": "RPA_CDP_VNX__1 (0)"
-      } 
+      }
     }
 
     var createReplicationSetParamater3 = {
@@ -424,7 +424,7 @@ var testController = function (app) {
         "prod": "dd_ebankwebesxi_VMAX193_unity785_data-1130175738-05_vol",
         "local": "dd_ebankwebesxi_VMAX193_unity785_data-1130175738-06_vol",
         "remote": "RPA_CDP_VNX__2 (1)"
-      } 
+      }
     }
 
 
@@ -436,7 +436,7 @@ var testController = function (app) {
   function sleep(sleepTime) {
     for (var start = +new Date; +new Date - start <= sleepTime;) { };
   }
-  
+
 
   app.get('/vmaxtest', function (req, res) {
 
@@ -462,7 +462,7 @@ var testController = function (app) {
       res.json(200, result);
     })
   });
- 
+
 
   app.get('/autotest', function (req, res) {
 
@@ -738,6 +738,15 @@ var testController = function (app) {
   });
 
 
+  app.get('/test111', function (req, res) {
+    var data = require('c:\\1');
+    console.log(data.values.length)
+    var resData = util.convertSRMPerformanceStructV2(data);
+
+    res.json(200, resData);
+  });
+
+
   app.get('/test', function (req, res) {
     res.setTimeout(1200 * 1000);
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -767,20 +776,19 @@ var testController = function (app) {
 
     // Switch.getFabric(fabwwn,function(resultJson) {    res.json(200,resultJson);       });
 
-     //var device = 'ED_DCX_4S_B-10000027F81E390B'; 
-     //Switch.GetSwitchPorts(device, function(result) {  res.json(200,result);       }); 
-     /*
-    Switch.GetSwitchPorts(device, function(result) {  
-      var a = [];
-      for ( var i in result) {
-        var item = result[i];
-        //if ( item.partwwn == '20880027F81E388C') a.push(item);
-    }          
-    res.json(200,a);       }); 
-    */
+    //var device = 'ED_DCX_4S_B-10000027F81E390B'; 
+    //Switch.GetSwitchPorts(device, function(result) {  res.json(200,result);       }); 
+    /*
+   Switch.GetSwitchPorts(device, function(result) {  
+     var a = [];
+     for ( var i in result) {
+       var item = result[i];
+       //if ( item.partwwn == '20880027F81E388C') a.push(item);
+   }          
+   res.json(200,a);       }); 
+   */
 
     //VMAX.getArrayPerformance1( function(result) {            res.json(200,result);       }); 
-
     // VMAX.GetCapacity(device, function(result) {            res.json(200,result);       });  
     var sgname;
     var period = 86400;
@@ -796,7 +804,7 @@ var testController = function (app) {
     //var device = '000297800859';
     var part;
 
-    //VMAX.GetFEPorts(device, function (rest) { res.json(200, rest); });
+    VMAX.GetFEPorts(device, function (rest) { res.json(200, rest); });
     //VMAX.getArrayPerformanceV3( device, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
 
 
@@ -818,6 +826,7 @@ var testController = function (app) {
     // SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
     //VMAX.GetStorageGroups(device, function(result) {   res.json(200,result);   }); 
 
+    /*
     var device = '000497700088';
     VMAX.GetDevices(device, function(result) {  
       var result1=[]; 
@@ -829,9 +838,13 @@ var testController = function (app) {
       }
       res.json(200,result1);   
     }); 
+    */
+
+
     //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
     //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
-    //VMAX.GetArrays(  function(ret) {  res.json(200,ret);   }); 
+    var device;
+    // VMAX.GetArrays( device,  function(ret) {  res.json(200,ret);   }); 
     //Report.GetStoragePorts(function(ret) {
 
 
@@ -859,7 +872,7 @@ var testController = function (app) {
     //VMAX.GetMaskViews(device, function(ret) { res.json(200,ret); });
 
     //Report.E2ETopology(device, function (ret) { res.json(200, ret); });
- 
+
     /*
     Report.E2ETopology(device, function (ret) { 
       
@@ -898,7 +911,7 @@ var testController = function (app) {
 
     //VMAX.GetAssignedHosts(device, function(rest) { res.json(200,rest); });
 
-    //Report.GetApplicationInfo( function (ret) {  res.json(200,ret); });
+    //Report.GetApplicationInfo( function (ret) {   res.json(200,ret); });
     //Analysis.getAppTopology(function(apptopo) {            res.json(200,apptopo);        })
     // DeviceMgmt.getMgmtObjectInfo(device, function(ret) {     res.json(200,ret);        });
     //var apps = Report.ApplicationCapacityAnalysis("","");
@@ -1186,52 +1199,52 @@ var testController = function (app) {
       usedfor: 'data',
       count: 2,
       capacityGB: 2,
-      storageviews: ['sv1','sv2']
-  }
+      storageviews: ['sv1', 'sv2']
+    }
 
-  var paramaters2 = {
-    "arrayinfo": {
-      "arrayname": "EMCCTEST1",
-      "arraytype": "VPLEX",
-      "capacity": 1000,
-      "info": {
-        "name": "EMCCTEST",
-        "type": "VPLEX",
-        "version": "5.5",
-        "endpoint": "https://10.32.32.100/vplex",
-        "auth": {
-          "username": "service",
-          "password": "password"
-        }
-      }, 
-      "backend-array": [ 
-        {
-          "array_type": "Unity",
-          "unity_sn": "CKM00163300785",
-          "unity_password": "P@ssw0rd",
-          "unity_hostname": "10.32.32.64",
-          "unity_pool_name": "jxl_vplex101_pool",
-          "unity_username": "admin",
-          "sgname": "VPLEX_101_BE",
-          "purpose": "Prod"
-        }
-      ]
-    },
-    basevolname: "voltest_\`${request.appname}\`",
-    appname: "appname",
-    usedfor: 'data',
-    count: 2,
-    capacityGB: 2,
-    storageviews: ['sv1','sv2']
-}
+    var paramaters2 = {
+      "arrayinfo": {
+        "arrayname": "EMCCTEST1",
+        "arraytype": "VPLEX",
+        "capacity": 1000,
+        "info": {
+          "name": "EMCCTEST",
+          "type": "VPLEX",
+          "version": "5.5",
+          "endpoint": "https://10.32.32.100/vplex",
+          "auth": {
+            "username": "service",
+            "password": "password"
+          }
+        },
+        "backend-array": [
+          {
+            "array_type": "Unity",
+            "unity_sn": "CKM00163300785",
+            "unity_password": "P@ssw0rd",
+            "unity_hostname": "10.32.32.64",
+            "unity_pool_name": "jxl_vplex101_pool",
+            "unity_username": "admin",
+            "sgname": "VPLEX_101_BE",
+            "purpose": "Prod"
+          }
+        ]
+      },
+      basevolname: "voltest_\`${request.appname}\`",
+      appname: "appname",
+      usedfor: 'data',
+      count: 2,
+      capacityGB: 2,
+      storageviews: ['sv1', 'sv2']
+    }
     //Automation.ExecuteActions_TEST(   function(result) {res.json(200,result);   }) 
     //Automation_VPLEX.CreateAndExportVolume_TEST(   function(result) {res.json(200,result);   })
-    Automation_VPLEX.VPlexProvising(paramaters2,function(result) {res.json(200,result);   })
-    
+    Automation_VPLEX.VPlexProvising(paramaters2, function (result) { res.json(200, result); })
+
   });
 
   app.get("/test13", function (req, res) {
-    var arrayInfo =  {
+    var arrayInfo = {
       "name": "EMCCTEST",
       "type": "VPLEX",
       "version": "5.5",
@@ -1244,8 +1257,8 @@ var testController = function (app) {
 
     //Automation.ExecuteActions_TEST(   function(result) {res.json(200,result);   }) 
     //Automation_VPLEX.CreateAndExportVolume_TEST(   function(result) {res.json(200,result);   })
-    Automation_VPLEX.GetStorageViews(arrayInfo, 'cluster-1',function(result) {res.json(200,result);   })
-    
+    Automation_VPLEX.GetStorageViews(arrayInfo, 'cluster-1', function (result) { res.json(200, result); })
+
   });
 
   app.get("/test14", function (req, res) {
@@ -1272,14 +1285,14 @@ var testController = function (app) {
       }
     ]
 
-    Automation_VPLEX.ClaimStorageVolume(arrayinfo, aa, function(result) {
-      res.json(200,result);
+    Automation_VPLEX.ClaimStorageVolume(arrayinfo, aa, function (result) {
+      res.json(200, result);
     })
 
   });
 
 
-  
+
 
 
 

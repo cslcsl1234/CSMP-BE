@@ -89,14 +89,14 @@ var cebAPIController = function(app) {
               resItem["model"] = item.arraytyp;
               resItem["maxCache"] = "";
               resItem["storageSN"] = item.serialnb;
-              resItem["location"] = "1:SD";
+              resItem["location"] = "";
               resItem["diskCount"] =
                 item.matricsStat.TotalDisk === undefined
                   ? 0
                   : item.matricsStat.TotalDisk.max;
               resItem["lifeCycle"] = "";
-              resItem["type"] = "高端";
-              resItem["used"] = "一般应用";
+              resItem["type"] = "";
+              resItem["used"] = "";
               resItem["pools"] = "VP_EFD_MIR1;VP_FC1_MIR1;VP_FC2_MIR1";
               var url;
               switch (item.arraytyp) {
@@ -144,7 +144,7 @@ var cebAPIController = function(app) {
         },
         function(arg1, callback) {
           var filter;
-          DeviceMgmt.getMgmtObjectInfo(filter, function(arrayinfo) {
+          DeviceMgmt.getMgmtObjectInfo(filter, function(arrayinfo) {  
             for (var i in arg1) {
               var item = arg1[i];
               for (var j in arrayinfo) {
@@ -206,7 +206,7 @@ var cebAPIController = function(app) {
               else deviceList[item.serialnb] += "," + item.part;
             }
 
-            for (var i in arg) {
+            for ( var i in arg ) {
               var item = arg[i];
               item.pools = deviceList[item.storageSN];
               item.poolCount =
@@ -233,7 +233,7 @@ var cebAPIController = function(app) {
               if (deviceList[item.serialnb] === undefined)
                 deviceList[item.serialnb] = item.feport;
               else deviceList[item.serialnb] += "," + item.feport;
-            }
+            } 
 
             for (var i in arg) {
               var item = arg[i];

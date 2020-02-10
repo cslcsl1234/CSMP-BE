@@ -104,14 +104,11 @@ require('./controllers/simulateServicesController')(app);
 
 
 
-const server = app.listen(config.SERVER.PORT, function () {
-    console.log('=== The Backend server listening on [' + config.Backend.URL + '] ===');
-    console.log('=== The MongoDB server listening on [' + config.MongoDBURL + '] ===')
-
+const server = app.listen(config.SERVER.PORT, function () { 
+    console.log('=== The MongoDB server listening on [' + config.MongoDBURL + '] ===') 
     console.log('=== The NodeJS server ip addresses is [' + addresses + '] ===');
     console.log('=== Then App server listening on port ' + config.SERVER.PORT + ' ==='); 
-
-    console.debug("this is debug")
+ 
 });
 
 

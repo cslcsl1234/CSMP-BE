@@ -890,7 +890,7 @@ var cebPerformanceProviderController = function (app) {
                             }
                             if ( isfind == false ) {
                                 var vnxoutItem = {};
-                                vnxoutItem["storageName"] = item.device;
+                                vnxoutItem["storageName"] = ( item.device === undefined ) ? item.serialnb: item.device ;
                                 vnxoutItem["storageSn"] = item.serialnb;
                                 vnxoutItem["directorList"] = [];
                                 var dirItem = {};
@@ -956,7 +956,7 @@ var cebPerformanceProviderController = function (app) {
                             }
                             if ( isfind == false ) {
                                 var vnxoutItem = {};
-                                vnxoutItem["storageName"] = "";
+                                vnxoutItem["storageName"] = item.device;
                                 vnxoutItem["storageSn"] = item.device;
                                 vnxoutItem["directorList"] = [];
                                 var dirItem = {};
@@ -1257,7 +1257,7 @@ var cebPerformanceProviderController = function (app) {
         var port = req.query.port;
         var ReportOutputPath = config.Reporting.OutputPath;
 
-        console.log(Date() + '\t' + storageTmp+"\t"+storageSn+"\t"+storageType+"\t"+director+"\t"+port);
+        //console.log(Date() + '\t' + storageTmp+"\t"+storageSn+"\t"+storageType+"\t"+director+"\t"+port);
  
         var device;
         async.auto(
@@ -1309,7 +1309,7 @@ var cebPerformanceProviderController = function (app) {
                             } else 
                                 if ( item.array == storageSn ) appTopo1.push(item);
                         }
-                        console.log("appTopo1 = " + appTopo1);
+                        //console.log("appTopo1 = " + appTopo1);
                         callback(null,appTopo1);
                     })
                 } ,
@@ -1322,8 +1322,7 @@ var cebPerformanceProviderController = function (app) {
                 },
                 mergeResult: ["apptopo","appinfo",  function(callback, result ) {
 
-                    if ( storageType == 'VNX' ) {
-                        console.log('storage is vnx');
+                    if ( storageType == 'VNX' ) { 
                         var finalResult = [];
                         for ( var i in result.apptopo ) {
                             var item = result.apptopo[i];
@@ -1384,10 +1383,7 @@ var cebPerformanceProviderController = function (app) {
 
 
                     } else if ( storageType == 'VMAX' ) {
-
-
-
-                        console.log('storage is vmax');
+ 
                         var finalResult = [];
                         for ( var i in result.apptopo ) {
                             var item = result.apptopo[i];
