@@ -865,7 +865,7 @@ var cebAPIController = function (app) {
           }
 
           if (datas.length > 0) {
-            async.map(datas, function (data, subcallback) { 
+            async.map(datas, function (data, subcallback) {
               DeviceMgmt.putMgmtObjectInfo(data, function (result) {
 
                 console.log("INSERT INTO " + data.sn);
@@ -882,7 +882,7 @@ var cebAPIController = function (app) {
             )
           } else {
             callback(null, arrays);
-          } 
+          }
 
         }
 
@@ -1142,14 +1142,57 @@ var cebAPIController = function (app) {
   });
 
 
-  
-  // 获取存储所有前端囗信息
+
+  // 获取所有前端囗信息
   app.get("/ssmp/rest/vmax/:devicesn/ports", function (req, res) {
     var device = req.params.devicesn;
     var sgname = req.params.sgname;
 
     async.waterfall(
-      [ 
+      [
+        function (callback) {
+          VMAX.GetFEPorts(device, function (ports) { 
+             callback(null, ports);
+          });
+        },
+        function(ports, callback ) {
+          Report.getVMAXDirectorAddress(device, function (address) {
+            for ( var i in ports ) {
+              var item = ports[i];
+              var feport = item.feport;
+              var director = feport.split(":")[0];
+              for (var j in address) {
+                var dirItem = address[j];
+
+                if (dirItem.director == director) {
+                  item["availableAddress"] = dirItem.availableAddress;
+                  item["maxAvailableAddress"] = dirItem.maxAvailableAddress;
+                  item["isAvailableAddress"] = dirItem.availableAddress > 0 ? "YES" : "NO";
+                }
+              }
+
+            }
+            callback(null, ports)
+          })
+        }
+      ],
+      function (err, result) {
+        var finalResult = {};
+        finalResult["success"] = "true";
+        finalResult["data"] = result;
+        res.json(200, finalResult);
+      }
+    );
+  });
+
+
+  // 获取某个SG相关的所有前端囗信息
+  app.get("/ssmp/rest/vmax/:devicesn/:sgname/ports", function (req, res) {
+    var device = req.params.devicesn;
+    var sgname = req.params.sgname;
+
+    async.waterfall(
+      [
         function (callback) {
           VMAX.GetMaskViews(device, function (maskings) {
             var isfind = false;
@@ -1189,30 +1232,6 @@ var cebAPIController = function (app) {
               }
 
               callback(null, feports);
-            });
-        }
-      ],
-      function (err, result) {
-        var finalResult = {};
-        finalResult["success"] = "true";
-        finalResult["data"] = result;
-        res.json(200, finalResult);
-      }
-    );
-  });
-
-
-  // 获取某个SG相关的所有前端囗信息
-  app.get("/ssmp/rest/vmax/:devicesn/ports", function (req, res) {
-    var device = req.params.devicesn;
-    var sgname = req.params.sgname;
-
-    async.waterfall(
-      [
-         
-        function (callback) { 
-            Report.getVMAXDirectorAddress(device, function (address) { 
-              callback(null, address);
             });
         }
       ],
