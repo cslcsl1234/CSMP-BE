@@ -804,7 +804,7 @@ var testController = function (app) {
     //var device = '000297800859';
     var part;
 
-    VMAX.GetFEPorts(device, function (rest) { res.json(200, rest); });
+    //VMAX.GetFEPorts(device, function (rest) { res.json(200, rest); });
     //VMAX.getArrayPerformanceV3( device, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
 
 
@@ -844,7 +844,7 @@ var testController = function (app) {
     //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
     //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
     var device;
-    // VMAX.GetArrays( device,  function(ret) {  res.json(200,ret);   }); 
+    VMAX.GetArrays( device,  function(ret) {  res.json(200,ret);   }); 
     //Report.GetStoragePorts(function(ret) {
 
 

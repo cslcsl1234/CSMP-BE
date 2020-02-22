@@ -36,10 +36,10 @@ var Analysis = require("../lib/analysis");
 var topos = require("../lib/topos");
 var sortBy = require("sort-by");
 
-var cebAPIController = function(app) {
+var cebAPIController = function (app) {
   var config = configger.load();
 
-  app.all("*", function(req, res, next) {
+  app.all("*", function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header(
       "Access-Control-Allow-Headers",
@@ -55,14 +55,14 @@ var cebAPIController = function(app) {
     /*让options请求快速返回*/ else next();
   });
 
-  app.get("/ceb/config/storage/getStorageView", function(req, res) {
+  app.get("/ceb/config/storage/getStorageView", function (req, res) {
     var realtimeDatetime = util.getRealtimeDateTimeByDay(-1);
     var start = realtimeDatetime.begin;
     var end = realtimeDatetime.end;
 
     async.waterfall(
       [
-        function(callback) {
+        function (callback) {
           var param = {};
           param["fields"] = [
             "serialnb",
@@ -80,7 +80,7 @@ var cebAPIController = function(app) {
             "(name=='ConfiguredRawCapacity'|name='TotalLun'|name=='TotalDisk'|name=='TotalMemory')";
 
           var resRecord = [];
-          CallGet.CallGetPerformance(param, function(param) {
+          CallGet.CallGetPerformance(param, function (param) {
             for (var i in param) {
               var item = param[i];
 
@@ -142,9 +142,9 @@ var cebAPIController = function(app) {
             callback(null, resRecord);
           });
         },
-        function(arg1, callback) {
+        function (arg1, callback) {
           var filter;
-          DeviceMgmt.getMgmtObjectInfo(filter, function(arrayinfo) {  
+          DeviceMgmt.getMgmtObjectInfo(filter, function (arrayinfo) {
             for (var i in arg1) {
               var item = arg1[i];
               for (var j in arrayinfo) {
@@ -190,13 +190,13 @@ var cebAPIController = function(app) {
             callback(null, arg1);
           });
         },
-        function(arg, callback) {
+        function (arg, callback) {
           var param = {};
           param["filter"] = "parttype='Storage Pool'";
           param["keys"] = ["serialnb", "device", "part"];
 
           var finalResult = [];
-          CallGet.CallGet(param, function(param) {
+          CallGet.CallGet(param, function (param) {
             var deviceList = {};
             for (var i in param.result) {
               var item = param.result[i];
@@ -206,7 +206,7 @@ var cebAPIController = function(app) {
               else deviceList[item.serialnb] += "," + item.part;
             }
 
-            for ( var i in arg ) {
+            for (var i in arg) {
               var item = arg[i];
               item.pools = deviceList[item.storageSN];
               item.poolCount =
@@ -218,14 +218,14 @@ var cebAPIController = function(app) {
             callback(null, arg);
           });
         },
-        function(arg, callback) {
+        function (arg, callback) {
           var param = {};
           param["filter"] =
             "parttype='Port'&(partgrp='Front-End'|porttype='FE')";
           param["keys"] = ["serialnb", "device", "feport"];
 
           var finalResult = [];
-          CallGet.CallGet(param, function(param) {
+          CallGet.CallGet(param, function (param) {
             var deviceList = {};
             for (var i in param.result) {
               var item = param.result[i];
@@ -233,7 +233,7 @@ var cebAPIController = function(app) {
               if (deviceList[item.serialnb] === undefined)
                 deviceList[item.serialnb] = item.feport;
               else deviceList[item.serialnb] += "," + item.feport;
-            } 
+            }
 
             for (var i in arg) {
               var item = arg[i];
@@ -248,13 +248,13 @@ var cebAPIController = function(app) {
           });
         }
       ],
-      function(err, result) {
+      function (err, result) {
         res.json(200, result);
       }
     );
   });
 
-  app.get("/ssmp/rest/vmax/summary/:device", function(req, res) {
+  app.get("/ssmp/rest/vmax/summary/:device", function (req, res) {
     var device = req.params.device;
 
     console.log("deiv=" + device);
@@ -264,7 +264,7 @@ var cebAPIController = function(app) {
 
     async.waterfall(
       [
-        function(callback) {
+        function (callback) {
           var param = {};
           param["device"] = device;
           param["fields"] = [
@@ -285,7 +285,7 @@ var cebAPIController = function(app) {
             "(name=='ConfiguredRawCapacity'|name='TotalLun'|name=='TotalDisk'|name=='TotalMemory')";
 
           var resRecord = [];
-          CallGet.CallGetPerformance(param, function(param) {
+          CallGet.CallGetPerformance(param, function (param) {
             for (var i in param) {
               var item = param[i];
 
@@ -330,9 +330,9 @@ var cebAPIController = function(app) {
             callback(null, resRecord);
           });
         },
-        function(arg1, callback) {
+        function (arg1, callback) {
           var filter;
-          DeviceMgmt.getMgmtObjectInfo(filter, function(arrayinfo) {
+          DeviceMgmt.getMgmtObjectInfo(filter, function (arrayinfo) {
             for (var i in arg1) {
               var item = arg1[i];
               for (var j in arrayinfo) {
@@ -364,13 +364,13 @@ var cebAPIController = function(app) {
             callback(null, arg1);
           });
         },
-        function(arg, callback) {
+        function (arg, callback) {
           var param = {};
           param["filter"] = "parttype='Storage Pool'";
           param["keys"] = ["serialnb", "device", "part"];
 
           var finalResult = [];
-          CallGet.CallGet(param, function(param) {
+          CallGet.CallGet(param, function (param) {
             var deviceList = {};
             for (var i in param.result) {
               var item = param.result[i];
@@ -391,14 +391,14 @@ var cebAPIController = function(app) {
             callback(null, arg);
           });
         },
-        function(arg, callback) {
+        function (arg, callback) {
           var param = {};
           param["filter"] =
             "parttype='Port'&(partgrp='Front-End'|porttype='FE')";
           param["keys"] = ["serialnb", "device", "feport"];
 
           var finalResult = [];
-          CallGet.CallGet(param, function(param) {
+          CallGet.CallGet(param, function (param) {
             var deviceList = {};
             for (var i in param.result) {
               var item = param.result[i];
@@ -420,13 +420,13 @@ var cebAPIController = function(app) {
           });
         }
       ],
-      function(err, result) {
+      function (err, result) {
         res.json(200, result[0]);
       }
     );
   });
 
-  app.get("/ssmp/rest/vmax/ports/:device", function(req, res) {
+  app.get("/ssmp/rest/vmax/ports/:device", function (req, res) {
     var device = req.params.device;
 
     var realtimeDatetime = util.getRealtimeDateTimeByDay(-1);
@@ -435,7 +435,7 @@ var cebAPIController = function(app) {
 
     async.waterfall(
       [
-        function(callback) {
+        function (callback) {
           var param = {};
           param["filter"] = "device='" + device + "'&datagrp='VMAX-PORTS'";
           param["keys"] = [
@@ -451,7 +451,7 @@ var cebAPIController = function(app) {
           ];
 
           var finalResult = [];
-          CallGet.CallGet(param, function(param) {
+          CallGet.CallGet(param, function (param) {
             for (var i in param.result) {
               var item = param.result[i];
 
@@ -475,21 +475,21 @@ var cebAPIController = function(app) {
           });
         }
       ],
-      function(err, result) {
+      function (err, result) {
         res.json(200, result);
       }
     );
   });
 
-  app.get("/ssmp/rest/vmax/portToApp/:device", function(req, res) {
+  app.get("/ssmp/rest/vmax/portToApp/:device", function (req, res) {
     var device = req.params.device;
     var portname = req.query.portName;
 
     async.waterfall(
       [
-        function(callback) {
+        function (callback) {
           var topoRecord = [];
-          topos.getApplicationTopologyView(function(apptopo) {
+          topos.getApplicationTopologyView(function (apptopo) {
             for (var i in apptopo) {
               var item = apptopo[i];
               if ((item.array == device) & (item.arrayport == portname)) {
@@ -499,7 +499,7 @@ var cebAPIController = function(app) {
             callback(null, topoRecord);
           });
         },
-        function(arg, callback) {
+        function (arg, callback) {
           var appinfo = [];
 
           for (var i in arg) {
@@ -532,13 +532,13 @@ var cebAPIController = function(app) {
           callback(null, appinfo);
         }
       ],
-      function(err, result) {
+      function (err, result) {
         res.json(200, result);
       }
     );
   });
 
-  app.get("/ssmp/rest/vmax/caches/:device", function(req, res) {
+  app.get("/ssmp/rest/vmax/caches/:device", function (req, res) {
     var device = req.params.device;
 
     var realtimeDatetime = util.getRealtimeDateTimeByDay(-1);
@@ -547,7 +547,7 @@ var cebAPIController = function(app) {
 
     async.waterfall(
       [
-        function(callback) {
+        function (callback) {
           var param = {};
           param["device"] = device;
           param["fields"] = [
@@ -567,7 +567,7 @@ var cebAPIController = function(app) {
           param["filter_name"] = "(name=='TotalMemory')";
 
           var resRecord = {};
-          CallGet.CallGetPerformance(param, function(param) {
+          CallGet.CallGetPerformance(param, function (param) {
             for (var i in param) {
               var item = param[i];
               var a =
@@ -580,13 +580,13 @@ var cebAPIController = function(app) {
           });
         }
       ],
-      function(err, result) {
+      function (err, result) {
         res.json(200, result);
       }
     );
   });
 
-  app.get("/ssmp/rest/vmax/disks/:device", function(req, res) {
+  app.get("/ssmp/rest/vmax/disks/:device", function (req, res) {
     var device = req.params.device;
 
     var realtimeDatetime = util.getRealtimeDateTimeByDay(-1);
@@ -595,7 +595,7 @@ var cebAPIController = function(app) {
 
     async.waterfall(
       [
-        function(callback) {
+        function (callback) {
           var param = {};
           param["device"] = device;
           param["fields"] = [
@@ -614,7 +614,7 @@ var cebAPIController = function(app) {
           param["filter_name"] = "(name=='Capacity')";
 
           var resRecord = [];
-          CallGet.CallGetPerformance(param, function(param) {
+          CallGet.CallGetPerformance(param, function (param) {
             for (var i in param) {
               var item = param[i];
 
@@ -641,13 +641,13 @@ var cebAPIController = function(app) {
           });
         }
       ],
-      function(err, result) {
+      function (err, result) {
         res.json(200, result);
       }
     );
   });
 
-  app.get("/ssmp/rest/vmax/rdfgroup", function(req, res) {
+  app.get("/ssmp/rest/vmax/rdfgroup", function (req, res) {
     var device = req.params.device;
 
     var realtimeDatetime = util.getRealtimeDateTimeByDay(-1);
@@ -656,22 +656,22 @@ var cebAPIController = function(app) {
 
     async.waterfall(
       [
-        function(callback) {
-          Report.getArrayResourceLimits(start, end, function(result) {
+        function (callback) {
+          Report.getArrayResourceLimits(start, end, function (result) {
             callback(null, result);
           });
         }
       ],
-      function(err, result) {
+      function (err, result) {
         res.json(200, result);
       }
     );
   });
 
-  app.get("/ceb/storageSet/batchDelete", function(req, res) {
-    var sn = req.query.ids;
+  app.get("/ceb/storageSet/batchDelete", function (req, res) {
+    var data = req.query.ids;
 
-    DeviceMgmt.deleteMgmtObjectInfo(data, function(result) {
+    DeviceMgmt.deleteMgmtObjectInfo(data, function (result) {
       if (result.status == "FAIL") {
         return res.json(400, result);
       } else {
@@ -680,7 +680,7 @@ var cebAPIController = function(app) {
     });
   });
 
-  app.get("/ceb/storageSet/addOrUpdate", function(req, res) {
+  app.get("/ceb/storageSet/addOrUpdate", function (req, res) {
     var data = {};
     data["sn"] = req.query.storageSN;
     data["name"] = req.query.name;
@@ -709,7 +709,7 @@ var cebAPIController = function(app) {
     specialInfo["SRDFGroupThreshold"] = req.query.SRDFGroupThreshold;
     data["specialInfo"] = JSON.stringify(specialInfo);
 
-    DeviceMgmt.putMgmtObjectInfo(data, function(result) {
+    DeviceMgmt.putMgmtObjectInfo(data, function (result) {
       if (result.status == "FAIL") {
         return res.json(400, result);
       } else {
@@ -718,49 +718,185 @@ var cebAPIController = function(app) {
     });
   });
 
-  app.get("/ceb/storageSet/list", function(req, res) {
-    var filter = {};
-    var finalResult = [];
-    DeviceMgmt.getMgmtObjectInfo(filter, function(devInfo) {
-      for (var i in devInfo) {
-        var item = devInfo[i];
+  app.get("/ceb/storageSet/list", function (req, res) {
 
-        var resultItem = {};
-        resultItem["resourcePoolVo"] = [];
-        resultItem["resourcePoolVoSize"] = 0;
-        resultItem["storageSN"] = item.sn;
-        resultItem["name"] = item.name;
-        resultItem["model"] = item.model;
-        resultItem["address"] = item.specialInfo.address;
-        resultItem["datacenter"] = item.datacenter;
-        resultItem["datacenterName"] = item.datacenter;
-        resultItem["room"] = item.specialInfo.room;
-        resultItem["type"] = item.type;
-        resultItem["used"] = item.specialInfo.used;
-        resultItem["lifeCycle"] = item.specialInfo.lifeCycle;
-        resultItem["maintenanceInfo"] = item.specialInfo.maintenanceInfo;
-        resultItem["providerid"] = item.specialInfo.providerid;
-        resultItem["maxlundirector"] = item.specialInfo.maxlundirector;
-        resultItem["SRDFPairThreshold"] = item.specialInfo.SRDFPairThreshold;
-        resultItem["SRDFGroupThreshold"] = item.specialInfo.SRDFGroupThreshold;
+    async.waterfall(
+      [
+        function (callback) {
 
-        resultItem["updatedDate"] = item.createData;
-        resultItem["maxCache"] = item.specialInfo.maxCache;
-        resultItem["maxDisks"] = item.specialInfo.maxDisks;
-        resultItem["maxPorts"] = item.specialInfo.maxPorts;
-        resultItem["id"] = item.sn;
+          var filter = {};
+          var finalResult = [];
+          DeviceMgmt.getMgmtObjectInfo(filter, function (devInfo) {
+            for (var i in devInfo) {
+              var item = devInfo[i];
 
-        finalResult.push(resultItem);
+              var resultItem = {};
+              resultItem["resourcePoolVo"] = [];
+              resultItem["resourcePoolVoSize"] = 0;
+              resultItem["storageSN"] = item.sn;
+              resultItem["name"] = item.name;
+              resultItem["model"] = item.model;
+              resultItem["address"] = item.specialInfo.address;
+              resultItem["datacenter"] = item.datacenter;
+              resultItem["datacenterName"] = item.datacenter;
+              resultItem["room"] = item.specialInfo.room;
+              resultItem["type"] = item.type;
+              resultItem["used"] = item.specialInfo.used;
+              resultItem["lifeCycle"] = item.specialInfo.lifeCycle;
+              resultItem["maintenanceInfo"] = item.specialInfo.maintenanceInfo;
+              resultItem["providerid"] = item.specialInfo.providerid;
+              resultItem["maxlundirector"] = item.specialInfo.maxlundirector;
+              resultItem["SRDFPairThreshold"] = item.specialInfo.SRDFPairThreshold;
+              resultItem["SRDFGroupThreshold"] = item.specialInfo.SRDFGroupThreshold;
+
+              resultItem["updatedDate"] = item.createData;
+              resultItem["maxCache"] = item.specialInfo.maxCache;
+              resultItem["maxDisks"] = item.specialInfo.maxDisks;
+              resultItem["maxPorts"] = item.specialInfo.maxPorts;
+              resultItem["id"] = item.sn;
+
+              finalResult.push(resultItem);
+            }
+
+            callback(null, finalResult);
+          });
+        },
+        function (arrays, callback) {
+
+          var device;
+          var finalResult = [];
+          VMAX.GetArrays(device, function (ret) {
+            finalResult = finalResult.concat(ret);
+
+
+            for (var j in ret) {
+              var newItem = ret[j];
+              var isfind = false;
+
+              for (var i in arrays) {
+                var item = arrays[i];
+
+                if (newItem.device == item.storageSN) {
+                  isfind = true;
+                  break;
+                }
+
+              }
+
+              if (isfind == false) {
+                var resultItem = {};
+                resultItem["resourcePoolVo"] = [];
+                resultItem["resourcePoolVoSize"] = 0;
+                resultItem["storageSN"] = newItem.device;
+                resultItem["name"] = "nodefined";
+                resultItem["model"] = newItem.model;
+                resultItem["address"] = "";
+                resultItem["datacenter"] = "";
+                resultItem["datacenterName"] = "";
+                resultItem["room"] = "";
+                resultItem["type"] = "";
+                resultItem["used"] = "";
+                resultItem["lifeCycle"] = "";
+                resultItem["maintenanceInfo"] = "";
+                resultItem["providerid"] = "";
+                resultItem["maxlundirector"] = "";
+                resultItem["SRDFPairThreshold"] = "";
+                resultItem["SRDFGroupThreshold"] = "";
+
+                resultItem["updatedDate"] = "";
+                resultItem["maxCache"] = "";
+                resultItem["maxDisks"] = "";
+                resultItem["maxPorts"] = "";
+                resultItem["id"] = item.device;
+
+                arrays.push(resultItem);
+
+
+
+              }
+            }
+
+            callback(null, arrays);
+          })
+
+        },
+        function (arrays, callback) {
+          var datas = [];
+
+          for (var i in arrays) {
+            var item = arrays[i];
+
+
+            if (item.name == 'nodefined') {
+              item.name = '';
+              var req = { query: item };
+
+              var data = {};
+              data["sn"] = req.query.storageSN;
+              data["name"] = req.query.name;
+              data["datacenter"] = req.query.datacenter;
+              data["level"] = req.query.type;
+              data["model"] = req.query.model;
+              data["type"] = "array";
+              data["createdData"] = "";
+              data["updatedData"] = req.query.updatedDate;
+              data["specialInfo"] = "";
+
+              var specialInfo = {};
+              specialInfo["address"] = req.query.address;
+              specialInfo["room"] = req.query.room;
+              specialInfo["providerid"] = req.query.providerid;
+              specialInfo["address"] = req.query.address;
+
+              specialInfo["used"] = req.query.used;
+              specialInfo["maxCache"] = req.query.maxCache;
+              specialInfo["maxDisks"] = req.query.maxDisks;
+              specialInfo["maxPorts"] = req.query.maxPorts;
+              specialInfo["lifeCycle"] = req.query.lifeCycle;
+              specialInfo["maintenanceInfo"] = req.query.maintenanceInfo;
+              specialInfo["maxlundirector"] = req.query.maxlundirector;
+              specialInfo["SRDFPairThreshold"] = req.query.SRDFPairThreshold;
+              specialInfo["SRDFGroupThreshold"] = req.query.SRDFGroupThreshold;
+              data["specialInfo"] = JSON.stringify(specialInfo);
+
+              datas.push(data);
+
+            }
+          }
+
+          if (datas.length > 0) {
+            async.map(datas, function (data, subcallback) { 
+              DeviceMgmt.putMgmtObjectInfo(data, function (result) {
+
+                console.log("INSERT INTO " + data.sn);
+                if (result.status == "FAIL") {
+                  subcallback(501, data);
+                } else {
+                  subcallback(null, data);
+                }
+              });
+            },
+              function (err, result) {
+                callback(null, arrays);
+              }
+            )
+          } else {
+            callback(null, arrays);
+          } 
+
+        }
+
+      ],
+      function (err, result) {
+        res.json(200, result);
       }
-
-      res.json(200, finalResult);
-    });
+    );
   });
 
-  app.get("/ceb/storageSet/getStorageById", function(req, res) {
+  app.get("/ceb/storageSet/getStorageById", function (req, res) {
     var storagesn = req.query.id;
     var filter = { sn: storagesn };
-    DeviceMgmt.getMgmtObjectInfo(filter, function(devInfo) {
+    DeviceMgmt.getMgmtObjectInfo(filter, function (devInfo) {
       for (var i in devInfo) {
         var item = devInfo[i];
 
@@ -794,7 +930,7 @@ var cebAPIController = function(app) {
     });
   });
 
-  app.get("/ceb/system/datacenter/list", function(req, res) {
+  app.get("/ceb/system/datacenter/list", function (req, res) {
     var filter = {};
     var finalResult = [
       {
@@ -819,18 +955,18 @@ var cebAPIController = function(app) {
     res.json(200, finalResult);
   });
 
-  app.get("/ssmp/rest/vmax", function(req, res) {
+  app.get("/ssmp/rest/vmax", function (req, res) {
     var device;
     async.waterfall(
       [
-        function(callback) {
-          VMAX.GetArrays(device, function(ret) {
+        function (callback) {
+          VMAX.GetArrays(device, function (ret) {
             callback(null, ret);
           });
         },
-        function(arg1, callback) {
+        function (arg1, callback) {
           var filter;
-          DeviceMgmt.getMgmtObjectInfo(filter, function(arrayinfo) {
+          DeviceMgmt.getMgmtObjectInfo(filter, function (arrayinfo) {
             for (var i in arg1) {
               var item = arg1[i];
               for (var j in arrayinfo) {
@@ -862,7 +998,7 @@ var cebAPIController = function(app) {
           });
         }
       ],
-      function(err, result) {
+      function (err, result) {
         var finalResult = [];
         for (var i in result) {
           var item = result[i];
@@ -902,13 +1038,13 @@ var cebAPIController = function(app) {
     );
   });
 
-  app.get("/ssmp/rest/vmax/storagegroup/:devicesn", function(req, res) {
+  app.get("/ssmp/rest/vmax/storagegroup/:devicesn", function (req, res) {
     var device = req.params.devicesn;
     async.waterfall(
       [
-        function(callback) {
+        function (callback) {
           var finalrecord = [];
-          VMAX.GetStorageGroups(device, function(ret) {
+          VMAX.GetStorageGroups(device, function (ret) {
             for (var i in ret) {
               var item = ret[i];
               finalrecord.push(item.sgname);
@@ -917,7 +1053,7 @@ var cebAPIController = function(app) {
           });
         }
       ],
-      function(err, result) {
+      function (err, result) {
         res.json(200, result);
       }
     );
@@ -953,21 +1089,21 @@ var cebAPIController = function(app) {
 
 */
 
-  app.get("/ssmp/rest/vmax/available-luns/:devicesn", function(req, res) {
+  app.get("/ssmp/rest/vmax/available-luns/:devicesn", function (req, res) {
     var device = req.params.devicesn;
     var sgname = req.params.sgname;
 
     async.waterfall(
       [
-        function(callback) {
+        function (callback) {
           var finalrecord = [];
 
-          VMAX.GetDevices(device, function(result) {  
+          VMAX.GetDevices(device, function (result) {
             var ret = result;
             for (var i in ret) {
               var item = ret[i];
               if (item.ismasked !== undefined)
-                if (item.ismasked == "0" ) { 
+                if (item.ismasked == "0") {
                   finalrecord.push(item);
                 }
             }
@@ -975,7 +1111,7 @@ var cebAPIController = function(app) {
             callback(null, finalrecord);
           });
         },
-        function(luns, callback) {
+        function (luns, callback) {
           var finalRecord = {
             success: true,
             data: []
@@ -983,37 +1119,39 @@ var cebAPIController = function(app) {
 
           for (var i in luns) {
             var item = luns[i];
-            var newItem = {}; 
-            if ( item.config.indexOf('RDF2') >= 0 ) continue;
+            var newItem = {};
+            if (item.config.indexOf('RDF2') >= 0) continue;
 
             newItem["id"] = item.part;
             newItem["name"] = item.part;
             newItem["type"] = item.dgstype;
             newItem["size(GB)"] = item.Capacity;
             newItem["rdfProp"] = item.config;
-            newItem["rdfRelation"] = (item.replication === undefined ) ? "": item.replication[0].device + '-' + item.replication[0].part;
- 
+            newItem["rdfRelation"] = (item.replication === undefined) ? "" : item.replication[0].device + '-' + item.replication[0].part;
+
             finalRecord.data.push(newItem);
           }
 
           callback(null, finalRecord);
         }
       ],
-      function(err, result) {
+      function (err, result) {
         res.json(200, result);
       }
     );
   });
 
-  // 获取某个SG相关的所有前端囗信息
-  app.get("/ssmp/rest/vmax/:devicesn/:sgname/ports", function(req, res) {
+
+  
+  // 获取存储所有前端囗信息
+  app.get("/ssmp/rest/vmax/:devicesn/ports", function (req, res) {
     var device = req.params.devicesn;
     var sgname = req.params.sgname;
 
     async.waterfall(
-      [
-        function(callback) {
-          VMAX.GetMaskViews(device, function(maskings) {
+      [ 
+        function (callback) {
+          VMAX.GetMaskViews(device, function (maskings) {
             var isfind = false;
             for (var i in maskings) {
               var item = maskings[i];
@@ -1025,11 +1163,11 @@ var cebAPIController = function(app) {
             if (isfind == false) callback(null, {});
           });
         },
-        function(arg1, callback) {
+        function (arg1, callback) {
           if (JSON.stringify(arg1) == "{}") {
             callback(null, []);
           } else
-            Report.getVMAXDirectorAddress(device, function(address) {
+            Report.getVMAXDirectorAddress(device, function (address) {
               var feports = arg1.portgrp_member;
 
               for (var j in feports) {
@@ -1054,7 +1192,31 @@ var cebAPIController = function(app) {
             });
         }
       ],
-      function(err, result) {
+      function (err, result) {
+        var finalResult = {};
+        finalResult["success"] = "true";
+        finalResult["data"] = result;
+        res.json(200, finalResult);
+      }
+    );
+  });
+
+
+  // 获取某个SG相关的所有前端囗信息
+  app.get("/ssmp/rest/vmax/:devicesn/ports", function (req, res) {
+    var device = req.params.devicesn;
+    var sgname = req.params.sgname;
+
+    async.waterfall(
+      [
+         
+        function (callback) { 
+            Report.getVMAXDirectorAddress(device, function (address) { 
+              callback(null, address);
+            });
+        }
+      ],
+      function (err, result) {
         var finalResult = {};
         finalResult["success"] = "true";
         finalResult["data"] = result;
@@ -1064,36 +1226,36 @@ var cebAPIController = function(app) {
   });
 
   // 获取交换机端囗信息
-  app.get("/ssmp/rest/switch/:device/ports", function(req, res) {
+  app.get("/ssmp/rest/switch/:device/ports", function (req, res) {
     var device = req.params.devicesn;
     var sgname = req.params.sgname;
 
     async.waterfall(
       [
-        function(callback) {
-          SWITCH.GetSwitchPorts(device, function(ports) {
+        function (callback) {
+          SWITCH.GetSwitchPorts(device, function (ports) {
             callback(null, ports);
           });
         },
-        function(arg1, callback) {
+        function (arg1, callback) {
           callback(null, arg1);
         }
       ],
-      function(err, result) {
+      function (err, result) {
         res.json(200, result);
       }
     );
   });
 
   // 获取所有VMAX存储中的iolimit设置情况
-  app.get("/ssmp/rest/vmax/sg-iolimit", function(req, res) {
+  app.get("/ssmp/rest/vmax/sg-iolimit", function (req, res) {
     var device = req.params.devicesn;
     var sgname = req.params.sgname;
 
     async.waterfall(
       [
-        function(callback) {
-          VMAX.GetStorageGroups(device, function(sg) {
+        function (callback) {
+          VMAX.GetStorageGroups(device, function (sg) {
             for (var i in sg) {
               var item = sg[i];
               delete item.luns;
@@ -1101,9 +1263,9 @@ var cebAPIController = function(app) {
             callback(null, sg);
           });
         },
-        function(arg1, callback) {
+        function (arg1, callback) {
           var filter = {};
-          DeviceMgmt.getMgmtObjectInfo(filter, function(arrayinfo) {
+          DeviceMgmt.getMgmtObjectInfo(filter, function (arrayinfo) {
             for (var i in arg1) {
               var item = arg1[i];
               for (var j in arrayinfo) {
@@ -1117,7 +1279,7 @@ var cebAPIController = function(app) {
           });
         }
       ],
-      function(err, result) {
+      function (err, result) {
         result.sort(sortBy("arrayname"));
         res.json(200, result);
       }
@@ -1125,30 +1287,30 @@ var cebAPIController = function(app) {
   });
 
   // 获取所有VMAX存储中的Storage Group快照情况
-  app.get("/ssmp/rest/vmax/sg-snap", function(req, res) {
+  app.get("/ssmp/rest/vmax/sg-snap", function (req, res) {
     var device = req.params.devicesn;
     var sgname = req.params.sgname;
 
     async.waterfall(
       [
-        function(callback) {
-          VMAX.GetStorageGroups(device, function(sg) {
+        function (callback) {
+          VMAX.GetStorageGroups(device, function (sg) {
             var sgSnapList = [];
             for (var i in sg) {
               var item = sg[i];
               var capacity = item.Capacity;
-              if ( item.snap === undefined ) continue;
-              for ( var j in item.snap ) {
-                  var snapItem = item.snap[j];
-                  snapItem["capacity"] = capacity;
-                  sgSnapList.push(snapItem);
+              if (item.snap === undefined) continue;
+              for (var j in item.snap) {
+                var snapItem = item.snap[j];
+                snapItem["capacity"] = capacity;
+                sgSnapList.push(snapItem);
               }
             }
             callback(null, sgSnapList);
           });
         }
       ],
-      function(err, result) {
+      function (err, result) {
         //result.sort(sortBy("arrayname"));
         res.json(200, result);
       }

@@ -1,0 +1,10 @@
+{
+    "mysql" : {
+        "host":"ssmpmysqlserver",
+        "user":"root",
+        "password":"root",
+        "database":"auto",
+        "timezone":"Asia/Shanghai",
+        "charset":"utf8"
+    }
+}

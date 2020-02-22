@@ -100,6 +100,7 @@ require('./controllers/cebPerformanceProviderController')(app);
 require('./controllers/cebAPIController')(app);
 
 require('./controllers/simulateServicesController')(app);
+require('./controllers/autoScriptsController')(app);
 
 
 

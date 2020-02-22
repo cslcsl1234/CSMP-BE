@@ -1,20 +1,11 @@
 {
-  "Backend": [
-    {
-      "URL": "http://csmpcollecter:58080/APG-REST",
-      "TopoServURL": "https://csmpcollecter_pb:48443/Backends/Topology-Service/Default/topology/repository/sparql",
-      "USER": "admin",
-      "PASSWORD": "changeme",
-      "SRMDevLastDT": "2018-10-12T00:51:22.000Z"
-    },
-    {
-      "URL": "http://123.56.114.249:58080/APG-REST",
-      "TopoServURL": "https://123.56.114.249:48443/Backends/Topology-Service/Default/topology/repository/sparql",
-      "USER": "admin",
-      "PASSWORD": "changeme",
-      "SRMDevLastDT": "2020-01-17T03:31:10.000Z"
-    }
-  ],
+  "Backend":[ {
+    "URL": "http://csmpcollecter:58080/APG-REST",
+    "TopoServURL": "https://csmpcollecter_pb:48443/Backends/Topology-Service/Default/topology/repository/sparql",
+    "USER": "admin",
+    "PASSWORD": "changeme",
+    "SRMDevLastDT": "2018-10-12T00:51:22.000Z"
+  }],
   "BackendMgmt": {
     "URL": "https://csmpcollecter:58443/centralized-management",
     "USER": "admin",
@@ -31,7 +22,7 @@
     "BASE_FILTER": ""
   },
   "SERVER": {
-    "HOST": "192.168.92.200",
+    "HOST": "10.121.1.120",
     "PORT": 9090
   },
   "ProductType": "Test",
@@ -68,14 +59,7 @@
       "TopoServURL": "https://csmpcollecter_pb:48443/Backends/Topology-Service/Default/topology/repository/sparql",
       "USER": "admin",
       "PASSWORD": "changeme",
-      "SRMDevLastDT": "2020-01-17T03:31:10.000Z"
-    },
-    {
-      "URL": "http://123.56.114.249:58080/APG-REST",
-      "TopoServURL": "https://123.56.114.249:48443/Backends/Topology-Service/Default/topology/repository/sparql",
-      "USER": "admin",
-      "PASSWORD": "changeme",
-      "SRMDevLastDT": "2020-01-17T03:31:10.000Z"
+      "SRMDevLastDT": "2018-10-12T00:51:22.000Z"
     }
   ]
 }
