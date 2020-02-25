@@ -1,11 +1,11 @@
 {
-  "Backend":[ {
+  "Backend": [ {
     "URL": "http://csmpcollecter:58080/APG-REST",
     "TopoServURL": "https://csmpcollecter_pb:48443/Backends/Topology-Service/Default/topology/repository/sparql",
     "USER": "admin",
     "PASSWORD": "changeme",
-    "SRMDevLastDT":  "2020-01-12T03:31:10.000Z"
-  }],
+    "SRMDevLastDT": "2020-01-18T04:28:20.000Z"
+  } ],
   "BackendMgmt": {
     "URL": "https://csmpcollecter:58443/centralized-management",
     "USER": "admin",
@@ -22,7 +22,7 @@
     "BASE_FILTER": ""
   },
   "SERVER": {
-    "HOST": "10.121.1.120",
+    "HOST": "192.168.92.200",
     "PORT": 9090
   },
   "ProductType": "Test",
@@ -33,7 +33,7 @@
   ],
   "SRMDevLastDT-DLBank": "2018-01-25T14:00:00+08:00",
   "SRMDevLastDT-AirChina": "2017-11-27T08:00:00+08:00",
-  "SRMDevLastDT": "2020-01-12T03:31:10.000Z",
+  "SRMDevLastDT": "2020-01-18T04:28:20.000Z",
   "SMS": {
     "ServiceIP": "10.188.80.33",
     "ServicePort": 6821,
@@ -59,7 +59,7 @@
       "TopoServURL": "https://csmpcollecter_pb:48443/Backends/Topology-Service/Default/topology/repository/sparql",
       "USER": "admin",
       "PASSWORD": "changeme",
-      "SRMDevLastDT": "2018-10-12T00:51:22.000Z"
+      "SRMDevLastDT": "2020-01-12T03:31:10.000Z"
     }
   ]
 }

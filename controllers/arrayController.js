@@ -3668,23 +3668,29 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
     app.get('/api/vnx/performance/controller/iops', function (req, res) {
 
         var device = req.query.device;  
+        var part; 
         var periodtype = req.query.period;   // 1d | 1w | 1m
+        var valuetype = req.query.valuetype
         switch (periodtype) {
             case '1d' : 
                 var period = 0;
                 var start = util.getConfStartTime('1d');
+                var end = util.getPerfEndTime('1d');
                 break;
             case '1w' : 
                 var period = 3600;
                 var start = util.getConfStartTime('1w');
+                var end = util.getPerfEndTime('1w');
                 break;
             case '1m' : 
                 var period = 86400;
                 var start = util.getConfStartTime('1m');
+                var end = util.getPerfEndTime('1m');
                 break;
             default : 
                 var period = 0;
                 var start = util.getConfStartTime('1d');
+                var end = util.getPerfEndTime('1d');
                 break;
         }
         var valuetype = req.query.valuetype;   // max | average
@@ -3695,10 +3701,9 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
         resultByPartgrp["VNXController"] = [];
 
         async.waterfall([
-            function(callback){ 
-                var end;  
-                var part;
-               VNX.getSPPerformance(device, part, start, end , function(rest) { 
+            function(callback){  
+                
+               VNX.getSPPerformance(device, part, start, end , period, valuetype, function(rest) { 
                    /*
                     for ( var i in rest ) {
                         var item = rest[i]; 
@@ -3712,7 +3717,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
             
             function(arg1, callback) {
 
-               VMAX.getArrayPerformanceV2(  function(result) {  
+               VMAX.getArrayPerformanceV2(device, part, start, end , period, valuetype,  function(result) {  
                 
                    for ( var i in result ) {
                        var item = result[i];
@@ -4373,6 +4378,8 @@ app.get('/api/vnx/block/sp/perf', function ( req, res )  {
         var part = req.query.part;
         var start = req.query.startDate;
         var end = req.query.endDate;
+        var period = 3600;
+        var valuetype = 'max'
 
         if ( device === undefined ) {
             res.json(401, 'Must be special a device!')
@@ -4388,7 +4395,7 @@ app.get('/api/vnx/block/sp/perf', function ( req, res )  {
            async.waterfall([
             function(callback){ 
 
-                VNX.getSPPerformance(device, part, start, end,function(result) {   
+                VNX.getSPPerformance(device, part, start, end, period, valuetype,function(result) {   
 
                     callback(null,result);
                                       

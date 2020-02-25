@@ -324,11 +324,14 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
 
 
     app.get('/api/dashboard/PerfSummary', function (req, res) {
+        var period = 3600;
+        var valuetype = 'max'
+        var device, part, start, end ;
 
         async.waterfall([
             function(callback){ 
                 var finalResult = [];
-                VMAX.getArrayPerformanceV2(  function(result) {    
+                VMAX.getArrayPerformanceV2( device, part, start, end , period, valuetype, function(result) {    
                     callback(null,result);
                 })
 
@@ -338,7 +341,7 @@ function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
                 var part;
                 var start;
                 var end;
-                VNX.getSPPerformance(device, part, start, end,function(result) {  
+                VNX.getSPPerformance(device, part, start, end, period, valuetype,function(result) {  
                     arg1  = arg1.concat(result);
                     callback(null,arg1);
                 });

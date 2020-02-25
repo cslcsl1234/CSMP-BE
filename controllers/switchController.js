@@ -115,6 +115,7 @@ var switchController = function (app) {
                 var filter = 'parttype==\'Fabric\'|parttype==\'VSAN\'';
 
                 var fabricResult = [];
+                console.log(config.Backend);
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
                     .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                     .headers({ 'Content-Type': 'multipart/form-data' })

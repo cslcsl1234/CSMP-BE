@@ -31,10 +31,17 @@ configger.load = function(defaults) {
 
     // add mutil-apg-server function;
     var a = configger.get().Backend;
-    configger.set('Backend', a[0]); 
-    configger.set('BackendExtra', a);
+    //configger.set('Backend', a[0]); 
+    //configger.set('BackendExtra', a);
+    var newConfigger = configger.get();
 
-    return configger.get();
+    newConfigger.Backend = a[0];
+    newConfigger.BackendExtra = a;
+
+
+    //console.log("$$$$\n"+ JSON.stringify(newConfigger,1,1));
+
+    return newConfigger;
 }
 
 module.exports = configger;
