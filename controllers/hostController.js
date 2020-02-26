@@ -213,6 +213,7 @@ var hostController = function (app) {
             },
             // Get All Localtion Records
             function(wwnlist,  callback){ 
+                console.log("TEST1:"+wwnlist);
                  var hostlist ;
                  host.GetHosts(hostlist,function(errcode,result) {
                      

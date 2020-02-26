@@ -11,7 +11,7 @@ const debug = require('debug')('autoScriptsController')
 const name = 'my-app'
 var unirest = require('unirest');
 var configger = require('../config/configger');
-var scriptDAO = require('../lib/scriptDAO');
+var scriptDAO = require('../lib/scriptDao');
 var result = require('../lib/result');
 
 var autoScriptsController = function (app) {

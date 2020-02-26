@@ -1159,6 +1159,8 @@ var cebAPIController = function (app) {
           Report.getVMAXDirectorAddress(device, function (address) {
             for ( var i in ports ) {
               var item = ports[i];
+              // add port name field
+              item["portname"] = item.feport;
               var feport = item.feport;
               var director = feport.split(":")[0];
               for (var j in address) {

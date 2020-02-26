@@ -844,7 +844,8 @@ var testController = function (app) {
     //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
     //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
     var device;
-    VMAX.GetArrays( device,  function(ret) {  res.json(200,ret);   }); 
+    //VMAX.GetArrays( device,  function(ret) {  res.json(200,ret);   }); 
+    VMAX.GetDevices( device,  function(ret) {  res.json(200,ret);   }); 
     //Report.GetStoragePorts(function(ret) {
 
 

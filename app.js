@@ -90,6 +90,7 @@ require('./controllers/testController')(app);
 require('./controllers/analysisController')(app);
 
 require('./controllers/automationController')(app);
+require('./controllers/healthcheckController')(app);
 require('./controllers/grafanaController')(app);
 require('./controllers/grafanaVPlexController')(app);
 require('./controllers/grafanaVMAXController')(app);
@@ -110,6 +111,16 @@ const server = app.listen(config.SERVER.PORT, function () {
     console.log('=== The NodeJS server ip addresses is [' + addresses + '] ===');
     console.log('=== Then App server listening on port ' + config.SERVER.PORT + ' ==='); 
  
+    console.log(' ---- === ---- === ---- === ---- === ---- ===')
+    console.log('         Begin check depends files ...       ');
+    console.log(' ---- === ---- === ---- === ---- === ---- ===')
+    var ReportOutputPath = config.Reporting.OutputPath;
+    var appTopoFile = path.join(ReportOutputPath, 'topology.json');  
+  
+
+    fs.exists(appTopoFile, function(exists ) {
+        console.log(exists? `File [ ${appTopoFile} ] : is exist.`: `File [ ${appTopoFile}] : !!! is not exits. Please generate it!`)
+    }) 
 });
 
 

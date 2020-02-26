@@ -4074,8 +4074,7 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
                 for ( var i in feperf ) {
                     var item = feperf[i];
                     var itemFename = item.part;
-                    var itemDevice = item.device;
-                    console.log(itemFename);
+                    var itemDevice = item.device; 
     
                     for ( var j in item.matrics ) {
                         var matricsItem = item.matrics[j];
@@ -4159,94 +4158,14 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
             if ( isNeedBaseLine == false ) { 
                 callback(null, data); 
             } else {
-                callback(null, data); 
-               // Analysis.GenerateBaseLine(data, function(result) {
-                //    callback(null, result);
-                //})
+                callback(null, data);  
             }
-        }
-        /*
-        , function( data, callback ) {  
-            callback(null, data);
-            var IOPS = [];
-            var MBPS = [];
-            var UTIL = [];
-            var ResponseTime = [];
-            for ( var i in data ) {
-                var sgItem = data[i];
-                for ( var j in sgItem.matrics ) { 
-                    var item1 = sgItem.matrics[j];
-
-                    var isfind = false;
-                    for ( var z in IOPS ) {
-                        if ( IOPS[z].timestamp == item1.timestamp ) {
-                            isfind = true;
-                            IOPS[z][sgItem.part] = item1.Requests ;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var IOPSItem = {};
-                        IOPSItem["timestamp"] = item1.timestamp;
-                        IOPSItem[sgItem.part] = item1.Requests ;
-                        IOPS.push(IOPSItem);
-                    }
-
-                    
-                    isfind = false;
-                    for ( var z in MBPS ) {
-                        if ( MBPS[z].timestamp == item1.timestamp ) {
-                            isfind = true;
-                            MBPS[z][sgItem.part] = item1.HostMBperSec  ;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var MBPSItem = {};
-                        MBPSItem["timestamp"] = item1.timestamp;
-                        MBPSItem[sgItem.part] = item1.HostMBperSec  ;
-                        MBPS.push(MBPSItem);
-                    }
-
-                    
-                    isfind = false;
-                    for ( var z in UTIL ) {
-                        if ( UTIL[z].timestamp == item1.timestamp ) {
-                            isfind = true;
-                            UTIL[z][sgItem.part] = item1.KBytesTransferred  ;
-                            break;
-                        }
-                    }
-                    if ( isfind == false ) {
-                        var UTILItem = {};
-                        UTILItem["timestamp"] = item1.timestamp;
-                        UTILItem[sgItem.part] = item1.CurrentUtilization  ;
-                        UTIL.push(UTILItem);
-                    }
-                    
-
-                }
-            }
-            var dataset = {};
-            dataset["IOPS"] = {};
-            dataset["IOPS"]["title"] = "IOPS";
-            dataset["IOPS"]["dataset"] = IOPS;
-
-            dataset["MBPS"] = {};
-            dataset["MBPS"]["title"] = "MBPS";
-            dataset["MBPS"]["dataset"] = MBPS;
-
-            
-            dataset["UTIL"] = {};
-            dataset["UTIL"]["title"] = "Utilization(%)";
-            dataset["UTIL"]["dataset"] = UTIL;
- 
-            callback(null,dataset);
-
-        } */
+        } 
         , function ( arg, callback ) {
             var origData= arg.orgiData.matrics;
             for ( var fieldname in origData ) {
+                // fix issue for sort by the timestamp 
+                origData[fieldname].dataset.sort(sortBy("timestamp"));
                 for ( var i in origData[fieldname].dataset ) {
                     var item = origData[fieldname].dataset[i];
                     item['timestamp'] = moment.unix(item.timestamp).format(dateFormat)
@@ -4260,6 +4179,7 @@ app.get('/api/analysis/array/frontend/workload', function (req, res) {
     }); 
 
 });
+
 
 
 
