@@ -16,6 +16,7 @@ var async = require('async');
 var moment = require('moment');
 var xml2json = require('xml2json');
 var sortBy = require('sort-by');
+var SSH = require('../lib/ssh');
 
 
 var RecordFlat = require('../lib/RecordFlat');
@@ -840,12 +841,29 @@ var testController = function (app) {
     }); 
     */
 
+    var hostinfo = {
+      host: '10.62.36.151',
+      port: 22,
+      username: 'root',
+      privateKey: require('fs').readFileSync('C:\\CSMP\\CSMP-BE\\config\\id_rsa'),
+      readyTimeout: 5000
+    }
+    SSH.remoteCommand(hostinfo, "symcfg list -output xml", function (xmloutput) {
+      console.log("----");
+      console.log(xmloutput)
+      console.log("---");
+      var options = {
+        object: true
+      };
+      var json = xml2json.toJson(xmloutput, options)
+      res.json(200, json);
+    })
 
     //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
     //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
     var device;
     //VMAX.GetArrays( device,  function(ret) {  res.json(200,ret);   }); 
-    VMAX.GetDevices( device,  function(ret) {  res.json(200,ret);   }); 
+    //VMAX.GetDevices( device,  function(ret) {  res.json(200,ret);   }); 
     //Report.GetStoragePorts(function(ret) {
 
 
