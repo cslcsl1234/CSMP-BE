@@ -2767,8 +2767,7 @@ var arrayController = function (app) {
 
         var arraysn = req.query.device; 
         var rule17= req.query.rule17;
-
-        console.log("RULE17="+rule17);
+        if ( rule17 === undefined ) rule17 = 'false'; 
 
         VMAX.GetFEPorts(arraysn, function(result) {
  
