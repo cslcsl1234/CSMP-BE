@@ -2986,6 +2986,14 @@ var arrayController = function (app) {
             res.json(400, 'Must be have feport paramater!')
             return;
         }
+
+        if ( start.indexOf('Invalid')>=0 ) {
+            start = util.getConfStartTime("1d");
+        }
+
+        if ( end.indexOf('Invalid')>=0) {
+            end = util.getPerfEndTime();
+        }
  
         VMAX.GetFEPortPerf(arraysn, feport, start, end, function(result) {
  

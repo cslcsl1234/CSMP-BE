@@ -807,7 +807,7 @@ var cebAPIController = function (app) {
                 resultItem["maxCache"] = "";
                 resultItem["maxDisks"] = "";
                 resultItem["maxPorts"] = "";
-                resultItem["id"] = item.device;
+                resultItem["id"] = newItem.device;
 
                 arrays.push(resultItem);
 
