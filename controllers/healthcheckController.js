@@ -10,14 +10,7 @@
 const debug = require('debug')('healthcheckController')
 var async = require('async');
 
-var configger = require('../config/configger');
-var fs = require('fs');
-var xml2json = require('xml2json');
-var XLSX = require('xlsx');
-var healthcheckInfo = require('../config/SEHosts')
-var fs = require('fs');
-var SSH = require('../lib/ssh');
-
+var configger = require('../config/configger');  
 var HealthCheck = require('../lib/healthcheck');
 
 
@@ -46,6 +39,17 @@ var healthcheckController = function (app) {
         HealthCheck.VMAX("C:\\","20200227101112",function(outputfile) {
             //console.log(outputfile);
             res.json(200,outputfile);
+        })
+
+    });
+
+    app.get('/healthcheck/brocade', function (req, res) {
+        var config = configger.load();
+
+
+        HealthCheck.Brocade("C:\\","20200227101112",function(result) {
+            //console.log(outputfile);
+            res.json(200,result);
         })
 
     });
