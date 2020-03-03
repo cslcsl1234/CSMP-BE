@@ -17,6 +17,11 @@
             }
         ],
         "cmds" : {
+            "event": "symevent list -sid <sid> -output xml",
+            "failed": "symcfg -sid <sid> -v list -env_data -service_state normal -output xml ", 
+            "faildisk": "symdisk -sid <sid>  list -output xml" 
+        },
+        "cmds-test" : {
             "event": "symevent list -sid <sid> -start <startdatetime> -output xml",
             "failed": "symcfg -sid <sid> -v list -env_data -service_state failed -output xml ",
             "degraded": "symcfg -sid <sid> -v list -env_data -service_state degraded -output xml",
