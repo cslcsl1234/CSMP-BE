@@ -54,6 +54,16 @@ var healthcheckController = function (app) {
 
     });
 
+    
+    app.get('/healthcheck/unity', function (req, res) {
+        var config = configger.load();
+ 
+        HealthCheck.Brocade("C:\\","20200227101112",function(result) {
+            //console.log(outputfile);
+            res.json(200,result);
+        })
+
+    });
 
 };
 

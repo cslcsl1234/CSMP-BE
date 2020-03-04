@@ -53,6 +53,7 @@ var Automation = require('../lib/Automation');
 var VMAX_AUTO = require('../lib/Automation_VMAX');
 var RPA = require('../lib/Automation_RPA');
 var Automation_VPLEX = require('../lib/Automation_VPLEX');
+var HEALTHCHECK = require('../lib/healthcheck');
 
 var testController = function (app) {
 
@@ -439,6 +440,15 @@ var testController = function (app) {
   }
 
 
+  app.get('/healthchecktest', function (req, res) {
+    var file='c:\\';
+    var start='20200303';
+    HEALTHCHECK.Unity(file, start, function(result) {
+      res.json(200,result);
+    })
+  });
+
+  
   app.get('/vmaxtest', function (req, res) {
 
     var physicalArrayInfos = [{

@@ -55,6 +55,17 @@
             }
         }
     
+    },
+    "Unity": {
+        "hostinfo" : [ 
+            {
+                "host": "10.32.32.64",
+                "port": 443,
+                "username": "admin",
+                "password": "P@ssw0rd",
+                "readyTimeout": 5000
+            }
+        ]
     }
 
 }
