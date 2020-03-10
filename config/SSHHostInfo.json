@@ -5,14 +5,14 @@
                 "host": "10.62.36.151",
                 "port": 22,
                 "username": "root",
-                "privateKey": "C:\\CSMP\\CSMP-BE\\config\\id_rsa",
+                "privateKeyFile": "C:\\CSMP\\CSMP-BE\\config\\id_rsa",
                 "readyTimeout": 5000
             },
             {
                 "host": "10.62.36.151",
                 "port": 22,
                 "username": "root",
-                "privateKey": "C:\\CSMP\\CSMP-BE\\config\\id_rsa",
+                "privateKeyFile": "C:\\CSMP\\CSMP-BE\\config\\id_rsa",
                 "readyTimeout": 5000
             }
         ],
@@ -66,6 +66,34 @@
                 "readyTimeout": 5000
             }
         ]
+    },
+    "VNX": {
+        "hostinfo" : [
+            {
+                "host": "10.62.36.151",
+                "port": 22,
+                "username": "root",
+                "privateKeyFile": "C:\\CSMP\\CSMP-BE\\config\\id_rsa",
+                "readyTimeout": 5000
+            }
+        ]  ,
+        "SPlist" : [
+            {
+                "host": "10.32.32.85", 
+                "username": "sysadmin",
+                "password": "Password1!", 
+                "cli": "naviseccli",
+                "scope": 0
+            },
+            {
+                "host": "10.32.32.81", 
+                "username": "sysadmin",
+                "password": "Password1!", 
+                "cli": "naviseccli",
+                "scope": 0
+            }
+        ]
+
     }
 
 }
