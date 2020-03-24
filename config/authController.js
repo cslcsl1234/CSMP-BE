@@ -1,34 +1,36 @@
 "use strict";
 
-var mongoose = require('mongoose')
-    , User = mongoose.model('User')
-    , Role = mongoose.model('Role')
-    , Auth = mongoose.model('Auth');
+var mongoose = require('mongoose'),
+    User = mongoose.model('User'),
+    Role = mongoose.model('Role'),
+    Auth = mongoose.model('Auth');
 
-const debug = require('debug')('authController')  
-const name = 'my-app'  
+const debug = require('debug')('authController')
+const name = 'my-app'
 
 var roleFunc = require('../lib/Role');
 
-var authController = function (app) {
+var authController = function(app) {
 
-    app.all('*', function(req, res, next) {  
+    app.all('*', function(req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,Keep-Alive,X-Requested-With,If-Modified-Since");
-        res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+        res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
         res.header('Access-Control-Expose-Headers', '*');
 
-        debug('req.method = %s', req.method);     
-        debug('req.url = %s', req.url); 
+        debug('req.method = %s', req.method);
+        debug('req.url = %s', req.url);
 
-        if(req.method=="OPTIONS") res.send(200);  /*让options请求快速返回*/
-        else  next();
+        if (req.method == "OPTIONS") res.send(200); /*让options请求快速返回*/
+        else next();
     });
 
     /**
      * validate the authKey when an API is requested, by default only '/api/login' doesn't require authorized access.
      */
-    app.all('/api/*', function (req, res, next) {
+    app.all('/api/*', function(req, res, next) {
+        var configger = require('../config/configger');
+        var config = configger.load();
 
         //if it's login/logout API, let it go.
         if (req.method === 'POST' && req.url.indexOf('/api/log') === 0) {
@@ -37,35 +39,44 @@ var authController = function (app) {
         var authKey = req.header('Authorization');
 
         //if request without authKey
-        
-        if (!authKey) {
-            res.json(403, {message: 'please provide your authKey.'});
-        }
-        //get this user by autKey.
-        Auth.getLoggedUser(authKey, function (err, user) {
-            if (err) {
-                return res.json(500, err);
-            }
-            if (!user) {
-                res.json(403, {message: 'Your authKey is invalid.'});
 
-            } else {
-                req.user = user;
-                return next();
-            }
-        })
-       
+        if (!authKey) {
+            res.json(403, { message: 'please provide your authKey.' });
+        }
+
+        if (config.ProductType == 'Prod') {
+            //get this user by autKey. 
+            Auth.getLoggedUser(authKey, function(err, user) {
+                if (err) {
+                    return res.json(500, err);
+                }
+                if (!user) {
+                    res.json(403, { message: 'Your authKey is invalid.' });
+
+                } else {
+                    req.user = user;
+                    return next();
+                }
+            })
+        } else {
+            req.user = 'admin';
+            return next();
+        }
+
+
+
+
     });
 
     /**
      * this function is aim to valid the api starts with '/api/admin/' should be accessed by the user whose role is admin.
      */
-    app.all('/api/admin/*', function (req, res, next) {
+    app.all('/api/admin/*', function(req, res, next) {
         if (req.user && req.user.role === 'admin') {
             return next();
         }
         //remind the role is incorrect.
-        return  res.json(403, {message: 'only admin role can access this api.'});
+        return res.json(403, { message: 'only admin role can access this api.' });
     });
 
     /**
@@ -74,84 +85,84 @@ var authController = function (app) {
      * @param res {object} Express Http response.
      * @param userId {ObjectId} the id of logging user.
      */
-    var getAuthKey = function (res, user) {
+    var getAuthKey = function(res, user) {
 
         var userId = user.id;
 
         console.log("UserID = [" + userId + "]");
         //only if there is no authKey, add one.
-        var addAuthKey = function (res, userId) {  
-            Auth.find({user: userId}, function (err, auths) {
-                if (err) console.log( err);
+        var addAuthKey = function(res, userId) {
+            Auth.find({ user: userId }, function(err, auths) {
+                if (err) console.log(err);
                 console.log("TEST1:" + auths);
-                if ( auths.length > 0 ) {
-                    auths.forEach(function (auth) {
+                if (auths.length > 0) {
+                    auths.forEach(function(auth) {
                         auth.remove();
                     })
 
                 }
-                Auth.addAuthKey(userId, function (err, auth) {
+                Auth.addAuthKey(userId, function(err, auth) {
 
                     if (err) {
                         return res.json(500, err);
                     }
 
                 });
-            } );
+            });
         };
 
 
         /*
          * try to find if the authKey for this user exits.
          */
-        Auth.find({user: userId})
-            .exec(function (err, auths) { 
+        Auth.find({ user: userId })
+            .exec(function(err, auths) {
                 if (err) return res.json(500, err);
                 //if the authkey for this user already exists, remove it.
                 console.log(auths);
-                if ( auths.length == 0 ) { 
+                if (auths.length == 0) {
                     //addAuthKey(res, userId);
-                      console.log("Auth info is not find. apply a new one.")
-                      Auth.addAuthKey(userId, function (err, auth) {
+                    console.log("Auth info is not find. apply a new one.")
+                    Auth.addAuthKey(userId, function(err, auth) {
 
-                      if (err) {
-                          return res.json(500, err);
-                      }
+                        if (err) {
+                            return res.json(500, err);
+                        }
 
-                      roleFunc.GetRoleListByUser(user.username,function(retcode, menulist) {
-                      //console.log(menulist); 
+                        roleFunc.GetRoleListByUser(user.username, function(retcode, menulist) {
+                            //console.log(menulist); 
 
-                        Auth.find({user: userId})
-                        .exec(function (err, auths) {
-                                var auth = auths[0];
-                                var authKey = auth.authKey; 
-                                return res.json(200, {authKey: authKey, user: user , menuItems: menulist, data: {token: authKey} });
-                        });
-                        
+                            Auth.find({ user: userId })
+                                .exec(function(err, auths) {
+                                    var auth = auths[0];
+                                    var authKey = auth.authKey;
+                                    return res.json(200, { authKey: authKey, user: user, menuItems: menulist, data: { token: authKey } });
+                                });
 
-                      })
 
-                  });
+                        })
+
+                    });
 
                 } else {
                     //console.log(Date.now() );
                     //console.log(auths[0].effectiveDate.getTime() );
                     var auth = auths[0];
-                    var authKey = auth.authKey; 
+                    var authKey = auth.authKey;
 
-                    if ( Date.now() - auth.effectiveDate.getTime() > 1000 * 60 * 60 * 24) {
+                    if (Date.now() - auth.effectiveDate.getTime() > 1000 * 60 * 60 * 24) {
                         console.log("the Auth key is expire. get the new one.");
                         addAuthKey(res, userId);
                     }
 
-                    roleFunc.GetRoleListByUser(user.username,function(retcode, menulist) {
+                    roleFunc.GetRoleListByUser(user.username, function(retcode, menulist) {
                         //console.log(menulist); 
 
-                        return res.json(200, {authKey: authKey, user: user , menuItems: menulist , data: {token: authKey} });
+                        return res.json(200, { authKey: authKey, user: user, menuItems: menulist, data: { token: authKey } });
 
-                    })                  
+                    })
                 }
-                
+
 
             });
 
@@ -166,52 +177,52 @@ var authController = function (app) {
 
 
 
-/**
- * @swagger
- * /api/login: 
- *   post:
- *     tags:
- *       - Auth
- *     description: Get the api key.  
- *     consumes:
- *       - application/x-www-form-urlencoded 
- *     parameters:
- *       - in: formData
- *         name: username
- *         type: string
- *         example: admin
- *       - in: formData
- *         name: password
- *         type: string
- *         example: password  
- *     responses:
- *       200:
- *         description: return an api key 
- */ 
-         
-    app.post('/api/login', function (req, res) {
+    /**
+     * @swagger
+     * /api/login: 
+     *   post:
+     *     tags:
+     *       - Auth
+     *     description: Get the api key.  
+     *     consumes:
+     *       - application/x-www-form-urlencoded 
+     *     parameters:
+     *       - in: formData
+     *         name: username
+     *         type: string
+     *         example: admin
+     *       - in: formData
+     *         name: password
+     *         type: string
+     *         example: password  
+     *     responses:
+     *       200:
+     *         description: return an api key 
+     */
+
+    app.post('/api/login', function(req, res) {
         var headers = req.headers;
         console.log(headers["content-type"]);
 
-        if ( req.body.username === undefined ) {
+        if (req.body.username === undefined) {
             var username = req.body.email;
         } else {
             var username = req.body.username;
-        } 
+        }
 
         var user = {};
         user.username = username;
         user.password = req.body.password;
 
-        if ( user.username === undefined || user.username == 'undefined') {
-            res.json(400,'username is required!'); 
-        } else if ( user.password === undefined || user.password== 'undefined' ) {
-            res.json(400,'password is required!');
+        if (user.username === undefined || user.username == 'undefined') {
+            res.json(400, 'username is required!');
+        } else if (user.password === undefined || user.password == 'undefined') {
+            res.json(400, 'password is required!');
         } else {
-            console.log("username = %s, password = %s", user.username, user.password); 
+            console.log("username = %s, password = %s", user.username, user.password);
 
-            User.login(user, function (err, userid, msg) {
-    
+            User.login(user, function(err, userid, msg) {
+
                 //console.log(msg);
                 if (err) {
                     console.log("ERROR:" + err);
@@ -219,205 +230,200 @@ var authController = function (app) {
                 }
                 if (!userid) {
                     console.log("NoExist:" + msg);
-                    res.json(400, { data :{ errors: msg}});
-                } else { 
+                    res.json(400, { data: { errors: msg } });
+                } else {
                     console.log("Login - Get Auth key");
                     getAuthKey(res, msg);
                 }
             });
         }
- 
-
-    });
-
-
-
-
-/*
-*  Create and Update a user
-*/
-    app.post('/api/user/add', function (req, res) {
- 
-      var user = req.body;
-      User.findOne({username: user.username}, function (err, doc) {
-          //system error.
-          if (err) {
-            return   done(err);
-          }
-          if (!doc) { //user doesn't exist.
-            console.log("user will be insert...");
-            var newuser =  new User(user); 
-            newuser.save(function(err, thor) {
-              if (err) 
-                return res.json(200, err);
-              else { 
-                return res.json(200, thor);
-              }
-              
-            });
-            
-          }
-          else {
-              console.log("user is exist! will update it.");
-              doc.update(user, function(error, course) {
-                  if(error) return next(error);
-              });
-
-            return  res.json(200 , {status: "The user has updated!"});
-          }
-
-
-      });
 
 
     });
- 
 
-/*
-*  Delete a user
-*/
-    app.post('/api/user/del', function (req, res) {
- 
+
+
+
+    /*
+     *  Create and Update a user
+     */
+    app.post('/api/user/add', function(req, res) {
 
         var user = req.body;
-        if ( user._id === undefined ) {
-          return  res.json(500 , {status: "Must specified the user ID !"});
-        }
-        console.log(conditions);
-        var conditions = {_id: user._id};
-
-        console.log(conditions);
-        User.remove(conditions, function (err, doc) {
+        User.findOne({ username: user.username }, function(err, doc) {
             //system error.
             if (err) {
-                return   done(err);
-            }
-            else {
-                console.log("the user is remove !"); 
-                return  res.json(200 , {status: "The user has removed!"});
-            }
-
-        });
-
-
-	});
-
-
-
-/*
-*  Get a user list
-*/
-    app.get('/api/user/list', function (req, res) {
-
-        var query = User.find({}).select({ "__v": 0});
-        query.exec(function (err, doc) {
-            //system error.
-            if (err) { 
-                res.json(600 , {status: err})
+                return done(err);
             }
             if (!doc) { //user doesn't exist.
-                res.json(500 , []); 
+                console.log("user will be insert...");
+                var newuser = new User(user);
+                newuser.save(function(err, thor) {
+                    if (err)
+                        return res.json(200, err);
+                    else {
+                        return res.json(200, thor);
+                    }
+
+                });
+
+            } else {
+                console.log("user is exist! will update it.");
+                doc.update(user, function(error, course) {
+                    if (error) return next(error);
+                });
+
+                return res.json(200, { status: "The user has updated!" });
             }
-            else {
- 
-                res.json(200 , doc);
+
+
+        });
+
+
+    });
+
+
+    /*
+     *  Delete a user
+     */
+    app.post('/api/user/del', function(req, res) {
+
+
+        var user = req.body;
+        if (user._id === undefined) {
+            return res.json(500, { status: "Must specified the user ID !" });
+        }
+        console.log(conditions);
+        var conditions = { _id: user._id };
+
+        console.log(conditions);
+        User.remove(conditions, function(err, doc) {
+            //system error.
+            if (err) {
+                return done(err);
+            } else {
+                console.log("the user is remove !");
+                return res.json(200, { status: "The user has removed!" });
+            }
+
+        });
+
+
+    });
+
+
+
+    /*
+     *  Get a user list
+     */
+    app.get('/api/user/list', function(req, res) {
+
+        var query = User.find({}).select({ "__v": 0 });
+        query.exec(function(err, doc) {
+            //system error.
+            if (err) {
+                res.json(600, { status: err })
+            }
+            if (!doc) { //user doesn't exist.
+                res.json(500, []);
+            } else {
+
+                res.json(200, doc);
             }
 
         });
     });
 
-    app.get('/health', function (req, res) {
+    app.get('/health', function(req, res) {
 
-            res.json(200, {"status":"UP"});
+        res.json(200, { "status": "UP" });
     });
-    app.get('/ceb/perf/getPerfDeviceList', function(req,res){
+    app.get('/ceb/perf/getPerfDeviceList', function(req, res) {
         console.log(req);
-        res.json(200, {"return":"OKUP"});
+        res.json(200, { "return": "OKUP" });
     });
 
-/*
-*  modify a user password
-*/
-    app.post('/api/user/modifyPasswd', function (req, res) {
- 
-      var user = req.body;
-      if ( user._id === undefined ) {
-        return  res.json(500 , {status: "Must specified the user ID !"});
-      }      
-      User.findOne({_id: user._id}, function (err, doc) {
-          //system error.
-          if (err) {
-            return res.json(400 , err );
-          }
-          if (!doc) { //user doesn't exist.
-            return res.json(500, {status: "The user is not exists!"});
-          }
-          else { 
-              doc.update(user, function(error, course) {
-                  if(error) 
-                    return res.json(400 , error );
-                  else 
-                    return  res.json(200 , {status: "The user password has updated!"});
-              });
+    /*
+     *  modify a user password
+     */
+    app.post('/api/user/modifyPasswd', function(req, res) {
 
-            
-          }
+        var user = req.body;
+        if (user._id === undefined) {
+            return res.json(500, { status: "Must specified the user ID !" });
+        }
+        User.findOne({ _id: user._id }, function(err, doc) {
+            //system error.
+            if (err) {
+                return res.json(400, err);
+            }
+            if (!doc) { //user doesn't exist.
+                return res.json(500, { status: "The user is not exists!" });
+            } else {
+                doc.update(user, function(error, course) {
+                    if (error)
+                        return res.json(400, error);
+                    else
+                        return res.json(200, { status: "The user password has updated!" });
+                });
 
-      });
+
+            }
+
+        });
 
 
 
     });
- 
+
 
     /**
      * logoff function.
      */
-    app.post('/api/logout', function (req, res) {
+    app.post('/api/logout', function(req, res) {
         var authKey = req.header('authKey');
-        Auth.remove({authKey: authKey}, function (err) {
-           if (err) {
+        Auth.remove({ authKey: authKey }, function(err) {
+            if (err) {
                 res.json(500, err);
             } else {
-                return res.json(200, {status: 'successfully logout'});
+                return res.json(200, { status: 'successfully logout' });
             }
         }); //end Auth.remove()
     });
 
 
 
-/*
-*  Create and Update a Role
-*/
-    app.post('/api/role/add', function (req, res) {
- 
-      var role = req.body;
-      Role.findOne({roleName: role.roleName}, function (err, doc) {
-          //system error.
-          if (err) {
-            return   done(err);
-          }
-          if (!doc) { //role doesn't exist.
-            console.log("role is not exist.");
-            var newrole =  new Role(role); 
-            newrole.save(function(err, thor) {
-              if (err) 
-                return res.json(400, err); 
-              else 
-                return res.json(200, { status: "insert a role success." } );
-            });
-            
-          }
-          else {
-              console.log("role is exist! will update it");
-              doc.update(role, function(error, course) {
-                  if(error) return res.json(400 , error);
-              });
+    /*
+     *  Create and Update a Role
+     */
+    app.post('/api/role/add', function(req, res) {
 
-            return  res.json(200 , {status: "The role has updated!"});
-          }
+        var role = req.body;
+        Role.findOne({ roleName: role.roleName }, function(err, doc) {
+            //system error.
+            if (err) {
+                return done(err);
+            }
+            if (!doc) { //role doesn't exist.
+                console.log("role is not exist.");
+                var newrole = new Role(role);
+                newrole.save(function(err, thor) {
+                    if (err)
+                        return res.json(400, err);
+                    else
+                        return res.json(200, { status: "insert a role success." });
+                });
 
-      });
+            } else {
+                console.log("role is exist! will update it");
+                doc.update(role, function(error, course) {
+                    if (error) return res.json(400, error);
+                });
+
+                return res.json(200, { status: "The role has updated!" });
+            }
+
+        });
 
 
 
@@ -426,23 +432,22 @@ var authController = function (app) {
 
 
 
-/*
-*  Get a user list
-*/
-    app.get('/api/role/list', function (req, res) {
+    /*
+     *  Get a user list
+     */
+    app.get('/api/role/list', function(req, res) {
 
         var query = Role.find({}).select({ "__v": 0, "menuList": 0 });
-        query.exec(function (err, doc) {
+        query.exec(function(err, doc) {
             //system error.
-            if (err) { 
-                res.json(600 , {status: err})
+            if (err) {
+                res.json(600, { status: err })
             }
             if (!doc) { //user doesn't exist.
-                res.json(500 , []); 
-            }
-            else {
- 
-                res.json(200 , doc);
+                res.json(500, []);
+            } else {
+
+                res.json(200, doc);
             }
 
         });
@@ -453,14 +458,14 @@ var authController = function (app) {
 
 
 
-/*
-*  Get a menu list of the role
-*/
-    app.get('/api/role/menulist', function (req, res) {
+    /*
+     *  Get a menu list of the role
+     */
+    app.get('/api/role/menulist', function(req, res) {
         var rolename = req.query.rolename;
 
 
-        if (rolename === undefined) { 
+        if (rolename === undefined) {
             res.json(400, 'Must be special a roleid!');
             return;
         }
@@ -476,7 +481,7 @@ var authController = function (app) {
 
         console.log(req.params.username);
         var username = req.params.username;
-        roleFunc.GetRoleListByUser(username,function(retcode, res1) {
+        roleFunc.GetRoleListByUser(username, function(retcode, res1) {
             console.log(res1);
             res.json(200, res1);
         })
