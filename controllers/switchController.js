@@ -20,7 +20,7 @@ var SwitchObj = mongoose.model('Switch');
 var SWITCH = require('../lib/Switch');
 var VMAX = require('../lib/Array_VMAX');
 var HOST = require('../lib/Host');
-var Analysis = require('../lib/analysis'); 
+var Analysis = require('../lib/analysis');
 
 // -----------------------------------
 // For demo data
@@ -31,13 +31,13 @@ var demo_fabrics = require('../demodata/fabrics');
 var demo_fabric_zone = require('../demodata/fabric_zone');
 
 
-var switchController = function (app) {
+var switchController = function(app) {
 
     var config = configger.load();
 
 
 
-    app.get('/api/switchs', function (req, res) {
+    app.get('/api/switchs', function(req, res) {
 
         var datacenter = req.query.datacenter;
         var deviceid = req.query.device;
@@ -55,15 +55,15 @@ var switchController = function (app) {
 
 
         async.waterfall([
-            function (callback) {
-                CallGet.CallGet(param, function (param) {
+            function(callback) {
+                CallGet.CallGet(param, function(param) {
                     callback(null, param);
                 });
             },
             // Get All Localtion Records
-            function (param, callback) {
+            function(param, callback) {
 
-                util.GetLocaltion(function (locations) {
+                util.GetLocaltion(function(locations) {
                     param['Locations'] = locations;
                     callback(null, param);
 
@@ -72,10 +72,10 @@ var switchController = function (app) {
 
             },
             // get customize info
-            function (param, callback) {
+            function(param, callback) {
 
                 var locations = param.Locations;
-                GetSwitchInfo(function (result) {
+                GetSwitchInfo(function(result) {
 
                     for (var i in param.result) {
                         var item = param.result[i];
@@ -109,7 +109,7 @@ var switchController = function (app) {
             },
 
             // get customize info
-            function (param, callback) {
+            function(param, callback) {
 
                 var fields = 'part,psname,pswwn,device,deviceid,fabwwn,lswwn,lsname';
                 var filter = 'parttype==\'Fabric\'|parttype==\'VSAN\'';
@@ -120,7 +120,7 @@ var switchController = function (app) {
                     .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                     .headers({ 'Content-Type': 'multipart/form-data' })
                     .query({ 'fields': fields, 'filter': filter })
-                    .end(function (response) {
+                    .end(function(response) {
 
                         //console.log(response.raw_body);
                         var resultJson = JSON.parse(response.raw_body).values;
@@ -147,9 +147,9 @@ var switchController = function (app) {
 
             }
 
-        ], function (err, result) { 
+        ], function(err, result) {
 
-            
+
             if (typeof deviceid !== 'undefined') {
                 res.json(200, result.result[0]);
             } else {
@@ -163,7 +163,7 @@ var switchController = function (app) {
                     }
                 } else {
                     ret = result.result;
-                } 
+                }
 
 
                 // need physical switch only.
@@ -171,10 +171,10 @@ var switchController = function (app) {
                 for (var i in ret) {
                     var item = ret[i];
                     console.log(item);
-                    if (item.devicesn === undefined) continue; 
+                    if (item.devicesn === undefined) continue;
                     resnew.push(item);
                 }
-                
+
                 res.json(200, resnew);
             }
 
@@ -185,7 +185,7 @@ var switchController = function (app) {
 
 
 
-    app.get('/api/switch', function (req, res) {
+    app.get('/api/switch', function(req, res) {
 
 
 
@@ -207,10 +207,10 @@ var switchController = function (app) {
 
 
         async.waterfall([
-            function (callback) {
+            function(callback) {
 
 
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
 
                     callback(null, param);
                     /*
@@ -280,9 +280,9 @@ var switchController = function (app) {
                 });
             },
             // Get All Localtion Records
-            function (param, callback) {
+            function(param, callback) {
 
-                util.GetLocaltion(function (locations) {
+                util.GetLocaltion(function(locations) {
                     param['Locations'] = locations;
                     callback(null, param);
 
@@ -291,10 +291,10 @@ var switchController = function (app) {
 
             },
             // get customize info
-            function (param, callback) {
+            function(param, callback) {
 
                 var locations = param.Locations;
-                GetSwitchInfo(function (result) {
+                GetSwitchInfo(function(result) {
 
                     for (var i in param.result) {
                         var item = param.result[i];
@@ -324,7 +324,7 @@ var switchController = function (app) {
 
             }
 
-        ], function (err, result) {
+        ], function(err, result) {
             // result now equals 'done'
             res.json(200, result.result);
         });
@@ -334,7 +334,7 @@ var switchController = function (app) {
 
     function GetSwitchInfo(callback) {
 
-        SwitchObj.find({}, { "__v": 0, "_id": 0 }, function (err, doc) {
+        SwitchObj.find({}, { "__v": 0, "_id": 0 }, function(err, doc) {
             //system error.
             if (err) {
                 return done(err);
@@ -344,8 +344,7 @@ var switchController = function (app) {
 
                 callback(null, []);
 
-            }
-            else {
+            } else {
                 console.log("Switch is exist!");
                 callback(doc);
 
@@ -357,11 +356,11 @@ var switchController = function (app) {
 
 
 
-    app.get('/api/topos', function (req, res) {
+    app.get('/api/topos', function(req, res) {
 
 
 
-        getTopos(function (result) {
+        getTopos(function(result) {
             res.json(200, result);
         });
 
@@ -369,7 +368,7 @@ var switchController = function (app) {
     });
 
 
-    app.get('/api/fabrics', function (req, res) {
+    app.get('/api/fabrics', function(req, res) {
 
         //var fields = 'device,deviceid,vendor,model,ip,devdesc,devicesn,domainid,firmware,psname,pswwn,bootdate';
 
@@ -399,7 +398,7 @@ var switchController = function (app) {
             .auth(config.Backend.USER, config.Backend.PASSWORD, true)
             .headers({ 'Content-Type': 'multipart/form-data' })
             .query({ 'fields': fields, 'filter': filter })
-            .end(function (response) {
+            .end(function(response) {
 
                 //console.log(response.raw_body);
                 var resultJson = JSON.parse(response.raw_body).values;
@@ -446,11 +445,11 @@ var switchController = function (app) {
 
     });
 
-    app.get('/api/fabric/zone1', function (req, res) {
+    app.get('/api/fabric/zone1', function(req, res) {
 
         var fabwwn = req.query.fabwwn;
 
-        getTopos.getZoneMemberRelation(function (result) {
+        getTopos.getZoneMemberRelation(function(result) {
             res.json(200, result);
         })
 
@@ -458,12 +457,12 @@ var switchController = function (app) {
     });
 
 
-    app.get('/api/fabric/zone', function (req, res) {
+    app.get('/api/fabric/zone', function(req, res) {
 
         //var fields = 'device,deviceid,vendor,model,ip,devdesc,devicesn,domainid,firmware,psname,pswwn,bootdate';
 
         var fabwwn = req.query.fabwwn;
-        SWITCH.getZone(fabwwn, function (result) {
+        SWITCH.getZone(fabwwn, function(result) {
             res.json(200, result);
         })
 
@@ -472,13 +471,13 @@ var switchController = function (app) {
 
 
     /* 
-    *  Create a Switch record 
-    */
-    app.post('/api/switch', function (req, res) {
+     *  Create a Switch record 
+     */
+    app.post('/api/switch', function(req, res) {
 
         var reqBody = req.body;
 
-        SwitchObj.findOne({ "basicInfo.device": reqBody.basicInfo.device }, function (err, doc) {
+        SwitchObj.findOne({ "basicInfo.device": reqBody.basicInfo.device }, function(err, doc) {
             //system error.
             if (err) {
                 return done(err);
@@ -488,7 +487,7 @@ var switchController = function (app) {
 
                 var newapp = new SwitchObj(reqBody);
                 console.log('Test1');
-                newapp.save(function (err, thor) {
+                newapp.save(function(err, thor) {
                     console.log('Test2');
                     if (err) {
                         console.dir(thor);
@@ -496,10 +495,9 @@ var switchController = function (app) {
                     } else
                         return res.json(200, reqBody);
                 });
-            }
-            else {
+            } else {
 
-                doc.update(reqBody, function (error, course) {
+                doc.update(reqBody, function(error, course) {
                     if (error) return next(error);
                 });
 
@@ -513,7 +511,7 @@ var switchController = function (app) {
     });
 
 
-    app.get('/api/switchinfo', function (req, res) {
+    app.get('/api/switchinfo', function(req, res) {
         var device = req.query.device;
 
         if (device === undefined) {
@@ -530,17 +528,17 @@ var switchController = function (app) {
 
 
         async.waterfall([
-            function (callback) {
-                CallGet.CallGet(param, function (param) {
+            function(callback) {
+                CallGet.CallGet(param, function(param) {
 
                     callback(null, param);
 
                 });
             },
             // Get All Localtion Records
-            function (param, callback) {
+            function(param, callback) {
 
-                util.GetLocaltion(function (locations) {
+                util.GetLocaltion(function(locations) {
                     param['Locations'] = locations;
                     callback(null, param);
 
@@ -549,10 +547,10 @@ var switchController = function (app) {
 
             },
             // get customize info
-            function (param, callback) {
+            function(param, callback) {
 
                 var locations = param.Locations;
-                GetSwitchInfo(function (result) {
+                GetSwitchInfo(function(result) {
 
                     for (var i in param.result) {
                         var item = param.result[i];
@@ -582,7 +580,7 @@ var switchController = function (app) {
 
             }
 
-        ], function (err, result) {
+        ], function(err, result) {
             // result now equals 'done'
             //res.json(200, result.result); 
             var returnData = result.result[0];
@@ -689,22 +687,22 @@ var switchController = function (app) {
     });
 
 
-    app.get('/api/switch/ports', function (req, res) {
+    app.get('/api/switch/ports', function(req, res) {
 
         var device = req.query.device;
         var isPortStatics = req.query.isPortStatics;
 
         async.waterfall([
-            function (callback) {
+            function(callback) {
 
-                SWITCH.GetSwitchPorts(device, function (result) {
+                SWITCH.GetSwitchPorts(device, function(result) {
                     callback(null, result);
                 });
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
                 // 20181108 add "ZoneName" field for SMS alert at Dalian bank;
                 var fabric;
-                SWITCH.getFabric(fabric, function (result) {
+                SWITCH.getFabric(fabric, function(result) {
                     for (var i in arg1) {
                         var item = arg1[i];
                         for (var j in result) {
@@ -721,7 +719,7 @@ var switchController = function (app) {
                     callback(null, arg1);
                 })
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
 
                 if (isPortStatics === undefined)
                     callback(null, arg1);
@@ -729,7 +727,7 @@ var switchController = function (app) {
                     callback(null, arg1);
                 else {
 
-                    SWITCH.GetSwitchPortsStatics(device, function (result) {
+                    SWITCH.GetSwitchPortsStatics(device, function(result) {
 
                         for (var i in arg1) {
                             var portItem = arg1[i];
@@ -761,12 +759,12 @@ var switchController = function (app) {
 
 
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var host;
-                HOST.GetHBAFlatRecord(host, function (hosts) {
+                HOST.GetHBAFlatRecord(host, function(hosts) {
                     for (var i in arg1) {
                         var portItem = arg1[i];
-                        portItem["hostname"] = portItem.connectedToAlias;  // default equal the port alias name;
+                        portItem["hostname"] = portItem.connectedToAlias; // default equal the port alias name;
 
                         for (var j in hosts) {
                             var hostItem = hosts[j];
@@ -784,7 +782,7 @@ var switchController = function (app) {
                 })
             },
 
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var param = {};
                 //param['filter_name'] = '(name=\'Availability\')';
                 param['keys'] = ['serialnb', 'feport'];
@@ -793,7 +791,7 @@ var switchController = function (app) {
                 //param['valuetype'] = 'MAX'; 
                 param['filter'] = '(datagrp=\'VMAX-PORTS\'&source=\'VMAX-Collector\'&partgrp=\'Front-End\')|(source=\'VNXBlock-Collector\'&parttype==\'Port\')';
 
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
 
                     for (var i in arg1) {
                         var item1 = arg1[i];
@@ -813,67 +811,67 @@ var switchController = function (app) {
                 });
 
 
-            }, 
-            function(arg1, callback ) {
-                Analysis.getAppTopology(function(apptopo) {            
-                    
-                    for ( var i in arg1 ) {
+            },
+            function(arg1, callback) {
+                Analysis.getAppTopology(function(apptopo) {
+
+                    for (var i in arg1) {
                         var portItem = arg1[i];
 
                         var portwwn = portItem.partwwn;
                         portItem["connectedDevType"] = '';
                         portItem["connectedDevName"] = '';
-                        portItem["connectedDevPortName"] = ''; 
+                        portItem["connectedDevPortName"] = '';
                         portItem["zoneinfo"] = [];
 
-                        for ( var j in apptopo ) {
+                        for (var j in apptopo) {
                             var item = apptopo[j];
-                            
-                            if ( portwwn == item.connect_hba_swport_wwn ) {
+
+                            if (portwwn == item.connect_hba_swport_wwn) {
                                 portItem["connectedDevType"] = 'host';
-                                if ( portItem.connectedDevName === '' ) portItem["connectedDevName"] = item.host ;
-                                else if ( portItem.connectedDevName.indexOf(item.host) < 0  ) 
-                                    portItem["connectedDevName"] = portItem.connectedDevName + ',' + item.host ;
- 
-                                if ( portItem.connectedDevPortName === '' ) portItem["connectedDevPortName"] = item.connect_hba_swport_alias ;
-                                else if ( portItem.connectedDevPortName.indexOf(item.connect_hba_swport_alias) < 0  ) 
-                                    portItem["connectedDevPortName"] = portItem.connectedDevPortName + ',' + item.connect_hba_swport_alias ;
-          
-                    
+                                if (portItem.connectedDevName === '') portItem["connectedDevName"] = item.host;
+                                else if (portItem.connectedDevName.indexOf(item.host) < 0)
+                                    portItem["connectedDevName"] = portItem.connectedDevName + ',' + item.host;
+
+                                if (portItem.connectedDevPortName === '') portItem["connectedDevPortName"] = item.connect_hba_swport_alias;
+                                else if (portItem.connectedDevPortName.indexOf(item.connect_hba_swport_alias) < 0)
+                                    portItem["connectedDevPortName"] = portItem.connectedDevPortName + ',' + item.connect_hba_swport_alias;
+
+
                                 var isfind = false;
-                                for ( var z in portItem.zoneinfo ) {
+                                for (var z in portItem.zoneinfo) {
                                     var zoneItem = portItem.zoneinfo[z];
-                                    if ( item.zname == zoneItem.zonename ) {
+                                    if (item.zname == zoneItem.zonename) {
                                         isfind = true;
                                         break;
                                     }
                                 }
-                                if ( isfind == false ) 
-                                    portItem.zoneinfo.push( { "zonename" : item.zname } )
-                            } else if ( portwwn == item.connect_arrayport_swport_wwn ) {
+                                if (isfind == false)
+                                    portItem.zoneinfo.push({ "zonename": item.zname })
+                            } else if (portwwn == item.connect_arrayport_swport_wwn) {
                                 portItem["connectedDevType"] = 'array';
                                 portItem["connectedDevName"] = item.arrayname;
                                 portItem["connectedDevPortName"] = item.arrayport;
                                 var isfind = false;
-                                for ( var z in portItem.zoneinfo ) {
+                                for (var z in portItem.zoneinfo) {
                                     var zoneItem = portItem.zoneinfo[z];
-                                    if ( item.zname == zoneItem.zonename ) {
+                                    if (item.zname == zoneItem.zonename) {
                                         isfind = true;
                                         break;
                                     }
                                 }
-                                if ( isfind == false ) 
-                                    portItem.zoneinfo.push( { "zonename" : item.zname } )
-                            } 
-                            
+                                if (isfind == false)
+                                    portItem.zoneinfo.push({ "zonename": item.zname })
+                            }
+
                         }
                     }
 
-                    callback(null,arg1);
-                          
+                    callback(null, arg1);
+
                 })
             }
-        ], function (err, result) {
+        ], function(err, result) {
             // result now equals 'done'  
             res.json(200, result);
         });
@@ -881,7 +879,7 @@ var switchController = function (app) {
 
     });
 
-    app.get('/api/switch/port_detail', function (req, res) {
+    app.get('/api/switch/port_detail', function(req, res) {
         var device = req.query.device;
 
         if (device === undefined) {
@@ -890,21 +888,21 @@ var switchController = function (app) {
         }
 
         async.waterfall([
-            function (callback) {
+            function(callback) {
 
-                SWITCH.GetSwitchPorts(device, function (result) {
+                SWITCH.GetSwitchPorts(device, function(result) {
                     callback(null, result);
                 });
 
 
             },
 
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var host;
-                HOST.GetHBAFlatRecord(host, function (hosts) {
+                HOST.GetHBAFlatRecord(host, function(hosts) {
                     for (var i in arg1) {
                         var portItem = arg1[i];
-                        portItem["hostname"] = portItem.connectedToAlias;  // default equal the port alias name;
+                        portItem["hostname"] = portItem.connectedToAlias; // default equal the port alias name;
 
                         for (var j in hosts) {
                             var hostItem = hosts[j];
@@ -921,7 +919,7 @@ var switchController = function (app) {
 
 
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
 
 
                 var data = arg1;
@@ -1044,7 +1042,7 @@ var switchController = function (app) {
                 callback(null, finalResult);
 
             }
-        ], function (err, result) {
+        ], function(err, result) {
             // result now equals 'done'  
             res.json(200, result);
         });
@@ -1055,12 +1053,12 @@ var switchController = function (app) {
 
 
 
-    app.get('/api/switch/port_detail/perf', function (req, res) {
+    app.get('/api/switch/port_detail/perf', function(req, res) {
         var device = req.query.device;
         var portwwn = req.query.portwwn;
         var start = req.query.startDate;
         var end = req.query.endDate;
-        SWITCH.getSwitchPortPerformance1(device, portwwn, start, end, function (result) {
+        SWITCH.getSwitchPortPerformance1(device, portwwn, start, end, function(result) {
 
             //var result1 = VMAX.convertPerformanceStruct(result);
             res.json(200, result);
@@ -1071,14 +1069,14 @@ var switchController = function (app) {
 
 
 
-    app.get('/api/switch/alias', function (req, res) {
+    app.get('/api/switch/alias', function(req, res) {
 
 
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
                     var wwnlist1;
-                    SWITCH.getAlias(wwnlist1, function (result) {
+                    SWITCH.getAlias(wwnlist1, function(result) {
 
                         var wwnlist = [];
                         for (var i in result) {
@@ -1106,7 +1104,7 @@ var switchController = function (app) {
                     });
                 },
                 // Get All Localtion Records
-                function (wwnlist, callback) {
+                function(wwnlist, callback) {
 
                     var param = {};
                     if (typeof device !== 'undefined') {
@@ -1120,7 +1118,7 @@ var switchController = function (app) {
                     //param['fields'] = ['partid','slotnum','part','porttype','partwwn','ifname','portwwn','maxspeed','partstat','partphys','gbicstat'];
                     param['fields'] = ['partid', 'part', 'porttype', 'partwwn', 'ifname', 'portwwn', 'maxspeed', 'partstat', 'partphys', 'gbicstat', 'lswwn'];
 
-                    CallGet.CallGet(param, function (param) {
+                    CallGet.CallGet(param, function(param) {
                         var noFindPort = [];
                         for (var i in wwnlist) {
                             var aliasItem = wwnlist[i];
@@ -1171,10 +1169,11 @@ var switchController = function (app) {
 
 
                 },
-                function (param, callback) {
+                function(param, callback) {
                     callback(null, param);
                 }
-            ], function (err, result) {
+            ],
+            function(err, result) {
                 res.json(200, result);
             }
         );
@@ -1183,12 +1182,12 @@ var switchController = function (app) {
 
 
 
-    app.get('/api/switch/test', function (req, res) {
+    app.get('/api/switch/test', function(req, res) {
         var device = req.query.device;
         var portwwn = '20D60027F871F600';
         //SWITCH.getSwitchPortPerformance1(device,portwwn,function(result) {   
         //SWITCH.getFabric(device,function(result) {   
-        SWITCH.GetSwitchPorts(device, function (result) {
+        SWITCH.GetSwitchPorts(device, function(result) {
             //var result1 = VMAX.convertPerformanceStruct(result);
             res.json(200, result);
         });

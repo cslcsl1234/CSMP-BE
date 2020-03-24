@@ -36,11 +36,11 @@ var sortBy = require('sort-by');
 var VMAX = require('../lib/Array_VMAX');
 var Report = require('../lib/Reporting');
 
-var reportingController = function (app) {
+var reportingController = function(app) {
 
     var config = configger.load();
 
-    app.get('/api/reporting/test', function (req, res) {
+    app.get('/api/reporting/test', function(req, res) {
         var tempFilePath = tempfile('.docx');
         docx.setDocSubject('testDoc Subject');
         docx.setDocKeywords('keywords');
@@ -54,10 +54,10 @@ var reportingController = function (app) {
             underline: true
         });
 
-        docx.on('finalize', function (written) {
+        docx.on('finalize', function(written) {
             console.log('Finish to create Word file.\nTotal bytes created: ' + written + '\n');
         });
-        docx.on('error', function (err) {
+        docx.on('error', function(err) {
             console.log(err);
         });
 
@@ -68,7 +68,7 @@ var reportingController = function (app) {
         docx.generate(res);
     });
 
-    app.post('/api/reporting/test2', function (req, res) {
+    app.post('/api/reporting/test2', function(req, res) {
 
         var reportInstInfo = req.body;
         var reportInfo;
@@ -76,10 +76,9 @@ var reportingController = function (app) {
 
         async.waterfall(
             [
-                function (callback) {
-
+                function(callback) {
                     console.log(reportInstInfo);
-                    Reporting.GetReportingInfoList(function (result) {
+                    Reporting.GetReportingInfoList(function(result) {
 
                         for (var i in result) {
                             var reportInfoItem = result[i];
@@ -94,11 +93,9 @@ var reportingController = function (app) {
                         callback(null, reportInfo);
 
                     });
-
-
                 },
                 // Get All report status Records
-                function (param, callback) {
+                function(param, callback) {
                     console.log(param);
 
                     reportStatus["ID"] = param.ID + "-" + param.reportInstance.Name;
@@ -112,25 +109,24 @@ var reportingController = function (app) {
                     reportStatus["ReportParamater"] = param.reportInstance.ReportParamater;
 
 
-                    Reporting.generateReportStatus(reportStatus, function (result) {
+                    Reporting.generateReportStatus(reportStatus, function(result) {
                         console.log(result);
                         callback(null, param);
                     });
 
                 },
                 // Get All report status Records
-                function (param, callback) {
+                function(param, callback) {
 
                     console.log(reportInfo);
 
-                    docx.on('finalize', function (written) {
+                    docx.on('finalize', function(written) {
                         console.log('Finish to create Word file.\nTotal bytes created: ' + written + '\n');
                     });
 
-                    docx.on('error', function (err) {
+                    docx.on('error', function(err) {
                         console.log(err);
                     });
-
 
                     var table = [
                         [{
@@ -306,7 +302,7 @@ var reportingController = function (app) {
 
                     var out = fs.createWriteStream(param.GenerateOutputPath + '/' + param.reportInstance.Name + '.' + param.Format);
 
-                    out.on('error', function (err) {
+                    out.on('error', function(err) {
                         console.log(err);
                     });
 
@@ -315,17 +311,17 @@ var reportingController = function (app) {
 
                 },
                 // Get All report status Records
-                function (param, callback) {
+                function(param, callback) {
                     reportStatus["Status"] = "complete";
                     reportStatus["StatusTime"] = new Date();
-                    Reporting.generateReportStatus(reportStatus, function (result) {
+                    Reporting.generateReportStatus(reportStatus, function(result) {
                         console.log(result);
                         callback(null, param);
                     });
 
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 // result now equals 'done'
                 res.json(200, result);
             });
@@ -340,7 +336,7 @@ var reportingController = function (app) {
 
 
 
-    app.get('/api/reporting/types', function (req, res) {
+    app.get('/api/reporting/types', function(req, res) {
 
         var result = [];
 
@@ -363,9 +359,9 @@ var reportingController = function (app) {
 
     });
 
-    app.get('/api/reporting/list', function (req, res) {
+    app.get('/api/reporting/list', function(req, res) {
 
-        Reporting.GetReportingInfoList(function (result) {
+        Reporting.GetReportingInfoList(function(result) {
 
             res.json(200, result);
 
@@ -373,7 +369,7 @@ var reportingController = function (app) {
 
     });
 
-    app.get('/api/reporting/reportfiles', function (req, res) {
+    app.get('/api/reporting/reportfiles', function(req, res) {
         var reportid = req.query.ReportInfoID;
 
         if (reportid === undefined) {
@@ -387,7 +383,7 @@ var reportingController = function (app) {
             "__v": 0,
             "_id": 0,
             "ReportParamater._id": 0
-        }, function (err, doc) {
+        }, function(err, doc) {
             //system error.
             if (err) {
                 return err;
@@ -403,7 +399,7 @@ var reportingController = function (app) {
     });
 
 
-    app.get('/api/reporting/downloadfiles', function (req, res) {
+    app.get('/api/reporting/downloadfiles', function(req, res) {
         var reportInstance = req.query.reportInstance;
         var aa = JSON.parse(reportInstance);
         console.log(aa);
@@ -423,7 +419,7 @@ var reportingController = function (app) {
 
     });
 
-    app.get('/api/reporting/info', function (req, res) {
+    app.get('/api/reporting/info', function(req, res) {
 
         var reportid = req.query.ID;
         if (reportid === undefined) {
@@ -440,7 +436,7 @@ var reportingController = function (app) {
             });
         }
 
-        query.exec(function (err, doc) {
+        query.exec(function(err, doc) {
             if (err) {
                 res.json(500, {
                     status: err
@@ -464,12 +460,12 @@ var reportingController = function (app) {
     /* 
      *  Create a report info record 
      */
-    app.post('/api/reporting/info', function (req, res) {
+    app.post('/api/reporting/info', function(req, res) {
         var reportinfo = req.body;
 
         ReportInfoObj.findOne({
             "ID": reportinfo.ID
-        }, function (err, doc) {
+        }, function(err, doc) {
             //system error.
             if (err) {
                 return done(err);
@@ -478,7 +474,7 @@ var reportingController = function (app) {
                 console.log("Report info is not exist. insert it.");
 
                 var newreport = new ReportInfoObj(reportinfo);
-                newreport.save(function (err, thor) {
+                newreport.save(function(err, thor) {
                     if (err) {
 
                         console.dir(thor);
@@ -486,12 +482,12 @@ var reportingController = function (app) {
                     } else
 
                         return res.json(200, {
-                            status: "The Report info insert is succeeds!"
-                        });
+                        status: "The Report info insert is succeeds!"
+                    });
                 });
             } else {
                 console.log(reportinfo);
-                doc.update(reportinfo, function (error, course) {
+                doc.update(reportinfo, function(error, course) {
                     if (error) return next(error);
                 });
 
@@ -511,7 +507,7 @@ var reportingController = function (app) {
     /* 
      *  Delete a report info record 
      */
-    app.delete('/api/reporting/info', function (req, res) {
+    app.delete('/api/reporting/info', function(req, res) {
         var reportid = req.query.ID;
 
         if (reportid === undefined) {
@@ -523,7 +519,7 @@ var reportingController = function (app) {
         var conditions = {
             ID: reportid
         };
-        ReportInfoObj.remove(conditions, function (err, doc) {
+        ReportInfoObj.remove(conditions, function(err, doc) {
             //system error.
             if (err) {
                 return done(err);
@@ -540,9 +536,9 @@ var reportingController = function (app) {
 
     });
 
-    app.get('/api/reporting/test11', function (req, res) {
+    app.get('/api/reporting/test11', function(req, res) {
 
-        Reporting.GetReportingInfoList(function (locations) {
+        Reporting.GetReportingInfoList(function(locations) {
 
             res.json(200, locations);
 
@@ -551,7 +547,7 @@ var reportingController = function (app) {
     });
 
 
-    app.post('/api/report/report01_listapi', function (req, res) {
+    app.post('/api/report/report01_listapi', function(req, res) {
 
         var list = [];
 
@@ -577,7 +573,7 @@ var reportingController = function (app) {
 
     });
 
-    app.post('/api/report/reporttest01_api', function (req, res) {
+    app.post('/api/report/reporttest01_api', function(req, res) {
 
         console.log(req.body);
 
@@ -587,13 +583,13 @@ var reportingController = function (app) {
 
 
     // CEB Report 1.1
-    app.get('/api/reports/capacity/summary', function (req, res) {
+    app.get('/api/reports/capacity/summary', function(req, res) {
         res.setTimeout(1200 * 1000);
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
         console.log("BeginDate=" + start + ',EndDate=' + end);
         var device;
-        Report.GetArraysIncludeHisotry(device, start, end, function (ret) {
+        Report.GetArraysIncludeHisotry(device, start, end, function(ret) {
             var finalRecord = [];
 
             for (var i in ret) {
@@ -665,16 +661,16 @@ var reportingController = function (app) {
 
 
     // CEB Report 1.2
-    app.get('/api/reports/capacity/details', function (req, res) {
+    app.get('/api/reports/capacity/details', function(req, res) {
         res.setTimeout(1200 * 1000);
         var device = req.query.device;
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
         async.waterfall([
-            function (callback) {
+            function(callback) {
 
-                Report.GetArraysIncludeHisotry(device, start, end, function (ret1) {
-                    DeviceMgmt.GetArrayAliasName(function (arrayinfo) {
+                Report.GetArraysIncludeHisotry(device, start, end, function(ret1) {
+                    DeviceMgmt.GetArrayAliasName(function(arrayinfo) {
 
                         var ret = ret1;
                         for (var i in ret) {
@@ -700,11 +696,11 @@ var reportingController = function (app) {
                     });
                 });
             },
-            function (arg, callback) {
+            function(arg, callback) {
                 var ret = util.JsonSort(arg, "name");
                 callback(null, ret);
             }
-        ], function (err, result) {
+        ], function(err, result) {
             var newret = {};
             newret['data'] = result;
 
@@ -715,7 +711,7 @@ var reportingController = function (app) {
     });
 
     // CEB Report 1.3
-    app.get('/api/reports/capacity/top20/sg', function (req, res) {
+    app.get('/api/reports/capacity/top20/sg', function(req, res) {
         res.setTimeout(1200 * 1000);
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
@@ -723,7 +719,7 @@ var reportingController = function (app) {
 
 
         async.waterfall([
-            function (callback) {
+            function(callback) {
 
                 var param = {};
                 param['keys'] = ['device', 'sgname', 'lunname'];
@@ -733,7 +729,7 @@ var reportingController = function (app) {
                 }
 
                 var resItem = {};
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     for (var i in param.result) {
                         var item = param.result[i];
                         if (resItem[item.device] === undefined) resItem[item.device] = {};
@@ -747,7 +743,7 @@ var reportingController = function (app) {
                 });
 
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var param = {};
                 param['filter_name'] = '(name=\'Capacity\')';
                 param['keys'] = ['device', 'sgname', 'lunname'];
@@ -762,7 +758,7 @@ var reportingController = function (app) {
                 }
 
 
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     var ret = param.result;
                     var finalRecord = [];
                     for (var i in ret) {
@@ -798,7 +794,7 @@ var reportingController = function (app) {
 
 
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
 
                 //var lastYear = util.getlastYearByDate(start); 
 
@@ -818,7 +814,7 @@ var reportingController = function (app) {
                 }
 
 
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     //VMAX.GetSGTop20ByCapacity(function(ret) {  
                     var ret = param.result;
                     for (var i in ret) {
@@ -843,8 +839,8 @@ var reportingController = function (app) {
 
 
             },
-            function (arg, callback) {
-                Report.getAppStorageRelation(function (result) {
+            function(arg, callback) {
+                Report.getAppStorageRelation(function(result) {
 
                     for (var i in arg) {
                         var item = arg[i];
@@ -866,7 +862,7 @@ var reportingController = function (app) {
                 });
 
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
                 for (var i in arg1) {
                     var item = arg1[i];
 
@@ -875,7 +871,7 @@ var reportingController = function (app) {
                 }
                 callback(null, arg1);
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
                 // Get Capacity Top20 by App-name
                 var appCapacity = [];
                 for (var i in arg1) {
@@ -925,7 +921,7 @@ var reportingController = function (app) {
                 callback(null, result);
 
             }
-        ], function (err, result) {
+        ], function(err, result) {
             var newret = {};
             newret['data'] = result;
 
@@ -937,7 +933,7 @@ var reportingController = function (app) {
 
 
     // CEB Report 1.4
-    app.get('/api/reports/capacity/top20/sg_increase', function (req, res) {
+    app.get('/api/reports/capacity/top20/sg_increase', function(req, res) {
         res.setTimeout(1200 * 1000);
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
@@ -945,7 +941,7 @@ var reportingController = function (app) {
 
 
         async.waterfall([
-            function (callback) {
+            function(callback) {
 
                 var param = {};
                 param['keys'] = ['device', 'sgname', 'lunname'];
@@ -955,7 +951,7 @@ var reportingController = function (app) {
                 }
 
                 var resItem = {};
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     for (var i in param.result) {
                         var item = param.result[i];
                         if (resItem[item.device] === undefined) resItem[item.device] = {};
@@ -969,7 +965,7 @@ var reportingController = function (app) {
                 });
 
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var param = {};
                 param['filter_name'] = '(name=\'Capacity\')';
                 param['keys'] = ['device', 'sgname', 'lunname'];
@@ -984,7 +980,7 @@ var reportingController = function (app) {
                 }
 
 
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     var ret = param.result;
                     var finalRecord = [];
                     for (var i in ret) {
@@ -1016,7 +1012,7 @@ var reportingController = function (app) {
 
 
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
 
                 //var lastYear = util.getlastYearByDate(start); 
 
@@ -1036,7 +1032,7 @@ var reportingController = function (app) {
                 }
 
 
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     //VMAX.GetSGTop20ByCapacity(function(ret) {  
                     var ret = param.result;
                     for (var i in ret) {
@@ -1061,8 +1057,8 @@ var reportingController = function (app) {
 
 
             },
-            function (arg, callback) {
-                Report.getAppStorageRelation(function (result) {
+            function(arg, callback) {
+                Report.getAppStorageRelation(function(result) {
 
                     for (var i in arg) {
                         var item = arg[i];
@@ -1084,7 +1080,7 @@ var reportingController = function (app) {
                 });
 
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
                 // Get Capacity Top20 by App-name
                 var appCapacity = [];
                 for (var i in arg1) {
@@ -1139,7 +1135,7 @@ var reportingController = function (app) {
                 callback(null, result);
 
             }
-        ], function (err, result) {
+        ], function(err, result) {
             var newret = {};
             newret['data'] = result;
 
@@ -1152,7 +1148,7 @@ var reportingController = function (app) {
 
     // CEB Report 2.3
 
-    app.get('/api/reports/capacity/related/', function (req, res) {
+    app.get('/api/reports/capacity/related/', function(req, res) {
         res.setTimeout(1200 * 1000);
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
@@ -1161,16 +1157,16 @@ var reportingController = function (app) {
 
 
         async.waterfall([
-            function (callback) {
+            function(callback) {
                 var filter = {};
-                DeviceMgmt.getMgmtObjectInfo(filter, function (arrayInfo) {
+                DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
                     callback(null, arrayInfo);
                 })
 
             },
-            function (param, callback) {
+            function(param, callback) {
                 var finalRecords = [];
-                VMAX.GetArrays(device, function (result) {
+                VMAX.GetArrays(device, function(result) {
                     for (var i in result) {
                         var item = result[i];
 
@@ -1207,9 +1203,9 @@ var reportingController = function (app) {
 
                 });
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var device;
-                Report.getVMAXDirectorAddress(device, function (address) {
+                Report.getVMAXDirectorAddress(device, function(address) {
 
                     var arrayDirector = []
 
@@ -1254,13 +1250,13 @@ var reportingController = function (app) {
                 });
 
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var param = {};
                 param['keys'] = ['device', 'srdfgrpn', 'devconf', 'srcarray'];
                 param['filter'] = '(datagrp=\'VMAX-RDFREPLICAS\')';
 
                 var resItem = {};
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     var rdfGroupCount = {};
                     for (var i in param.result) {
                         var item = param.result[i];
@@ -1282,13 +1278,13 @@ var reportingController = function (app) {
                 });
 
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var param = {};
                 param['keys'] = ['device', 'srdfgrpn', 'devconf', 'srcarray', 'part'];
                 param['filter'] = '(datagrp=\'VMAX-RDFREPLICAS\')';
 
                 var resItem = {};
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     var rdfGroupCount = {};
                     for (var i in param.result) {
                         var item = param.result[i];
@@ -1310,7 +1306,7 @@ var reportingController = function (app) {
                 });
 
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var param = {};
                 param['keys'] = ['device', 'sgname', 'lunname'];
                 param['filter'] = '(source=\'VMAX-Collector\'&datagrp=\'VMAX-STORAGE-GROUPS\'&parttype=\'StorageGroupToLUN\')';
@@ -1319,7 +1315,7 @@ var reportingController = function (app) {
                 }
 
                 var resItem = {};
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     for (var i in param.result) {
                         var item = param.result[i];
 
@@ -1357,7 +1353,7 @@ var reportingController = function (app) {
 
             },
 
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var param = {};
                 param['filter_name'] = '(name=\'Capacity\'|name=\'ResponseTime\')';
                 param['keys'] = ['device', 'sgname'];
@@ -1373,7 +1369,7 @@ var reportingController = function (app) {
                 }
 
 
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     var ret = param.result;
                     var finalRecord = [];
                     for (var i in ret) {
@@ -1410,7 +1406,7 @@ var reportingController = function (app) {
 
             },
 
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var param = {};
                 param['filter_name'] = '(name=\'ResponseTime\')';
                 param['keys'] = ['device', 'sgname'];
@@ -1426,7 +1422,7 @@ var reportingController = function (app) {
                 }
 
 
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     var ret = param.result;
                     var finalRecord = [];
                     for (var i in ret) {
@@ -1457,7 +1453,7 @@ var reportingController = function (app) {
 
             },
 
-            function (arg1, callback) {
+            function(arg1, callback) {
                 //var lastYear = util.getlastYearByDate(start); 
 
                 var lastYear = util.getlastMonthByDate(start);
@@ -1477,7 +1473,7 @@ var reportingController = function (app) {
                 }
 
 
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     //VMAX.GetSGTop20ByCapacity(function(ret) {  
                     var ret = param.result;
                     for (var i in ret) {
@@ -1512,7 +1508,7 @@ var reportingController = function (app) {
             },
 
 
-            function (arg1, callback) {
+            function(arg1, callback) {
                 //var lastYear = util.getlastYearByDate(start); 
 
                 var lastYear = util.getlastMonthByDate(start);
@@ -1532,7 +1528,7 @@ var reportingController = function (app) {
                 }
 
 
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     //VMAX.GetSGTop20ByCapacity(function(ret) {  
                     var ret = param.result;
                     for (var i in ret) {
@@ -1565,7 +1561,7 @@ var reportingController = function (app) {
 
             },
 
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var lastYear = util.getlastYearByDate(start);
                 var param = {};
                 param['filter_name'] = '(name=\'Capacity\'|name=\'ResponseTime\')';
@@ -1582,7 +1578,7 @@ var reportingController = function (app) {
                 }
 
 
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     //VMAX.GetSGTop20ByCapacity(function(ret) {  
                     var ret = param.result;
                     for (var i in ret) {
@@ -1616,7 +1612,7 @@ var reportingController = function (app) {
 
             },
 
-            function (arg1, callback) {
+            function(arg1, callback) {
                 var lastYear = util.getlastYearByDate(start);
                 var param = {};
                 param['filter_name'] = '(name=\'ResponseTime\')';
@@ -1633,7 +1629,7 @@ var reportingController = function (app) {
                 }
 
 
-                CallGet.CallGet(param, function (param) {
+                CallGet.CallGet(param, function(param) {
                     //VMAX.GetSGTop20ByCapacity(function(ret) {  
                     var ret = param.result;
                     for (var i in ret) {
@@ -1665,7 +1661,7 @@ var reportingController = function (app) {
 
 
             },
-            function (arg1, callback) {
+            function(arg1, callback) {
                 for (var i in arg1) {
                     var item = arg1[i];
                     var itemDetails = item.details;
@@ -1676,7 +1672,7 @@ var reportingController = function (app) {
                 arg1.sort(sortBy("device_name"));
                 callback(null, arg1);
             }
-        ], function (err, result) {
+        ], function(err, result) {
             // result now equals 'done'
 
             var res1 = {};
@@ -1688,7 +1684,7 @@ var reportingController = function (app) {
 
 
     // CEB Report 2.1  - IOPS Summary
-    app.get('/api/reports/performance/summary/iops/', function (req, res) {
+    app.get('/api/reports/performance/summary/iops/', function(req, res) {
         //var ret = require("../demodata/summary_iops");
         res.setTimeout(1200 * 1000);
         var start = moment(req.query.from).toISOString();
@@ -1698,14 +1694,14 @@ var reportingController = function (app) {
 
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
                     var filter = {};
-                    DeviceMgmt.getMgmtObjectInfo(filter, function (arrayInfo) {
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
                         callback(null, arrayInfo);
                     })
                 },
                 // Get Current Month matrics
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var deviceList = [];
                     var param = {};
                     param['keys'] = ['device'];
@@ -1718,7 +1714,7 @@ var reportingController = function (app) {
                     param['filter_name'] = '(name==\'ReadRequests\'|name==\'WriteRequests\')';
                     param['type'] = 'average';
 
-                    CallGet.CallGetPerformance(param, function (result) {
+                    CallGet.CallGetPerformance(param, function(result) {
 
                         for (var i in result) {
                             var item = result[i];
@@ -1752,7 +1748,7 @@ var reportingController = function (app) {
                     });
                 },
                 // Get Last Month matrics
-                function (arg1, callback) {
+                function(arg1, callback) {
 
                     var lastMonth = util.getlastMonthByDate(start);
 
@@ -1769,7 +1765,7 @@ var reportingController = function (app) {
                     param['type'] = 'average';
 
 
-                    CallGet.CallGetPerformance(param, function (result) {
+                    CallGet.CallGetPerformance(param, function(result) {
 
                         for (var i in result) {
                             var item = result[i];
@@ -1790,7 +1786,7 @@ var reportingController = function (app) {
                     });
                 },
                 // Get Last Year matrics
-                function (arg1, callback) {
+                function(arg1, callback) {
 
                     //var lastYear = util.getlastYearByDate(start); 
                     var lastYear = util.getlastMonthByDate(start);
@@ -1808,7 +1804,7 @@ var reportingController = function (app) {
                     param['filter_name'] = '(name==\'ReadRequests\'|name==\'WriteRequests\')';
                     param['type'] = 'average';
 
-                    CallGet.CallGetPerformance(param, function (result) {
+                    CallGet.CallGetPerformance(param, function(result) {
 
                         for (var i in result) {
                             var item = result[i];
@@ -1828,7 +1824,7 @@ var reportingController = function (app) {
 
                     });
                 },
-                function (devlist, callback) {
+                function(devlist, callback) {
                     var groups = [];
                     for (var i in devlist) {
                         var item = devlist[i];
@@ -1870,7 +1866,7 @@ var reportingController = function (app) {
                     callback(null, groups)
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 // result now equals 'done'
                 var ret = {}
                 ret.data = result
@@ -1881,7 +1877,7 @@ var reportingController = function (app) {
     });
 
     // CEB Report 2.1 - MBPS
-    app.get('/api/reports/performance/summary/mbps/', function (req, res) {
+    app.get('/api/reports/performance/summary/mbps/', function(req, res) {
         //var ret = require("../demodata/summary_mbps");
         res.setTimeout(1200 * 1000);
         var start = moment(req.query.from).toISOString();
@@ -1891,14 +1887,14 @@ var reportingController = function (app) {
 
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
                     var filter = {};
-                    DeviceMgmt.getMgmtObjectInfo(filter, function (arrayInfo) {
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
                         callback(null, arrayInfo);
                     })
                 },
                 // Get Current Month matrics
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var deviceList = [];
                     var param = {};
                     param['keys'] = ['device'];
@@ -1911,7 +1907,7 @@ var reportingController = function (app) {
                     param['filter_name'] = '(name==\'ReadThroughput\'|name==\'WriteThroughput\')';
                     param['type'] = 'average';
 
-                    CallGet.CallGetPerformance(param, function (result) {
+                    CallGet.CallGetPerformance(param, function(result) {
 
                         for (var i in result) {
                             var item = result[i];
@@ -1945,7 +1941,7 @@ var reportingController = function (app) {
                     });
                 },
                 // Get Last Month matrics
-                function (arg1, callback) {
+                function(arg1, callback) {
 
                     var lastMonth = util.getlastMonthByDate(start);
 
@@ -1961,7 +1957,7 @@ var reportingController = function (app) {
                     param['filter_name'] = '(name==\'ReadThroughput\'|name==\'WriteThroughput\')';
                     param['type'] = 'average';
 
-                    CallGet.CallGetPerformance(param, function (result) {
+                    CallGet.CallGetPerformance(param, function(result) {
 
                         for (var i in result) {
                             var item = result[i];
@@ -1982,7 +1978,7 @@ var reportingController = function (app) {
                     });
                 },
                 // Get Last Year matrics
-                function (arg1, callback) {
+                function(arg1, callback) {
 
                     //var lastYear = util.getlastYearByDate(start); 
                     var lastYear = util.getlastMonthByDate(start);
@@ -2000,7 +1996,7 @@ var reportingController = function (app) {
                     param['filter_name'] = '(name==\'ReadThroughput\'|name==\'WriteThroughput\')';
                     param['type'] = 'average';
 
-                    CallGet.CallGetPerformance(param, function (result) {
+                    CallGet.CallGetPerformance(param, function(result) {
 
                         for (var i in result) {
                             var item = result[i];
@@ -2020,7 +2016,7 @@ var reportingController = function (app) {
 
                     });
                 },
-                function (devlist, callback) {
+                function(devlist, callback) {
                     var groups = [];
                     for (var i in devlist) {
                         var item = devlist[i];
@@ -2062,7 +2058,7 @@ var reportingController = function (app) {
                     callback(null, groups)
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 // result now equals 'done'
                 var ret = {}
                 ret.data = result
@@ -2075,7 +2071,7 @@ var reportingController = function (app) {
 
 
     // CEB Report 2.2
-    app.get('/api/reports/performance/sg/summary/', function (req, res) {
+    app.get('/api/reports/performance/sg/summary/', function(req, res) {
         //var ret = require("../demodata/sg_summary");
         res.setTimeout(1200 * 1000);
         var device;
@@ -2085,13 +2081,13 @@ var reportingController = function (app) {
 
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
                     var filter = {};
-                    DeviceMgmt.getMgmtObjectInfo(filter, function (arrayInfo) {
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
                         callback(null, arrayInfo);
                     })
                 },
-                function (arg, callback) {
+                function(arg, callback) {
 
                     var param = {};
                     param['keys'] = ['device', 'sgname', 'lunname'];
@@ -2101,7 +2097,7 @@ var reportingController = function (app) {
                     }
 
                     var resItem = {};
-                    CallGet.CallGet(param, function (param) {
+                    CallGet.CallGet(param, function(param) {
                         for (var i in param.result) {
                             var item = param.result[i];
                             if (resItem[item.device] === undefined) resItem[item.device] = {};
@@ -2115,7 +2111,7 @@ var reportingController = function (app) {
                     });
 
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var param = {};
                     param['filter_name'] = '(name=\'Capacity\')';
                     param['keys'] = ['device', 'sgname', 'lunname'];
@@ -2131,7 +2127,7 @@ var reportingController = function (app) {
                     }
 
 
-                    CallGet.CallGet(param, function (param) {
+                    CallGet.CallGet(param, function(param) {
                         var ret = param.result;
                         var finalRecord = [];
                         for (var i in ret) {
@@ -2164,14 +2160,14 @@ var reportingController = function (app) {
 
 
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
 
                     arg1.sort(sortBy("-sg_capacity_GB"));
 
                     callback(null, arg1);
                 },
-                function (arg, callback) {
-                    Report.getAppStorageRelation(function (result) {
+                function(arg, callback) {
+                    Report.getAppStorageRelation(function(result) {
 
                         for (var i in arg) {
                             var item = arg[i];
@@ -2194,7 +2190,7 @@ var reportingController = function (app) {
 
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 // result now equals 'done'
 
                 var ret = {}
@@ -2208,7 +2204,7 @@ var reportingController = function (app) {
 
 
     // CEB Report 2.2.1
-    app.get('/api/reports/performance/sg/top10/iops/', function (req, res) {
+    app.get('/api/reports/performance/sg/top10/iops/', function(req, res) {
 
         res.setTimeout(1200 * 1000);
         var device;
@@ -2218,19 +2214,19 @@ var reportingController = function (app) {
 
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
                     var filter = {};
-                    DeviceMgmt.getMgmtObjectInfo(filter, function (arrayInfo) {
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
                         callback(null, arrayInfo);
                     })
                 },
                 // Get IOPS peak value 
-                function (param, callback) {
+                function(param, callback) {
                     //var ret = require("../demodata/sg_top10_iops");
                     var device;
                     var period = 86400;
                     var valuetype = 'max';
-                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function (rest) {
+                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {
                         var rets = [];
                         for (var i in rest) {
                             var item = rest[i];
@@ -2264,11 +2260,11 @@ var reportingController = function (app) {
                     });
                 },
                 // Get IOPS average value 
-                function (param, callback) {
+                function(param, callback) {
                     var device;
                     var period = 86400;
                     var valuetype = 'average';
-                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function (rest) {
+                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {
                         for (var i in rest) {
                             var item = rest[i];
 
@@ -2288,7 +2284,7 @@ var reportingController = function (app) {
                         callback(null, param);
                     });
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
 
                     for (var i in arg1) {
                         if (isNaN(parseFloat(arg1[i].iops_avg)))
@@ -2298,8 +2294,8 @@ var reportingController = function (app) {
 
                     callback(null, arg1);
                 },
-                function (arg, callback) {
-                    Report.getAppStorageRelation(function (result) {
+                function(arg, callback) {
+                    Report.getAppStorageRelation(function(result) {
 
                         for (var i in arg) {
                             var item = arg[i];
@@ -2322,7 +2318,7 @@ var reportingController = function (app) {
 
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 // result now equals 'done'
 
                 var ret = {}
@@ -2336,21 +2332,21 @@ var reportingController = function (app) {
 
     });
 
-    app.get('/api/reports/performance/sg/top10/middle_iops/', function (req, res) {
+    app.get('/api/reports/performance/sg/top10/middle_iops/', function(req, res) {
         res.setTimeout(1200 * 1000);
         var device;
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
                     var filter = {};
-                    DeviceMgmt.getMgmtObjectInfo(filter, function (arrayInfo) {
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
                         callback(null, arrayInfo);
                     })
                 },
                 // Get All Localtion Records
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var param = {};
                     param['device'] = device;
                     param['period'] = 86400;
@@ -2363,7 +2359,7 @@ var reportingController = function (app) {
                     param['limit'] = 1000000;
                     param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
 
-                    CallGet.CallGetPerformance(param, function (rest) {
+                    CallGet.CallGetPerformance(param, function(rest) {
                         var result = [];
                         for (var i in rest) {
                             var item = rest[i];
@@ -2400,14 +2396,14 @@ var reportingController = function (app) {
 
 
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
 
                     arg1.sort(sortBy("-iops_avg"));
 
                     callback(null, arg1);
                 },
-                function (arg, callback) {
-                    Report.getAppStorageRelation(function (result) {
+                function(arg, callback) {
+                    Report.getAppStorageRelation(function(result) {
 
                         for (var i in arg) {
                             var item = arg[i];
@@ -2430,7 +2426,7 @@ var reportingController = function (app) {
 
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 // result now equals 'done'
 
                 var ret = {}
@@ -2447,7 +2443,7 @@ var reportingController = function (app) {
     //
     // CEB-REPORT-MONTHLY: 2.2.1.2  IOPS均值增幅 TOP 10
     // 
-    app.get('/api/reports/performance/sg/top10/iops_avg_increase', function (req, res) {
+    app.get('/api/reports/performance/sg/top10/iops_avg_increase', function(req, res) {
         //var ret = require("../demodata/iops_avg_increase");
         res.setTimeout(1200 * 1000);
         var device = req.query.device;
@@ -2457,18 +2453,18 @@ var reportingController = function (app) {
 
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
                     var filter = {};
-                    DeviceMgmt.getMgmtObjectInfo(filter, function (arrayInfo) {
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
                         callback(null, arrayInfo);
                     })
                 },
                 // Get All Localtion Records
-                function (param, callback) {
+                function(param, callback) {
                     //var ret = require("../demodata/sg_top10_iops"); 
                     var period = 86400;
                     var valuetype = 'average';
-                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function (rest) {
+                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {
                         var rets = [];
                         for (var i in rest) {
                             var item = rest[i];
@@ -2502,13 +2498,13 @@ var reportingController = function (app) {
                     });
                 },
                 // Get The last year performance 
-                function (param, callback) {
+                function(param, callback) {
                     //var ret = require("../demodata/sg_top10_iops"); 
                     var period = 86400;
                     var valuetype = 'average';
                     var lastMonth_start = util.getlastYearByDate(start).firstDay;
                     var lastMonth_end = util.getlastYearByDate(start).lastDay;
-                    VMAX.GetStorageGroupsPerformance(device, period, lastMonth_start, lastMonth_end, valuetype, function (rest) {
+                    VMAX.GetStorageGroupsPerformance(device, period, lastMonth_start, lastMonth_end, valuetype, function(rest) {
                         var rets = [];
                         for (var i in rest) {
                             var item = rest[i];
@@ -2528,7 +2524,7 @@ var reportingController = function (app) {
                         callback(null, param);
                     });
                 },
-                function (arg, callback) {
+                function(arg, callback) {
                     var JXQ = [];
                     var SD = [];
                     var UNKNOW = [];
@@ -2576,7 +2572,7 @@ var reportingController = function (app) {
                     callback(null, newResult);
 
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
                     arg1.sort(sortBy("-iops_avg_increase"));
                     var ret = [];
                     for (var i = 0; i < 10; i++) {
@@ -2584,8 +2580,8 @@ var reportingController = function (app) {
                     }
                     callback(null, ret);
                 },
-                function (arg, callback) {
-                    Report.getAppStorageRelation(function (result) {
+                function(arg, callback) {
+                    Report.getAppStorageRelation(function(result) {
 
                         for (var i in arg) {
                             var item = arg[i];
@@ -2608,7 +2604,7 @@ var reportingController = function (app) {
 
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 // result now equals 'done'
 
                 var ret = {}
@@ -2619,7 +2615,7 @@ var reportingController = function (app) {
     });
 
 
-    app.get('/api/reports/performance/sg/top10/middle_iops_avg_increase', function (req, res) {
+    app.get('/api/reports/performance/sg/top10/middle_iops_avg_increase', function(req, res) {
         //var ret = require("../demodata/iops_avg_increase");
         res.setTimeout(1200 * 1000);
         var device;
@@ -2628,7 +2624,7 @@ var reportingController = function (app) {
 
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
                     var param = {};
                     param['device'] = device;
                     param['period'] = 86400;
@@ -2641,7 +2637,7 @@ var reportingController = function (app) {
                     param['limit'] = 1000000;
                     param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
 
-                    CallGet.CallGetPerformance(param, function (rest) {
+                    CallGet.CallGetPerformance(param, function(rest) {
                         var result = [];
                         for (var i in rest) {
                             var item = rest[i];
@@ -2679,7 +2675,7 @@ var reportingController = function (app) {
 
 
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
 
 
                     //var lastYear = util.getlastYearByDate(start); 
@@ -2699,7 +2695,7 @@ var reportingController = function (app) {
                     param['limit'] = 1000000;
                     param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
 
-                    CallGet.CallGetPerformance(param, function (rest) {
+                    CallGet.CallGetPerformance(param, function(rest) {
                         var result = [];
                         for (var i in rest) {
                             var item = rest[i];
@@ -2742,14 +2738,14 @@ var reportingController = function (app) {
                     });
 
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
 
                     arg1.sort(sortBy("-iops_avg"));
 
                     callback(null, arg1);
                 },
-                function (arg, callback) {
-                    Report.getAppStorageRelation(function (result) {
+                function(arg, callback) {
+                    Report.getAppStorageRelation(function(result) {
 
                         for (var i in arg) {
                             var item = arg[i];
@@ -2772,7 +2768,7 @@ var reportingController = function (app) {
 
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 // result now equals 'done' 
                 var ret = {}
                 ret.data = [];
@@ -2788,7 +2784,7 @@ var reportingController = function (app) {
     //
     // CEB-REPORT-MONTHY: 2.2.1.4 "HOST IO LIMIT 情况统计"
     //
-    app.get('/api/reports/performance/sg/iolimit', function (req, res) {
+    app.get('/api/reports/performance/sg/iolimit', function(req, res) {
         //var ret = require("../demodata/report_io_response");
         res.setTimeout(1200 * 1000);
         var device;
@@ -2798,14 +2794,14 @@ var reportingController = function (app) {
 
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
                     var filter = {};
-                    DeviceMgmt.getMgmtObjectInfo(filter, function (arrayInfo) {
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
                         callback(null, arrayInfo);
                     })
                 },
                 // Get All Localtion Records
-                function (param, callback) {
+                function(param, callback) {
                     //var ret = require("../demodata/sg_top10_iops");
                     var device;
                     var period = 3600;
@@ -2824,12 +2820,12 @@ var reportingController = function (app) {
                     param['filter'] = '(datagrp=\'VMAX-StorageGroup\'&parttype=\'Storage Group\'&iolmstat=\'Defined\')';
                     param['limit'] = 100000;
 
-                    CallGet.CallGetPerformance(param, function (rest) {
+                    CallGet.CallGetPerformance(param, function(rest) {
                         callback(null, rest);
                     });
 
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var rets = [];
                     for (var i in arg1) {
                         var item = arg1[i];
@@ -2876,9 +2872,9 @@ var reportingController = function (app) {
 
                     callback(null, rets);
                 },
-                function (arg, callback) {
+                function(arg, callback) {
 
-                    Report.getAppStorageRelation(function (result) {
+                    Report.getAppStorageRelation(function(result) {
 
                         for (var i in arg) {
                             var item = arg[i];
@@ -2901,7 +2897,7 @@ var reportingController = function (app) {
 
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 // result now equals 'done'
                 var retData = {};
                 retData.data = result;
@@ -2913,7 +2909,7 @@ var reportingController = function (app) {
     //
     // CEB-REPORT-MONTHY: 2.2.1.3 响应时间 TOP 10
     //
-    app.get('/api/reports/performance/sg/top10/iops_response_time', function (req, res) {
+    app.get('/api/reports/performance/sg/top10/iops_response_time', function(req, res) {
         //var ret = require("../demodata/report_io_response");
         res.setTimeout(1200 * 1000);
         var device;
@@ -2923,19 +2919,19 @@ var reportingController = function (app) {
 
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
                     var filter = {};
-                    DeviceMgmt.getMgmtObjectInfo(filter, function (arrayInfo) {
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
                         callback(null, arrayInfo);
                     })
                 },
                 // Get All Localtion Records
-                function (param, callback) {
+                function(param, callback) {
                     //var ret = require("../demodata/sg_top10_iops");
                     var device;
                     var period = 86400;
                     var valuetype = 'average';
-                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function (rest) {
+                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {
                         var rets = [];
                         for (var i in rest) {
                             var item = rest[i];
@@ -2969,7 +2965,7 @@ var reportingController = function (app) {
                         callback(null, rets);
                     });
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
                     for (var i in arg1) {
                         if (isNaN(parseFloat(arg1[i].response_time_ms)))
                             arg1[i]["response_time_ms"] = 0;
@@ -2978,8 +2974,8 @@ var reportingController = function (app) {
 
                     callback(null, arg1);
                 },
-                function (arg, callback) {
-                    Report.getAppStorageRelation(function (result) {
+                function(arg, callback) {
+                    Report.getAppStorageRelation(function(result) {
 
                         for (var i in arg) {
                             var item = arg[i];
@@ -3002,7 +2998,7 @@ var reportingController = function (app) {
 
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 // result now equals 'done'
 
                 var ret = {}
@@ -3017,7 +3013,7 @@ var reportingController = function (app) {
 
 
 
-    app.get('/api/reports/performance/sg/top10/middle_iops_response_time', function (req, res) {
+    app.get('/api/reports/performance/sg/top10/middle_iops_response_time', function(req, res) {
         res.setTimeout(1200 * 1000);
         var device;
         var start = moment(req.query.from).toISOString();
@@ -3026,14 +3022,14 @@ var reportingController = function (app) {
 
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
                     var filter = {};
-                    DeviceMgmt.getMgmtObjectInfo(filter, function (arrayInfo) {
+                    DeviceMgmt.getMgmtObjectInfo(filter, function(arrayInfo) {
                         callback(null, arrayInfo);
                     })
                 },
                 // Get All Localtion Records
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var param = {};
                     param['device'] = device;
                     param['period'] = 86400;
@@ -3046,7 +3042,7 @@ var reportingController = function (app) {
                     param['limit'] = 1000000;
                     param['filter'] = 'source=\'VNXBlock-Collector\'&(parttype==\'LUN\'|parttype==\'MetaMember\')';
 
-                    CallGet.CallGetPerformance(param, function (rest) {
+                    CallGet.CallGetPerformance(param, function(rest) {
                         var result = [];
                         for (var i in rest) {
                             var item = rest[i];
@@ -3087,14 +3083,14 @@ var reportingController = function (app) {
 
 
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
 
                     arg1.sort(sortBy("-response_time_ms"));
 
                     callback(null, arg1);
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 // result now equals 'done'
 
                 var ret = {}
@@ -3112,7 +3108,7 @@ var reportingController = function (app) {
         Array's FE Direcoor using the number of address, when exceed 80% then export to report;
         Array's total number of SRDF Group , total number of RDF pair statistics to report;
     */
-    app.get('/api/reports/array/resource/statistics', function (req, res) {
+    app.get('/api/reports/array/resource/statistics', function(req, res) {
         res.setTimeout(1200 * 1000);
         var device;
         var start = moment(req.query.from).toISOString();
@@ -3121,14 +3117,14 @@ var reportingController = function (app) {
 
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
 
-                    Report.getArrayResourceLimits(start, end, function (result) {
+                    Report.getArrayResourceLimits(start, end, function(result) {
                         callback(null, result);
                     })
                 },
                 // Get All Localtion Records
-                function (arg1, callback) {
+                function(arg1, callback) {
 
                     var FEDirector = arg1.arrayfe_statistic;
                     var fs = require('fs');
@@ -3143,7 +3139,7 @@ var reportingController = function (app) {
 
                 }
             ],
-            function (err, result) {
+            function(err, result) {
                 res.json(200, result);
             });
     });
@@ -3158,7 +3154,7 @@ var reportingController = function (app) {
 
 
     // CEB Weekly Report
-    app.get('/api/reports/weeklyreport/performance/applications', function (req, res) {
+    app.get('/api/reports/weeklyreport/performance/applications', function(req, res) {
 
         res.setTimeout(1200 * 1000);
         var device = req.query.device;
@@ -3209,7 +3205,7 @@ var reportingController = function (app) {
 
         async.waterfall(
             [
-                function (callback) {
+                function(callback) {
 
                     var result = {};
                     result["data"] = {};
@@ -3223,9 +3219,9 @@ var reportingController = function (app) {
 
 
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
                     console.log("================== Begin getAppStorageRelation ================");
-                    Report.getAppStorageRelationV2(device, function (result) {
+                    Report.getAppStorageRelationV2(device, function(result) {
                         for (var i in result) {
                             var item = result[i];
                             if (item.appinfo === undefined) {
@@ -3253,7 +3249,7 @@ var reportingController = function (app) {
 
                         arg1.data["AppStorageRelation"] = result;
                         var DataFilename = '/csmp/reporting/test/test.json';
-                        fs.writeFile(DataFilename, JSON.stringify(arg1), function (err) {
+                        fs.writeFile(DataFilename, JSON.stringify(arg1), function(err) {
                             if (err) throw err;
                         });
 
@@ -3262,7 +3258,7 @@ var reportingController = function (app) {
                     //var aaa = require("/csmp/reporting/test/test.json");
                     //callback(null, aaa);
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var AppStorageelation = arg1.data.AppStorageRelation;
                     var AppSGMapping = [];
                     for (var i in AppStorageelation) {
@@ -3283,7 +3279,7 @@ var reportingController = function (app) {
                     callback(null, arg1);
                 },
                 // calculate response time for each storage group
-                function (arg1, callback) {
+                function(arg1, callback) {
                     console.log("================== Begin GetStorageGroupsPerformance ================");
                     var period_detail = 0;
                     var valuetype1 = 'average';
@@ -3300,7 +3296,7 @@ var reportingController = function (app) {
                     param['filter'] = '(datagrp=\'VMAX-StorageGroup\'&parttype=\'Storage Group\')';
                     param['limit'] = 100000;
 
-                    CallGet.CallGetPerformance(param, function (rest) {
+                    CallGet.CallGetPerformance(param, function(rest) {
 
 
                         console.log("filter the sg in the CEB-Core-Application-sg ");
@@ -3463,9 +3459,9 @@ var reportingController = function (app) {
                 // -------------------------------------
                 // Get IOPS peak value 
                 // -----------------------------------------
-                function (data, callback) {
+                function(data, callback) {
                     console.log("================== Begin GetStorageGroupsPerformance (Get IOPS peak value)================");
-                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function (rest) {
+                    VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {
                         var rets = [];
                         var arg1 = data.data.AppStorageRelation;
 
@@ -3484,7 +3480,7 @@ var reportingController = function (app) {
                         callback(null, data);
                     });
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var records = {};
                     var retArray = [];
                     for (var i in arg1.data.AppStorageRelation) {
@@ -3524,7 +3520,7 @@ var reportingController = function (app) {
 
                     callback(null, arg1);
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var finalRecords = {};
 
                     for (var i in arg1.data.AppStorageRelation) {
@@ -3579,7 +3575,7 @@ var reportingController = function (app) {
                     arg1.data.array_sg_performance = finalRecords;
                     callback(null, arg1);
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var outputRecords = [];
                     for (var i in arg1.data.array_sg_performance) {
                         var item = arg1.data.array_sg_performance[i];
@@ -3632,7 +3628,7 @@ var reportingController = function (app) {
                     callback(null, arg1);
                 },
 
-                function (arg1, callback) {
+                function(arg1, callback) {
 
                     var responseTimeRecords = [];
                     var ThroughputRecords = [];
@@ -3693,9 +3689,9 @@ var reportingController = function (app) {
                 // --------------------------
                 // Statistics for Arrays
                 //----------------------------
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var device;
-                    DeviceMgmt.GetArrayAliasName(function (arrayinfo) {
+                    DeviceMgmt.GetArrayAliasName(function(arrayinfo) {
                         arg1["data"]["arrayinfo"] = arrayinfo;
                         callback(null, arg1);
                     });
@@ -3703,12 +3699,12 @@ var reportingController = function (app) {
                 // --------------------------------
                 // 存储资源IOPS日间及夜间峰值 
                 // --------------------------------
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var device;
                     var period_detail = 0;
                     var valuetype = 'max'
                     var arrayinfos = arg1.data.arrayinfo;
-                    VMAX.getArrayPerformanceV3(device, start, end, valuetype, period_detail, function (result) {
+                    VMAX.getArrayPerformanceV3(device, start, end, valuetype, period_detail, function(result) {
                         var aaa = {};
                         var records = [];
                         for (var i in result) {
@@ -3859,10 +3855,10 @@ var reportingController = function (app) {
                         callback(null, arg1);
                     })
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
                     var device;
                     var arrayinfos = arg1.data.arrayinfo;
-                    VMAX.getArrayPerformanceV3(device, start, end, valuetype, period, function (result) {
+                    VMAX.getArrayPerformanceV3(device, start, end, valuetype, period, function(result) {
 
                         var SD = [];
                         var JXQ = [];
@@ -3960,10 +3956,10 @@ var reportingController = function (app) {
                     });
 
                 },
-                function (arg1, callback) {
+                function(arg1, callback) {
                     // Recording the data for using next week;
 
-                    fs.readFile(DataFilename, function (err, datarecord) {
+                    fs.readFile(DataFilename, function(err, datarecord) {
                         if (datarecord === undefined) {
                             var outputRecord = {};
                         } else {
@@ -3974,7 +3970,7 @@ var reportingController = function (app) {
 
 
                         outputRecord[end_dt] = arg1.result;
-                        fs.writeFile(DataFilename, JSON.stringify(outputRecord), function (err) {
+                        fs.writeFile(DataFilename, JSON.stringify(outputRecord), function(err) {
                             if (err) throw err;
                         });
 
@@ -4073,7 +4069,7 @@ var reportingController = function (app) {
                     });
 
                 },
-                function (arg, callback) {
+                function(arg, callback) {
                     var arg1 = arg.result;
 
                     var ThroughputRecords = arg1["application"]["Throughput"];
@@ -4097,7 +4093,7 @@ var reportingController = function (app) {
                                         case "FUND_SG":
                                         case "IFTS_SG":
                                         case "ECIF_SG":
-                                        //case "EBMCP_SG":
+                                            //case "EBMCP_SG":
                                         case "TPOS_SG":
                                             itemNew["系统吞吐量QOS设定"] = "20000IOPS,1000MB/s"
                                             break;
@@ -4261,10 +4257,10 @@ var reportingController = function (app) {
                 }
 
             ],
-            function (err, result) {
+            function(err, result) {
                 //var DataFilename = '/csmp/reporting/weeklyreport_detail_'+end_dt+'.json'
                 var DataFilename = '/csmp/reporting/DISK_IO_Report_' + end_dt + '.json'
-                fs.writeFile(DataFilename, JSON.stringify(result, null, ' '), function (err) {
+                fs.writeFile(DataFilename, JSON.stringify(result, null, ' '), function(err) {
                     if (err) throw err;
                     res.json(200, DataFilename + ',' + outputFilename);
                 });
@@ -4276,8 +4272,7 @@ var reportingController = function (app) {
 
 
     function SearchArrayConfigureInfo(device) {
-        var arrayInfo = [
-            {
+        var arrayInfo = [{
                 "ArrayName": "VMAX1",
                 "Configure": "一代存储VMAX 8引擎16控",
                 "IOPS_Threshold": "6万",
@@ -4405,7 +4400,7 @@ var reportingController = function (app) {
     }
 
 
-    app.get('/fullConfigIOInfos', function (req, res) {
+    app.get('/fullConfigIOInfos', function(req, res) {
         var ReportOutputPath = "/csmp/reporting";
 
         var finalRecords_new = require("/csmp/reporting/topology_all");
@@ -4503,7 +4498,7 @@ var reportingController = function (app) {
     });
 
 
-    app.get('/apginfo', function (req, res) {
+    app.get('/apginfo', function(req, res) {
         res.setTimeout(1200 * 1000);
 
         var config = configger.load();
@@ -4512,7 +4507,7 @@ var reportingController = function (app) {
         var end = moment().toISOString();
 
         async.waterfall([
-            function (callback) {
+            function(callback) {
 
 
                 var queryString = {};
@@ -4528,7 +4523,7 @@ var reportingController = function (app) {
                     .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                     .headers({ 'Content-Type': 'multipart/form-data' })
                     .query(queryString)
-                    .end(function (response) {
+                    .end(function(response) {
                         if (response.error) {
                             console.log(response.error);
                             return response.error;
@@ -4542,7 +4537,7 @@ var reportingController = function (app) {
                     });
 
             }
-        ], function (err, result) {
+        ], function(err, result) {
             var lastTS = 0;
             for (var i in result) {
                 var item = result[i];
