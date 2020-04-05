@@ -19,6 +19,7 @@ var urlencode = require('urlencode');
 var util = require('../lib/util');
 var log = util.log;
 var taskMonitorObj = mongoose.model('taskmonitor');
+var CallGet = require('../lib/CallGet');
 
 
 /**
@@ -94,7 +95,7 @@ var BackendMgmtController = function (app) {
         if (req.method == "OPTIONS") res.send(200); /*让options请求快速返回*/
         else next();
     });
-
+ 
 
 
     app.get('/api/backendmgmt/test', function (req, res) {
@@ -232,7 +233,41 @@ var BackendMgmtController = function (app) {
 
                     break;
             }
-            res1.json(200, result);
+
+
+            var param = {};
+            //param['filter'] = '(parttype=\'LUN\')&(part=\'06B2\'|part=\'055B\'|part=\'09DA\')';
+            //param['filter'] = '((name==\'RawCapacity\'&!parttype)|(name==\'Capacity\'&!parttype)|(name==\'NASCapacity\'&!parttype)|(name==\'Availability\'&!parttype))&(datatype==\'Block\'|datatype==\'File\'|datatype==\'Virtual\'|datatype==\'Object\')&!vstatus==\'inactive\'';
+            param['filter'] = '!parttype';
+            param['filter_name'] = 'name=\'RawCapacity\''
+            param['keys'] = ['device', 'part'];
+            param['fields'] = ['device' ];
+            param['start'] = "1990-12-19T04:28:20.000Z"
+            param['period'] = 0;
+             
+
+            CallGet.CallGet(param, function (param) { 
+                var data = param.result; 
+                for ( var i in result) {
+                    var item = result[i];
+
+                    for ( var j in data ) {
+                        var tsItem = data[j];
+
+                        var device = "";
+                        if ( item["vmax.serialnb"] != undefined )　device = item["vmax.serialnb"];
+
+                        if ( tsItem.device == device )　{
+                            item["lastCollectTS"] = tsItem.LastTS;
+                        }
+                    }
+                }
+
+                res1.json(200, result); 
+            });
+
+
+
         })
     });
 
@@ -498,9 +533,25 @@ var BackendMgmtController = function (app) {
 
         var exeType = req.body.exe_type;
 
-        backendMgmt.testCollectObject(req.body, function (result) {
-            res1.json(200, result);
-        });
+        var body = req.body;
+        if (body instanceof Array) {
+            async.map(body, function (item, subcallback) {
+                backendMgmt.testCollectObject(item, function (result) {
+                    subcallback(null, result);
+                });
+            },
+                function (err, result) {
+                    res1.json(200, result);
+                }
+            )
+
+        } else {
+            backendMgmt.testCollectObject(body, function (result) {
+                res1.json(200, result);
+            });
+        }
+
+
 
     });
 
@@ -681,24 +732,24 @@ var BackendMgmtController = function (app) {
                     },
                     function (catalog, callback) {
                         async.mapSeries(catalog, function (catalogItem, callback) {
-                                var query = {};
-                                query.spId = catalogItem["sp-id"];
-                                query.spbId = catalogItem["spb-id"];
-                                query.spbVersion = catalogItem["spb-version"];
-                                query.exportId = catalogItem["export-id"];
-                                var deviceList = {};
-                                deviceList["query"] = query;
+                            var query = {};
+                            query.spId = catalogItem["sp-id"];
+                            query.spbId = catalogItem["spb-id"];
+                            query.spbVersion = catalogItem["spb-version"];
+                            query.exportId = catalogItem["export-id"];
+                            var deviceList = {};
+                            deviceList["query"] = query;
 
-                                backendMgmt.getCollectObjects(query, function (result) {
-                                    deviceList["devices"] = result;
-                                    callback(null, deviceList);
-                                })
-                            }, function (err, result) {
-                                if (err) {
-                                    console.log(err);
-                                };
-                                callback(null, result);
-                            }
+                            backendMgmt.getCollectObjects(query, function (result) {
+                                deviceList["devices"] = result;
+                                callback(null, deviceList);
+                            })
+                        }, function (err, result) {
+                            if (err) {
+                                console.log(err);
+                            };
+                            callback(null, result);
+                        }
 
 
                         );
@@ -857,24 +908,24 @@ var BackendMgmtController = function (app) {
                 function (catalog, callback) {
 
                     async.mapSeries(catalog, function (catalogItem, callback) {
-                            var query = {};
-                            query.spId = catalogItem["sp-id"];
-                            query.spbId = catalogItem["spb-id"];
-                            query.spbVersion = catalogItem["spb-version"];
-                            query.exportId = catalogItem["export-id"];
-                            var deviceList = {};
-                            deviceList["query"] = catalogItem;
+                        var query = {};
+                        query.spId = catalogItem["sp-id"];
+                        query.spbId = catalogItem["spb-id"];
+                        query.spbVersion = catalogItem["spb-version"];
+                        query.exportId = catalogItem["export-id"];
+                        var deviceList = {};
+                        deviceList["query"] = catalogItem;
 
-                            backendMgmt.getCollectObjects(query, function (result) {
-                                deviceList["devices"] = result;
-                                callback(null, deviceList);
-                            })
-                        }, function (err, result) {
-                            if (err) {
-                                console.log(err);
-                            };
-                            callback(null, result);
-                        }
+                        backendMgmt.getCollectObjects(query, function (result) {
+                            deviceList["devices"] = result;
+                            callback(null, deviceList);
+                        })
+                    }, function (err, result) {
+                        if (err) {
+                            console.log(err);
+                        };
+                        callback(null, result);
+                    }
 
 
                     );

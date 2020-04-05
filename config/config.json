@@ -27,7 +27,7 @@
     "HOST": "10.121.1.124",
     "PORT": 9090
   },
-  "ProductType": "Test",
+  "ProductType": "Prod",
   "ProductTypeDesc": [
     "Prod",
     "Dev",
