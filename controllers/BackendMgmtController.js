@@ -95,7 +95,7 @@ var BackendMgmtController = function (app) {
         if (req.method == "OPTIONS") res.send(200); /*让options请求快速返回*/
         else next();
     });
- 
+
 
 
     app.get('/api/backendmgmt/test', function (req, res) {
@@ -241,29 +241,29 @@ var BackendMgmtController = function (app) {
             param['filter'] = '!parttype';
             param['filter_name'] = 'name=\'RawCapacity\''
             param['keys'] = ['device', 'part'];
-            param['fields'] = ['device' ];
+            param['fields'] = ['device'];
             param['start'] = "1990-12-19T04:28:20.000Z"
             param['period'] = 0;
-             
 
-            CallGet.CallGet(param, function (param) { 
-                var data = param.result; 
-                for ( var i in result) {
+
+            CallGet.CallGet(param, function (param) {
+                var data = param.result;
+                for (var i in result) {
                     var item = result[i];
 
-                    for ( var j in data ) {
+                    for (var j in data) {
                         var tsItem = data[j];
 
                         var device = "";
-                        if ( item["vmax.serialnb"] != undefined )　device = item["vmax.serialnb"];
+                        if (item["vmax.serialnb"] != undefined) device = item["vmax.serialnb"];
 
-                        if ( tsItem.device == device )　{
+                        if (tsItem.device == device) {
                             item["lastCollectTS"] = tsItem.LastTS;
                         }
                     }
                 }
 
-                res1.json(200, result); 
+                res1.json(200, result);
             });
 
 
@@ -534,6 +534,9 @@ var BackendMgmtController = function (app) {
         var exeType = req.body.exe_type;
 
         var body = req.body;
+        
+        console.log(body);
+        
         if (body instanceof Array) {
             async.map(body, function (item, subcallback) {
                 backendMgmt.testCollectObject(item, function (result) {
