@@ -102,10 +102,7 @@ var BackendMgmtController = function (app) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         backendMgmt.BackEndLogin(function (ret) {
             res.json(200, ret);
-        });
-
-
-
+        }); 
     });
 
 
@@ -248,7 +245,7 @@ var BackendMgmtController = function (app) {
 
             CallGet.CallGet(param, function (param) {
                 var data = param.result;
-                for (var i in result) {
+                for (var i in result) { 
                     var item = result[i];
 
                     for (var j in data) {
@@ -341,7 +338,10 @@ var BackendMgmtController = function (app) {
         async.waterfall(
             [
                 function (callback) {
-                    backendMgmt.BackEndLogin(function (sso_token) {
+                    backendMgmt.BackEndLogin(function (BEInfo) {
+
+                        var sso_token = BEInfo.sso_token;
+                        var BEVersion = BEInfo.BEVersion;
 
                         var req = unirest("GET", REQUIRE_URL);
 
@@ -460,7 +460,10 @@ var BackendMgmtController = function (app) {
         async.waterfall(
             [
                 function (callback) {
-                    backendMgmt.BackEndLogin(function (sso_token) {
+                    backendMgmt.BackEndLogin(function (BEInfo) {
+
+                        var sso_token = BEInfo.sso_token;
+                        var BEVersion = BEInfo.BEVersion;
 
                         var req = unirest("GET", REQUIRE_URL);
 

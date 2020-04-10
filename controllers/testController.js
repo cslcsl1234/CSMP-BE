@@ -966,6 +966,95 @@ var testController = function (app) {
         //VPLEX.GetStorageVolumeByDevices(device, function(ret) {  res.json(200,ret);   }); 
     });
 
+    
+    app.get('/test_backmgmt_login', function (req, res1) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; 
+
+        var req = unirest("GET", "https://csmpcollecter:58443/centralized-management");
+
+        /*
+        req.headers({
+            //"content-type": "application/x-www-form-urlencoded",
+            //"Host": "csmpcollecter:58443",
+            "referer": config.BackendMgmt.URL
+            //"cookie": "JSESSIONID=AD94CC71EB306B6D646891FF034FBAFA"
+        });
+        */
+
+        req.end(function (response) {
+            var sessionid = response.headers['set-cookie'][0];
+            var session = sessionid.match(/JSESSIONID=([A-Z0-9]*);[ a-zA-Z0-9=;/]*/i);
+            console.log(session[1]);
+
+            var req1 = unirest("POST", "https://csmpcollecter:58443/centralized-management/j_security_check?j_username=admin&j_password=changeme");
+            req1.headers({ 
+                //Host": "csmpcollecter:58443",
+                "cookie": "JSESSIONID=" + session[1]
+            });
+    
+            req1.end(function (response1) { 
+                console.log(response1.header);
+                //var sessionid = response1.headers['set-cookie'][0];
+                //var session = sessionid.match(/JSESSIONID=([A-Z0-9]*);[ a-zA-Z0-9=;/]*/i);
+                //console.log(session[1]);
+    
+                res1.json(200,response1);
+            })
+
+        });
+        
+
+
+    });
+
+
+
+
+
+    app.get('/test_backmgmt_test', function (req, res1) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; 
+        async.waterfall(
+            [
+                function (callback) {
+                    backendMgmt.BackEndLogin(function (BEInfo) {
+                        var sso_token = BEInfo.sso_token;
+                        var BEVersion = BEInfo.BEVersion;
+                        callback(null,sso_token);
+                    });
+
+                }
+
+            ],
+            function (err, result) {
+                // result now equals 'done'
+
+                res1.json(200, result);
+            });
+    });
+
+
+    app.get('/test_backmgmt_test2', function (req, res1) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; 
+        async.waterfall(
+            [
+                function (callback) {
+                    backendMgmt.BackEndLogin2(function (BEInfo) {
+                        var sso_token = BEInfo.sso_token;
+                        var BEVersion = BEInfo.BEVersion;
+                        callback(null,sso_token);
+                    });
+
+                }
+
+            ],
+            function (err, result) {
+                // result now equals 'done'
+
+                res1.json(200, result);
+            });
+    });
+
+
 
     app.get('/test_backmgmt', function (req, res1) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -977,8 +1066,10 @@ var testController = function (app) {
         async.waterfall(
             [
                 function (callback) {
-                    backendMgmt.BackEndLogin(function (sso_token) {
-
+                    backendMgmt.BackEndLogin(function (BEInfo) {
+                        var sso_token = BEInfo.sso_token;
+                        var BEVersion = BEInfo.BEVersion;
+                        console.log(`SSOTOKEN=${sso_token}`)
                         var req = unirest("GET", REQUIRE_URL);
 
                         req.headers({
@@ -990,12 +1081,15 @@ var testController = function (app) {
                         req.end(function (res) {
                             if (res.error) console.log(res.error);
 
+                            console.log(res.body);
 
                             var xmlstr = "<div>" + res.body + "</div>";
                             var options = {
                                 object: true
                             };
                             var json = xml2json.toJson(xmlstr, options);
+
+                            console.log(json);
 
                             var serverList = [];
                             for (var i in json.div.div.div) {
@@ -1055,8 +1149,9 @@ var testController = function (app) {
         async.waterfall(
             [
                 function (callback) {
-                    backendMgmt.BackEndLogin(function (sso_token) {
-
+                    backendMgmt.BackEndLogin(function (BEInfo) {
+                        var sso_token = BEInfo.sso_token;
+                        var BEVersion = BEInfo.BEVersion;
                         var req = unirest("GET", REQUIRE_URL);
 
                         req.query(query);
