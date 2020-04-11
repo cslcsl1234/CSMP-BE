@@ -532,15 +532,14 @@ var BackendMgmtController = function (app) {
 
     app.post('/api/backendmgmt/discocenter/devicemgmt/test', function (req, res1) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-        var config = configger.load();
-
-        var exeType = req.body.exe_type;
-
-        var body = req.body;
-        
+        var body = req.body; 
+                
+        console.log("========\nBegin execute device test operate.\n==========\n" ); 
+          
         console.log(body);
         
         if (body instanceof Array) {
+            console.log("----------\nit's mutil-tasks, #task="+body.length+". execute type = ["+ body[0].exeType + "]\n----------\n")
             async.map(body, function (item, subcallback) {
                 backendMgmt.testCollectObject(item, function (result) {
                     subcallback(null, result);
@@ -552,6 +551,7 @@ var BackendMgmtController = function (app) {
             )
 
         } else {
+            console.log("----------\nit's single task. execute type = ["+ body.exe_type + "]\n----------\n")
             backendMgmt.testCollectObject(body, function (result) {
                 res1.json(200, result);
             });
