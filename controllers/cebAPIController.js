@@ -960,6 +960,10 @@ var cebAPIController = function (app) {
       [
         function (callback) {
           VMAX.GetArrays(device, function (ret) {
+            for ( var i in ret ) {
+              var item = ret[i];
+              item["storageName"] = item.device;
+            }
             callback(null, ret);
           });
         },
@@ -1017,6 +1021,7 @@ var cebAPIController = function (app) {
               var resultItem = {};
               resultItem["location"] = localtion;
               resultItem["localSN"] = item.device;
+              resultItem["localArrayName"] = item.storageName;
               resultItem["remoteSN"] = item1.device;
               finalResult.push(resultItem);
 
@@ -1028,6 +1033,7 @@ var cebAPIController = function (app) {
             var resultItem = {};
             resultItem["location"] = localtion;
             resultItem["localSN"] = item.device;
+            resultItem["localArrayName"] = item.storageName;
             resultItem["remoteSN"] = "";
             finalResult.push(resultItem);
           }
@@ -1053,6 +1059,7 @@ var cebAPIController = function (app) {
         }
       ],
       function (err, result) {
+        result.sort();
         res.json(200, result);
       }
     );

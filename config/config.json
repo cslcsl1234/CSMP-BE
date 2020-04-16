@@ -27,7 +27,7 @@
     "HOST": "192.168.92.195",
     "PORT": 9090
   },
-  "ProductType": "Prod",
+  "ProductType": "Test",
   "ProductTypeDesc": [
     "Prod",
     "Dev",

@@ -82,6 +82,8 @@ app.post('/scripts', function (req, res) {
 	res.setHeader("Access-Control-Allow-Origin", "*"); 
     console.log('post scripts called');	
     var script = req.body;
+    
+    console.log(script); 
     scriptDAO.add(script, function (success,id) {
         var r =  result.createResult(success, id);
         res.json(r);
