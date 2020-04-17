@@ -30,6 +30,7 @@ var demo_switchs = require('../demodata/switchs');
 var demo_switch_ports = require('../demodata/switch_ports');
 var demo_fabrics = require('../demodata/fabrics');
 var demo_fabric_zone = require('../demodata/fabric_zone');
+var sortBy = require("sort-by");
 
 
 var switchController = function (app) {
@@ -916,6 +917,7 @@ var switchController = function (app) {
             }
         ], function (err, result) {
             // result now equals 'done'  
+            result.sort(sortBy('partid'));
             res.json(200, result);
         });
 
