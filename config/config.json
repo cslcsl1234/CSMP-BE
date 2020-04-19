@@ -21,10 +21,10 @@
     "METRICS_PROPERTIES_VALUE": "/metrics/properties/values",
     "METRICS_SERIES_VALUE": "/metrics/series/values",
     "METRICS_AGGREGATES": "/metrics/aggregates",
-    "BASE_FILTER": "!vstatus=='inactive'&"
+    "BASE_FILTER": ""
   },
   "SERVER": {
-    "HOST": "192.168.92.195",
+    "HOST": "192.168.1.121",
     "PORT": 9090
   },
   "ProductType": "Test",
@@ -42,8 +42,8 @@
     "FlashPhoneInterval": 8640000
   },
   "Reporting": {
-    "TmpDataPath": "C:\\CSMP\\reporting\\tmp",
-    "OutputPath": "C:\\CSMP\\reporting"
+    "TmpDataPath": "/csmp/reporting/tmp",
+    "OutputPath": "/csmp/reporting"
   },
   "Analysis": {
     "baselinePeriod": 4,
