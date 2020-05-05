@@ -3154,7 +3154,7 @@ var reportingController = function(app) {
 
 
     // CEB Weekly Report
-    app.get('/api/reports/weeklyreport/performance/applications', function(req, res) {
+    app.get('/api/reports/weeklyreport/performance/applications', function(req, res) { 
 
         res.setTimeout(1200 * 1000);
         var device = req.query.device;
@@ -3163,6 +3163,7 @@ var reportingController = function(app) {
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
 
+        console.log("====\n" + start +','+end);
         var start_dt = moment(start).format('YYYYMMDD');
         //var priv_dt = moment(start).subtract(1, 'days').format('YYYYMMDD');
         var priv_dt = start_dt;
@@ -3221,7 +3222,8 @@ var reportingController = function(app) {
                 },
                 function(arg1, callback) {
                     console.log("================== Begin getAppStorageRelation ================");
-                    Report.getAppStorageRelationV2(device, function(result) {
+
+                    Report.getAppStorageRelationV2(device,  function(result) {
                         for (var i in result) {
                             var item = result[i];
                             if (item.appinfo === undefined) {

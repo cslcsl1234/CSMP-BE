@@ -66,8 +66,9 @@ var switchController = function (app) {
             function (param, callback) {
 
                 util.GetLocaltion(function (locations) {
+                    console.log(locations);
                     param['Locations'] = locations;
-                    callback(null, param);
+                    callback(null, param); 
 
                 });
 
@@ -112,11 +113,12 @@ var switchController = function (app) {
 
             // get customize info
             function (param, callback) {
-
+ 
                 var fields = 'part,psname,pswwn,device,deviceid,fabwwn,lswwn,lsname';
                 var filter = 'parttype==\'Fabric\'|parttype==\'VSAN\'';
 
                 var fabricResult = [];
+                
                 console.log(config.Backend);
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
                     .auth(config.Backend.USER, config.Backend.PASSWORD, true)
@@ -126,6 +128,7 @@ var switchController = function (app) {
 
                         //console.log(response.raw_body);
                         var resultJson = JSON.parse(response.raw_body).values;
+                        //console.log(resultJson);
                         for (var i in param.result) {
                             var swItem = param.result[i];
                             //console.log(swItem);
@@ -172,7 +175,6 @@ var switchController = function (app) {
                 var resnew = []
                 for (var i in ret) {
                     var item = ret[i];
-                    console.log(item);
                     if (item.devicesn === undefined) continue;
                     resnew.push(item);
                 }

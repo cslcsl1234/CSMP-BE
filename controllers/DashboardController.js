@@ -138,26 +138,29 @@ var dashboardController = function (app) {
 
                                     isFind = true;
                                     switch ( devItem.devtype ) {
+                                        case "application" :
+                                            devByDCItem.Application.number++;
+                                            break;
                                         case "FabricSwitch" :
-                                            devByDCItem.FabricSwitch = devByDCItem.FabricSwitch + 1;
+                                            devByDCItem.FabricSwitch.number++;
                                             break;
 
                                         case "Host":
                                         case "PassiveHost":
-                                            devByDCItem.Host = devByDCItem.Host + 1;
+                                            devByDCItem.Host.number++;
                                             break;
 
                                         case "VirtualStorage":
-                                            devByDCItem.VirtualStorage = devByDCItem.VirtualStorage + 1;
+                                            devByDCItem.VirtualStorage.number++;
                                             break;
 
                                         case "Array":
                                         case "UnifiedArray":
-                                            devByDCItem.Array = devByDCItem.Array + 1;
+                                            devByDCItem.Array.number++;
                                             break;
 
                                         default :
-                                            devByDCItem.Other = devByDCItem.Other + 1;
+                                            devByDCItem.Other.number++;
                                             break;
 
 
@@ -168,33 +171,38 @@ var dashboardController = function (app) {
                             if ( !isFind ) {
                                 var devByDCItem = {} ;
                                 devByDCItem["datacenter"] = devItem.localtion.datacenter;
-                                devByDCItem["FabricSwitch"] = 0;
-                                devByDCItem["Host"] = 0;
-                                devByDCItem["VirtualStorage"] = 0;
-                                devByDCItem["Array"] = 0;
-                                devByDCItem["Other"] = 0;
+                                
+                                devByDCItem["Application"] = { number: 0, event : { critial:1, warning:0, info:0 }};
+                                devByDCItem["FabricSwitch"] = { number: 0, event : { critial:2, warning:0, info:0 }};
+                                devByDCItem["Host"] = { number: 0, event : { critial:3, warning:3, info:0 }};
+                                devByDCItem["VirtualStorage"] = { number: 0, event : { critial:4, warning:0, info:0 }};
+                                devByDCItem["Array"] = { number: 0, event : { critial:5, warning:5, info:0 }};
+                                devByDCItem["Other"] = { number: 0, event : { critial:6, warning:6, info:0 }};
 
                                 switch ( devItem.devtype ) {
+                                    case "application":
+                                        devByDCItem["Application"]["number"] = 1;
+                                        break;
                                     case "FabricSwitch" :
-                                        devByDCItem["FabricSwitch"] = 1;
+                                        devByDCItem["FabricSwitch"]["number"] = 1;
                                         break;
 
                                     case "Host":
                                     case "PassiveHost":
-                                        devByDCItem["Host"] = 1;
+                                        devByDCItem["Host"]["number"] = 1;
                                         break;
 
                                     case "VirtualStorage":
-                                        devByDCItem["VirtualStorage"] = 1;
+                                        devByDCItem["VirtualStorage"]["number"] = 1;
                                         break;
 
                                     case "Array":
                                     case "UnifiedArray":
-                                        devByDCItem["Array"] = 1;
+                                        devByDCItem["Array"]["number"] = 1;
                                         break;
 
                                     default :
-                                        devByDCItem["Other"] = 1;
+                                        devByDCItem["Other"]["number"] = 1;
                                         break;
 
 

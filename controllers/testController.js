@@ -829,7 +829,7 @@ var testController = function (app) {
 
         // VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
         //function GetFCSwitchPart(devtype,parttype,callback) { 
-        //Report.getAppStorageRelationV2(device, function (result )  {  res.json(200,result) });
+        Report.getAppStorageRelationV2(device, function (result )  {  res.json(200,result) });
 
 
         //Report.getArrayResourceLimits(from,to, function (result )  {  res.json(200,result) });
@@ -859,6 +859,7 @@ var testController = function (app) {
         }); 
         */
 
+        /*
         var hostinfo = {
             host: '10.62.36.151',
             port: 22,
@@ -876,6 +877,7 @@ var testController = function (app) {
             var json = xml2json.toJson(xmloutput, options)
             res.json(200, json);
         })
+        */
 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
         //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
