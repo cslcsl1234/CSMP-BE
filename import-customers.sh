@@ -1,28 +1,22 @@
+if [ -z "$1" ]
+  then
+    echo "Usage: $0 <customername>";
+    exit;
+fi
+
+
 
 dbserver=csmpdbserver
 basepath=../CustomerData
 customerdata=${basepath}/$1
  
 #mongoimport --host ${dbserver}  -d csmp -c menus --drop menus.dat
-#mongoimport --host ${dbserver}  -d csmp -c users --drop users.dat
-#mongoimport --host ${dbserver}  -d csmp -c roles --drop roles.dat
 
-#mongoimport --host ${dbserver}  -d csmp -c datacenters  --drop ${customerdata}/datacenters.dat
-#mongoimport --host ${dbserver}  -d csmp -c hosts  --drop ${customerdata}/hosts.dat
-#mongoimport --host ${dbserver}  -d csmp -c applications  --drop ${customerdata}/applications.dat
-#mongoimport --host ${dbserver}  -d csmp -c arrays  --drop ${customerdata}/arrays.dat
-#mongoimport --host ${dbserver}  -d csmp -c switchs  --drop ${customerdata}/switchs.dat
-#mongoimport --host ${dbserver}  -d csmp -c switchs  --drop ${customerdata}/switchs.dat
-#mongoimport --host ${dbserver}  -d csmp -c auths  --drop ${customerdata}/auths.dat
-
-ls ${basepath} |while read filename
+ls ${customerdata} |while read filename
 do
-    if [ -f ${basepath}/${filename} ];
-    then
         basefilename=${filename%.*}
         echo "base import datafile:  ${filename}"
-        mongoimport --host ${dbserver}  -d csmp -c ${basefilename}  --drop ${customerdata}/${basefilename}.dat
-    fi
+        mongoimport --host ${dbserver}  -d csmp -c ${basefilename}  --drop ${customerdata}/${filename}
 
 
 done

@@ -1,5 +1,14 @@
-192.168.1.1  CSMP-FE
-192.168.1.1  CSMP-BE
-192.168.1.1  MongoDBServer
+## ---------------
+##  hosts template
+## ---------------
+#123.56.114.249  csmpcollecter
+#123.56.114.249  csmpcollecter_pb
+#192.168.92.128   csmpserver
+#127.0.0.1   csmpdbserver
+#127.0.0.1   ssmpmysqlserver
 
-192.168.1.2  CollectServer
+192.168.1.122  csmpcollecter
+192.168.1.122  csmpcollecter_pb
+192.168.1.121   csmpserver
+192.168.1.100   csmpdbserver
+192.168.1.100   ssmpmysqlserver

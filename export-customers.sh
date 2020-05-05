@@ -1,4 +1,5 @@
 #!/bin/bash
+dbserver=csmpdbserver
 
 if [ -z "$1" ]
   then
@@ -11,11 +12,11 @@ customerdata=../CustomerData/$1
 mkdir -p ${customerdata} 
 
 DB=csmp
-COLLECTIONS=$(mongo localhost:27017/$DB --quiet --eval "db.getCollectionNames()" | sed 's/,/ /g')
+COLLECTIONS=$(mongo ${dbserver}:27017/$DB --quiet --eval "db.getCollectionNames()" | sed 's/,/ /g'|sed 's/\[//g'|sed 's/\]//g'|sed 's/"//g')
 
 for collection in $COLLECTIONS; do
     echo "Exporting $DB/$collection ..."
-    mongoexport -d ${DB} -c $collection -o ${customerdata}/$collection.json
+    mongoexport --host ${dbserver} -d ${DB} -c $collection -o ${customerdata}/$collection.json
 done
 
 # mongodump -h dbhost -d dbname -o <dbdirectory>
