@@ -14,6 +14,7 @@ var mongoose = require('mongoose')
     , DatacenterSchema
     , DEFAULT_EXPIRE_TIME='1h';// 1 hour.
 
+require('../models/userModel')
 
 UnitSchema = new Schema({
     UnitID: {

@@ -2,7 +2,8 @@
   "name": "node-rest-auth-example",
   "version": "0.0.0",
   "scripts": {
-    "start": "node --max-old-space-size=2048 app.js "
+    "start": "node --max-old-space-size=2048 app.js ",
+    "test": "jest"
   },
   "dependencies": {
     "app-root-path": "^2.1.0",
@@ -36,7 +37,8 @@
     "zeebe-node": "^0.20.1"
   },
   "devDependencies": {
+    "debug": "*",
     "grunt": "~0.4.1",
-    "debug": "*"
+    "jest": "^26.0.1"
   }
 }

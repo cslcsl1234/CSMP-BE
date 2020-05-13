@@ -12,10 +12,8 @@ const name = 'my-app'
 var unirest = require('unirest');
 var autologger = require('../lib/logger');
 
-var configger = require('../config/configger');
-var unirest1 = require('unirest');
-var async = require('async');
-var CallGet = require('../lib/CallGet');
+var configger = require('../config/configger'); 
+var async = require('async'); 
 var util = require('../lib/util');
 var Auto = require('../lib/Automation_VPLEX');
 var AutoService = require('../lib/Automation');

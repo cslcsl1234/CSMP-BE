@@ -829,13 +829,13 @@ var testController = function (app) {
 
         // VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
         //function GetFCSwitchPart(devtype,parttype,callback) { 
-        Report.getAppStorageRelationV2(device, function (result )  {  res.json(200,result) });
+        //Report.getAppStorageRelationV2(device, function (result )  {  res.json(200,result) });
 
 
         //Report.getArrayResourceLimits(from,to, function (result )  {  res.json(200,result) });
 
         //CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
-        // Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
+        Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
 
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
 
