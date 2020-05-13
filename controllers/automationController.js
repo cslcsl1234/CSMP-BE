@@ -586,7 +586,7 @@ var automationController = function (app) {
 
 
 
-    app.get('/auto/test1', function (req, res) {
+    app.get('/autotest/test1', function (req, res) {
         var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
         //Auto.StorageRediscover(arrayInfo, function( error , result ) { res.json(200,result);  })
 
@@ -605,14 +605,14 @@ var automationController = function (app) {
         } 
         */
 
-        //Auto.GetStorageVolumes(arrayInfo, 'cluster-2', function (result) { res.json(200, result); })
+        Auto.GetStorageVolumes(arrayInfo, 'cluster-2', function (result) { res.json(200, result); })
         //Auto.ClaimAllStorageVolume(arrayInfo, function (result) { res.json(200, result); })
 
         //Auto.CreateExtents(arrayInfo,function(result) {  res.json(200,result);   }) 
 
         //Auto.UnitTest(arrayInfo, "GetStorageVolumes","cluster-2", function(result) {  res.json(200, result);  })
 
-        Auto.UnitTest(arrayInfo, "ClaimAllStorageVolume", "cluster-2", function (result) { res.json(200, result); })
+        //Auto.UnitTest(arrayInfo, "ClaimAllStorageVolume", "cluster-2", function (result) { res.json(200, result); })
 
     });
 
@@ -690,23 +690,24 @@ var automationController = function (app) {
                 "universion": "90",
                 "user": "smc",
                 "verifycert": false,
-                "sgname": "MSCS_SG"
+                "sgname": "EMC_TC1003_SG"
             },
             "DependOnAction": "N/A",
-            "AsignSGName": "MSCS_SG",
-            "StorageVolumeName": "ebankwebesxi_VMAX_193_data_1117145701_TEST02",
+            "AsignSGName": "EMC_TC1003_SG",
+            "StorageVolumeName": "EMC_TC1003_DEV",
             "capacityByte": 5368709120,
             "show": "false",
             "execute": true
         }
 
-        var capacity = item.capacityByte / 1024 / 1024 / 1024;
+        //var capacity = item.capacityByte / 1024 / 1024 / 1024;
         var capacityBYTE = item.capacityByte;
+        var capacity=20;
         VMAX.CreateDevice(item.arrayinfo, item.AsignSGName, capacity, item.StorageVolumeName, function (result) {
             if (result.code != 200) {
                 //console.log(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
-                var msg = result.data.msg.error.messages;
-                console.log(msg)
+                //var msg = result.messages;
+                //console.log(msg)
 
                 res.json(result.code, result);
             } else {

@@ -1,1 +1,1 @@
-npm test -- --coverage -t ""
+npm test -- --coverage -t ""  --silent --watchAll

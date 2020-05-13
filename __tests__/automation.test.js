@@ -1,142 +1,63 @@
-
 const VPLEX = require('../lib/Automation_VPLEX');
-const AutoService = require('../lib/Automation');
-const UNITY = require('../lib/Automation_UNITY');
-const VMAX = require('../lib/Automation_VMAX');
+const VMAX = require('../lib/Automation_VMAX')
 
+TIMEOUT = 60 * 10 * 1000;   // 10 mins
+   
 
-describe("EMC Unity Automation Service", () => {
+describe("EMC VPLEX Automation Service", () => {
+    var arrayInfo = VPLEX.GetArrayInfoObject("EMCCTEST");
+    var clusternames = ['cluster-1','cluster-2'];
+ 
 
-
-    test("Unity.CreateDevice", () => {
-
-        var item785 = {
-            "Step": "Create device and assign to sg [ VPLEX_101_BE ] in pyhsical array [ CKM00163300785 ] , arraytype= [ Unity ]",
-            "method": "CreatePhysicalDevice_UNITY",
-            "arrayinfo": {
-                "array_type": "Unity",
-                "unity_sn": "CKM00163300785",
-                "unity_password": "P@ssw0rd",
-                "unity_hostname": "10.32.32.64",
-                "unity_pool_name": "jxl_vplex101_pool",
-                "unity_username": "admin",
-                "sgname": "VPLEX_101_BE"
-            },
-            "DependOnAction": "N/A",
-            "AsignSGName": "VPLEX_101_BE",
-            "StorageVolumeName": "ebankwebesxi_unity_785_data_1117120527_test12",
-            "capacityByte": 5368709120,
-            "show": "false",
-            "execute": true
-        }
-
-        var item = {
-            "Step": "Create device and assign to sg [ VPLEX_101_BE ] in pyhsical array [ CKM00163300785 ] , arraytype= [ Unity ]",
-            "method": "CreatePhysicalDevice_UNITY",
-            "arrayinfo": {
-                "array_type": "Unity",
-                "unity_sn": "CKM00140600110",
-                "unity_password": "Password1!",
-                "unity_hostname": "10.32.32.85",
-                "unity_pool_name": "Pool 0",
-                "unity_username": "sysadmin",
-                "sgname": "RPA_G6_Remote_186"
-            },
-            "DependOnAction": "N/A",
-            "AsignSGName": "RPA_G6_Remote_186",
-            "StorageVolumeName": "ebankwebesxi_unity_110_data_1117120527_test12",
-            "capacityByte": 5368709120,
-            "show": "false",
-            "execute": true
-        }
-
-        UNITY.CreateDevice(item.arrayinfo, item.AsignSGName, item.capacityByte, item.StorageVolumeName, function (result) {
-            if (result.code != 200) {
-                //console.log(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
-                var msg = result.data.msg.error.messages;
-                console.log(msg)
-
-                res.json(result.code, result);
-            } else {
-                console.log(result);
-                //console.log(result.code, `UNITY.CreateDevice is succeedful. array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)]`, AutoObject);
-                res.json(200, result);
-            }
-
+    describe('VPLEX.GetStorageVolumes', () => {
+ 
+        clusternames.forEach((clustername) => {
+            test('cluater='+clustername,(done) => {
+                VPLEX.GetStorageVolumes(arrayInfo, clustername, function (result) {
+                    console.log('======\n'+clustername +'\n' + JSON.stringify(result,2,2));
+                    expect(result.code).toBe(200);
+                    done();
+                })
+            })
         })
   
-
     });
 
-})
 
+    
+    test("VPLEX.GetStorageArray", (done) => { 
+        
+
+        var cases = [
+            ['1h', '2020-05-09T11:00:00.000+08:00'],
+            ['1d', '2020-05-08T11:00:00.000+08:00'],
+            ['1w', '2020-05-03T11:00:00.000+08:00'],
+            ['2w', '2020-04-26T11:00:00.000+08:00'],
+            ['1m', '2020-04-10T11:00:00.000+08:00'],
+            ['', '2020-05-03T11:00:00.000+08:00']];
+
+        test.each(cases)('%s', (type, res) => {
+            config.load.mockReturnValue(configjson)
+            expect(util.getConfStartTime(type)).toEqual(res);
+        })
+
+
+        VPLEX.GetStorageArray(arrayInfo, clustername, function (result) {
+            console.log(result);
+            expect(result.code).toBe(200);
+            done();
+        })
+
+    })
+
+
+})
 
 
 
 describe("EMC VMAX Automation Service", () => {
 
-
-    test("VMAX.reateDevice", () => {
-
-        var item = {
-            "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
-            "method": "CreatePhysicalDevice_VMAX",
-            "arrayinfo": {
-                "array_type": "VMAX",
-                "serial_no": "000297800193",
-                "password": "smc",
-                "unispherehost": "10.121.0.204",
-                "universion": "90",
-                "user": "smc",
-                "verifycert": false,
-                "sgname": "MSCS_SG"
-            },
-            "DependOnAction": "N/A",
-            "AsignSGName": "MSCS_SG",
-            "StorageVolumeName": "ebankwebesxi_VMAX_193_data_1117145701_TEST02",
-            "capacityByte": 5368709120,
-            "show": "false",
-            "execute": true
-        }
-
-        var capacity = item.capacityByte / 1024 / 1024 / 1024;
-        var capacityBYTE = item.capacityByte;
-        VMAX.CreateDevice(item.arrayinfo, item.AsignSGName, capacity, item.StorageVolumeName, function (result) {
-            if (result.code != 200) {
-                //console.log(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
-                var msg = result.data.msg.error.messages;
-                console.log(msg)
-
-                res.json(result.code, result);
-            } else {
-                console.log(result);
-                //console.log(result.code, `UNITY.CreateDevice is succeedful. array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)]`, AutoObject);
-                res.json(200, result);
-            }
-
-        })
-  
-
-    });
-
-})
-
-
-
-describe("EMC VPLEX Automation Service", () => {
-
-    test("VPLEX.GenerateDeviceName", () => {
-        var deviceNameParam = {
-            appname: "appname",
-            usedfor: "usedfor",
-            provideType: "local",
-            arrayname: "arrayname",
-            totalcapacity: 1214
-        }
-        var devicename = Auto.GenerateDeviceName(deviceNameParam);
-    })
-
-    test("VPLEX.CreateDevice", () => {
+    test("VMAX.CreateDevice", (done) => {
 
         var item = {
             "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
@@ -149,34 +70,25 @@ describe("EMC VPLEX Automation Service", () => {
                 "universion": "90",
                 "user": "smc",
                 "verifycert": false,
-                "sgname": "MSCS_SG"
+                "sgname": "EMC_TC1003_SG"
             },
             "DependOnAction": "N/A",
-            "AsignSGName": "MSCS_SG",
-            "StorageVolumeName": "ebankwebesxi_VMAX_193_data_1117145701_TEST02",
+            "AsignSGName": "EMC_TC1003_SG",
+            "StorageVolumeName": "EMC_TC1003_DEV",
             "capacityByte": 5368709120,
             "show": "false",
             "execute": true
         }
 
         var capacity = item.capacityByte / 1024 / 1024 / 1024;
-        var capacityBYTE = item.capacityByte;
         VMAX.CreateDevice(item.arrayinfo, item.AsignSGName, capacity, item.StorageVolumeName, function (result) {
-            if (result.code != 200) {
-                //console.log(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
-                var msg = result.data.msg.error.messages;
-                console.log(msg)
 
-                res.json(result.code, result);
-            } else {
-                console.log(result);
-                //console.log(result.code, `UNITY.CreateDevice is succeedful. array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)]`, AutoObject);
-                res.json(200, result);
-            }
+            expect(result.code).toBe(200);
+            done();
 
         })
-  
-
-    });
+    }, TIMEOUT )
 
 })
+ 
+ 
