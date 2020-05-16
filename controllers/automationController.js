@@ -30,7 +30,7 @@ var wsList = {};
 
 wss.on('connection', function (ws) {
 
-    console.log("WebSocket connect" + ws);
+    console.log("****************\n\n\n\nWebSocket connect\n\n*******************" + ws);
     var sendStockUpdates = function (ws) {
         if (ws.readyState == 1) {
             var DataFilename = './data.json';
@@ -64,7 +64,7 @@ wss.on('connection', function (ws) {
     });
 });
 
-
+console.log("EXECUTE TEST");
 
 
 
@@ -603,7 +603,7 @@ var automationController = function (app) {
         } 
         */
 
-        Auto.GetStorageVolumes(arrayInfo, 'cluster-2', function (result) { res.json(200, result); })
+        Auto.GetStorageVolumes(arrayInfo, 'cluster-1', function (result) { res.json(200, result); })
         //Auto.ClaimAllStorageVolume(arrayInfo, function (result) { res.json(200, result); })
 
         //Auto.CreateExtents(arrayInfo,function(result) {  res.json(200,result);   }) 
@@ -1300,6 +1300,7 @@ var automationController = function (app) {
 
             //var ws = AutoObject.request.ws; 
             if (ws === undefined) {
+                console.log(JSON.stringify(wsList,2,2));
                 res.json(505, "not find the websocket client. clientID=" + RequestParamater.client);
             } else {
                 autologger.logs(200, "Begin execute each action.", AutoObject);
