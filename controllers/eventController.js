@@ -599,7 +599,7 @@ app.post('/api/event/performance/sg/iolimit/update', function (req, res) {
                         console.log("app is not exist. insert it."); 
         
                         var newapp = new IOLimitEventObj(reqBody);
-                        console.log('Test1');
+                        
                         newapp.save(function(err, thor) {
                         console.log('Test2');
                         if (err)  {

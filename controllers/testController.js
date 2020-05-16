@@ -195,8 +195,16 @@ var testController = function (app) {
 
 
     });
-    app.get('/test111', function (req, res) {
-        res.json(200, "this is test");
+
+
+    
+    app.get('/autoservicetest', function (req, res) {
+        var fs = require('fs');
+        var autoobject1 = fs.readFileSync("c:\\autoobject.json");
+        var autoobject = JSON.parse(autoobject1);
+        Automation_VPLEX.CapacityProvisingServiceTEST(autoobject, function(result) {
+            res.json(200,result);
+        })
     })
 
 

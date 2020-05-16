@@ -268,9 +268,7 @@ var automationController = function (app) {
 
         var arrayname = req.query.arrayname;
         var config = configger.load();
-
-
-
+ 
         async.waterfall(
             [
                 function (callback) {
@@ -319,7 +317,7 @@ var automationController = function (app) {
                                         var item = result[i];
                                         var name = item.name;
 
-                                        var matchResult = name.match(/([A-Za-z_0-9]+)_(VW|View|view|VIEW)/);
+                                        var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW)/);
                                         //console.log(name+','+matchResult); 
 
                                         if (matchResult != null) {
@@ -344,7 +342,7 @@ var automationController = function (app) {
                                         var item = result[i];
                                         var name = item.name;
 
-                                        var matchResult = name.match(/([A-Za-z_0-9]+)_(VW|View|view|VIEW)/);
+                                        var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW)/);
                                         //console.log(name+','+matchResult); 
 
                                         if (matchResult != null) {
@@ -691,7 +689,7 @@ var automationController = function (app) {
                 "user": "smc",
                 "verifycert": false,
                 "sgname": "MSCS_SG"
-            },
+            },   
             "DependOnAction": "N/A",
             "AsignSGName": "MSCS_SG",
             "StorageVolumeName": "ebankwebesxi_VMAX_193_data_1117145701_TEST02",

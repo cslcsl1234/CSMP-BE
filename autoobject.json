@@ -1,0 +1,178 @@
+{
+  "resMsg": {
+    "code": 200,
+    "message": [
+      "find a match ResourcePool!"
+    ]
+  },
+  "request": {
+    "appname": "cbusapp10",
+    "usedfor": "os",
+    "capacity": 1,
+    "resourceLevel": "Gold",
+    "ProtectLevel": {
+      "DR_SameCity": "disable",
+      "Backup": false,
+      "AppVerification_SameCity": true,
+      "AppVerification_DiffCity": true,
+      "hostDeplpy": "SC"
+    },
+    "opsType": "review",
+    "client": "1589539819851",
+    "appname_ext": "VW",
+    "count": 1,
+    "resourcePoolName": "VPLEX-高端",
+    "timestamp": "0515185032"
+  },
+  "ResourcePools": [
+    {
+      "name": "VPLEX-高端",
+      "resourceLevel": "Gold",
+      "resourceType": "VPLEX",
+      "TotalCapacity": 100,
+      "UsedCapacity": 30,
+      "members": [
+        {
+          "arrayname": "EMCCTEST1",
+          "arraytype": "VPLEX",
+          "capacity": 1000,
+          "info": {
+            "name": "EMCCTEST",
+            "type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          },
+          "capability": {
+            "CDP": {
+              "catalog": "CDP.RPA",
+              "name": "RPA-1"
+            }
+          },
+          "backend-array": [
+            {
+              "array_type": "VMAX",
+              "serial_no": "000297800193",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false,
+              "sgname": "MSCS_SG",
+              "purpose": "Prod"
+            },
+            {
+              "array_type": "Unity",
+              "unity_sn": "CKM00163300785",
+              "unity_password": "P@ssw0rd",
+              "unity_hostname": "10.32.32.64",
+              "unity_pool_name": "jxl_vplex101_pool",
+              "unity_username": "admin",
+              "sgname": "VPLEX_101_BE",
+              "purpose": "Prod"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "VPLEX-Middle",
+      "resourceLevel": "Gold",
+      "resourceType": "VPLEX",
+      "TotalCapacity": 100,
+      "UsedCapacity": 30,
+      "members": [
+        {
+          "arrayname": "EMCCTEST2",
+          "arraytype": "VPLEX",
+          "capacity": 1000,
+          "info": {
+            "name": "EMCCTEST",
+            "type": "VPLEX",
+            "version": "6.1",
+            "endpoint": "https://10.32.32.111/vplex",
+            "auth": {
+              "username": "service",
+              "password": "Mi@Dim7T"
+            }
+          },
+          "backend-array": [
+            {
+              "array_type": "VMAX",
+              "serial_no": "000297800193",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false,
+              "sgname": "MSCS_SG"
+            },
+            {
+              "array_type": "Unity",
+              "unity_sn": "CKM00163300785",
+              "unity_password": "P@ssw0rd",
+              "unity_hostname": "10.32.32.64",
+              "unity_pool_name": "jxl_vplex101_pool",
+              "unity_username": "admin",
+              "sgname": "VPLEX_101_BE"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "AutoInfo": {
+    "RuleResults": {
+      "ArrayInfo": {
+        "arrayname": "EMCCTEST1",
+        "arraytype": "VPLEX",
+        "capacity": 1000,
+        "info": {
+          "name": "EMCCTEST",
+          "type": "VPLEX",
+          "version": "5.5",
+          "endpoint": "https://10.32.32.100/vplex",
+          "auth": {
+            "username": "service",
+            "password": "password"
+          }
+        },
+        "capability": {
+          "CDP": {
+            "catalog": "CDP.RPA",
+            "name": "RPA-1"
+          }
+        },
+        "backend-array": [
+          {
+            "array_type": "VMAX",
+            "serial_no": "000297800193",
+            "password": "smc",
+            "unispherehost": "10.121.0.204",
+            "universion": "90",
+            "user": "smc",
+            "verifycert": false,
+            "sgname": "MSCS_SG",
+            "purpose": "Prod"
+          },
+          {
+            "array_type": "Unity",
+            "unity_sn": "CKM00163300785",
+            "unity_password": "P@ssw0rd",
+            "unity_hostname": "10.32.32.64",
+            "unity_pool_name": "jxl_vplex101_pool",
+            "unity_username": "admin",
+            "sgname": "VPLEX_101_BE",
+            "purpose": "Prod"
+          }
+        ]
+      }
+    },
+    "ResourceInfo": {},
+    "ActionParamaters": {}
+  },
+  "ActionResponses": []
+}

@@ -13,7 +13,7 @@
                     "cluster2": "cluster2"
                 },
                 "backend-array": {
-                    "Prod": { 
+                    "Prod": {
                         "arrayinfo": {
                             "name": "VPLEX100",
                             "type": "VPLEX",
@@ -26,7 +26,7 @@
                         },
                         "sgname": "RP"
                     },
-                    "Local": { 
+                    "Local": {
                         "arrayname": "EMCCTEST1",
                         "arraytype": "VPLEX",
                         "capacity": 1000,
@@ -55,13 +55,13 @@
                             }
                         ]
                     },
-                    "Remote": { 
+                    "Remote": {
                         "arrayname": "UNITY500F",
                         "arraytype": "Unity",
                         "capacity": 1000,
                         "sgname": "RecoverPoint",
                         "info": {
-                            "array_type": "Unity", 
+                            "array_type": "Unity",
                             "unity_sn": "CKM00163300785",
                             "unity_password": "P@ssw0rd",
                             "unity_hostname": "10.32.32.64",
@@ -73,38 +73,76 @@
                 "journal-backend-array": {
                     "Prod": {
                         "arrayinfo": {
-                            "array_type": "VMAX",
-                            "serial_no": "000297800193",
-                            "password": "smc",
-                            "unispherehost": "10.121.0.204",
-                            "universion": "90",
-                            "user": "smc",
-                            "verifycert": false,
-                            "sgname": "MSCS_SG"
-                        } 
+                            "arrayname": "EMCCTEST1",
+                            "array_type": "VPLEX",
+                            "capacity": 1000,
+                            "sgname": "RP",
+                            "consistencygroup": "CG_CDP",
+                            "info": {
+                                "name": "EMCCTEST",
+                                "type": "VPLEX",
+                                "version": "5.5",
+                                "endpoint": "https://10.32.32.100/vplex",
+                                "auth": {
+                                    "username": "service",
+                                    "password": "password"
+                                }
+                            },
+                            "backend-array": [
+                                {
+                                    "array_type": "VMAX",
+                                    "serial_no": "000297800193",
+                                    "password": "smc",
+                                    "unispherehost": "10.121.0.204",
+                                    "universion": "90",
+                                    "user": "smc",
+                                    "verifycert": false,
+                                    "sgname": "MSCS_SG"
+                                }
+                            ]
+                        }
                     },
                     "Local": {
-                        "arrayinfo": {
-                            "array_type": "VMAX",
-                            "serial_no": "000297800193",
-                            "password": "smc",
-                            "unispherehost": "10.121.0.204",
-                            "universion": "90",
-                            "user": "smc",
-                            "verifycert": false,
-                            "sgname": "MSCS_SG"
-                        } 
+                        "arrayinfo": { 
+                            "arrayname": "EMCCTEST1",
+                            "array_type": "VPLEX",
+                            "capacity": 1000,
+                            "sgname": "RP",
+                            "consistencygroup": "CG_CDP",
+                            "info": {
+                                "name": "EMCCTEST",
+                                "type": "VPLEX",
+                                "version": "5.5",
+                                "endpoint": "https://10.32.32.100/vplex",
+                                "auth": {
+                                    "username": "service",
+                                    "password": "password"
+                                }
+                            },
+                            "backend-array": [
+                                {
+                                    "array_type": "VMAX",
+                                    "serial_no": "000297800193",
+                                    "password": "smc",
+                                    "unispherehost": "10.121.0.204",
+                                    "universion": "90",
+                                    "user": "smc",
+                                    "verifycert": false,
+                                    "sgname": "MSCS_SG"
+                                }
+                            ]
+                        }
                     },
                     "Remote": {
                         "arrayinfo": {
-                            "array_type": "Unity", 
+                            "array_type": "Unity",
                             "unity_sn": "CKM00163300785",
                             "unity_password": "P@ssw0rd",
                             "unity_hostname": "10.32.32.64",
                             "unity_pool_name": "sxpool",
-                            "unity_username": "admin", 
-                            "sgname": "RecoverPoint" 
-                        } 
+                            "unity_username": "admin",
+                            "sgname": "RecoverPoint"
+                        }
                     }
                 }
             },

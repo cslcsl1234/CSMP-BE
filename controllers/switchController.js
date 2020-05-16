@@ -489,8 +489,7 @@ var switchController = function (app) {
             if (!doc) { //user doesn't exist.
                 console.log("app is not exist. insert it.");
 
-                var newapp = new SwitchObj(reqBody);
-                console.log('Test1');
+                var newapp = new SwitchObj(reqBody); 
                 newapp.save(function (err, thor) {
                     console.log('Test2');
                     if (err) {
