@@ -21,13 +21,13 @@
     "METRICS_PROPERTIES_VALUE": "/metrics/properties/values",
     "METRICS_SERIES_VALUE": "/metrics/series/values",
     "METRICS_AGGREGATES": "/metrics/aggregates",
-    "BASE_FILTER": ""
+    "BASE_FILTER": "!vstatus=='inactive'&"
   },
   "SERVER": {
-    "HOST": "10.121.1.124",
+    "HOST": "172.10.2.124",
     "PORT": 9090
   },
-  "ProductType": "Test",
+  "ProductType": "Prod",
   "ProductTypeDesc": [
     "Prod",
     "Dev",

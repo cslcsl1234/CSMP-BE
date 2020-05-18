@@ -14,8 +14,14 @@
                 },
                 "backend-array": {
                     "Prod": {
-                        "arrayinfo": {
-                            "name": "VPLEX100",
+                        "arrayname": "EMCCTEST1",
+                        "arraytype": "VPLEX",
+                        "capacity": 1000,
+                        "sgname": "RP",
+                        "clustername": "cluster-1",
+                        "consistencygroup": "CG_CDP",
+                        "info": {
+                            "name": "EMCCTEST",
                             "type": "VPLEX",
                             "version": "5.5",
                             "endpoint": "https://10.32.32.100/vplex",
@@ -23,14 +29,14 @@
                                 "username": "service",
                                 "password": "password"
                             }
-                        },
-                        "sgname": "RP"
+                        } 
                     },
                     "Local": {
                         "arrayname": "EMCCTEST1",
                         "arraytype": "VPLEX",
                         "capacity": 1000,
                         "sgname": "RP",
+                        "clustername": "cluster-1",
                         "consistencygroup": "CG_CDP",
                         "info": {
                             "name": "EMCCTEST",
@@ -77,6 +83,7 @@
                             "array_type": "VPLEX",
                             "capacity": 1000,
                             "sgname": "RP",
+                            "clustername": "cluster-1",
                             "consistencygroup": "CG_CDP",
                             "info": {
                                 "name": "EMCCTEST",
@@ -108,6 +115,7 @@
                             "array_type": "VPLEX",
                             "capacity": 1000,
                             "sgname": "RP",
+                            "clustername": "cluster-1",
                             "consistencygroup": "CG_CDP",
                             "info": {
                                 "name": "EMCCTEST",
