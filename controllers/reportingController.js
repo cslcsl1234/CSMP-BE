@@ -4385,6 +4385,13 @@ var reportingController = function(app) {
                 "IOPS_Threshold": "27万",
                 "IOPS_threshold_60%": "16万",
                 "IOPS_threshold_60%_number": 160000
+            },
+            {
+                "ArrayName": "VMAX18",
+                "Configure": "三代全闪存储VMAX250F2引擎4控",
+                "IOPS_Threshold": "25万",
+                "IOPS_threshold_60%": "15万",
+                "IOPS_threshold_60%_number": 150000
             }
         ];
 
