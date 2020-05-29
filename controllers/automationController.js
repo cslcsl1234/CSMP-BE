@@ -11,11 +11,13 @@ const debug = require('debug')('automationController')
 const name = 'my-app'
 var unirest = require('unirest');
 var autologger = require('../lib/logger');
+const ServiceCatalogs = require('../lib/automation/servicecatalogs');
+const ResourcePools = require('../lib/automation/resourcepools');
 
-var configger = require('../config/configger'); 
-var async = require('async'); 
+var configger = require('../config/configger');
+var async = require('async');
 var util = require('../lib/util');
-var Auto = require('../lib/Automation_VPLEX');
+var VPLEX = require('../lib/Automation_VPLEX');
 var AutoService = require('../lib/Automation');
 var UNITY = require('../lib/Automation_UNITY');
 var VMAX = require('../lib/Automation_VMAX');
@@ -63,10 +65,7 @@ wss.on('connection', function (ws) {
 
     });
 });
-
-console.log("EXECUTE TEST");
-
-
+ 
 
 
 var automationController = function (app) {
@@ -145,7 +144,7 @@ var automationController = function (app) {
             }
         ];
 
-        console.log(pools);
+        //console.log(pools);
         res.json(200, pools);
 
 
@@ -154,434 +153,165 @@ var automationController = function (app) {
 
     app.get('/api/auto/service/list', function (req, res) {
 
-        var serviceList = [
-            {
-                "catalog": "Block",
-                "name": "块服务",
-                "services": [
-                    {
-                        "name": "VPLEXCapacityProvisioning",
-                        "label": "VPLEX容量扩容服务",
-                        "version": "v1.0",
-                        "enabled": true,
-                        "roles": [
-                            "admin",
-                            "user"
-                        ],
-                        "description": "为已经使用VPLEX存储的主机(包括x86物理机和ESXi主机)扩充存储容量空间.",
-                        "detailFunctionDesc": "<ol class=\"GreenNumbers\"><li><font color=\"white\">在该服务前, 需要在VPLEX后端物理存储中分配物理卷到VPLEX中</font></li><li><font color=\"white\">该服务将自动Claim Storage Volume并随后创建一系列VPLEX逻辑对象(Extent, Device, Distrubuted Device, VirtualVolume)</font></li></ol><p class=\"ingredients\"><span>自动化规则:?</span>Milk, salt, coriander, cardamom, cinnamon, turmeric, honey, vanillaextract, regularoats, oatbran.</p>",
-                        "propertices": {
-                            "support_host_type": [
-                                "X86物理机",
-                                "IBM LPar",
-                                "VMWare ESXi"
-                            ],
-                            "estimated_execution_time": "15 min",
-                            "service_level": "Base Service",
-                            "last_month_execution_count": 0
-                        },
-                        "image": "VPLEX"
-                    }
-                ]
-            },
 
-            {
-                "catalog": "File",
-                "name": "文件服务",
-                "services": [
-                    {
-                        "name": "FileCapacityProvisioning",
-                        "label": "文件系统扩容服务",
-                        "version": "v1.0",
-                        "enabled": false,
-                        "roles": [
-                            "admin",
-                            "user"
-                        ],
-                        "description": "为主机分配文件系统.",
-                        "detailFunctionDesc": "<ol class=\"GreenNumbers\"><li><font color=\"yellow\">在该服务前, 需要在VPLEX后端物理存储中分配物理卷到VPLEX中</font></li><li><font color=\"black\">该服务将自动Claim Storage Volume并随后创建一系列VPLEX逻辑对象(Extent, Device, Distrubuted Device, VirtualVolume)</font></li></ol><p class=\"ingredients\"><span>自动化规则:?</span>Milk, salt, coriander, cardamom, cinnamon, turmeric, honey, vanillaextract, regularoats, oatbran.</p>",
-                        "propertices": {
-                            "support_host_type": [
-                                "X86物理机",
-                                "IBM LPar",
-                                "VMWare ESXi"
-                            ],
-                            "estimated_execution_time": "15 min",
-                            "service_level": "Base Service",
-                            "last_month_execution_count": 0
-                        },
-                        "image": "FILE"
-                    }
-                ]
-            }
-        ];
+        var catalog = req.query.catalog;
+        var name1 = req.query.name;
+        var name;
+        if (name1 != 'ALL') var name = name1;
 
+        var serviceList = ServiceCatalogs.GetServiceCatalog(catalog, name);
 
         res.json(200, serviceList);
 
 
     });
 
-    app.get('/api/auto/service/block/provisioning/getinfo1', function (req, res) {
-        var autoServiceInfo = {
-            "Application": [
-                {
-                    "name": "APP1",
-                    "TotalCapacity": 200,
-                    "UsedCapacity": 100
-                }
-            ],
-            "StorageResourcePool": [
-                {
-                    "name": "VPLEX-高端",
-                    "resourceLevel": "Gold",
-                    "resourceType": "VPLEX",
-                    "TotalCapacity": 100,
-                    "UsedCapacity": 30
-                }
-            ],
-            "ProtectLevel": [
-                {
-                    "name": "Backup",
-                    "label": "备份(NBU)",
-                    "value": "disable"
-                },
-                {
-                    "name": "AppVerification_SameCity",
-                    "label": "同城应用核验",
-                    "value": "disable"
-                },
-                {
-                    "name": "AppVerification_DiffCity",
-                    "label": "异地应用核验",
-                    "value": "false"
-                }
-            ]
-        };
-
-        res.json(200, autoServiceInfo);
-
-
-    })
 
     app.get('/api/auto/service/block/provisioning/getinfo', function (req, res) {
 
-        var arrayname = req.query.arrayname;
+        var poolname = req.query.poolname;
         var config = configger.load();
- 
-        async.waterfall(
-            [
-                function (callback) {
 
-                    var ret = {};
-                    AutoService.GetResourcePool(function (resourcepool) {
-                        ret["resourcepool"] = resourcepool;
-                        if (arrayname === undefined) {
-                            var arrayinfo = resourcepool[0].members[0];
-                            ret["selected_resourcepool"] = arrayinfo;
+        try {
+            async.waterfall(
+                [
+                    function (callback) {
+    
+                        var ret = {};
+                        var resourcepool = ResourcePools.GetResourcePool();
+                        
+                        if (poolname === undefined) { 
+                            ret["resourcepools"] = resourcepool;
+                            ret["ChoosedResourcePool"] = resourcepool[0];
                             callback(null, ret);
                         } else {
                             var isfind = false;
                             for (var i in resourcepool) {
                                 var item = resourcepool[i];
-                                if (item.name == arrayname) {
+                                if (item.name == poolname) {
                                     isfind = true;
-                                    var arrayinfo = item.members[0];
-                                    ret["selected_resourcepool"] = arrayinfo;
+                                    ret["resourcepools"] = resourcepool;
+                                    ret["ChoosedResourcePool"] = item;
                                     callback(null, ret);
                                     break;
                                 }
-
                             }
                             if (isfind == false)
-                                callback(504, "not found the specical array name [" + arrayname + "]");
+                                callback(504, "not found the specical storate resource pool name [" + arrayname + "]");
                         }
-                    })
-
-                },
-                // Get All Cluster
-                function (retinfo, callback) {
-
-                    var arrayInfo = retinfo.selected_resourcepool.info;
-                    var applist = [];
-
-                    switch (config.ProductType) {
-                        case 'Dev':
-                        case 'Test':
-                            Auto.GetStorageViewsDemoVersion(arrayInfo, 'cluster-1', function (response) {
-                                if (response.code !== 200) {
-                                    callback(response.code, response.message);
-                                } else {
-                                    var result = response.response;
-                                    for (var i in result) {
-                                        var item = result[i];
-                                        var name = item.name;
-
-                                        var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW)/);
-                                        //console.log(name+','+matchResult); 
-
-                                        if (matchResult != null) {
-                                            var appItem = { "name": matchResult[1], "name_ext": matchResult[2] };
-                                            applist.push(appItem);
-                                        }
-                                    }
-                                    retinfo["applist"] = applist;
-                                    callback(null, retinfo);
-                                }
-                            });
-                            break;
-                        case 'Prod':
-                            //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
-
-                            Auto.GetStorageViewsV1(arrayInfo, 'cluster-1', function (response) {
-                                if (response.code !== 200) {
-                                    callback(response.code, response.message);
-                                } else {
-                                    var result = response.response;
-                                    for (var i in result) {
-                                        var item = result[i];
-                                        var name = item.name;
-
-                                        var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW)/);
-                                        //console.log(name+','+matchResult); 
-
-                                        if (matchResult != null) {
-                                            var appItem = { "name": matchResult[1], "name_ext": matchResult[2] };
-                                            applist.push(appItem);
-                                        }
-                                    }
-                                    retinfo["applist"] = applist;
-                                    callback(null, retinfo);
-                                }
-                            });
-                            break;
-                    }
-
-                }
-                , function (arg1, callback) {
-                    console.log(arg1);
-                    var applist = arg1.applist;
-                    var autoServiceInfo = {
-                        "Application": [
-                            {
-                                "name": "APP1",
-                                "TotalCapacity": 200,
-                                "UsedCapacity": 100
-                            }
-                        ],
-
-                        "StorageResourcePool": arg1.resourcepool,
-                        "selected_resourcepool": arg1.selected_resourcepool,
-                        "ProtectLevel": [
-                            {
-                                "name": "Backup",
-                                "label": "备份(NBU)",
-                                "value": "false"
-                            },
-                            {
-                                "name": "AppVerification_SameCity",
-                                "label": "本地CDP验证",
-                                "value": "false"
-                            },
-                            {
-                                "name": "AppVerification_DiffCity",
-                                "label": "异地验证",
-                                "value": "false"
-                            },
-                            {
-                                "name": "AppVerification_LocalCdp",
-                                "label": "异地应用核验",
-                                "value": "disable"
-                            }
-                        ],
-                        "usedfor": [
-                            "os", "back", "data", "log"
-                        ],
-                        "HostDeploy": {
-                            "label": "主机部署模式",
-                            "items": [
-                                { "name": "生产", "value": "SC" },
-                                { "name": "生产+同城", "value": "TC" },
-                                { "name": "同城", "value": "SH" }
-                            ]
+    
+                    },
+                    // Get All Cluster
+                    function (retinfo, callback) {
+                        /*
+                        1、如果是新建应用，则选择物理存储中容量最多的；
+                        2、如果是应用扩容，则直接选择原来分配的物理存储和pool
+                        */
+                        var choosedPhysicalArray = ResourcePools.ChoosePhysicalArray(retinfo.ChoosedResourcePool);
+                        var arrayInfo = choosedPhysicalArray.info;
+                        retinfo["ChoosedPhysicalArray"] = arrayInfo;
+                        var applist = [];
+    
+                        console.log(`array type : ${arrayInfo.array_type}`)
+                        switch ( arrayInfo.array_type ) {
+                            case "VPLEX":
+                                var Auto = require('../lib/Automation_VPLEX');
+                                break;
+                            case "VMAX":
+                                var Auto = require('../lib/Automation_VMAX');
+                                break;
+                            case "Unity":
+                                var Auto = require('../lib/Automation_Unity');
+                                break; 
+                            default:
+                                callback(504,`not support physical type [${arrayInfo.array_type}]`);      
+                                break;          
                         }
-                    };
-
-                    autoServiceInfo["Application"] = applist;
-                    callback(null, autoServiceInfo);
-
-                }
-            ], function (err, result) {
-                if (err) {
-                    res.json(err, result);
-                } else
-                    res.json(200, result);
-            });
-    });
-
-
-
-    app.post('/api/auto/service/block/provisioning-old', function (req, res) {
-
-        /*  autoRequestBody = 
-            {
-                "appname":"ebankwebesxi",
-                "usedfor":"oraredo",
-                "capacity":400,
-                "StorageResourcePool":{
-                    "name":"VPLEX-高端",
-                    "resourceLevel":"Gold",
-                    "resourceType":"VPLEX",
-                    "TotalCapacity":100,
-                    "UsedCapacity":30
-                },
-                "ProtectLevel":{  
-                    "Backup":true,
-                    "AppVerification_SameCity":false,
-                    "AppVerification_DiffCity":false
-                },
-                "opsType":"review"
-            }        
-        */
-        var autoRequestBody = req.body;
-
-        //console.log(autoRequestBody);
-
-        var autoResponseBody = {
-            "resMsg": {
-                "code": 200,
-                "message": [
-                    "find a match ResourcePool!",
-                    "Begin execute service [ CapacityProvisingService ] !",
-                    "[2018-12-11T06:15:30.649Z] # TEST",
-                    "find match storage volume for request capacity [400]. [{\"cluster\":\"cluster-1\",\"name\":\"Symm0118_25D3\",\"storage-array-name\":\"EMC-SYMMETRIX-495700118\",\"capacity\":400,\"health-state\":\"ok\",\"position\":\"primary\"},{\"cluster\":\"cluster-2\",\"name\":\"Symm0119_25D3\",\"storage-array-name\":\"EMC-SYMMETRIX-495700119\",\"capacity\":400,\"health-state\":\"ok\",\"position\":\"second\"}]",
-                    "[2018-12-11T06:15:32.030Z] # Operation is [ review ]. Only review execute paramaters."
-                ]
-            },
-            "request": {
-
-            },
-            "ResourcePools": [
-
-            ],
-            "AutoInfo": {
-                "RuleResults": {
-
-                },
-                "ResourceInfo": {
-
-                },
-                "ActionParamaters": [
-                    {
-                        "method": "CreateExtent",
-                        "DependOnAction": "N/A",
-                        "StorageVolumeName": "Symm0118_25D3,Symm0119_25D3",
-                        "response": "Succeed!Assssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
-                        "show": "true"
-                    },
-                    {
-                        "method": "CreateLocalDevice",
-                        "DependOnAction": "CreateExtent",
-                        "devicename": "device_Symm0118_25D3",
-                        "geometry": "raid-0",
-                        "extents": "extent_Symm0118_25D3_1",
-                        "response": "Failed!",
-                        "show": "false"
-                    },
-                    {
-                        "method": "CreateLocalDevice",
-                        "DependOnAction": "CreateExtent",
-                        "devicename": "device_Symm0119_25D3",
-                        "geometry": "raid-0",
-                        "extents": "extent_Symm0119_25D3_1",
-                        "response": "Failed!",
-                        "show": "false"
-                    },
-                    {
-                        "method": "CreateDistributedDevice",
-                        "DependOnAction": "CreateLocalDevice",
-                        "devicename": "dd_Symm0118_25D3_Symm0119_25D3",
-                        "devices": [
-                            "device_Symm0118_25D3",
-                            "device_Symm0119_25D3"
-                        ],
-                        "sourcedevice": "device_Symm0118_25D3",
-                        "response": "Failed!",
-                        "show": "false"
-                    },
-                    {
-                        "method": "CreateDistributedVirtualVolume",
-                        "DependOnAction": "CreateDistributedDevice",
-                        "devicename": "dd_Symm0118_25D3_Symm0119_25D3",
-                        "response": "Failed!",
-                        "show": "false"
-                    },
-                    {
-                        "method": "AssignConsistencyGroup",
-                        "DependOnAction": "CreateDistributedDevice",
-                        "virtual_volume": "dd_Symm0118_25D3_Symm0119_25D3_vol",
-                        "consistoncy_group": "ebankwebesxi_CG_Prod",
-                        "response": "Failed!",
-                        "show": "false"
-                    },
-                    {
-                        "method": "AssignStorageView",
-                        "DependOnAction": "CreateDistributedDevice",
-                        "clustername": "cluster-1",
-                        "viewname": "ebankwebesxi_VW",
-                        "virtualvolumes": [
-                            "dd_Symm0118_25D3_Symm0119_25D3_vol"
-                        ],
-                        "response": "Failed!",
-                        "show": "false"
-                    },
-                    {
-                        "method": "AssignStorageView",
-                        "DependOnAction": "CreateDistributedDevice",
-                        "clustername": "cluster-1",
-                        "viewname": "RP_C2_VW",
-                        "virtualvolumes": [
-                            "dd_Symm0118_25D3_Symm0119_25D3_vol"
-                        ],
-                        "response": "Failed!",
-                        "show": "false"
-                    },
-                    {
-                        "method": "AssignStorageView",
-                        "DependOnAction": "CreateDistributedDevice",
-                        "clustername": "cluster-2",
-                        "viewname": "TC_ebankwebesxi_VW",
-                        "virtualvolumes": [
-                            "dd_Symm0118_25D3_Symm0119_25D3_vol"
-                        ],
-                        "response": "Failed!",
-                        "show": "false"
-                    },
-                    {
-                        "method": "AssignStorageView",
-                        "DependOnAction": "CreateDistributedDevice",
-                        "clustername": "cluster-1",
-                        "viewname": "osback1_VW",
-                        "virtualvolumes": [
-                            "dd_Symm0118_25D3_Symm0119_25D3_vol"
-                        ],
-                        "response": "Failed!",
-                        "show": "false"
+    
+    
+    
+                        switch (config.ProductType) {
+                            case 'Dev':
+                            case 'Test':
+                                Auto.GetStorageViewsDemoVersion(arrayInfo, 'cluster-1', function (response) {
+                                    if (response.code !== 200) {
+                                        callback(response.code, response.message);
+                                    } else {
+                                        var result = response.response;
+                                        for (var i in result) {
+                                            var item = result[i];
+                                            var name = item.name;
+    
+                                            var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW)/);
+                                            //console.log(name+','+matchResult); 
+    
+                                            if (matchResult != null) {
+                                                var appItem = { "name": matchResult[1], "name_ext": matchResult[2] };
+                                                applist.push(appItem);
+                                            }
+                                        }
+                                        retinfo["applist"] = applist;
+                                        callback(null, retinfo);
+                                    }
+                                });
+                                break;
+                            case 'Prod':
+                                //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
+    
+                                Auto.GetStorageViewsV1(arrayInfo, 'cluster-1', function (response) {
+                                    if (response.code !== 200) {
+                                        callback(response.code, response.message);
+                                    } else {
+                                        var result = response.response;
+                                        for (var i in result) {
+                                            var item = result[i];
+                                            var name = item.name;
+    
+                                            var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW)/);
+                                            //console.log(name+','+matchResult); 
+    
+                                            if (matchResult != null) {
+                                                var appItem = { "name": matchResult[1], "name_ext": matchResult[2] };
+                                                applist.push(appItem);
+                                            }
+                                        }
+                                        retinfo["applist"] = applist;
+                                        callback(null, retinfo);
+                                    }
+                                });
+                                break;
+                        }
+    
                     }
-                ]
-            },
-            "ActionResponses": [
-
-            ]
-        };
-
-
-        res.json(200, autoResponseBody);
-
+                    , function (arg1, callback) {
+                        console.log(arg1);
+                        var applist = arg1.applist;
+                        var serviceMetadata = ServiceCatalogs.GetServiceMetadata();
+                        var autoServiceInfo = {
+                            "Application": applist,
+                            "StorageResourcePool": arg1.resourcepools,
+                            "ChoosedResourcePool" : arg1.ChoosedResourcePool,
+                            "ChoosedPhysicalArray": arg1.ChoosedPhysicalArray,
+                            "ProtectLevel": serviceMetadata.ProtectLevel,
+                            "usedfor": serviceMetadata.usedfor,
+                            "HostDeploy": serviceMetadata.HostDeploy
+                        };
+    
+                        callback(null, autoServiceInfo);
+    
+                    }
+                ], function (err, result) {
+                    if (err) {
+                        res.json(err, result);
+                    } else
+                        res.json(200, result);
+                });
+        } catch(err) {
+            console.error(err);
+        }
 
     });
-
-
+ 
 
 
     app.get('/autotest/test1', function (req, res) {
@@ -689,7 +419,7 @@ var automationController = function (app) {
                 "user": "smc",
                 "verifycert": false,
                 "sgname": "MSCS_SG"
-            },   
+            },
             "DependOnAction": "N/A",
             "AsignSGName": "EMC_TC1003_SG",
             "StorageVolumeName": "EMC_TC1003_DEV",
@@ -700,7 +430,7 @@ var automationController = function (app) {
 
         //var capacity = item.capacityByte / 1024 / 1024 / 1024;
         var capacityBYTE = item.capacityByte;
-        var capacity=20;
+        var capacity = 20;
         VMAX.CreateDevice(item.arrayinfo, item.AsignSGName, capacity, item.StorageVolumeName, function (result) {
             if (result.code != 200) {
                 //console.log(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
@@ -1120,7 +850,7 @@ var automationController = function (app) {
                     AutoService.BuildParamaterStrucut(newRequestParamater, function (AutoObject) {
                         callback(null, AutoObject);
                     })
-                }
+                }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
                 , function (AutoObject, callback) {
 
                     if (RequestParamater.opsType == 'review')
@@ -1198,11 +928,10 @@ var automationController = function (app) {
 
 
 
-    app.post('/api/auto/service/block/provisioning/review', function (req, res) {
+    app.post('/api/auto/service/block/provisioning/review-v2', function (req, res) {
         res.setTimeout(3600 * 1000);
         var RequestParamater = req.body;
-        var usedfor = RequestParamater.requests[0].usedfor;
-        console.log("|" + usedfor + "|---usedfor");
+        var usedfor = RequestParamater.requests[0].usedfor; 
         //console.log(JSON.stringify(req.body));
 
         var newRequestParamater = {
@@ -1236,7 +965,7 @@ var automationController = function (app) {
             [
                 // Get All Cluster
                 function (callback) {
-                    console.log("AutoService.BuildParamaterStrucut:" + newRequestParamater);
+                    console.log("AutoService.BuildParamaterStrucut:" + JSON.stringify(newRequestParamater,2,2));
                     AutoService.BuildParamaterStrucut(newRequestParamater, function (AutoObject) {
                         callback(null, AutoObject);
                     })
@@ -1283,6 +1012,122 @@ var automationController = function (app) {
     });
 
 
+    
+    app.post('/api/auto/service/block/provisioning/review', function (req, res) {
+        res.setTimeout(3600 * 1000);
+        var RequestParamater = req.body;
+        var usedfor = RequestParamater.requests[0].usedfor; 
+        //console.log(JSON.stringify(req.body));
+
+        var newRequestParamater = {
+            "appname": "ebankwebesxi",
+            "usedfor": "oraredo",
+            "capacity": 202,
+            "resourceLevel": "Gold",
+            "ProtectLevel": {
+                "Backup": "true",
+                "AppVerification_SameCity": "false",
+                "AppVerification_DiffCity": "false",
+                "hostDeplpy": "SC"
+            },
+            "opsType": "review"   // [ review | execute ]
+        }
+        newRequestParamater.client = RequestParamater.client;
+        newRequestParamater.ws = wsList[RequestParamater.client];
+
+        newRequestParamater.appname = RequestParamater.appname;
+        newRequestParamater.appname_ext = RequestParamater.appname_ext;
+        newRequestParamater.usedfor = (usedfor == undefined || usedfor == "") ? "data" : RequestParamater.requests[0].usedfor;
+        newRequestParamater.opsType = RequestParamater.opsType;
+        newRequestParamater.capacity = RequestParamater.requests[0].capacity;
+        newRequestParamater.count = RequestParamater.requests[0].count;
+        newRequestParamater.resourceLevel = RequestParamater.requests[0].StorageResourcePool.resourceLevel;
+        newRequestParamater.resourcePoolName = RequestParamater.requests[0].StorageResourcePool.name;
+        newRequestParamater.ProtectLevel = RequestParamater.requests[0].ProtectLevel;
+        newRequestParamater.timestamp = moment().format('MMDDHHmmss');
+
+        async.waterfall(
+            [
+                // Get All Cluster
+                function (callback) {
+                    //console.log("AutoService.BuildParamaterStrucut:" + JSON.stringify(newRequestParamater,2,2));
+                    AutoService.BuildParamaterStrucut(newRequestParamater, async function (AutoObject) { 
+                            try {
+                                
+                                const zbc = new ZB.ZBClient('192.168.1.107:26500')
+                                var request = {
+                                    bpmnProcessId: 'CSMP-Automation-Main',
+                                    variables: AutoObject,
+                                    requestTimeout: 600000,
+                                }
+                                //console.log("-----\n" + JSON.stringify(request,null,2))
+                                const bpmnresult = await zbc.createWorkflowInstanceWithResult( request ).catch((e)=> {
+                                    console.log("Exception:" + e )
+                                }) 
+                                callback(null, bpmnresult);
+                            } catch (e) {
+                                console.log(`There was an error running the 'CSMP-Automation-Main'!`)
+                                throw e
+                            }  
+                    })
+                }
+                , function (bpmnresult, callback) {
+                    var AutoObject = bpmnresult.variables;
+
+                    var ActionParamaterLabers = {};
+
+                    
+                    ActionParamaterLabers["StepGroupName"] = "自动化操作组名称";
+                    ActionParamaterLabers["method"] = "执行操作";
+                    ActionParamaterLabers["DependOnAction"] = "依赖操作";
+                    ActionParamaterLabers["StorageVolumeName"] = "物理存储卷名称";
+                    ActionParamaterLabers["devicename"] = "卷名称";
+                    ActionParamaterLabers["clustername"] = "集群名称";
+                    ActionParamaterLabers["viewname"] = "存储视图名称（view)";
+                    ActionParamaterLabers["virtualvolumes"] = "卷保护模式";
+                    ActionParamaterLabers["consistency_group"] = "存储存储集群";
+                    ActionParamaterLabers["virtual_volume"] = "虚拟卷名称";
+                    ActionParamaterLabers["devices"] = "卷名称（device)";
+                    ActionParamaterLabers["sourcedevice"] = "分布式卷的源端卷";
+                    ActionParamaterLabers["Step"] = "执行步骤名称";
+                    ActionParamaterLabers["extents"] = "物理数据块(Extent)";
+                    ActionParamaterLabers["geometry"] = "RAID类型";
+                    ActionParamaterLabers["AsignSGName"] = "RAID类型";
+                    ActionParamaterLabers["capacityByte"] = "容量(Byte)";
+                    ActionParamaterLabers["execute"] = "是否已执行";
+                    ActionParamaterLabers["response"] = "执行结果";
+                    ActionParamaterLabers["arrayinfo"] = "执行操作存储信息";
+
+                    ActionParamaterLabers["ReplicationsetName"] = "RPA复制集(Replicate Set)名称";
+                    ActionParamaterLabers["CGName"] = "RPA复制一致性组(CG)名称";
+                    ActionParamaterLabers["prod"] = "生产卷名称";
+                    ActionParamaterLabers["local"] = "本地复制卷名称";                    
+                    ActionParamaterLabers["remote"] = "远程复制卷名称";                                    
+                    ActionParamaterLabers["ProdJournalVolume"] = "生产日志卷名称";
+                    ActionParamaterLabers["LocalJournalVolume"] = "本地复制日志卷名称";
+                    ActionParamaterLabers["RemoteJournalVolume"] = "远程复制日志卷名称";
+
+                    AutoObject.AutoInfo["ActionParamaterLabers"] = ActionParamaterLabers;
+
+                    callback(null, bpmnresult);
+                }
+            ], function (err, bpmnresult) {
+                if (err) {
+                    res.json(501, err);
+                } else {
+                    var result = bpmnresult.variables;
+                    res.json(200, result);
+                }
+                // result now equals 'done'
+
+            });
+    });
+
+
+
+
+
+
     app.post('/api/auto/service/block/provisioning/execute', function (req, res) {
         var AutoAPI = require('../lib/Automation');
 
@@ -1300,7 +1145,7 @@ var automationController = function (app) {
 
             //var ws = AutoObject.request.ws; 
             if (ws === undefined) {
-                console.log(JSON.stringify(wsList,2,2));
+                console.log(JSON.stringify(wsList, 2, 2));
                 res.json(505, "not find the websocket client. clientID=" + RequestParamater.client);
             } else {
                 autologger.logs(200, "Begin execute each action.", AutoObject);
@@ -1309,7 +1154,7 @@ var automationController = function (app) {
                 AutoAPI.ExecuteActions(ActionsParamater, ws, function (result) {
                     AutoObject.ActionResponses = result.data;
                     //console.log("&&&&&\n" + JSON.stringify(result));
-                    if ( result.code != 200 )
+                    if (result.code != 200)
                         autologger.logs(result.code, "Provising execute is fail!.", AutoObject);
                     res.json(result.code, AutoObject);
                 })
@@ -1345,13 +1190,13 @@ var automationController = function (app) {
 
             AutoAPI.ExecuteActions(ActionsParamater, ws, function (result) {
                 //AutoObject.ActionResponses = result.data;
-                console.log("&&&&&\n" + JSON.stringify(result));
-                if ( result.code != 200 ) {
+                //console.log("&&&&&\n" + JSON.stringify(result));
+                if (result.code != 200) {
                     var errmsg = "Provising execute is fail!.";
-                    if ( result.msg !== undefined ) errmsg = result.msg; 
-                    autologger.logs(result.code, errmsg , AutoObject);
+                    if (result.msg !== undefined) errmsg = result.msg;
+                    autologger.logs(result.code, errmsg, AutoObject);
                 }
-                    
+
                 res.json(result.code, AutoObject);
             })
 

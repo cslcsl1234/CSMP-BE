@@ -9,6 +9,7 @@
  */
 const debug = require('debug')('testController')
 const name = 'my-app'
+const ZB = require('zeebe-node');
 var unirest = require('unirest');
 var configger = require('../config/configger');
 var unirest1 = require('unirest');
@@ -17,6 +18,7 @@ var moment = require('moment');
 var xml2json = require('xml2json');
 var sortBy = require('sort-by');
 var SSH = require('../lib/ssh');
+const AutoService = require('../lib/Automation')
 
 var xml2js = require('xml2js');
 
@@ -197,13 +199,13 @@ var testController = function (app) {
     });
 
 
-    
+
     app.get('/autoservicetest', function (req, res) {
         var fs = require('fs');
         var autoobject1 = fs.readFileSync("c:\\autoobject.json");
         var autoobject = JSON.parse(autoobject1);
-        Automation_VPLEX.CapacityProvisingServiceTEST(autoobject, function(result) {
-            res.json(200,result);
+        Automation_VPLEX.CapacityProvisingServiceTEST(autoobject, function (result) {
+            res.json(200, result);
         })
     })
 
@@ -843,7 +845,7 @@ var testController = function (app) {
         //Report.getArrayResourceLimits(from,to, function (result )  {  res.json(200,result) });
 
         //CAPACITY.GetArrayTotalCapacity('lastMonth', function(result) {   res.json(200,result);   }); 
-        Report.GetArraysIncludeHisotry(device, start, end, function(result) {    res.json(200,result);   }); 
+        Report.GetArraysIncludeHisotry(device, start, end, function (result) { res.json(200, result); });
 
         //VMAX.getArrayLunPerformance1(device, function(ret) {           res.json(200,ret);        });
 
@@ -976,9 +978,9 @@ var testController = function (app) {
         //VPLEX.GetStorageVolumeByDevices(device, function(ret) {  res.json(200,ret);   }); 
     });
 
-    
+
     app.get('/test_backmgmt_login', function (req, res1) {
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; 
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
         var req = unirest("GET", "https://csmpcollecter:58443/centralized-management");
 
@@ -997,22 +999,22 @@ var testController = function (app) {
             console.log(session[1]);
 
             var req1 = unirest("POST", "https://csmpcollecter:58443/centralized-management/j_security_check?j_username=admin&j_password=changeme");
-            req1.headers({ 
+            req1.headers({
                 //Host": "csmpcollecter:58443",
                 "cookie": "JSESSIONID=" + session[1]
             });
-    
-            req1.end(function (response1) { 
+
+            req1.end(function (response1) {
                 console.log(response1.header);
                 //var sessionid = response1.headers['set-cookie'][0];
                 //var session = sessionid.match(/JSESSIONID=([A-Z0-9]*);[ a-zA-Z0-9=;/]*/i);
                 //console.log(session[1]);
-    
-                res1.json(200,response1);
+
+                res1.json(200, response1);
             })
 
         });
-        
+
 
 
     });
@@ -1022,14 +1024,14 @@ var testController = function (app) {
 
 
     app.get('/test_backmgmt_test', function (req, res1) {
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; 
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         async.waterfall(
             [
                 function (callback) {
                     backendMgmt.BackEndLogin(function (BEInfo) {
                         var sso_token = BEInfo.sso_token;
                         var BEVersion = BEInfo.BEVersion;
-                        callback(null,sso_token);
+                        callback(null, sso_token);
                     });
 
                 }
@@ -1044,14 +1046,14 @@ var testController = function (app) {
 
 
     app.get('/test_backmgmt_test2', function (req, res1) {
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; 
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         async.waterfall(
             [
                 function (callback) {
                     backendMgmt.BackEndLogin2(function (BEInfo) {
                         var sso_token = BEInfo.sso_token;
                         var BEVersion = BEInfo.BEVersion;
-                        callback(null,sso_token);
+                        callback(null, sso_token);
                     });
 
                 }
@@ -1176,7 +1178,7 @@ var testController = function (app) {
                         req.end(function (res) {
                             console.log("query result is done");
                             if (res.error) console.log(res.error);
-                            var xmlstr = res.body; 
+                            var xmlstr = res.body;
                             var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.\-=\"]*)(">)/g, '$1"\/>');
                             //var newdata = xmlstr;
                             var parser = new xml2js.Parser();
@@ -1236,7 +1238,7 @@ var testController = function (app) {
                 "capacity": 1000,
                 "info": {
                     "name": "EMCCTEST",
-                    "type": "VPLEX",
+                    "array_type": "VPLEX",
                     "version": "5.5",
                     "endpoint": "https://10.32.32.100/vplex",
                     "auth": {
@@ -1250,7 +1252,7 @@ var testController = function (app) {
                         "name": "RPA-1"
                     }
                 },
-                "backend-array": [{
+                "backend_array": [{
                     "array_type": "VMAX",
                     "serial_no": "000297800193",
                     "password": "smc",
@@ -1288,7 +1290,7 @@ var testController = function (app) {
                 "capacity": 1000,
                 "info": {
                     "name": "EMCCTEST",
-                    "type": "VPLEX",
+                    "array_type": "VPLEX",
                     "version": "5.5",
                     "endpoint": "https://10.32.32.100/vplex",
                     "auth": {
@@ -1296,7 +1298,7 @@ var testController = function (app) {
                         "password": "password"
                     }
                 },
-                "backend-array": [{
+                "backend_array": [{
                     "array_type": "Unity",
                     "unity_sn": "CKM00163300785",
                     "unity_password": "P@ssw0rd",
@@ -1323,7 +1325,7 @@ var testController = function (app) {
     app.get("/test13", function (req, res) {
         var arrayInfo = {
             "name": "EMCCTEST",
-            "type": "VPLEX",
+            "array_type": "VPLEX",
             "version": "5.5",
             "endpoint": "https://10.32.32.100/vplex",
             "auth": {
@@ -1342,7 +1344,7 @@ var testController = function (app) {
 
         var arrayinfo = {
             "name": "EMCCTEST",
-            "type": "VPLEX",
+            "array_type": "VPLEX",
             "version": "5.5",
             "endpoint": "https://10.32.32.100/vplex",
             "auth": {
@@ -1372,80 +1374,31 @@ var testController = function (app) {
 
 
 
-    app.get('/test12', function (req, res) {
+    app.post('/zeebe/instance', function (req, res) {
 
-        var fs = require('fs');
-        var parser = require('xml2json');
+        var req_body = req.body;
 
-        async.waterfall(
-            [
-                function (callback) {
-                    fs.readFile('./demodata/backmgmt-get.xml', 'utf-8', function (err, data) {
-                        if (err) res.json(500, err);
-                        else {
-                            console.log("----");
-                            var options = {
-                                object: true
-                            };
-                            var newdata = data.replace(/(<input[ a-zA-Z{}0-9.=\"]*)(">)/g, '$1"\/>');
-
-                            var json = parser.toJson(newdata, options);
-                            callback(null, json);
-                        }
-
-                    });
-
-                },
-                function (arg, callback) {
-                    var headerdata = arg.div.div.table.thead.tr.th
-                    var tbody = arg.div.div.table.tbody.tr;
-
-                    var tab = [];
-                    var header = {};
-                    for (var i in headerdata) {
-                        var item = headerdata[i];
-
-                        if (i >= 0 & i <= 3)
-                            header[i] = item;
-                        else
-                            header[i] = item.input.value;
-                    }
-
-                    for (var i in tbody) {
-                        var tbodyItem = tbody[i].td;
-
-                        var recordItem = {};
-                        for (var j in tbodyItem) {
-                            var itemvalue = tbodyItem[j];
-
-                            if (j >= 1 & j <= 3) {
-                                switch (j) {
-                                    case '3':
-                                        recordItem[header[j]] = itemvalue;
-                                        break;
-                                    case '1':
-                                        recordItem[header[j]] = itemvalue.span;
-                                        break;
-                                    case '2':
-                                        recordItem[header[j]] = itemvalue.input.value
-                                        break;
-                                }
-
-                            } else {
-                                recordItem[header[j]] = itemvalue.input.value
-                            }
-                        }
-                        tab.push(recordItem);
-                    }
-
-                    callback(null, tab);
+        AutoService.BuildParamaterStrucut(req_body, async function (AutoObject) {
+            try {
+                
+                const zbc = new ZB.ZBClient('192.168.1.107:26500')
+                var request = {
+                    bpmnProcessId: 'CSMP-Automation-Main',
+                    variables: AutoObject,
+                    requestTimeout: 600000,
                 }
-            ],
-            function (err, result) {
-                // result now equals 'done'
-
+                //console.log("-----\n" + JSON.stringify(request,null,2))
+                const result = await zbc.createWorkflowInstanceWithResult( request ).catch((e)=> {
+                    console.log("Exception:" + e )
+                }) 
                 res.json(200, result);
-            });
+            } catch (e) {
+                console.log(`There was an error running the 'CSMP-Automation-Main'!`)
+                throw e
+            }
+
+        })
+
     });
 
 

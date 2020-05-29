@@ -1,8 +1,8 @@
 
-const VPLEX = require('../lib/Automation_VPLEX');
-const AutoService = require('../lib/Automation');
-const UNITY = require('../lib/Automation_UNITY');
-const VMAX = require('../lib/Automation_VMAX');
+const VPLEX = require('../../lib/Automation_VPLEX');
+const AutoService = require('../../lib/Automation');
+const UNITY = require('../../lib/Automation_UNITY');
+const VMAX = require('../../lib/Automation_VMAX');
 
 
 describe("EMC Unity Automation Service", () => {

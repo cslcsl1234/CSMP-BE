@@ -1,0 +1,95 @@
+{
+    "ServiceCatalogs": [
+        {
+            "catalog": "Block",
+            "name": "块服务",
+            "services": [
+                {
+                    "name": "VPLEXCapacityProvisioning",
+                    "label": "VPLEX容量扩容服务",
+                    "version": "v1.0",
+                    "enabled": true,
+                    "roles": [
+                        "admin",
+                        "user"
+                    ],
+                    "description": "为已经使用VPLEX存储的主机(包括x86物理机和ESXi主机)扩充存储容量空间.",
+                    "detailFunctionDesc": "<ol class=\"GreenNumbers\"><li><font color=\"white\">在该服务前, 需要在VPLEX后端物理存储中分配物理卷到VPLEX中</font></li><li><font color=\"white\">该服务将自动Claim Storage Volume并随后创建一系列VPLEX逻辑对象(Extent, Device, Distrubuted Device, VirtualVolume)</font></li></ol><p class=\"ingredients\"><span>自动化规则:?</span>Milk, salt, coriander, cardamom, cinnamon, turmeric, honey, vanillaextract, regularoats, oatbran.</p>",
+                    "propertices": {
+                        "support_host_type": [
+                            "X86物理机",
+                            "IBM LPar",
+                            "VMWare ESXi"
+                        ],
+                        "estimated_execution_time": "15 min",
+                        "service_level": "Base Service",
+                        "last_month_execution_count": 0
+                    },
+                    "image": "VPLEX"
+                }
+            ]
+        },
+        {
+            "catalog": "File",
+            "name": "文件服务",
+            "services": [
+                {
+                    "name": "FileCapacityProvisioning",
+                    "label": "文件系统扩容服务",
+                    "version": "v1.0",
+                    "enabled": false,
+                    "roles": [
+                        "admin",
+                        "user"
+                    ],
+                    "description": "为主机分配文件系统.",
+                    "detailFunctionDesc": "<ol class=\"GreenNumbers\"><li><font color=\"yellow\">在该服务前, 需要在VPLEX后端物理存储中分配物理卷到VPLEX中</font></li><li><font color=\"black\">该服务将自动Claim Storage Volume并随后创建一系列VPLEX逻辑对象(Extent, Device, Distrubuted Device, VirtualVolume)</font></li></ol><p class=\"ingredients\"><span>自动化规则:?</span>Milk, salt, coriander, cardamom, cinnamon, turmeric, honey, vanillaextract, regularoats, oatbran.</p>",
+                    "propertices": {
+                        "support_host_type": [
+                            "X86物理机",
+                            "IBM LPar",
+                            "VMWare ESXi"
+                        ],
+                        "estimated_execution_time": "15 min",
+                        "service_level": "Base Service",
+                        "last_month_execution_count": 0
+                    },
+                    "image": "FILE"
+                }
+            ]
+        }
+    ],
+    "ProtectLevel": [
+        {
+            "name": "Backup",
+            "label": "备份(NBU)",
+            "value": "false"
+        },
+        {
+            "name": "AppVerification_SameCity",
+            "label": "本地CDP验证",
+            "value": "false"
+        },
+        {
+            "name": "AppVerification_DiffCity",
+            "label": "异地验证",
+            "value": "false"
+        },
+        {
+            "name": "AppVerification_LocalCdp",
+            "label": "异地应用核验",
+            "value": "disable"
+        }
+    ],
+    "usedfor": [
+        "os", "back", "data", "log"
+    ],
+    "HostDeploy": {
+        "label": "主机部署模式",
+        "items": [
+            { "name": "生产", "value": "SC" },
+            { "name": "生产+同城", "value": "TC" },
+            { "name": "同城", "value": "SH" }
+        ]
+    }
+}

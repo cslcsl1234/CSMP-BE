@@ -1,6 +1,6 @@
 
-const VPLEX = require('../lib/Automation_VPLEX');
-const AUTO = require('../lib/Automation');
+const VPLEX = require('../../lib/Automation_VPLEX');
+const AUTO = require('../../lib/Automation');
 
 describe("EMC VPLEX Automation Service", () => {
 
@@ -9,7 +9,7 @@ describe("EMC VPLEX Automation Service", () => {
         "arraytype": "VPLEX",
         "info": {
             "name": "EMCCTEST",
-            "type": "VPLEX",
+            "array_type": "VPLEX",
             "version": "5.5",
             "endpoint": "https://10.32.32.100/vplex",
             "auth": {
@@ -17,7 +17,7 @@ describe("EMC VPLEX Automation Service", () => {
                 "password": "password"
             }
         },
-        "backend-array": [
+        "backend_array": [
             {
                 "array_type": "VMAX",
                 "serial_no": "000297800193",
@@ -192,6 +192,16 @@ describe("EMC VPLEX Automation Service", () => {
         var autoobject = fs.readFileSync("c:\\autoobject.json");
 
         AUTO.CapacityProvisingServiceTEST(autoobject, function(result) {
+            done();
+        })
+    })
+
+
+    test("VPLEX.GetStorageViewsDemoVersion",(done) => {
+        var arrayInfo = arrayinfo.info;
+        var cluster = 'cluster-1';
+        VPLEX.GetStorageViewsDemoVersion(arrayInfo,cluster,function(retData) {
+            console.log(JSON.stringify(retData,2,2));
             done();
         })
     })

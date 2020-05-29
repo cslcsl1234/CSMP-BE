@@ -1,5 +1,5 @@
 
-const AUTO = require('../lib/Automation');
+const AUTO = require('../../lib/Automation');
 
 describe("Automation Service", () => {
 
@@ -10,7 +10,7 @@ describe("Automation Service", () => {
             "method": "ReDiscoverPhysicalArray",
             "arrayinfo": {
               "name": "EMCCTEST",
-              "type": "VPLEX",
+              "array_type": "VPLEX",
               "version": "5.5",
               "endpoint": "https://10.32.32.100/vplex",
               "auth": {
@@ -25,7 +25,7 @@ describe("Automation Service", () => {
             "method": "ClaimPhysicalVolume",
             "arrayinfo": {
               "name": "EMCCTEST",
-              "type": "VPLEX",
+              "array_type": "VPLEX",
               "version": "5.5",
               "endpoint": "https://10.32.32.100/vplex",
               "auth": {

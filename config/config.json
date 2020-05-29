@@ -27,7 +27,7 @@
     "HOST": "192.168.92.195",
     "PORT": 9090
   },
-  "ProductType": "Prod",
+  "ProductType": "Test",
   "ProductTypeDesc": [
     "Prod",
     "Dev",
@@ -54,6 +54,9 @@
     "URL": "http://awxserver/api/v2",
     "USER": "admin",
     "PASSWORD": "password"
+  },
+  "ZEEBE": {
+    "BROKER": "192.168.1.107:26500"
   },
   "BackendExtra": [
     {

@@ -10,11 +10,11 @@
                     "password": "admin",
                     "baseurl": "/fapi/rest/5_1"
                 },
-                "backend-array": {
+                "backend_array": {
                     "Prod": {
                         "arrayinfo": {
                             "name": "VPLEX100",
-                            "type": "VPLEX",
+                            "array_type": "VPLEX",
                             "version": "5.5",
                             "endpoint": "https://10.32.32.100/vplex",
                             "auth": {
@@ -32,7 +32,7 @@
                         "consistencygroup": "CG_CDP",
                         "info": {
                             "name": "EMCCTEST",
-                            "type": "VPLEX",
+                            "array_type": "VPLEX",
                             "version": "5.5",
                             "endpoint": "https://10.32.32.100/vplex",
                             "auth": {
@@ -40,7 +40,7 @@
                                 "password": "password"
                             }
                         },
-                        "backend-array": [
+                        "backend_array": [
                             {
                                 "array_type": "VMAX",
                                 "serial_no": "000297800193",
@@ -68,7 +68,7 @@
                         }
                     }
                 },
-                "journal-backend-array": {
+                "journal_backend_array": {
                     "Prod": {
                         "arrayinfo": {
                             "array_type": "VMAX",
@@ -114,7 +114,7 @@
                     "password": "admin",
                     "baseurl": "/fapi/rest/5_1"
                 },
-                "backend-array": {}
+                "backend_array": {}
             }
         ]
     },

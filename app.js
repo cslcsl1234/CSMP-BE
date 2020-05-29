@@ -1,13 +1,17 @@
+process.on('uncaughtException', function (error) {
+    console.log(error.stack);
+ });
+
 
 var express = require('express')
     , app = express()
     , configger = require('./config/configger')
     , mongoose = require('mongoose');
 var os = require('os');
-var path = require('path');
-const ZB = require('zeebe-node');
+var path = require('path'); 
 var moment = require('moment');
-var logger = require('./lib/logger');
+var logger = require('./lib/logger'); 
+const ZeeBeLib = require('./lib/automation/zeebe');
 
 
 var interfaces = os.networkInterfaces();
@@ -104,8 +108,16 @@ require('./controllers/simulateServicesController')(app);
 require('./controllers/autoScriptsController')(app);
 
 
+/**
+ * Starting Zeebe bpmn process service 
+ */
+ZeeBeLib.deployWorkflow();
+ZeeBeLib.createProcessWorker();
 
-
+ 
+/**
+ * Starting API listener service
+ */
 const server = app.listen(config.SERVER.PORT, function () { 
     console.log('=== The MongoDB server listening on [' + config.MongoDBURL + '] ===') 
     console.log('=== The NodeJS server ip addresses is [' + addresses + '] ===');
@@ -116,8 +128,6 @@ const server = app.listen(config.SERVER.PORT, function () {
     console.log(' ---- === ---- === ---- === ---- === ---- ===')
     var ReportOutputPath = config.Reporting.OutputPath;
     var appTopoFile = path.join(ReportOutputPath, 'topology.json');  
-  
-
     fs.exists(appTopoFile, function(exists ) {
         console.log(exists? `File [ ${appTopoFile} ] : is exist.`: `File [ ${appTopoFile}] : !!! is not exits. Please generate it!`)
     }) 
