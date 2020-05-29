@@ -1380,8 +1380,8 @@ var testController = function (app) {
 
         AutoService.BuildParamaterStrucut(req_body, async function (AutoObject) {
             try {
-                
-                const zbc = new ZB.ZBClient('192.168.1.107:26500')
+                const ZEEBE_BROKER_URL = config.ZEEBE.BROKER; 
+                const zbc = new ZB.ZBClient(ZEEBE_BROKER_URL)
                 var request = {
                     bpmnProcessId: 'CSMP-Automation-Main',
                     variables: AutoObject,
