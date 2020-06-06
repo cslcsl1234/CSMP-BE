@@ -1,0 +1,19 @@
+{
+	"appname": "cbusapp1",
+	"usedfor": "back",
+	"capacity": 20,
+	"resourceLevel": "Gold",
+	"ProtectLevel": {
+		"DR_SameCity": "disable",
+		"Backup": false,
+		"AppVerification_SameCity": true,
+		"AppVerification_DiffCity": true,
+		"hostDeplpy": "SC"
+	},
+	"opsType": "review",
+	"client": "1590732450728",
+	"appname_ext": "VW",
+	"count": 1,
+	"resourcePoolName": "VPLEX-双活保护资源池",
+	"timestamp": "0529140741"
+}

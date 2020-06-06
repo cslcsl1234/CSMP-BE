@@ -1,6 +1,7 @@
 [
   {
     "name": "VPLEX-双活保护资源池",
+    "description": "1. 由一套VPlex Metro构成; 2. 具有RPA的本地和异地保护能力; 3. VPlex后端由VMAX(链接cluster-1)和Unity(链接cluster-2)两台物理存储构成",
     "resourceLevel": "Gold",
     "resourceType": "VPLEX",
     "TotalCapacity": 100,
@@ -23,11 +24,12 @@
         "capability": {
           "CDP": {
             "catalog": "CDP.RPA",
-            "name": "RPA-1"
+            "name": "RPA-VPLEX"
           }
         },
         "backend_array": [
           {
+            "clustername": "cluster-1",
             "array_type": "VMAX",
             "serial_no": "000297800193",
             "password": "smc",
@@ -39,6 +41,7 @@
             "purpose": "Prod"
           },
           {
+            "clustername": "cluster-2",
             "array_type": "Unity",
             "unity_sn": "CKM00163300785",
             "unity_password": "P@ssw0rd",
@@ -70,7 +73,7 @@
           "unispherehost": "10.121.0.204",
           "universion": "90",
           "user": "smc",
-          "verifycert": false 
+          "verifycert": false
         }
       },
       {
@@ -84,7 +87,44 @@
           "unispherehost": "10.121.0.204",
           "universion": "90",
           "user": "smc",
-          "verifycert": false 
+          "verifycert": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "Unity-中端资源池",
+    "resourceLevel": "Silver",
+    "resourceType": "Unity",
+    "TotalCapacity": 1234,
+    "UsedCapacity": 567,
+    "members": [
+      {
+        "arrayname": "Unity-0785",
+        "arraytype": "Unity",
+        "capacity": 1000,
+        "info": { 
+          "array_type": "Unity",
+          "unity_sn": "CKM00163300785",
+          "unity_password": "P@ssw0rd",
+          "unity_hostname": "10.32.32.64",
+          "unity_pool_name": "jxl_vplex101_pool",
+          "unity_username": "admin", 
+          "purpose": "Prod"
+        }
+      },
+      {
+        "arrayname": "Unity-1111",
+        "arraytype": "Unity",
+        "capacity": 1000,
+        "info": { 
+          "array_type": "Unity",
+          "unity_sn": "CKM11111111111",
+          "unity_password": "P@ssw0rd",
+          "unity_hostname": "10.32.32.64",
+          "unity_pool_name": "jxl_vplex101_pool",
+          "unity_username": "admin", 
+          "purpose": "Prod"
         }
       }
     ]

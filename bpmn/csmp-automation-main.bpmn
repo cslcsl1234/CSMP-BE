@@ -394,16 +394,8 @@
         <bpmn:outgoing>Flow_0zidp83</bpmn:outgoing>
         <bpmn:errorEventDefinition id="ErrorEventDefinition_0cgpsf1" errorRef="Error_12kd0m8" />
       </bpmn:boundaryEvent>
-      <bpmn:serviceTask id="Activity_VPLEX-AssignStorageView-Backup" name="Assign Storage View for Backup">
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-AssignStorageView-Backup" retries="3" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_Need_Backup</bpmn:incoming>
-        <bpmn:outgoing>Flow_09mdr8x</bpmn:outgoing>
-      </bpmn:serviceTask>
       <bpmn:exclusiveGateway id="Gateway_how-many-sites-protect" name="How many sites for data protect using RPA?" default="Flow_RPA_Protect">
-        <bpmn:incoming>Flow_09mdr8x</bpmn:incoming>
-        <bpmn:incoming>Flow_1eshll0</bpmn:incoming>
+        <bpmn:incoming>Flow_0atj1jk</bpmn:incoming>
         <bpmn:outgoing>Flow_No_RPA_Protect</bpmn:outgoing>
         <bpmn:outgoing>Flow_RPA_Protect</bpmn:outgoing>
       </bpmn:exclusiveGateway>
@@ -415,152 +407,34 @@
       <bpmn:endEvent id="Event_11oteja" name="Normal End">
         <bpmn:incoming>Flow_14npfhr</bpmn:incoming>
       </bpmn:endEvent>
-      <bpmn:exclusiveGateway id="Gateway_Need_Backup" name="Need backup?" default="Flow_1eshll0">
-        <bpmn:incoming>Flow_1klqp54</bpmn:incoming>
-        <bpmn:outgoing>Flow_Need_Backup</bpmn:outgoing>
-        <bpmn:outgoing>Flow_1eshll0</bpmn:outgoing>
-      </bpmn:exclusiveGateway>
-      <bpmn:serviceTask id="Activity_VPLEX-AssignStorageView-Prod" name="Assign Storage View for Prod at TC">
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-AssignStorageView-Prod-TC" retries="3" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_1hzo8go</bpmn:incoming>
-        <bpmn:outgoing>Flow_0zt5lj4</bpmn:outgoing>
-      </bpmn:serviceTask>
-      <bpmn:serviceTask id="Activity_VPLEX-AssignConsistencyGroup" name="Assign Consistency Group">
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-AssignConsistencyGroup" retries="3" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_1wfpqyb</bpmn:incoming>
-        <bpmn:outgoing>Flow_0frdbno</bpmn:outgoing>
-      </bpmn:serviceTask>
-      <bpmn:serviceTask id="Activity_VPLEX-CreateDistributedVirtualVolume" name="Create Distributed Virtual Volume">
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-CreateDistributedVirtualVolume" retries="3" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_19nwii0</bpmn:incoming>
-        <bpmn:outgoing>Flow_1wfpqyb</bpmn:outgoing>
-      </bpmn:serviceTask>
-      <bpmn:serviceTask id="Activity_VPLEX-CreateDistributedDevice" name="Create Distributed Device">
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-CreateDistributedDevice" retries="3" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_01m71nl</bpmn:incoming>
-        <bpmn:outgoing>Flow_19nwii0</bpmn:outgoing>
-      </bpmn:serviceTask>
-      <bpmn:serviceTask id="Activity_VPLEX-CreateLocalDevice" name="Create Local Device">
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-CreateLocalDevice" retries="3" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_100sc1n</bpmn:incoming>
-        <bpmn:outgoing>Flow_01m71nl</bpmn:outgoing>
-      </bpmn:serviceTask>
-      <bpmn:serviceTask id="Activity_VPLEX-CreateExtent" name="Create Extent">
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-CreateExtent" retries="3" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_1petk93</bpmn:incoming>
-        <bpmn:outgoing>Flow_100sc1n</bpmn:outgoing>
-      </bpmn:serviceTask>
-      <bpmn:serviceTask id="Activity_VPLEX-REDiscoveryPhysicalArray" name="ReDiscovery Physical Array">
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-REDiscoveryPhysicalArray" retries="3" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_0x3q9sj</bpmn:incoming>
-        <bpmn:outgoing>Flow_0o2e9mu</bpmn:outgoing>
-      </bpmn:serviceTask>
-      <bpmn:serviceTask id="Activity_VPLEX_CreatePhysicalVolume" name="Create Physical Volume">
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-CreatePhysicalVolume" retries="3" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_1p0sst5</bpmn:incoming>
-        <bpmn:outgoing>Flow_0x3q9sj</bpmn:outgoing>
-      </bpmn:serviceTask>
       <bpmn:startEvent id="Event_1l7wk8d" name="VPlex Provider Start">
         <bpmn:outgoing>Flow_0tkhpez</bpmn:outgoing>
       </bpmn:startEvent>
-      <bpmn:sequenceFlow id="Flow_0tkhpez" sourceRef="Event_1l7wk8d" targetRef="Activity_VPLEX-Initial-Configure-Info" />
-      <bpmn:sequenceFlow id="Flow_0x3q9sj" sourceRef="Activity_VPLEX_CreatePhysicalVolume" targetRef="Activity_VPLEX-REDiscoveryPhysicalArray" />
-      <bpmn:sequenceFlow id="Flow_0o2e9mu" sourceRef="Activity_VPLEX-REDiscoveryPhysicalArray" targetRef="Activity_VPLEX-ClaimPhysicalVolumes" />
-      <bpmn:sequenceFlow id="Flow_100sc1n" sourceRef="Activity_VPLEX-CreateExtent" targetRef="Activity_VPLEX-CreateLocalDevice" />
-      <bpmn:sequenceFlow id="Flow_01m71nl" sourceRef="Activity_VPLEX-CreateLocalDevice" targetRef="Activity_VPLEX-CreateDistributedDevice" />
-      <bpmn:sequenceFlow id="Flow_19nwii0" sourceRef="Activity_VPLEX-CreateDistributedDevice" targetRef="Activity_VPLEX-CreateDistributedVirtualVolume" />
-      <bpmn:sequenceFlow id="Flow_1wfpqyb" sourceRef="Activity_VPLEX-CreateDistributedVirtualVolume" targetRef="Activity_VPLEX-AssignConsistencyGroup" />
-      <bpmn:sequenceFlow id="Flow_0frdbno" sourceRef="Activity_VPLEX-AssignConsistencyGroup" targetRef="Gateway_0ksc825" />
-      <bpmn:sequenceFlow id="Flow_Need_Backup" name="Need Backup" sourceRef="Gateway_Need_Backup" targetRef="Activity_VPLEX-AssignStorageView-Backup">
-        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=request.ProtectLevel.Backup=true</bpmn:conditionExpression>
-      </bpmn:sequenceFlow>
-      <bpmn:sequenceFlow id="Flow_09mdr8x" sourceRef="Activity_VPLEX-AssignStorageView-Backup" targetRef="Gateway_how-many-sites-protect" />
+      <bpmn:sequenceFlow id="Flow_0tkhpez" sourceRef="Event_1l7wk8d" targetRef="Activity_0s4hroe" />
       <bpmn:sequenceFlow id="Flow_No_RPA_Protect" name="No RPA Protect" sourceRef="Gateway_how-many-sites-protect" targetRef="Gateway_16dyjgi">
         <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=request.ProtectLevel.AppVerification_SameCity=false and request.ProtectLevel.AppVerification_DiffCity=false</bpmn:conditionExpression>
       </bpmn:sequenceFlow>
       <bpmn:sequenceFlow id="Flow_RPA_Protect" name="RPA Protect" sourceRef="Gateway_how-many-sites-protect" targetRef="Activity_07lm65r" />
-      <bpmn:sequenceFlow id="Flow_1eshll0" sourceRef="Gateway_Need_Backup" targetRef="Gateway_how-many-sites-protect" />
       <bpmn:sequenceFlow id="Flow_14npfhr" sourceRef="Gateway_16dyjgi" targetRef="Event_11oteja" />
       <bpmn:sequenceFlow id="Flow_0zidp83" sourceRef="Event_0wevy05" targetRef="Event_GetExceptionMessage" />
       <bpmn:sequenceFlow id="Flow_0c36xjc" sourceRef="Activity_07lm65r" targetRef="Gateway_16dyjgi" />
       <bpmn:sequenceFlow id="Flow_14dxrz7" sourceRef="Event_GetExceptionMessage" targetRef="Event_077cn0w" />
-      <bpmn:sequenceFlow id="Flow_1p0sst5" sourceRef="Activity_VPLEX-Initial-Configure-Info" targetRef="Activity_VPLEX_CreatePhysicalVolume" />
-      <bpmn:serviceTask id="Activity_VPLEX-Initial-Configure-Info" name="Initial VPlex configuration information">
+      <bpmn:serviceTask id="Activity_0s4hroe" name="Pre VPlex Provider Service">
         <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-Initial-Configure-Info" retries="3" />
+          <zeebe:taskDefinition type="Pre-VPLEX-Provider-Service" retries="3" />
         </bpmn:extensionElements>
         <bpmn:incoming>Flow_0tkhpez</bpmn:incoming>
-        <bpmn:outgoing>Flow_1p0sst5</bpmn:outgoing>
+        <bpmn:outgoing>Flow_18w3nfs</bpmn:outgoing>
       </bpmn:serviceTask>
-      <bpmn:sequenceFlow id="Flow_1petk93" sourceRef="Activity_VPLEX-ClaimPhysicalVolumes" targetRef="Activity_VPLEX-CreateExtent" />
-      <bpmn:serviceTask id="Activity_VPLEX-ClaimPhysicalVolumes" name="Claim Physical Volumes">
+      <bpmn:sequenceFlow id="Flow_18w3nfs" sourceRef="Activity_0s4hroe" targetRef="Activity_0hqa4wa" />
+      <bpmn:sequenceFlow id="Flow_0atj1jk" sourceRef="Activity_0hqa4wa" targetRef="Gateway_how-many-sites-protect" />
+      <bpmn:callActivity id="Activity_0hqa4wa" name="VPLEX Provider Service for Prod Volumes">
         <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-ClaimPhysicalVolumes" retries="3" />
+          <zeebe:calledElement processId="VPLEX-Provider-Workflow" />
         </bpmn:extensionElements>
-        <bpmn:incoming>Flow_0o2e9mu</bpmn:incoming>
-        <bpmn:outgoing>Flow_1petk93</bpmn:outgoing>
-      </bpmn:serviceTask>
-      <bpmn:exclusiveGateway id="Gateway_0ksc825" name="where is to assign storage view?" default="Flow_17g6pkh">
-        <bpmn:incoming>Flow_0frdbno</bpmn:incoming>
-        <bpmn:outgoing>Flow_1hzo8go</bpmn:outgoing>
-        <bpmn:outgoing>Flow_190legy</bpmn:outgoing>
-        <bpmn:outgoing>Flow_17g6pkh</bpmn:outgoing>
-      </bpmn:exclusiveGateway>
-      <bpmn:sequenceFlow id="Flow_1hzo8go" name="同城" sourceRef="Gateway_0ksc825" targetRef="Activity_VPLEX-AssignStorageView-Prod">
-        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=request.ProtectLevel.hostDeplpy="TC"</bpmn:conditionExpression>
-      </bpmn:sequenceFlow>
-      <bpmn:sequenceFlow id="Flow_190legy" name="生产" sourceRef="Gateway_0ksc825" targetRef="Activity_1q1n61q">
-        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=request.ProtectLevel.hostDeplpy="SC"</bpmn:conditionExpression>
-      </bpmn:sequenceFlow>
-      <bpmn:serviceTask id="Activity_1q1n61q" name="Assign Storage View for Prod at SC">
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-AssignStorageView-Prod-SC" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_190legy</bpmn:incoming>
-        <bpmn:outgoing>Flow_0f5jqca</bpmn:outgoing>
-      </bpmn:serviceTask>
-      <bpmn:exclusiveGateway id="Gateway_0a9cus9">
-        <bpmn:incoming>Flow_0f5jqca</bpmn:incoming>
-        <bpmn:incoming>Flow_0zt5lj4</bpmn:incoming>
-        <bpmn:incoming>Flow_0n59xwx</bpmn:incoming>
-        <bpmn:outgoing>Flow_1klqp54</bpmn:outgoing>
-      </bpmn:exclusiveGateway>
-      <bpmn:sequenceFlow id="Flow_1klqp54" sourceRef="Gateway_0a9cus9" targetRef="Gateway_Need_Backup" />
-      <bpmn:sequenceFlow id="Flow_0f5jqca" sourceRef="Activity_1q1n61q" targetRef="Gateway_0a9cus9" />
-      <bpmn:sequenceFlow id="Flow_0zt5lj4" sourceRef="Activity_VPLEX-AssignStorageView-Prod" targetRef="Gateway_0a9cus9" />
-      <bpmn:sequenceFlow id="Flow_17g6pkh" name="生产+同城" sourceRef="Gateway_0ksc825" targetRef="Activity_194wdc2" />
-      <bpmn:serviceTask id="Activity_194wdc2" name="Assign Storage View for Prod at SC">
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-AssignStorageView-Prod-SC" retries="3" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_17g6pkh</bpmn:incoming>
-        <bpmn:outgoing>Flow_1dfmvgx</bpmn:outgoing>
-      </bpmn:serviceTask>
-      <bpmn:sequenceFlow id="Flow_1dfmvgx" sourceRef="Activity_194wdc2" targetRef="Activity_0bd3fmh" />
-      <bpmn:serviceTask id="Activity_0bd3fmh" name="Assign Storage View for Prod at TC">
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="VPLEX-AssignStorageView-Prod-TC" retries="3" />
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_1dfmvgx</bpmn:incoming>
-        <bpmn:outgoing>Flow_0n59xwx</bpmn:outgoing>
-      </bpmn:serviceTask>
-      <bpmn:sequenceFlow id="Flow_0n59xwx" sourceRef="Activity_0bd3fmh" targetRef="Gateway_0a9cus9" />
+        <bpmn:incoming>Flow_18w3nfs</bpmn:incoming>
+        <bpmn:outgoing>Flow_0atj1jk</bpmn:outgoing>
+      </bpmn:callActivity>
     </bpmn:subProcess>
     <bpmn:sequenceFlow id="Flow_1dxrhbc" sourceRef="Activity_Provider_VPLEX" targetRef="Gateway_02zm446" />
     <bpmn:group id="Group_09up1he" categoryValueRef="CategoryValue_0buwcm6" />
@@ -691,10 +565,6 @@
       <bpmndi:BPMNShape id="Activity_0e6bbhm_di" bpmnElement="Activity_Provider_VPLEX" isExpanded="true">
         <dc:Bounds x="600" y="730" width="3670" height="2300" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1p0sst5_di" bpmnElement="Flow_1p0sst5">
-        <di:waypoint x="740" y="980" />
-        <di:waypoint x="800" y="980" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_14dxrz7_di" bpmnElement="Flow_14dxrz7">
         <di:waypoint x="3853" y="962" />
         <di:waypoint x="3853" y="888" />
@@ -711,10 +581,6 @@
         <di:waypoint x="3419" y="955" />
         <di:waypoint x="3419" y="888" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1eshll0_di" bpmnElement="Flow_1eshll0">
-        <di:waypoint x="2635" y="980" />
-        <di:waypoint x="2790" y="980" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1dtm6rg_di" bpmnElement="Flow_RPA_Protect">
         <di:waypoint x="2815" y="1005" />
         <di:waypoint x="2815" y="1280" />
@@ -729,99 +595,17 @@
           <dc:Bounds x="3070" y="962" width="78" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_09mdr8x_di" bpmnElement="Flow_09mdr8x">
-        <di:waypoint x="2790" y="890" />
-        <di:waypoint x="2815" y="890" />
-        <di:waypoint x="2815" y="955" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0pgz3vm_di" bpmnElement="Flow_Need_Backup">
-        <di:waypoint x="2610" y="955" />
-        <di:waypoint x="2610" y="890" />
-        <di:waypoint x="2690" y="890" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2596" y="873" width="67" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0o2e9mu_di" bpmnElement="Flow_0o2e9mu">
-        <di:waypoint x="1060" y="980" />
-        <di:waypoint x="1120" y="980" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0x3q9sj_di" bpmnElement="Flow_0x3q9sj">
-        <di:waypoint x="900" y="980" />
-        <di:waypoint x="960" y="980" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0tkhpez_di" bpmnElement="Flow_0tkhpez">
-        <di:waypoint x="690" y="848" />
-        <di:waypoint x="690" y="940" />
+        <di:waypoint x="708" y="980" />
+        <di:waypoint x="820" y="980" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0frdbno_di" bpmnElement="Flow_0frdbno">
-        <di:waypoint x="2030" y="980" />
-        <di:waypoint x="2075" y="980" />
+      <bpmndi:BPMNEdge id="Flow_18w3nfs_di" bpmnElement="Flow_18w3nfs">
+        <di:waypoint x="920" y="980" />
+        <di:waypoint x="1040" y="980" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1wfpqyb_di" bpmnElement="Flow_1wfpqyb">
-        <di:waypoint x="1870" y="980" />
-        <di:waypoint x="1930" y="980" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_19nwii0_di" bpmnElement="Flow_19nwii0">
-        <di:waypoint x="1710" y="980" />
-        <di:waypoint x="1770" y="980" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_01m71nl_di" bpmnElement="Flow_01m71nl">
-        <di:waypoint x="1550" y="980" />
-        <di:waypoint x="1610" y="980" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_100sc1n_di" bpmnElement="Flow_100sc1n">
-        <di:waypoint x="1390" y="980" />
-        <di:waypoint x="1450" y="980" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1petk93_di" bpmnElement="Flow_1petk93">
-        <di:waypoint x="1220" y="980" />
-        <di:waypoint x="1290" y="980" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1hzo8go_di" bpmnElement="Flow_1hzo8go">
-        <di:waypoint x="2100" y="955" />
-        <di:waypoint x="2100" y="830" />
-        <di:waypoint x="2250" y="830" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2165" y="812" width="22" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_190legy_di" bpmnElement="Flow_190legy">
-        <di:waypoint x="2125" y="980" />
-        <di:waypoint x="2250" y="980" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2165" y="965" width="22" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1klqp54_di" bpmnElement="Flow_1klqp54">
-        <di:waypoint x="2545" y="980" />
-        <di:waypoint x="2585" y="980" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0f5jqca_di" bpmnElement="Flow_0f5jqca">
-        <di:waypoint x="2350" y="980" />
-        <di:waypoint x="2495" y="980" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0zt5lj4_di" bpmnElement="Flow_0zt5lj4">
-        <di:waypoint x="2350" y="830" />
-        <di:waypoint x="2520" y="830" />
-        <di:waypoint x="2520" y="955" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_17g6pkh_di" bpmnElement="Flow_17g6pkh">
-        <di:waypoint x="2100" y="1005" />
-        <di:waypoint x="2100" y="1130" />
-        <di:waypoint x="2200" y="1130" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2114" y="1113" width="51" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1dfmvgx_di" bpmnElement="Flow_1dfmvgx">
-        <di:waypoint x="2300" y="1130" />
-        <di:waypoint x="2350" y="1130" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0n59xwx_di" bpmnElement="Flow_0n59xwx">
-        <di:waypoint x="2450" y="1130" />
-        <di:waypoint x="2520" y="1130" />
-        <di:waypoint x="2520" y="1005" />
+      <bpmndi:BPMNEdge id="Flow_0atj1jk_di" bpmnElement="Flow_0atj1jk">
+        <di:waypoint x="1140" y="980" />
+        <di:waypoint x="2790" y="980" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_1vx7v67_di" bpmnElement="Event_GetExceptionMessage">
         <dc:Bounds x="3835" y="962" width="36" height="36" />
@@ -835,86 +619,17 @@
           <dc:Bounds x="3819" y="828" width="68" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0mia5sl_di" bpmnElement="Activity_VPLEX-AssignConsistencyGroup">
-        <dc:Bounds x="1930" y="940" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0d7sp01_di" bpmnElement="Activity_VPLEX-CreateDistributedVirtualVolume">
-        <dc:Bounds x="1770" y="940" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0jok2ay_di" bpmnElement="Activity_VPLEX-CreateDistributedDevice">
-        <dc:Bounds x="1610" y="940" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0ltayio_di" bpmnElement="Activity_VPLEX-CreateLocalDevice">
-        <dc:Bounds x="1450" y="940" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1kch89l_di" bpmnElement="Activity_VPLEX-CreateExtent">
-        <dc:Bounds x="1290" y="940" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_11a231u_di" bpmnElement="Activity_VPLEX-REDiscoveryPhysicalArray">
-        <dc:Bounds x="960" y="940" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1t6ynqu_di" bpmnElement="Activity_VPLEX-ClaimPhysicalVolumes">
-        <dc:Bounds x="1120" y="940" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0ksc825_di" bpmnElement="Gateway_0ksc825" isMarkerVisible="true">
-        <dc:Bounds x="2075" y="955" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2116" y="996" width="88" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1k0odbg_di" bpmnElement="Gateway_how-many-sites-protect" isMarkerVisible="true">
-        <dc:Bounds x="2790" y="955" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2830" y="920" width="79" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_09y35a8_di" bpmnElement="Activity_VPLEX-AssignStorageView-Backup">
-        <dc:Bounds x="2690" y="850" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1pc0jys_di" bpmnElement="Gateway_Need_Backup" isMarkerVisible="true">
-        <dc:Bounds x="2585" y="955" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2578" y="1012" width="71" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0a9cus9_di" bpmnElement="Gateway_0a9cus9" isMarkerVisible="true">
-        <dc:Bounds x="2495" y="955" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_16dyjgi_di" bpmnElement="Gateway_16dyjgi" isMarkerVisible="true">
-        <dc:Bounds x="3394" y="955" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="3454" y="973" width="68" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_11oteja_di" bpmnElement="Event_11oteja">
-        <dc:Bounds x="3401" y="852" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="3392" y="828" width="54" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0kksuxf_di" bpmnElement="Activity_VPLEX_CreatePhysicalVolume">
-        <dc:Bounds x="800" y="940" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1l7wk8d_di" bpmnElement="Event_1l7wk8d">
-        <dc:Bounds x="672" y="812" width="36" height="36" />
+        <dc:Bounds x="672" y="962" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="654" y="774.5" width="71" height="27" />
+          <dc:Bounds x="654" y="925" width="71" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1a5vfjb_di" bpmnElement="Activity_VPLEX-Initial-Configure-Info">
-        <dc:Bounds x="640" y="940" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_0m7nbwx_di" bpmnElement="Activity_0s4hroe">
+        <dc:Bounds x="820" y="940" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1rx1p5e_di" bpmnElement="Activity_1q1n61q">
-        <dc:Bounds x="2250" y="940" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0odvaii_di" bpmnElement="Activity_VPLEX-AssignStorageView-Prod">
-        <dc:Bounds x="2250" y="790" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0jze96l_di" bpmnElement="Activity_194wdc2">
-        <dc:Bounds x="2200" y="1090" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0n9gc9a_di" bpmnElement="Activity_0bd3fmh">
-        <dc:Bounds x="2350" y="1090" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_13kiwrt_di" bpmnElement="Activity_0hqa4wa">
+        <dc:Bounds x="1040" y="940" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="SubProcess_1nhy514_di" bpmnElement="Activity_07lm65r" isExpanded="true">
         <dc:Bounds x="1400" y="1280" width="2830" height="1680" />
@@ -953,33 +668,6 @@
         <di:waypoint x="3170" y="1880" />
         <di:waypoint x="3170" y="2090" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_0u61bzf_di" bpmnElement="Event_0u61bzf">
-        <dc:Bounds x="1892" y="2707" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1867" y="2683" width="86" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1b8892s_di" bpmnElement="Activity_RPA-MappingProdVolume">
-        <dc:Bounds x="1895" y="1505" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0ex0d88_di" bpmnElement="Activity_RPA-GetConsistencyGroups">
-        <dc:Bounds x="1735" y="1505" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1u36hcf_di" bpmnElement="Event_GetRPAConfig_Exception_End_Event">
-        <dc:Bounds x="1617" y="1427" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1609" y="1397" width="57" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_09lmzrc_di" bpmnElement="Activity_RPA-GetRPAConfiguration">
-        <dc:Bounds x="1585" y="1505" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1tzknuy_di" bpmnElement="Event_1tzknuy">
-        <dc:Bounds x="1440" y="1527" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1417" y="1570" width="87" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0lbkekt_di" bpmnElement="Activity_0lbkekt" isExpanded="true">
         <dc:Bounds x="2150" y="2570" width="2040" height="310" />
       </bpmndi:BPMNShape>
@@ -1052,9 +740,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0fzt7pe_di" bpmnElement="Activity_0fzt7pe" isExpanded="true">
         <dc:Bounds x="2150" y="2090" width="2040" height="430" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_0wpk9n4_di" bpmnElement="TextAnnotation_0wpk9n4">
-        <dc:Bounds x="2240" y="2390" width="200" height="40" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1pr040x_di" bpmnElement="Flow_1pr040x">
         <di:waypoint x="2226" y="2310" />
@@ -1129,15 +814,15 @@
       <bpmndi:BPMNShape id="Activity_0b02zk7_di" bpmnElement="Activity_07sdnib">
         <dc:Bounds x="2550" y="2380" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_0wpk9n4_di" bpmnElement="TextAnnotation_0wpk9n4">
+        <dc:Bounds x="2240" y="2390" width="200" height="40" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_0lgxhjj_di" bpmnElement="Association_0lgxhjj">
         <di:waypoint x="2446" y="2321" />
         <di:waypoint x="2364" y="2390" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_165fi7r_di" bpmnElement="Activity_SubProcess_RPA-Replicate-Local-Volume" isExpanded="true">
         <dc:Bounds x="2150" y="1340" width="2040" height="540" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_0t0d6yr_di" bpmnElement="TextAnnotation_0t0d6yr">
-        <dc:Bounds x="2260" y="1670" width="210" height="40" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_02f5ea4_di" bpmnElement="Flow_02f5ea4">
         <di:waypoint x="2710" y="1780" />
@@ -1266,14 +951,62 @@
       <bpmndi:BPMNShape id="Activity_0w3b5kq_di" bpmnElement="Activity_08buadg">
         <dc:Bounds x="2610" y="1740" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_0t0d6yr_di" bpmnElement="TextAnnotation_0t0d6yr">
+        <dc:Bounds x="2260" y="1670" width="210" height="40" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_0xwql6a_di" bpmnElement="Association_0xwql6a">
         <di:waypoint x="2459" y="1574" />
         <di:waypoint x="2381" y="1670" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0u61bzf_di" bpmnElement="Event_0u61bzf">
+        <dc:Bounds x="1892" y="2707" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1867" y="2683" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1b8892s_di" bpmnElement="Activity_RPA-MappingProdVolume">
+        <dc:Bounds x="1895" y="1505" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ex0d88_di" bpmnElement="Activity_RPA-GetConsistencyGroups">
+        <dc:Bounds x="1735" y="1505" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1u36hcf_di" bpmnElement="Event_GetRPAConfig_Exception_End_Event">
+        <dc:Bounds x="1617" y="1427" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1609" y="1397" width="57" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09lmzrc_di" bpmnElement="Activity_RPA-GetRPAConfiguration">
+        <dc:Bounds x="1585" y="1505" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1tzknuy_di" bpmnElement="Event_1tzknuy">
+        <dc:Bounds x="1440" y="1527" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1417" y="1570" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1ouz7ic_di" bpmnElement="Event_GetRPAConfig_Throw_ERROR501">
         <dc:Bounds x="1617" y="1487" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="3634" y="1025" width="14" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1k0odbg_di" bpmnElement="Gateway_how-many-sites-protect" isMarkerVisible="true">
+        <dc:Bounds x="2790" y="955" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2830" y="920" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_16dyjgi_di" bpmnElement="Gateway_16dyjgi" isMarkerVisible="true">
+        <dc:Bounds x="3394" y="955" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3454" y="973" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_11oteja_di" bpmnElement="Event_11oteja">
+        <dc:Bounds x="3401" y="852" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="3392" y="828" width="54" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1978pgw_di" bpmnElement="Event_0wevy05">

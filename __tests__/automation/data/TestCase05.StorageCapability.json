@@ -1,0 +1,148 @@
+{
+    "CDP": {
+        "RPA": [
+            {
+                "name": "RPA-1",
+                "description": "1. VPLEX供给分布式生产卷(后端cluster-1:VMAX; cluster-2:Unity), VMAX供给本地复制卷, VMAX供给远程复制卷; 2. VPLEX供给生产日志卷(后端cluster-1:VMAX), VPLEX供给本地复制日志卷(后端cluster-1:VMAX), Unit供给远程复制日志卷 ",
+                "info": {
+                    "array_type": "RPA",
+                    "IP": "10.32.32.185",
+                    "username": "admin",
+                    "password": "admin",
+                    "baseurl": "/fapi/rest/5_1",
+                    "cluster1": "cluster1",
+                    "cluster2": "cluster2"
+                },
+                "backend_array": {
+                    "Prod": {
+                        "arrayname": "EMCCTEST1",
+                        "arraytype": "VPLEX",
+                        "capacity": 1000,
+                        "sgname": "RP",
+                        "clustername": "cluster-1",
+                        "consistencygroup": "CG_CDP",
+                        "info": {
+                            "name": "EMCCTEST",
+                            "array_type": "VPLEX",
+                            "version": "5.5",
+                            "endpoint": "https://10.32.32.100/vplex",
+                            "auth": {
+                                "username": "service",
+                                "password": "password"
+                            }
+                        }
+                    },
+                    "Local": {
+                        "arrayname": "VMAX0903",
+                        "arraytype": "VMAX",
+                        "capacity": 1000,
+                        "sgname": "RP-SG-1",
+                        "info": {
+                            "array_type": "VMAX",
+                            "serial_no": "000297800193",
+                            "password": "smc",
+                            "unispherehost": "10.121.0.204",
+                            "universion": "90",
+                            "user": "smc",
+                            "verifycert": false
+                        }
+                    },
+                    "Remote": {
+                        "arrayname": "VMAX0902",
+                        "arraytype": "VMAX",
+                        "capacity": 2000,
+                        "sgname": "RP-SG-2",
+                        "info": {
+                            "array_type": "VMAX",
+                            "serial_no": "000297800192",
+                            "password": "smc",
+                            "unispherehost": "10.121.0.204",
+                            "universion": "90",
+                            "user": "smc",
+                            "verifycert": false
+                        }
+                    }
+                },
+                "journal_backend_array": {
+                    "Prod": {
+                        "arrayinfo": {
+                            "arrayname": "EMCCTEST1",
+                            "array_type": "VPLEX",
+                            "capacity": 1000,
+                            "sgname": "RP",
+                            "clustername": "cluster-1",
+                            "consistencygroup": "CG_CDP",
+                            "info": {
+                                "name": "EMCCTEST",
+                                "array_type": "VPLEX",
+                                "version": "5.5",
+                                "endpoint": "https://10.32.32.100/vplex",
+                                "auth": {
+                                    "username": "service",
+                                    "password": "password"
+                                }
+                            },
+                            "backend_array": [
+                                {
+                                    "clustername": "cluster-1",
+                                    "array_type": "VMAX",
+                                    "serial_no": "000297800193",
+                                    "password": "smc",
+                                    "unispherehost": "10.121.0.204",
+                                    "universion": "90",
+                                    "user": "smc",
+                                    "verifycert": false,
+                                    "sgname": "MSCS_SG"
+                                }
+                            ]
+                        }
+                    },
+                    "Local": {
+                        "arrayinfo": {
+                            "arrayname": "EMCCTEST1",
+                            "array_type": "VPLEX",
+                            "capacity": 1000,
+                            "sgname": "RP",
+                            "clustername": "cluster-1",
+                            "consistencygroup": "CG_CDP",
+                            "info": {
+                                "name": "EMCCTEST",
+                                "array_type": "VPLEX",
+                                "version": "5.5",
+                                "endpoint": "https://10.32.32.100/vplex",
+                                "auth": {
+                                    "username": "service",
+                                    "password": "password"
+                                }
+                            },
+                            "backend_array": [
+                                {
+                                    "clustername": "cluster-1",
+                                    "array_type": "VMAX",
+                                    "serial_no": "000297800193",
+                                    "password": "smc",
+                                    "unispherehost": "10.121.0.204",
+                                    "universion": "90",
+                                    "user": "smc",
+                                    "verifycert": false,
+                                    "sgname": "MSCS_SG"
+                                }
+                            ]
+                        }
+                    },
+                    "Remote": {
+                        "arrayinfo": {
+                            "array_type": "Unity",
+                            "unity_sn": "CKM00163300785",
+                            "unity_password": "P@ssw0rd",
+                            "unity_hostname": "10.32.32.64",
+                            "unity_pool_name": "sxpool",
+                            "unity_username": "admin",
+                            "sgname": "RecoverPoint"
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

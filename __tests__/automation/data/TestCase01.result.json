@@ -1,0 +1,2032 @@
+{
+  "workflowKey": "2251799813776093",
+  "bpmnProcessId": "CSMP-Automation-Main",
+  "version": 16,
+  "workflowInstanceKey": "2251799813784827",
+  "variables": {
+    "resMsg": {
+      "code": 200,
+      "message": []
+    },
+    "request": {
+      "appname": "cbusapp1",
+      "usedfor": "back",
+      "capacity": 20,
+      "resourceLevel": "Gold",
+      "ProtectLevel": {
+        "DR_SameCity": "disable",
+        "Backup": false,
+        "AppVerification_SameCity": true,
+        "AppVerification_DiffCity": true,
+        "hostDeplpy": "SC"
+      },
+      "opsType": "review",
+      "client": "1590732450728",
+      "appname_ext": "VW",
+      "count": 1,
+      "resourcePoolName": "VPLEX-双活保护资源池",
+      "timestamp": "0529140741"
+    },
+    "AutoInfo": {
+      "RuleResults": {
+        "ArrayInfo": {
+          "arrayname": "EMCCTEST1",
+          "arraytype": "VPLEX",
+          "capacity": 1000,
+          "info": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          },
+          "capability": {
+            "CDP": {
+              "catalog": "CDP.RPA",
+              "name": "TestCase01"
+            }
+          },
+          "backend_array": [
+            {
+              "clustername": "cluster-1",
+              "array_type": "VMAX",
+              "serial_no": "000297800193",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false,
+              "sgname": "MSCS_SG",
+              "purpose": "Prod"
+            },
+            {
+              "clustername": "cluster-2",
+              "array_type": "Unity",
+              "unity_sn": "CKM00163300785",
+              "unity_password": "P@ssw0rd",
+              "unity_hostname": "10.32.32.64",
+              "unity_pool_name": "jxl_vplex101_pool",
+              "unity_username": "admin",
+              "sgname": "VPLEX_101_BE",
+              "purpose": "Prod"
+            }
+          ]
+        }
+      },
+      "ActionResult": {
+        "RPAReplicateInfo": {
+          "ClusterName": "cluster1",
+          "ReplicationsetName": "rs_0529140741back1",
+          "CGName": "cbusapp1_CG",
+          "isCGExist": false,
+          "ProdVolume": [
+            "dd_cbusapp1_VMAX193_unity785_0529140741back1_vol"
+          ],
+          "LocalVolumeVPLEXDevice": [],
+          "LocalVolume": [
+            "device_cbusapp1_VMAX193_0529140741back00_local_vol"
+          ],
+          "RemoteVolume": [
+            "cbusapp1_unity785_0529140741back01_remote"
+          ],
+          "ProdJournalVolume": "device_cbusapp1_CG_Prod_Log_01_0529140741_vol",
+          "LocalJournalVolume": "device_cbusapp1_CG_Local_Log_01_0529140741_vol",
+          "RemoteJournalVolume": "cbusapp1_CG_Remote_Log_01_0529140741"
+        }
+      },
+      "ResourceInfo": {
+        "Array": {
+          "VPLEX": {
+            "EMCCTEST1": {
+              "StorageView": {
+                "cluster-1": [
+                  "CC3_Prod_View",
+                  "RP_C1_VW",
+                  "RP_C2_VW",
+                  "cbusapp10_VW",
+                  "cbusapp1_VW",
+                  "cbusapp2_VW",
+                  "cbusapp3_VW",
+                  "cbusapp4_VW",
+                  "cbusapp5_VW",
+                  "cbusapp6_VW",
+                  "cbusapp7_VW",
+                  "cbusapp8_VW",
+                  "cbusapp9_VW",
+                  "cbuscor1_VW",
+                  "cbuscor2_VW",
+                  "cbusdb34_VW",
+                  "cbusdb_VW",
+                  "cbusdbcdp",
+                  "cbusenc_VW",
+                  "cbusqry1_VW",
+                  "cbusqry2_VW",
+                  "cdpyz1_VW",
+                  "cdpyz2_VW",
+                  "cdpyz3_VW",
+                  "cdpyz4_VW",
+                  "chxesxi_VW",
+                  "ebankappesxi_VW",
+                  "ebankwebesxi_VW",
+                  "jierupubesxi_VW",
+                  "nbumaster_VW",
+                  "osback1_VW",
+                  "qlesxi_VW",
+                  "qrtdb_VW",
+                  "zlcbus1_VW",
+                  "RP"
+                ],
+                "cluster-2": [
+                  "CC3_Prod_View",
+                  "RP_C1_VW",
+                  "RP_C2_VW",
+                  "cbusapp10_VW",
+                  "cbusapp1_VW",
+                  "cbusapp2_VW",
+                  "cbusapp3_VW",
+                  "cbusapp4_VW",
+                  "cbusapp5_VW",
+                  "cbusapp6_VW",
+                  "cbusapp7_VW",
+                  "cbusapp8_VW",
+                  "cbusapp9_VW",
+                  "cbuscor1_VW",
+                  "cbuscor2_VW",
+                  "cbusdb34_VW",
+                  "cbusdb_VW",
+                  "cbusdbcdp",
+                  "cbusenc_VW",
+                  "cbusqry1_VW",
+                  "cbusqry2_VW",
+                  "cdpyz1_VW",
+                  "cdpyz2_VW",
+                  "cdpyz3_VW",
+                  "cdpyz4_VW",
+                  "chxesxi_VW",
+                  "ebankappesxi_VW",
+                  "ebankwebesxi_VW",
+                  "jierupubesxi_VW",
+                  "nbumaster_VW",
+                  "osback1_VW",
+                  "qlesxi_VW",
+                  "qrtdb_VW",
+                  "zlcbus1_VW",
+                  "RP"
+                ]
+              }
+            }
+          }
+        },
+        "CDP": {
+          "name": "RPA-1",
+          "description": "1. VPLEX供给分布式生产卷(后端cluster-1:VMAX; cluster-2:Unity), VPLEX供给本地复制卷(后端cluster-1:VMAX), Unit供给远程复制卷; 2. VPLEX供给生产日志卷(后端cluster-1:VMAX), VPLEX供给本地复制日志卷(后端cluster-1:VMAX), Unit供给远程复制日志卷 ",
+          "info": {
+            "array_type": "RPA",
+            "IP": "10.32.32.185",
+            "username": "admin",
+            "password": "admin",
+            "baseurl": "/fapi/rest/5_1",
+            "cluster1": "cluster1",
+            "cluster2": "cluster2"
+          },
+          "backend_array": {
+            "Prod": {
+              "arrayname": "EMCCTEST1",
+              "arraytype": "VPLEX",
+              "capacity": 1000,
+              "sgname": "RP",
+              "clustername": "cluster-1",
+              "consistencygroup": "CG_CDP",
+              "info": {
+                "name": "EMCCTEST",
+                "array_type": "VPLEX",
+                "version": "5.5",
+                "endpoint": "https://10.32.32.100/vplex",
+                "auth": {
+                  "username": "service",
+                  "password": "password"
+                }
+              }
+            },
+            "Local": {
+              "arrayname": "EMCCTEST1",
+              "arraytype": "VPLEX",
+              "capacity": 1000,
+              "sgname": "RP",
+              "clustername": "cluster-1",
+              "consistencygroup": "CG_CDP",
+              "info": {
+                "name": "EMCCTEST",
+                "array_type": "VPLEX",
+                "version": "5.5",
+                "endpoint": "https://10.32.32.100/vplex",
+                "auth": {
+                  "username": "service",
+                  "password": "password"
+                }
+              },
+              "backend_array": [
+                {
+                  "clustername": "cluster-1",
+                  "array_type": "VMAX",
+                  "serial_no": "000297800193",
+                  "password": "smc",
+                  "unispherehost": "10.121.0.204",
+                  "universion": "90",
+                  "user": "smc",
+                  "verifycert": false,
+                  "sgname": "MSCS_SG"
+                }
+              ]
+            },
+            "Remote": {
+              "arrayname": "UNITY500F",
+              "arraytype": "Unity",
+              "capacity": 1000,
+              "sgname": "RecoverPoint",
+              "info": {
+                "array_type": "Unity",
+                "unity_sn": "CKM00163300785",
+                "unity_password": "P@ssw0rd",
+                "unity_hostname": "10.32.32.64",
+                "unity_pool_name": "sxpool",
+                "unity_username": "admin"
+              }
+            }
+          },
+          "journal_backend_array": {
+            "Prod": {
+              "arrayinfo": {
+                "arrayname": "EMCCTEST1",
+                "array_type": "VPLEX",
+                "capacity": 1000,
+                "sgname": "RP",
+                "clustername": "cluster-1",
+                "consistencygroup": "CG_CDP",
+                "info": {
+                  "name": "EMCCTEST",
+                  "array_type": "VPLEX",
+                  "version": "5.5",
+                  "endpoint": "https://10.32.32.100/vplex",
+                  "auth": {
+                    "username": "service",
+                    "password": "password"
+                  }
+                },
+                "backend_array": [
+                  {
+                    "clustername": "cluster-1",
+                    "array_type": "VMAX",
+                    "serial_no": "000297800193",
+                    "password": "smc",
+                    "unispherehost": "10.121.0.204",
+                    "universion": "90",
+                    "user": "smc",
+                    "verifycert": false,
+                    "sgname": "MSCS_SG"
+                  }
+                ]
+              }
+            },
+            "Local": {
+              "arrayinfo": {
+                "arrayname": "EMCCTEST1",
+                "array_type": "VPLEX",
+                "capacity": 1000,
+                "sgname": "RP",
+                "clustername": "cluster-1",
+                "consistencygroup": "CG_CDP",
+                "info": {
+                  "name": "EMCCTEST",
+                  "array_type": "VPLEX",
+                  "version": "5.5",
+                  "endpoint": "https://10.32.32.100/vplex",
+                  "auth": {
+                    "username": "service",
+                    "password": "password"
+                  }
+                },
+                "backend_array": [
+                  {
+                    "clustername": "cluster-1",
+                    "array_type": "VMAX",
+                    "serial_no": "000297800193",
+                    "password": "smc",
+                    "unispherehost": "10.121.0.204",
+                    "universion": "90",
+                    "user": "smc",
+                    "verifycert": false,
+                    "sgname": "MSCS_SG"
+                  }
+                ]
+              }
+            },
+            "Remote": {
+              "arrayinfo": {
+                "array_type": "Unity",
+                "unity_sn": "CKM00163300785",
+                "unity_password": "P@ssw0rd",
+                "unity_hostname": "10.32.32.64",
+                "unity_pool_name": "sxpool",
+                "unity_username": "admin",
+                "sgname": "RecoverPoint"
+              }
+            }
+          },
+          "ConsistencyGroups": [
+            {
+              "groupUID": 1207771531,
+              "name": "cg1",
+              "enabled": true
+            },
+            {
+              "groupUID": 604108370,
+              "name": "ebankwebesxi_CG",
+              "enabled": true
+            }
+          ]
+        }
+      },
+      "ActionParamaters": [
+        {
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
+          "method": "CreatePhysicalDevice",
+          "arrayinfo": {
+            "clustername": "cluster-1",
+            "array_type": "VMAX",
+            "serial_no": "000297800193",
+            "password": "smc",
+            "unispherehost": "10.121.0.204",
+            "universion": "90",
+            "user": "smc",
+            "verifycert": false,
+            "sgname": "MSCS_SG",
+            "purpose": "Prod"
+          },
+          "DependOnAction": "N/A",
+          "AsignSGName": "MSCS_SG",
+          "StorageVolumeName": "cbusapp1_VMAX193_0529140741back1",
+          "capacityByte": 21474836480,
+          "position": "primary",
+          "execute": true
+        },
+        {
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Step": "Create device and assign to sg [ VPLEX_101_BE ] in pyhsical array [ CKM00163300785 ] , arraytype= [ Unity ]",
+          "method": "CreatePhysicalDevice",
+          "arrayinfo": {
+            "clustername": "cluster-2",
+            "array_type": "Unity",
+            "unity_sn": "CKM00163300785",
+            "unity_password": "P@ssw0rd",
+            "unity_hostname": "10.32.32.64",
+            "unity_pool_name": "jxl_vplex101_pool",
+            "unity_username": "admin",
+            "sgname": "VPLEX_101_BE",
+            "purpose": "Prod"
+          },
+          "DependOnAction": "N/A",
+          "AsignSGName": "VPLEX_101_BE",
+          "StorageVolumeName": "cbusapp1_unity785_0529140741back1",
+          "capacityByte": 21579694080,
+          "position": "primary",
+          "execute": true
+        },
+        {
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Step": "re-discovery physical array in vplex",
+          "method": "ReDiscoverPhysicalArray",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Step": "claim physical volume in vplex",
+          "method": "ClaimPhysicalVolume",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Step": "创建Extent",
+          "method": "CreateExtent",
+          "DependOnAction": "CreatePhysicalDevice",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          },
+          "StorageVolumeName": "cbusapp1_VMAX193_0529140741back1,cbusapp1_unity785_0529140741back1"
+        },
+        {
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Step": "创建本地存储卷",
+          "method": "CreateLocalDevice",
+          "DependOnAction": "CreateExtent",
+          "devicename": "device_cbusapp1_VMAX193_0529140741back1",
+          "geometry": "raid-0",
+          "extents": "extent_cbusapp1_VMAX193_0529140741back1_1",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Step": "创建本地存储卷",
+          "method": "CreateLocalDevice",
+          "DependOnAction": "CreateExtent",
+          "devicename": "device_cbusapp1_unity785_0529140741back1",
+          "geometry": "raid-0",
+          "extents": "extent_cbusapp1_unity785_0529140741back1_1",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Step": "创建分布式存储卷: dd_cbusapp1_VMAX193_unity785_0529140741back1",
+          "method": "CreateDistributedDevice",
+          "DependOnAction": "CreateLocalDevice",
+          "devicename": "dd_cbusapp1_VMAX193_unity785_0529140741back1",
+          "devices": [
+            "device_cbusapp1_VMAX193_0529140741back1",
+            "device_cbusapp1_unity785_0529140741back1"
+          ],
+          "sourcedevice": "device_cbusapp1_VMAX193_0529140741back1",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Step": "创建分布式虚拟存储卷",
+          "method": "CreateDistributedVirtualVolume",
+          "DependOnAction": "CreateDistributedDevice",
+          "devicename": "dd_cbusapp1_VMAX193_unity785_0529140741back1",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Step": "分配虚拟化存储卷至存储视图（Storage View）:cbusapp1_VW",
+          "method": "AssignStorageView",
+          "DependOnAction": "CreateDistributedDevice",
+          "clustername": "cluster-1",
+          "viewname": "cbusapp1_VW",
+          "virtualvolumes": [
+            "dd_cbusapp1_VMAX193_unity785_0529140741back1_vol"
+          ],
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Step": "分配虚拟化存储卷至存储视图（Storage View）:cbusapp1_VW",
+          "method": "AssignStorageView",
+          "DependOnAction": "CreateDistributedDevice",
+          "clustername": "cluster-2",
+          "viewname": "cbusapp1_VW",
+          "virtualvolumes": [
+            "dd_cbusapp1_VMAX193_unity785_0529140741back1_vol"
+          ],
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Step": "分配虚拟存储卷到一致性组(Consistency Group): cbusapp_CG_Prod",
+          "method": "AssignConsistencyGroup",
+          "DependOnAction": "CreateDistributedDevice",
+          "virtual_volume": "dd_cbusapp1_VMAX193_unity785_0529140741back1_vol",
+          "consistency_group": "cbusapp_CG_Prod",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing RPA replicate Prod volume",
+          "Step": "分配虚拟化存储卷至存储视图（Storage View）: RP",
+          "method": "AssignStorageView",
+          "DependOnAction": "CreateDistributedDevice",
+          "clustername": "cluster-1",
+          "viewname": "RP",
+          "virtualvolumes": [
+            "dd_cbusapp1_VMAX193_unity785_0529140741back1_vol"
+          ],
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing RPA Local Volume using VPLEX",
+          "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
+          "method": "CreatePhysicalDevice",
+          "arrayinfo": {
+            "clustername": "cluster-1",
+            "array_type": "VMAX",
+            "serial_no": "000297800193",
+            "password": "smc",
+            "unispherehost": "10.121.0.204",
+            "universion": "90",
+            "user": "smc",
+            "verifycert": false,
+            "sgname": "MSCS_SG"
+          },
+          "DependOnAction": "N/A",
+          "AsignSGName": "MSCS_SG",
+          "StorageVolumeName": "cbusapp1_VMAX193_0529140741back00_local",
+          "capacityByte": 21474836480,
+          "position": "primary",
+          "execute": true
+        },
+        {
+          "StepGroupName": "Providing RPA Local Volume using VPLEX",
+          "Step": "re-discovery physical array in vplex",
+          "method": "ReDiscoverPhysicalArray",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing RPA Local Volume using VPLEX",
+          "Step": "claim physical volume in vplex",
+          "method": "ClaimPhysicalVolume",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing RPA Local Volume using VPLEX",
+          "Step": "创建Extent",
+          "method": "CreateExtent",
+          "DependOnAction": "CreatePhysicalDevice",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          },
+          "StorageVolumeName": "cbusapp1_VMAX193_0529140741back00_local"
+        },
+        {
+          "StepGroupName": "Providing RPA Local Volume using VPLEX",
+          "Step": "创建本地存储卷",
+          "method": "CreateLocalDevice",
+          "DependOnAction": "CreateExtent",
+          "devicename": "device_cbusapp1_VMAX193_0529140741back00_local",
+          "geometry": "raid-0",
+          "extents": "extent_cbusapp1_VMAX193_0529140741back00_local_1",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing RPA Local Volume using VPLEX",
+          "Step": "创建本地虚拟存储卷",
+          "method": "CreateVirtualVolume",
+          "DependOnAction": "CreateLocalDevice",
+          "devicename": "device_cbusapp1_VMAX193_0529140741back00_local",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing RPA Local Volume using VPLEX",
+          "Step": "分配虚拟化存储卷至存储视图（Storage View）:RP",
+          "method": "AssignStorageView",
+          "DependOnAction": "CreateDistributedDevice",
+          "clustername": "cluster-1",
+          "viewname": "RP",
+          "virtualvolumes": [
+            "device_cbusapp1_VMAX193_0529140741back00_local_vol"
+          ],
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing RPA Local Volume using VPLEX",
+          "Step": "分配虚拟存储卷到一致性组(Consistency Group): CG_CDP",
+          "method": "AssignConsistencyGroup",
+          "DependOnAction": "CreateDistributedDevice",
+          "virtual_volume": "device_cbusapp1_VMAX193_0529140741back00_local_vol",
+          "consistency_group": "CG_CDP",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "Providing RPA replicate remote volume",
+          "Step": "RPA-Remote: Create device and assign to sg [RecoverPoint] in pyhsical array [ CKM00163300785 ], arraytype= [ Unity ]",
+          "method": "CreatePhysicalDevice",
+          "DependOnAction": "N/A",
+          "AsignSGName": "RecoverPoint",
+          "StorageVolumeName": "cbusapp1_unity785_0529140741back01_remote",
+          "capacityByte": 21579694080,
+          "arrayinfo": {
+            "array_type": "Unity",
+            "unity_sn": "CKM00163300785",
+            "unity_password": "P@ssw0rd",
+            "unity_hostname": "10.32.32.64",
+            "unity_pool_name": "sxpool",
+            "unity_username": "admin"
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Prod journal volume",
+          "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
+          "method": "CreatePhysicalDevice",
+          "arrayinfo": {
+            "clustername": "cluster-1",
+            "array_type": "VMAX",
+            "serial_no": "000297800193",
+            "password": "smc",
+            "unispherehost": "10.121.0.204",
+            "universion": "90",
+            "user": "smc",
+            "verifycert": false,
+            "sgname": "MSCS_SG"
+          },
+          "DependOnAction": "N/A",
+          "AsignSGName": "MSCS_SG",
+          "StorageVolumeName": "cbusapp1_CG_Prod_Log_01_0529140741",
+          "capacityByte": 10737418240,
+          "position": "",
+          "execute": true
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Prod journal volume",
+          "Step": "rediscover physical volume",
+          "method": "ReDiscoverPhysicalArray",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Prod journal volume",
+          "Step": "claim the pyhsical volume",
+          "method": "ClaimPhysicalVolume",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Prod journal volume",
+          "Step": "创建Extent",
+          "method": "CreateExtent",
+          "DependOnAction": "CreatePhysicalDevice",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          },
+          "StorageVolumeName": "cbusapp1_CG_Prod_Log_01_0529140741"
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Prod journal volume",
+          "Step": "创建本地存储卷(Local Device)",
+          "method": "CreateLocalDevice",
+          "DependOnAction": "CreateExtent",
+          "devicename": "device_cbusapp1_CG_Prod_Log_01_0529140741",
+          "geometry": "raid-0",
+          "extents": "extent_cbusapp1_CG_Prod_Log_01_0529140741_1",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Prod journal volume",
+          "Step": "创建本地虚拟存储卷(Virtual Volume)",
+          "method": "CreateVirtualVolume",
+          "DependOnAction": "CreateLocalDevice",
+          "virtualvolumename": "device_cbusapp1_CG_Prod_Log_01_0529140741_vol",
+          "devicename": "device_cbusapp1_CG_Prod_Log_01_0529140741",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Prod journal volume",
+          "Step": "分配虚拟化存储卷至存储视图（Storage View）:RP",
+          "method": "AssignStorageView",
+          "DependOnAction": "CreateVirtualVolume",
+          "clustername": "cluster-1",
+          "viewname": "RP",
+          "virtualvolumes": "device_cbusapp1_CG_Prod_Log_01_0529140741_vol",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Prod journal volume",
+          "Step": "分配虚拟存储卷到一致性组(Consistency Group): CG_CDP",
+          "method": "AssignConsistencyGroup",
+          "DependOnAction": "CreateVirtualVolume",
+          "virtual_volume": "device_cbusapp1_CG_Prod_Log_01_0529140741_vol",
+          "consistency_group": "CG_CDP",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Local journal volume",
+          "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
+          "method": "CreatePhysicalDevice",
+          "arrayinfo": {
+            "clustername": "cluster-1",
+            "array_type": "VMAX",
+            "serial_no": "000297800193",
+            "password": "smc",
+            "unispherehost": "10.121.0.204",
+            "universion": "90",
+            "user": "smc",
+            "verifycert": false,
+            "sgname": "MSCS_SG"
+          },
+          "DependOnAction": "N/A",
+          "AsignSGName": "MSCS_SG",
+          "StorageVolumeName": "cbusapp1_CG_Local_Log_01_0529140741",
+          "capacityByte": 10737418240,
+          "position": "",
+          "execute": true
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Local journal volume",
+          "Step": "rediscover physical volume",
+          "method": "ReDiscoverPhysicalArray",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Local journal volume",
+          "Step": "claim the pyhsical volume",
+          "method": "ClaimPhysicalVolume",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Local journal volume",
+          "Step": "创建Extent",
+          "method": "CreateExtent",
+          "DependOnAction": "CreatePhysicalDevice",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          },
+          "StorageVolumeName": "cbusapp1_CG_Local_Log_01_0529140741"
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Local journal volume",
+          "Step": "创建本地存储卷(Local Device)",
+          "method": "CreateLocalDevice",
+          "DependOnAction": "CreateExtent",
+          "devicename": "device_cbusapp1_CG_Local_Log_01_0529140741",
+          "geometry": "raid-0",
+          "extents": "extent_cbusapp1_CG_Local_Log_01_0529140741_1",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Local journal volume",
+          "Step": "创建本地虚拟存储卷(Virtual Volume)",
+          "method": "CreateVirtualVolume",
+          "DependOnAction": "CreateLocalDevice",
+          "virtualvolumename": "device_cbusapp1_CG_Local_Log_01_0529140741_vol",
+          "devicename": "device_cbusapp1_CG_Local_Log_01_0529140741",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Local journal volume",
+          "Step": "分配虚拟化存储卷至存储视图（Storage View）:RP",
+          "method": "AssignStorageView",
+          "DependOnAction": "CreateVirtualVolume",
+          "clustername": "cluster-1",
+          "viewname": "RP",
+          "virtualvolumes": "device_cbusapp1_CG_Local_Log_01_0529140741_vol",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Local journal volume",
+          "Step": "分配虚拟存储卷到一致性组(Consistency Group): CG_CDP",
+          "method": "AssignConsistencyGroup",
+          "DependOnAction": "CreateVirtualVolume",
+          "virtual_volume": "device_cbusapp1_CG_Local_Log_01_0529140741_vol",
+          "consistency_group": "CG_CDP",
+          "arrayinfo": {
+            "name": "EMCCTEST",
+            "array_type": "VPLEX",
+            "version": "5.5",
+            "endpoint": "https://10.32.32.100/vplex",
+            "auth": {
+              "username": "service",
+              "password": "password"
+            }
+          }
+        },
+        {
+          "StepGroupName": "RPA Consistoncy Group Remote journal volume",
+          "Step": "Create device and assign to sg [RecoverPoint] in pyhsical array [ CKM00163300785 ], arraytype= [ Unity ] for RPA Remote Journal volume.",
+          "method": "CreatePhysicalDevice",
+          "DependOnAction": "N/A",
+          "AsignSGName": "RecoverPoint",
+          "StorageVolumeName": "cbusapp1_CG_Remote_Log_01_0529140741",
+          "capacityByte": 10737418240,
+          "arrayinfo": {
+            "array_type": "Unity",
+            "unity_sn": "CKM00163300785",
+            "unity_password": "P@ssw0rd",
+            "unity_hostname": "10.32.32.64",
+            "unity_pool_name": "sxpool",
+            "unity_username": "admin",
+            "sgname": "RecoverPoint"
+          }
+        },
+        {
+          "StepGroupName": "RPA Replicate Configuration",
+          "Step": "RPA-Local: 在RPA中创建Consistency Group: cbusapp1_CG",
+          "method": "RAPCreateConsistencyGroup",
+          "DependOnAction": "CreateDistributedDevice",
+          "ClusterName": "cluster1",
+          "CGName": "cbusapp1_CG",
+          "ProdJournalVolume": "device_cbusapp1_CG_Prod_Log_01_0529140741_vol",
+          "LocalJournalVolume": "device_cbusapp1_CG_Local_Log_01_0529140741_vol",
+          "RemoteJournalVolume": "cbusapp1_CG_Remote_Log_01_0529140741",
+          "arrayinfo": {
+            "array_type": "RPA",
+            "IP": "10.32.32.185",
+            "username": "admin",
+            "password": "admin",
+            "baseurl": "/fapi/rest/5_1",
+            "cluster1": "cluster1",
+            "cluster2": "cluster2"
+          }
+        },
+        {
+          "StepGroupName": "RPA Replicate Configuration",
+          "Step": "RPA-Local: 在RPA中创建Replication Set: rs_0529140741back1",
+          "method": "RAPCreateReplicationSet",
+          "DependOnAction": "CreateDistributedDevice",
+          "CGName": "cbusapp1_CG",
+          "ReplicationsetName": "rs_0529140741back1",
+          "prod": [
+            "dd_cbusapp1_VMAX193_unity785_0529140741back1_vol"
+          ],
+          "local": [
+            "device_cbusapp1_VMAX193_0529140741back00_local_vol"
+          ],
+          "remote": [
+            "cbusapp1_unity785_0529140741back01_remote"
+          ],
+          "arrayinfo": {
+            "array_type": "RPA",
+            "IP": "10.32.32.185",
+            "username": "admin",
+            "password": "admin",
+            "baseurl": "/fapi/rest/5_1",
+            "cluster1": "cluster1",
+            "cluster2": "cluster2"
+          }
+        }
+      ]
+    },
+    "requestId": "b0c55e59-612f-49a0-8090-bf00145fad60",
+    "subParamater": {},
+    "ResourcePools": [
+      {
+        "name": "VPLEX-双活保护资源池",
+        "description": "1. 由一套VPlex Metro构成; 2. 具有RPA的本地和异地保护能力; 3. VPlex后端由VMAX(链接cluster-1)和Unity(链接cluster-2)两台物理存储构成",
+        "resourceLevel": "Gold",
+        "resourceType": "VPLEX",
+        "TotalCapacity": 100,
+        "UsedCapacity": 30,
+        "members": [
+          {
+            "arrayname": "EMCCTEST1",
+            "arraytype": "VPLEX",
+            "capacity": 1000,
+            "info": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            },
+            "capability": {
+              "CDP": {
+                "catalog": "CDP.RPA",
+                "name": "TestCase01"
+              }
+            },
+            "backend_array": [
+              {
+                "clustername": "cluster-1",
+                "array_type": "VMAX",
+                "serial_no": "000297800193",
+                "password": "smc",
+                "unispherehost": "10.121.0.204",
+                "universion": "90",
+                "user": "smc",
+                "verifycert": false,
+                "sgname": "MSCS_SG",
+                "purpose": "Prod"
+              },
+              {
+                "clustername": "cluster-2",
+                "array_type": "Unity",
+                "unity_sn": "CKM00163300785",
+                "unity_password": "P@ssw0rd",
+                "unity_hostname": "10.32.32.64",
+                "unity_pool_name": "jxl_vplex101_pool",
+                "unity_username": "admin",
+                "sgname": "VPLEX_101_BE",
+                "purpose": "Prod"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "VMAX-高端资源池",
+        "resourceLevel": "Gold",
+        "resourceType": "VMAX",
+        "TotalCapacity": 1234,
+        "UsedCapacity": 567,
+        "members": [
+          {
+            "arrayname": "VMAX-0193",
+            "arraytype": "VMAX",
+            "capacity": 1000,
+            "info": {
+              "array_type": "VMAX",
+              "serial_no": "000297800193",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false
+            }
+          },
+          {
+            "arrayname": "VMAX-0192",
+            "arraytype": "VMAX",
+            "capacity": 2000,
+            "info": {
+              "array_type": "VMAX",
+              "serial_no": "000297800192",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "Unity-中端资源池",
+        "resourceLevel": "Silver",
+        "resourceType": "Unity",
+        "TotalCapacity": 1234,
+        "UsedCapacity": 567,
+        "members": [
+          {
+            "arrayname": "Unity-0785",
+            "arraytype": "Unity",
+            "capacity": 1000,
+            "info": {
+              "array_type": "Unity",
+              "unity_sn": "CKM00163300785",
+              "unity_password": "P@ssw0rd",
+              "unity_hostname": "10.32.32.64",
+              "unity_pool_name": "jxl_vplex101_pool",
+              "unity_username": "admin",
+              "purpose": "Prod"
+            }
+          },
+          {
+            "arrayname": "Unity-1111",
+            "arraytype": "Unity",
+            "capacity": 1000,
+            "info": {
+              "array_type": "Unity",
+              "unity_sn": "CKM11111111111",
+              "unity_password": "P@ssw0rd",
+              "unity_hostname": "10.32.32.64",
+              "unity_pool_name": "jxl_vplex101_pool",
+              "unity_username": "admin",
+              "purpose": "Prod"
+            }
+          }
+        ]
+      }
+    ],
+    "ActionResponses": [],
+    "subProcessResult": {
+      "ProdVolumeByVPLEX": {
+        "Paramaters": {
+          "ApplicationCode": "cbusapp1",
+          "StepGroupName": "Providing Product Volume using VPLEX",
+          "Volumes": [
+            {
+              "UsedFor": "back",
+              "CapacityGB": 20,
+              "type": "distributed",
+              "ClusterName": "cluster-1,cluster-2",
+              "ConsistencyGroup": [
+                "cbusapp_CG_Prod"
+              ],
+              "PhysicalVolumeNames": [
+                "cbusapp1_VMAX193_0529140741back1",
+                "cbusapp1_unity785_0529140741back1"
+              ]
+            }
+          ],
+          "AssignStorageViews": [
+            "cbusapp1_VW"
+          ],
+          "timestamp": "0529140741"
+        },
+        "ResourceInfo": {
+          "ArrayInfo": {
+            "arrayname": "EMCCTEST1",
+            "arraytype": "VPLEX",
+            "capacity": 1000,
+            "info": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            },
+            "capability": {
+              "CDP": {
+                "catalog": "CDP.RPA",
+                "name": "TestCase01"
+              }
+            },
+            "backend_array": [
+              {
+                "clustername": "cluster-1",
+                "array_type": "VMAX",
+                "serial_no": "000297800193",
+                "password": "smc",
+                "unispherehost": "10.121.0.204",
+                "universion": "90",
+                "user": "smc",
+                "verifycert": false,
+                "sgname": "MSCS_SG",
+                "purpose": "Prod"
+              },
+              {
+                "clustername": "cluster-2",
+                "array_type": "Unity",
+                "unity_sn": "CKM00163300785",
+                "unity_password": "P@ssw0rd",
+                "unity_hostname": "10.32.32.64",
+                "unity_pool_name": "jxl_vplex101_pool",
+                "unity_username": "admin",
+                "sgname": "VPLEX_101_BE",
+                "purpose": "Prod"
+              }
+            ]
+          },
+          "StorageView": {
+            "cluster-1": [
+              "CC3_Prod_View",
+              "RP_C1_VW",
+              "RP_C2_VW",
+              "cbusapp10_VW",
+              "cbusapp1_VW",
+              "cbusapp2_VW",
+              "cbusapp3_VW",
+              "cbusapp4_VW",
+              "cbusapp5_VW",
+              "cbusapp6_VW",
+              "cbusapp7_VW",
+              "cbusapp8_VW",
+              "cbusapp9_VW",
+              "cbuscor1_VW",
+              "cbuscor2_VW",
+              "cbusdb34_VW",
+              "cbusdb_VW",
+              "cbusdbcdp",
+              "cbusenc_VW",
+              "cbusqry1_VW",
+              "cbusqry2_VW",
+              "cdpyz1_VW",
+              "cdpyz2_VW",
+              "cdpyz3_VW",
+              "cdpyz4_VW",
+              "chxesxi_VW",
+              "ebankappesxi_VW",
+              "ebankwebesxi_VW",
+              "jierupubesxi_VW",
+              "nbumaster_VW",
+              "osback1_VW",
+              "qlesxi_VW",
+              "qrtdb_VW",
+              "zlcbus1_VW",
+              "RP"
+            ],
+            "cluster-2": [
+              "CC3_Prod_View",
+              "RP_C1_VW",
+              "RP_C2_VW",
+              "cbusapp10_VW",
+              "cbusapp1_VW",
+              "cbusapp2_VW",
+              "cbusapp3_VW",
+              "cbusapp4_VW",
+              "cbusapp5_VW",
+              "cbusapp6_VW",
+              "cbusapp7_VW",
+              "cbusapp8_VW",
+              "cbusapp9_VW",
+              "cbuscor1_VW",
+              "cbuscor2_VW",
+              "cbusdb34_VW",
+              "cbusdb_VW",
+              "cbusdbcdp",
+              "cbusenc_VW",
+              "cbusqry1_VW",
+              "cbusqry2_VW",
+              "cdpyz1_VW",
+              "cdpyz2_VW",
+              "cdpyz3_VW",
+              "cdpyz4_VW",
+              "chxesxi_VW",
+              "ebankappesxi_VW",
+              "ebankwebesxi_VW",
+              "jierupubesxi_VW",
+              "nbumaster_VW",
+              "osback1_VW",
+              "qlesxi_VW",
+              "qrtdb_VW",
+              "zlcbus1_VW",
+              "RP"
+            ]
+          },
+          "ConsistencyGroup": [
+            "CCCQ_CG_Local",
+            "CCCQ_CG_Prod",
+            "EBANKAPPESXI_CG_DR",
+            "EBANKWEB_CG_DR",
+            "HX_test1_CG_Local",
+            "HX_test1_CG_Prod",
+            "HX_test2_CG_Local",
+            "HX_test2_CG_Prod",
+            "QLESXi_CG_Local",
+            "QLESXi_CG_Prod",
+            "RPC1_Hexin_system",
+            "RPC2_WangYin_system",
+            "SH_cbusapp_CG_Prod",
+            "SH_chxesxi_CG_Prod",
+            "SH_ebankappesxi_CG_Prod",
+            "SH_ebankweb_CG_Prod",
+            "WY_test_CG_Local",
+            "WY_test_CG_Prod",
+            "cbusapp_CG_Local",
+            "cbusapp_CG_Prod",
+            "cbusdb34_CG_Prod",
+            "cbusdb_CG_Local",
+            "cbusdb_CG_Prod",
+            "cbusenc_CG_Local",
+            "cbusenc_CG_Prod",
+            "cbusqry_CG_Prod",
+            "chxesxi_CG_Local",
+            "chxesxi_CG_Prod",
+            "ebank_ESXi_CG_Local",
+            "ebank_ESXi_CG_Prod",
+            "ebankwebesxi_CG_Local",
+            "ebankwebesxi_CG_Prod",
+            "jrpub_CG_DR",
+            "jrpub_CG_Local",
+            "jrpub_CG_Prod",
+            "nbumaster_CG_Local",
+            "CG_CDP"
+          ]
+        },
+        "ResultResourceInfo": {
+          "VirtualVolumes": [
+            {
+              "type": "distributed",
+              "ClusterName": "cluster-1,cluster-2",
+              "UsedFor": "back",
+              "CapacityGB": 20,
+              "PhysicalVolumes": [
+                "cbusapp1_VMAX193_0529140741back1",
+                "cbusapp1_unity785_0529140741back1"
+              ],
+              "sourcedevice": "device_cbusapp1_VMAX193_0529140741back1",
+              "devices": [
+                "device_cbusapp1_VMAX193_0529140741back1",
+                "device_cbusapp1_unity785_0529140741back1"
+              ],
+              "DeviceName": "dd_cbusapp1_VMAX193_unity785_0529140741back1",
+              "VirtualVolumeName": "dd_cbusapp1_VMAX193_unity785_0529140741back1_vol"
+            }
+          ]
+        },
+        "ActionParamaters": [
+          {
+            "StepGroupName": "Providing Product Volume using VPLEX",
+            "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
+            "method": "CreatePhysicalDevice",
+            "arrayinfo": {
+              "clustername": "cluster-1",
+              "array_type": "VMAX",
+              "serial_no": "000297800193",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false,
+              "sgname": "MSCS_SG",
+              "purpose": "Prod"
+            },
+            "DependOnAction": "N/A",
+            "AsignSGName": "MSCS_SG",
+            "StorageVolumeName": "cbusapp1_VMAX193_0529140741back1",
+            "capacityByte": 21474836480,
+            "position": "primary",
+            "execute": true
+          },
+          {
+            "StepGroupName": "Providing Product Volume using VPLEX",
+            "Step": "Create device and assign to sg [ VPLEX_101_BE ] in pyhsical array [ CKM00163300785 ] , arraytype= [ Unity ]",
+            "method": "CreatePhysicalDevice",
+            "arrayinfo": {
+              "clustername": "cluster-2",
+              "array_type": "Unity",
+              "unity_sn": "CKM00163300785",
+              "unity_password": "P@ssw0rd",
+              "unity_hostname": "10.32.32.64",
+              "unity_pool_name": "jxl_vplex101_pool",
+              "unity_username": "admin",
+              "sgname": "VPLEX_101_BE",
+              "purpose": "Prod"
+            },
+            "DependOnAction": "N/A",
+            "AsignSGName": "VPLEX_101_BE",
+            "StorageVolumeName": "cbusapp1_unity785_0529140741back1",
+            "capacityByte": 21579694080,
+            "position": "primary",
+            "execute": true
+          },
+          {
+            "StepGroupName": "Providing Product Volume using VPLEX",
+            "Step": "re-discovery physical array in vplex",
+            "method": "ReDiscoverPhysicalArray",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing Product Volume using VPLEX",
+            "Step": "claim physical volume in vplex",
+            "method": "ClaimPhysicalVolume",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing Product Volume using VPLEX",
+            "Step": "创建Extent",
+            "method": "CreateExtent",
+            "DependOnAction": "CreatePhysicalDevice",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            },
+            "StorageVolumeName": "cbusapp1_VMAX193_0529140741back1,cbusapp1_unity785_0529140741back1"
+          },
+          {
+            "StepGroupName": "Providing Product Volume using VPLEX",
+            "Step": "创建本地存储卷",
+            "method": "CreateLocalDevice",
+            "DependOnAction": "CreateExtent",
+            "devicename": "device_cbusapp1_VMAX193_0529140741back1",
+            "geometry": "raid-0",
+            "extents": "extent_cbusapp1_VMAX193_0529140741back1_1",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing Product Volume using VPLEX",
+            "Step": "创建本地存储卷",
+            "method": "CreateLocalDevice",
+            "DependOnAction": "CreateExtent",
+            "devicename": "device_cbusapp1_unity785_0529140741back1",
+            "geometry": "raid-0",
+            "extents": "extent_cbusapp1_unity785_0529140741back1_1",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing Product Volume using VPLEX",
+            "Step": "创建分布式存储卷: dd_cbusapp1_VMAX193_unity785_0529140741back1",
+            "method": "CreateDistributedDevice",
+            "DependOnAction": "CreateLocalDevice",
+            "devicename": "dd_cbusapp1_VMAX193_unity785_0529140741back1",
+            "devices": [
+              "device_cbusapp1_VMAX193_0529140741back1",
+              "device_cbusapp1_unity785_0529140741back1"
+            ],
+            "sourcedevice": "device_cbusapp1_VMAX193_0529140741back1",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing Product Volume using VPLEX",
+            "Step": "创建分布式虚拟存储卷",
+            "method": "CreateDistributedVirtualVolume",
+            "DependOnAction": "CreateDistributedDevice",
+            "devicename": "dd_cbusapp1_VMAX193_unity785_0529140741back1",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing Product Volume using VPLEX",
+            "Step": "分配虚拟化存储卷至存储视图（Storage View）:cbusapp1_VW",
+            "method": "AssignStorageView",
+            "DependOnAction": "CreateDistributedDevice",
+            "clustername": "cluster-1",
+            "viewname": "cbusapp1_VW",
+            "virtualvolumes": [
+              "dd_cbusapp1_VMAX193_unity785_0529140741back1_vol"
+            ],
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing Product Volume using VPLEX",
+            "Step": "分配虚拟化存储卷至存储视图（Storage View）:cbusapp1_VW",
+            "method": "AssignStorageView",
+            "DependOnAction": "CreateDistributedDevice",
+            "clustername": "cluster-2",
+            "viewname": "cbusapp1_VW",
+            "virtualvolumes": [
+              "dd_cbusapp1_VMAX193_unity785_0529140741back1_vol"
+            ],
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing Product Volume using VPLEX",
+            "Step": "分配虚拟存储卷到一致性组(Consistency Group): cbusapp_CG_Prod",
+            "method": "AssignConsistencyGroup",
+            "DependOnAction": "CreateDistributedDevice",
+            "virtual_volume": "dd_cbusapp1_VMAX193_unity785_0529140741back1_vol",
+            "consistency_group": "cbusapp_CG_Prod",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          }
+        ]
+      },
+      "LocalVolumeByVPLEX": {
+        "Paramaters": {
+          "ApplicationCode": "cbusapp1",
+          "StepGroupName": "Providing RPA Local Volume using VPLEX",
+          "Volumes": [
+            {
+              "UsedFor": "back",
+              "CapacityGB": 20,
+              "type": "localed",
+              "ClusterName": "cluster-1",
+              "ConsistencyGroup": [
+                "CG_CDP"
+              ],
+              "PhysicalVolumeNames": [
+                "cbusapp1_VMAX193_0529140741back00_local"
+              ]
+            }
+          ],
+          "AssignStorageViews": [
+            "RP"
+          ],
+          "timestamp": "0529140741"
+        },
+        "ResourceInfo": {
+          "ArrayInfo": {
+            "arrayname": "EMCCTEST1",
+            "arraytype": "VPLEX",
+            "capacity": 1000,
+            "sgname": "RP",
+            "clustername": "cluster-1",
+            "consistencygroup": "CG_CDP",
+            "info": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            },
+            "backend_array": [
+              {
+                "clustername": "cluster-1",
+                "array_type": "VMAX",
+                "serial_no": "000297800193",
+                "password": "smc",
+                "unispherehost": "10.121.0.204",
+                "universion": "90",
+                "user": "smc",
+                "verifycert": false,
+                "sgname": "MSCS_SG"
+              }
+            ]
+          },
+          "StorageView": {
+            "cluster-1": [
+              "CC3_Prod_View",
+              "RP_C1_VW",
+              "RP_C2_VW",
+              "cbusapp10_VW",
+              "cbusapp1_VW",
+              "cbusapp2_VW",
+              "cbusapp3_VW",
+              "cbusapp4_VW",
+              "cbusapp5_VW",
+              "cbusapp6_VW",
+              "cbusapp7_VW",
+              "cbusapp8_VW",
+              "cbusapp9_VW",
+              "cbuscor1_VW",
+              "cbuscor2_VW",
+              "cbusdb34_VW",
+              "cbusdb_VW",
+              "cbusdbcdp",
+              "cbusenc_VW",
+              "cbusqry1_VW",
+              "cbusqry2_VW",
+              "cdpyz1_VW",
+              "cdpyz2_VW",
+              "cdpyz3_VW",
+              "cdpyz4_VW",
+              "chxesxi_VW",
+              "ebankappesxi_VW",
+              "ebankwebesxi_VW",
+              "jierupubesxi_VW",
+              "nbumaster_VW",
+              "osback1_VW",
+              "qlesxi_VW",
+              "qrtdb_VW",
+              "zlcbus1_VW",
+              "RP"
+            ],
+            "cluster-2": [
+              "CC3_Prod_View",
+              "RP_C1_VW",
+              "RP_C2_VW",
+              "cbusapp10_VW",
+              "cbusapp1_VW",
+              "cbusapp2_VW",
+              "cbusapp3_VW",
+              "cbusapp4_VW",
+              "cbusapp5_VW",
+              "cbusapp6_VW",
+              "cbusapp7_VW",
+              "cbusapp8_VW",
+              "cbusapp9_VW",
+              "cbuscor1_VW",
+              "cbuscor2_VW",
+              "cbusdb34_VW",
+              "cbusdb_VW",
+              "cbusdbcdp",
+              "cbusenc_VW",
+              "cbusqry1_VW",
+              "cbusqry2_VW",
+              "cdpyz1_VW",
+              "cdpyz2_VW",
+              "cdpyz3_VW",
+              "cdpyz4_VW",
+              "chxesxi_VW",
+              "ebankappesxi_VW",
+              "ebankwebesxi_VW",
+              "jierupubesxi_VW",
+              "nbumaster_VW",
+              "osback1_VW",
+              "qlesxi_VW",
+              "qrtdb_VW",
+              "zlcbus1_VW",
+              "RP"
+            ]
+          },
+          "ConsistencyGroup": [
+            "CCCQ_CG_Local",
+            "CCCQ_CG_Prod",
+            "EBANKAPPESXI_CG_DR",
+            "EBANKWEB_CG_DR",
+            "HX_test1_CG_Local",
+            "HX_test1_CG_Prod",
+            "HX_test2_CG_Local",
+            "HX_test2_CG_Prod",
+            "QLESXi_CG_Local",
+            "QLESXi_CG_Prod",
+            "RPC1_Hexin_system",
+            "RPC2_WangYin_system",
+            "SH_cbusapp_CG_Prod",
+            "SH_chxesxi_CG_Prod",
+            "SH_ebankappesxi_CG_Prod",
+            "SH_ebankweb_CG_Prod",
+            "WY_test_CG_Local",
+            "WY_test_CG_Prod",
+            "cbusapp_CG_Local",
+            "cbusapp_CG_Prod",
+            "cbusdb34_CG_Prod",
+            "cbusdb_CG_Local",
+            "cbusdb_CG_Prod",
+            "cbusenc_CG_Local",
+            "cbusenc_CG_Prod",
+            "cbusqry_CG_Prod",
+            "chxesxi_CG_Local",
+            "chxesxi_CG_Prod",
+            "ebank_ESXi_CG_Local",
+            "ebank_ESXi_CG_Prod",
+            "ebankwebesxi_CG_Local",
+            "ebankwebesxi_CG_Prod",
+            "jrpub_CG_DR",
+            "jrpub_CG_Local",
+            "jrpub_CG_Prod",
+            "nbumaster_CG_Local",
+            "CG_CDP"
+          ]
+        },
+        "ResultResourceInfo": {
+          "VirtualVolumes": [
+            {
+              "type": "localed",
+              "ClusterName": "cluster-1",
+              "UsedFor": "back",
+              "CapacityGB": 20,
+              "PhysicalVolumes": [
+                "cbusapp1_VMAX193_0529140741back00_local"
+              ],
+              "sourcedevice": "",
+              "devices": [
+                "device_cbusapp1_VMAX193_0529140741back00_local"
+              ],
+              "DeviceName": "device_cbusapp1_VMAX193_0529140741back00_local",
+              "VirtualVolumeName": "device_cbusapp1_VMAX193_0529140741back00_local_vol"
+            }
+          ]
+        },
+        "ActionParamaters": [
+          {
+            "StepGroupName": "Providing RPA Local Volume using VPLEX",
+            "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
+            "method": "CreatePhysicalDevice",
+            "arrayinfo": {
+              "clustername": "cluster-1",
+              "array_type": "VMAX",
+              "serial_no": "000297800193",
+              "password": "smc",
+              "unispherehost": "10.121.0.204",
+              "universion": "90",
+              "user": "smc",
+              "verifycert": false,
+              "sgname": "MSCS_SG"
+            },
+            "DependOnAction": "N/A",
+            "AsignSGName": "MSCS_SG",
+            "StorageVolumeName": "cbusapp1_VMAX193_0529140741back00_local",
+            "capacityByte": 21474836480,
+            "position": "primary",
+            "execute": true
+          },
+          {
+            "StepGroupName": "Providing RPA Local Volume using VPLEX",
+            "Step": "re-discovery physical array in vplex",
+            "method": "ReDiscoverPhysicalArray",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing RPA Local Volume using VPLEX",
+            "Step": "claim physical volume in vplex",
+            "method": "ClaimPhysicalVolume",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing RPA Local Volume using VPLEX",
+            "Step": "创建Extent",
+            "method": "CreateExtent",
+            "DependOnAction": "CreatePhysicalDevice",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            },
+            "StorageVolumeName": "cbusapp1_VMAX193_0529140741back00_local"
+          },
+          {
+            "StepGroupName": "Providing RPA Local Volume using VPLEX",
+            "Step": "创建本地存储卷",
+            "method": "CreateLocalDevice",
+            "DependOnAction": "CreateExtent",
+            "devicename": "device_cbusapp1_VMAX193_0529140741back00_local",
+            "geometry": "raid-0",
+            "extents": "extent_cbusapp1_VMAX193_0529140741back00_local_1",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing RPA Local Volume using VPLEX",
+            "Step": "创建本地虚拟存储卷",
+            "method": "CreateVirtualVolume",
+            "DependOnAction": "CreateLocalDevice",
+            "devicename": "device_cbusapp1_VMAX193_0529140741back00_local",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing RPA Local Volume using VPLEX",
+            "Step": "分配虚拟化存储卷至存储视图（Storage View）:RP",
+            "method": "AssignStorageView",
+            "DependOnAction": "CreateDistributedDevice",
+            "clustername": "cluster-1",
+            "viewname": "RP",
+            "virtualvolumes": [
+              "device_cbusapp1_VMAX193_0529140741back00_local_vol"
+            ],
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          },
+          {
+            "StepGroupName": "Providing RPA Local Volume using VPLEX",
+            "Step": "分配虚拟存储卷到一致性组(Consistency Group): CG_CDP",
+            "method": "AssignConsistencyGroup",
+            "DependOnAction": "CreateDistributedDevice",
+            "virtual_volume": "device_cbusapp1_VMAX193_0529140741back00_local_vol",
+            "consistency_group": "CG_CDP",
+            "arrayinfo": {
+              "name": "EMCCTEST",
+              "array_type": "VPLEX",
+              "version": "5.5",
+              "endpoint": "https://10.32.32.100/vplex",
+              "auth": {
+                "username": "service",
+                "password": "password"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -111,7 +111,7 @@ require('./controllers/autoScriptsController')(app);
 /**
  * Starting Zeebe bpmn process service 
  */
-ZeeBeLib.deployWorkflow();
+//ZeeBeLib.deployWorkflow();
 ZeeBeLib.createProcessWorker();
 
  

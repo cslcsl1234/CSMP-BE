@@ -1375,7 +1375,7 @@ var testController = function (app) {
 
 
     app.post('/zeebe/instance', function (req, res) {
-
+        res.setTimeout(1200 * 1000);
         var req_body = req.body;
 
         AutoService.BuildParamaterStrucut(req_body, async function (AutoObject) {

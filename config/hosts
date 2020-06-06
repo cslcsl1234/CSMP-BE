@@ -2,4 +2,6 @@
 192.168.92.144   csmpcollecter_pb
 192.168.92.146   csmpserver
 127.0.0.1        csmpdbserver
+127.0.0.1        ssmpmysqlserver
 192.168.92.147   awxserver
+192.168.1.107    zeebeserver
