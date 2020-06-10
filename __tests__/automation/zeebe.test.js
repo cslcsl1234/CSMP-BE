@@ -18,7 +18,7 @@ describe("TEST", () => {
 
     }, 20000)
 
-    test("ZeeBe.Service.TEST001", (done) => {
+    test.skip("ZeeBe.Service.TEST001", (done) => {
         const TCName = "TestCase01"
         const body = require(`../automation/data/${TCName}.request.json`);
         const CDPInfo = require(`../automation/data/${TCName}.StorageCapability.json`);
@@ -62,7 +62,7 @@ describe("ZeeBe Service Suite", () => {
     test("ZeeBe.Service.TestCase01", async (done) => {
         const TCName = "TestCase01"
         const body = require(`../automation/data/${TCName}.request.json`);
-        const resultFile = `./__tests__/automation/data/${TCName}.result.json`;
+        const resultFile = `./__tests__/automation/data/$${TCName}_result.json`;
         const CDPInfo = require(`../automation/data/${TCName}.StorageCapability.json`);
         RPA.GetRPAInfo.mockReturnValue(CDPInfo)
 
@@ -310,15 +310,15 @@ describe("ZeeBe Service Suite", () => {
 
     test("ZeeBe.Service.TestCase02", async (done) => {
         const TCName = "TestCase02"
-        const body = require(`../automation/data/${TCName}.request.json`);
-        const resultFile = `./__tests__/automation/data/${TCName}.result.json`;
+        const request = require(`../automation/data/${TCName}.request.json`);
+        const resultFile = `./__tests__/automation/data/$${TCName}_result.json`;
 
         try {
             var config = configger.load();
-            AutoService.BuildParamaterStrucut(body, async function (AutoObject) {
+            AutoService.BuildParamaterStrucut(request, async function (AutoObject) {
                 for (var i in AutoObject.ResourcePools) {
                     var item = AutoObject.ResourcePools[i]; 
-                    if (item.name == body.resourcePoolName) {
+                    if (item.name == request.resourcePoolName) {
                         for (var j in item.members) {
                             var item1 = item.members[j];
                             if (item1.capability !== undefined) item1.capability.CDP.name = TCName
@@ -327,29 +327,28 @@ describe("ZeeBe Service Suite", () => {
                 }
                 const ZEEBE_BROKER_URL = config.ZEEBE.BROKER;
                 const zbc = new ZB.ZBClient(ZEEBE_BROKER_URL)
-                var request = {
-                    bpmnProcessId: 'CSMP-Automation-Main',
-                    //bpmnProcessId: 'Parallel-Test',
+                var workflow_input = {
+                    bpmnProcessId: 'CSMP-Automation-Main', 
                     variables: AutoObject,
                     requestTimeout: timeout,
-                }
-                //console.log("-----\n" + JSON.stringify(request,null,2))
-                const result = await zbc.createWorkflowInstanceWithResult(request).catch((e) => {
+                } 
+                const result = await zbc.createWorkflowInstanceWithResult(workflow_input).catch((e) => {
                     console.log("Exception:" + e)
+                    fs.writeFileSync(resultFile, e);
+                    done()
                 })
-                fs.writeFileSync(resultFile, JSON.stringify(result, 2, 2));
-                console.log(`ActionParamaters=[${result.variables.AutoInfo.ActionParamaters.length}]`);
+                fs.writeFileSync(resultFile, JSON.stringify(result, 2, 2)); 
 
                 var ActionParamaters = result.variables.AutoInfo.ActionParamaters;
-                expect(ActionParamaters.length).toBe(2);
-                expect(result.variables.request.appname).toBe('cbusapp1');
+                expect(ActionParamaters.length).toBe(request.count);
+                expect(result.variables.request.appname).toBe(request.appname);
 
 
                 var i = 0;
-                expect(ActionParamaters[i].StorageVolumeName).toBe("cbusapp1_VMAX192_0529140741back01");
+                expect(ActionParamaters[i].StorageVolumeName).toBe(`${request.appname}_VMAX192_${request.timestamp}back01`);
 
                 i++;
-                expect(ActionParamaters[i].StorageVolumeName).toBe("cbusapp1_VMAX192_0529140741back02");
+                expect(ActionParamaters[i].StorageVolumeName).toBe(`${request.appname}_VMAX192_${request.timestamp}back02`);
 
 
 
@@ -377,7 +376,7 @@ describe("ZeeBe Service Suite", () => {
     test("ZeeBe.Service.TestCase03", async (done) => {
         const TCName = "TestCase03"
         const body = require(`../automation/data/${TCName}.request.json`);
-        const resultFile = `./__tests__/automation/data/${TCName}.result.json`;
+        const resultFile = `./__tests__/automation/data/$${TCName}_result.json`;
 
         try {
             var config = configger.load();
@@ -402,23 +401,24 @@ describe("ZeeBe Service Suite", () => {
                 //console.log("-----\n" + JSON.stringify(request,null,2))
                 const result = await zbc.createWorkflowInstanceWithResult(request).catch((e) => {
                     console.log("Exception:" + e)
+                    fs.writeFileSync(resultFile, e);
+                    done()
                 })
                 fs.writeFileSync(resultFile, JSON.stringify(result, 2, 2));
                 console.log(`ActionParamaters=[${result.variables.AutoInfo.ActionParamaters.length}]`);
 
                 var ActionParamaters = result.variables.AutoInfo.ActionParamaters;
-                expect(ActionParamaters.length).toBe(3);
-                expect(result.variables.request.appname).toBe('cbusapp1');
-
-
+                expect(ActionParamaters.length).toBe(body.count);
+                expect(result.variables.request.appname).toBe(body.appname);
+ 
                 var i = 0;
-                expect(ActionParamaters[i].StorageVolumeName).toBe("cbusapp1_unity785_0529140741back01");
+                expect(ActionParamaters[i].StorageVolumeName).toBe(`${body.appname}_unity785_${body.timestamp}${body.usedfor}01`);
 
                 i++;
-                expect(ActionParamaters[i].StorageVolumeName).toBe("cbusapp1_unity785_0529140741back02");
+                expect(ActionParamaters[i].StorageVolumeName).toBe(`${body.appname}_unity785_${body.timestamp}${body.usedfor}02`);
 
                 i++;
-                expect(ActionParamaters[i].StorageVolumeName).toBe("cbusapp1_unity785_0529140741back03");
+                expect(ActionParamaters[i].StorageVolumeName).toBe(`${body.appname}_unity785_${body.timestamp}${body.usedfor}03`);
 
                 zbc.close().then(() => {
                     console.log('All workers closed')
@@ -442,7 +442,7 @@ describe("ZeeBe Service Suite", () => {
     test("ZeeBe.Service.TestCase04", async (done) => {
         const TCName = "TestCase04"
         const body = require(`../automation/data/${TCName}.request.json`);
-        const resultFile = `./__tests__/automation/data/${TCName}.result.json`;
+        const resultFile = `./__tests__/automation/data/$${TCName}_result.json`;
         const CDPInfo = require(`../automation/data/${TCName}.StorageCapability.json`);
         RPA.GetRPAInfo.mockReturnValue(CDPInfo)
 
@@ -473,13 +473,15 @@ describe("ZeeBe Service Suite", () => {
 
                 const result = await zbc.createWorkflowInstanceWithResult(request).catch((e) => {
                     console.log("Exception:" + e)
+                    fs.writeFileSync(resultFile, e);
+                    done();
                 })
                 fs.writeFileSync(resultFile, JSON.stringify(result, 2, 2));
                 console.log(`ActionParamaters=[${result.variables.AutoInfo.ActionParamaters.length}]`);
 
 
                 var ActionParamaters = result.variables.AutoInfo.ActionParamaters;
-                expect(result.variables.request.appname).toBe('cbusapp1');
+                expect(result.variables.request.appname).toBe(body.appname);
 
                 expect(ActionParamaters.length).toBe(41);
  
@@ -506,7 +508,7 @@ describe("ZeeBe Service Suite", () => {
     test("ZeeBe.Service.TestCase05", async (done) => {
         const TCName = "TestCase05"
         const body = require(`../automation/data/${TCName}.request.json`);
-        const resultFile = `./__tests__/automation/data/${TCName}.result.json`;
+        const resultFile = `./__tests__/automation/data/$${TCName}_result.json`;
         const CDPInfo = require(`../automation/data/${TCName}.StorageCapability.json`);
         RPA.GetRPAInfo.mockReturnValue(CDPInfo)
 

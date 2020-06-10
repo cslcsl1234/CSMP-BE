@@ -220,7 +220,7 @@ var automationController = function (app) {
                                 var Auto = require('../lib/Automation_VMAX');
                                 break;
                             case "Unity":
-                                var Auto = require('../lib/Automation_Unity');
+                                var Auto = require('../lib/Automation_UNITY');
                                 break; 
                             default:
                                 callback(504,`not support physical type [${arrayInfo.array_type}]`);      

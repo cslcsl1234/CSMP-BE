@@ -30,11 +30,11 @@ module.exports = {
 
   // A list of reporter names that Jest uses when writing coverage reports
   coverageReporters: [
-       "html"
-  //   "json",
-  //   "text",
-  //   "lcov",
-  //   "clover"
+    "html"
+    //   "json",
+    //   "text",
+    //   "lcov",
+    //   "clover"
   ],
 
   // An object that configures minimum threshold enforcement for coverage results
@@ -96,6 +96,13 @@ module.exports = {
 
   // Use this configuration option to add custom reporters to Jest
   // reporters: undefined,
+  "reporters": [
+    "default",
+    ["./node_modules/jest-html-reporter", {
+      "pageTitle": "Test Report",
+      "outputPath": "__tests__/test_report.html"
+    }]
+  ],
 
   // Automatically reset mock state between every test
   // resetMocks: false,
@@ -139,14 +146,14 @@ module.exports = {
   // testLocationInResults: false,
 
   // The glob patterns Jest uses to detect test files
-   testMatch: [
-     "**/__tests__/**/*.[jt]s?(x)",
-  //   "**/?(*.)+(spec|test).[tj]s?(x)"
-   ],
+  testMatch: [
+    "**/__tests__/**/*.[jt]s?(x)",
+    //   "**/?(*.)+(spec|test).[tj]s?(x)"
+  ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: [ 
-     "__tests__/coverage"
+  testPathIgnorePatterns: [
+    "__tests__/coverage"
   ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files

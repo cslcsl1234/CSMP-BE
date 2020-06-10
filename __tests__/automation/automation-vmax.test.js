@@ -59,7 +59,7 @@ describe("EMC VMAX Automation Service", () => {
 
     });
 
-    test("VMAX.reateDevice", () => {
+    test("VMAX.CreateDevice", () => {
 
         var item = {
             "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
@@ -87,6 +87,7 @@ describe("EMC VMAX Automation Service", () => {
         VMAX.CreateDevice(item.arrayinfo, item.AsignSGName, capacity, item.StorageVolumeName, function (result) {
             if (result.code != 200) {
                 //console.log(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
+                console.log(result);
                 var msg = result.data.msg.error.messages;
                 console.log(msg)
 
