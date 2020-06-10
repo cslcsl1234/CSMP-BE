@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1hne4f5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Zeebe Modeler" exporterVersion="0.9.1">
+  <bpmn:process id="VPLEX-Provider-Workflow" name="VPLEX-Provider-Workflow" isExecutable="true">
+    <bpmn:serviceTask id="Activity_0njdt4h" name="Create Physical Volume">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="VPLEX-CreatePhysicalVolume" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1wbusqz</bpmn:incoming>
+      <bpmn:outgoing>Flow_0wuoz6j</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="Event_16g03ny" name="VPlex Provider Start">
+      <bpmn:outgoing>Flow_0upwawx</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_VPLEX-Initial-Configure-Info" name="Initial VPlex configuration information">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="VPLEX-Initial-Configure-Info" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0upwawx</bpmn:incoming>
+      <bpmn:outgoing>Flow_1h33uwa</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1h33uwa" sourceRef="Activity_VPLEX-Initial-Configure-Info" targetRef="Activity_VPLEX--verification-configuration" />
+    <bpmn:sequenceFlow id="Flow_0upwawx" sourceRef="Event_16g03ny" targetRef="Activity_VPLEX-Initial-Configure-Info" />
+    <bpmn:serviceTask id="Activity_18lreq9" name="ReDiscovery Physical Array">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="VPLEX-REDiscoveryPhysicalArray" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0wuoz6j</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pimqp2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1pimqp2" sourceRef="Activity_18lreq9" targetRef="Activity_09aoqm4" />
+    <bpmn:sequenceFlow id="Flow_0wuoz6j" sourceRef="Activity_0njdt4h" targetRef="Activity_18lreq9" />
+    <bpmn:endEvent id="Event_197bblw">
+      <bpmn:incoming>Flow_19trd2y</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_09aoqm4" name="Claim Physical Volumes">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="VPLEX-ClaimPhysicalVolumes" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1pimqp2</bpmn:incoming>
+      <bpmn:outgoing>Flow_0daf7gj</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0daf7gj" sourceRef="Activity_09aoqm4" targetRef="Activity_0njeol9" />
+    <bpmn:serviceTask id="Activity_0njeol9" name="Create Extent">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="VPLEX-CreateExtent" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0daf7gj</bpmn:incoming>
+      <bpmn:outgoing>Flow_19vtwt2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_19vtwt2" sourceRef="Activity_0njeol9" targetRef="Activity_1sjxxfc" />
+    <bpmn:serviceTask id="Activity_1sjxxfc" name="Create Local Device">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="VPLEX-CreateLocalDevice" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_19vtwt2</bpmn:incoming>
+      <bpmn:outgoing>Flow_1syhd03</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1syhd03" sourceRef="Activity_1sjxxfc" targetRef="Activity_1oclfq3" />
+    <bpmn:serviceTask id="Activity_1oclfq3" name="Create Distributed Device">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="VPLEX-CreateDistributDevice" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1syhd03</bpmn:incoming>
+      <bpmn:outgoing>Flow_15ykefo</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_15ykefo" sourceRef="Activity_1oclfq3" targetRef="Activity_1me59ov" />
+    <bpmn:serviceTask id="Activity_1me59ov" name="Create Virtual Volume">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="VPLEX-CreateVirtualVolume" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_15ykefo</bpmn:incoming>
+      <bpmn:outgoing>Flow_1q147bm</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1q147bm" sourceRef="Activity_1me59ov" targetRef="Activity_01wnvrs" />
+    <bpmn:serviceTask id="Activity_01wnvrs" name="Assign Storage View">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="VPLEX-AssignStorageView" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1q147bm</bpmn:incoming>
+      <bpmn:outgoing>Flow_0mln7ym</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0mln7ym" sourceRef="Activity_01wnvrs" targetRef="Activity_0l7pr6i" />
+    <bpmn:serviceTask id="Activity_0l7pr6i" name="Assign Consistency Group">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="VPLEX-AssignConsistencyGroup" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0mln7ym</bpmn:incoming>
+      <bpmn:outgoing>Flow_19trd2y</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_19trd2y" sourceRef="Activity_0l7pr6i" targetRef="Event_197bblw" />
+    <bpmn:sequenceFlow id="Flow_1wbusqz" sourceRef="Activity_VPLEX--verification-configuration" targetRef="Activity_0njdt4h" />
+    <bpmn:serviceTask id="Activity_VPLEX--verification-configuration" name="Verification Configuration">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="VPLEX-verification-configuration" retries="3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1h33uwa</bpmn:incoming>
+      <bpmn:outgoing>Flow_1wbusqz</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="VPLEX-Provider-Workflow">
+      <bpmndi:BPMNEdge id="Flow_19trd2y_di" bpmnElement="Flow_19trd2y">
+        <di:waypoint x="2040" y="140" />
+        <di:waypoint x="2142" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mln7ym_di" bpmnElement="Flow_0mln7ym">
+        <di:waypoint x="1860" y="140" />
+        <di:waypoint x="1940" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1q147bm_di" bpmnElement="Flow_1q147bm">
+        <di:waypoint x="1680" y="140" />
+        <di:waypoint x="1760" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15ykefo_di" bpmnElement="Flow_15ykefo">
+        <di:waypoint x="1490" y="140" />
+        <di:waypoint x="1580" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1syhd03_di" bpmnElement="Flow_1syhd03">
+        <di:waypoint x="1290" y="140" />
+        <di:waypoint x="1390" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19vtwt2_di" bpmnElement="Flow_19vtwt2">
+        <di:waypoint x="1110" y="140" />
+        <di:waypoint x="1190" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0daf7gj_di" bpmnElement="Flow_0daf7gj">
+        <di:waypoint x="930" y="140" />
+        <di:waypoint x="1010" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wuoz6j_di" bpmnElement="Flow_0wuoz6j">
+        <di:waypoint x="600" y="140" />
+        <di:waypoint x="650" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pimqp2_di" bpmnElement="Flow_1pimqp2">
+        <di:waypoint x="750" y="140" />
+        <di:waypoint x="830" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0upwawx_di" bpmnElement="Flow_0upwawx">
+        <di:waypoint x="208" y="140" />
+        <di:waypoint x="240" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1h33uwa_di" bpmnElement="Flow_1h33uwa">
+        <di:waypoint x="340" y="140" />
+        <di:waypoint x="370" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wbusqz_di" bpmnElement="Flow_1wbusqz">
+        <di:waypoint x="470" y="140" />
+        <di:waypoint x="500" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_197bblw_di" bpmnElement="Event_197bblw">
+        <dc:Bounds x="2142" y="122" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09aoqm4_di" bpmnElement="Activity_09aoqm4">
+        <dc:Bounds x="830" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1sjxxfc_di" bpmnElement="Activity_1sjxxfc">
+        <dc:Bounds x="1190" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1oclfq3_di" bpmnElement="Activity_1oclfq3">
+        <dc:Bounds x="1390" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1me59ov_di" bpmnElement="Activity_1me59ov">
+        <dc:Bounds x="1580" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_01wnvrs_di" bpmnElement="Activity_01wnvrs">
+        <dc:Bounds x="1760" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0njeol9_di" bpmnElement="Activity_0njeol9">
+        <dc:Bounds x="1010" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0l7pr6i_di" bpmnElement="Activity_0l7pr6i">
+        <dc:Bounds x="1940" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_16g03ny_di" bpmnElement="Event_16g03ny">
+        <dc:Bounds x="172" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="154" y="85" width="71" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_18lreq9_di" bpmnElement="Activity_18lreq9">
+        <dc:Bounds x="650" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0njdt4h_di" bpmnElement="Activity_0njdt4h">
+        <dc:Bounds x="500" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_14i9dba_di" bpmnElement="Activity_VPLEX-Initial-Configure-Info">
+        <dc:Bounds x="240" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_05rq2oz_di" bpmnElement="Activity_VPLEX--verification-configuration">
+        <dc:Bounds x="370" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
