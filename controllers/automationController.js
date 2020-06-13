@@ -219,71 +219,74 @@ var automationController = function (app) {
                             case "VMAX":
                                 var Auto = require('../lib/Automation_VMAX');
                                 break;
-                            case "Unity":
-                                var Auto = require('../lib/Automation_UNITY');
-                                break; 
+                            //case "Unity":
+                                //var Auto = require('../lib/Automation_UNITY');
+                                //break; 
                             default:
-                                callback(504,`not support physical type [${arrayInfo.array_type}]`);      
+                                var msg = `not support physical type [${arrayInfo.array_type}]`;
+                                console.log(msg)
+                                callback(600,msg);      
                                 break;          
                         }
     
-    
-    
-                        switch (config.ProductType) {
-                            case 'Dev':
-                            case 'Test':
-                                Auto.GetStorageViewsDemoVersion(arrayInfo, 'cluster-1', function (response) {
-                                    if (response.code !== 200) {
-                                        callback(response.code, response.message);
-                                    } else {
-                                        var result = response.response;
-                                        for (var i in result) {
-                                            var item = result[i];
-                                            var name = item.name;
-    
-                                            var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW)/);
-                                            //console.log(name+','+matchResult); 
-    
-                                            if (matchResult != null) {
-                                                var appItem = { "name": matchResult[1], "name_ext": matchResult[2] };
-                                                applist.push(appItem);
+                        if ( Auto !== undefined ) {
+                            switch (config.ProductType) {
+                                case 'Dev':
+                                case 'Test':
+                                    Auto.GetStorageViewsDemoVersion(arrayInfo, 'cluster-1', function (response) {
+                                        if (response.code !== 200) {
+                                            callback(response.code, response.message);
+                                        } else {
+                                            var result = response.response;
+                                            for (var i in result) {
+                                                var item = result[i];
+                                                var name = item.name;
+        
+                                                var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW)/);
+                                                //console.log(name+','+matchResult); 
+        
+                                                if (matchResult != null) {
+                                                    var appItem = { "name": matchResult[1], "name_ext": matchResult[2] };
+                                                    applist.push(appItem);
+                                                }
                                             }
+                                            retinfo["applist"] = applist;
+                                            callback(null, retinfo);
                                         }
-                                        retinfo["applist"] = applist;
-                                        callback(null, retinfo);
-                                    }
-                                });
-                                break;
-                            case 'Prod':
-                                //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
-    
-                                Auto.GetStorageViewsV1(arrayInfo, 'cluster-1', function (response) {
-                                    if (response.code !== 200) {
-                                        callback(response.code, response.message);
-                                    } else {
-                                        var result = response.response;
-                                        for (var i in result) {
-                                            var item = result[i];
-                                            var name = item.name;
-    
-                                            var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW)/);
-                                            //console.log(name+','+matchResult); 
-    
-                                            if (matchResult != null) {
-                                                var appItem = { "name": matchResult[1], "name_ext": matchResult[2] };
-                                                applist.push(appItem);
+                                    });
+                                    break;
+                                case 'Prod':
+                                    //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
+        
+                                    Auto.GetStorageViewsV1(arrayInfo, 'cluster-1', function (response) {
+                                        if (response.code !== 200) {
+                                            callback(response.code, response.message);
+                                        } else {
+                                            var result = response.response;
+                                            for (var i in result) {
+                                                var item = result[i];
+                                                var name = item.name;
+        
+                                                var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW|SG|sg)$/);
+                                                //console.log(name+','+matchResult); 
+        
+                                                if (matchResult != null) {
+                                                    var appItem = { "name": matchResult[1], "name_ext": matchResult[2] };
+                                                    applist.push(appItem);
+                                                }
                                             }
+                                            retinfo["applist"] = applist;
+                                            callback(null, retinfo);
                                         }
-                                        retinfo["applist"] = applist;
-                                        callback(null, retinfo);
-                                    }
-                                });
-                                break;
-                        }
+                                    });
+                                    break;
+                            }
+                        } else {
+                            callback( 504, "Auto Object is undefined ");
+                        } 
     
                     }
-                    , function (arg1, callback) {
-                        console.log(arg1);
+                    , function (arg1, callback) { 
                         var applist = arg1.applist;
                         var serviceMetadata = ServiceCatalogs.GetServiceMetadata();
                         var autoServiceInfo = {
@@ -301,6 +304,7 @@ var automationController = function (app) {
                     }
                 ], function (err, result) {
                     if (err) {
+                        console.log(result);
                         res.json(err, result);
                     } else
                         res.json(200, result);
@@ -996,7 +1000,7 @@ var automationController = function (app) {
                     ActionParamaterLabers["Step"] = "执行步骤名称";
                     ActionParamaterLabers["extents"] = "物理数据块(Extent)";
                     ActionParamaterLabers["geometry"] = "RAID类型";
-                    ActionParamaterLabers["AsignSGName"] = "RAID类型";
+                    ActionParamaterLabers["AsignSGName"] = "分配卷组（SG）名称";
                     ActionParamaterLabers["capacityByte"] = "容量(Byte)";
                     ActionParamaterLabers["execute"] = "是否已执行";
                     ActionParamaterLabers["response"] = "执行结果";

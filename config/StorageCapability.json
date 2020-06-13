@@ -2,7 +2,7 @@
     "CDP": {
         "RPA": [
             {
-                "name": "RPA-1",
+                "name": "RPA-VPLEX",
                 "description": "1. VPLEX供给分布式生产卷(后端cluster-1:VMAX; cluster-2:Unity), VPLEX供给本地复制卷(后端cluster-1:VMAX), Unit供给远程复制卷; 2. VPLEX供给生产日志卷(后端cluster-1:VMAX), VPLEX供给本地复制日志卷(后端cluster-1:VMAX), Unit供给远程复制日志卷 ",
                 "info": {
                     "array_type": "RPA",

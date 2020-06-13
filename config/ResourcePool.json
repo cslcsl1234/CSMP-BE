@@ -59,13 +59,13 @@
     "name": "VMAX-高端资源池",
     "resourceLevel": "Gold",
     "resourceType": "VMAX",
-    "TotalCapacity": 1234,
+    "TotalCapacity": 2234,
     "UsedCapacity": 567,
     "members": [
       {
         "arrayname": "VMAX-0193",
         "arraytype": "VMAX",
-        "capacity": 1000,
+        "capacity": 3000,
         "info": {
           "array_type": "VMAX",
           "serial_no": "000297800193",

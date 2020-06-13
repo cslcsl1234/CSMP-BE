@@ -88,8 +88,8 @@
         "label": "主机部署模式",
         "items": [
             { "name": "生产", "value": "SC" },
-            { "name": "生产+同城", "value": "TC" },
-            { "name": "同城", "value": "SH" }
+            { "name": "生产+同城", "value": "SC+TC" },
+            { "name": "同城", "value": "TC" }
         ]
     }
 }
