@@ -1315,8 +1315,8 @@ var cebAPIController = function (app) {
 
   // 获取所有VMAX存储中的Storage Group快照情况
   app.get("/ssmp/rest/vmax/sg-snap", function (req, res) {
-    var device = req.params.devicesn;
-    var sgname = req.params.sgname;
+    var device = req.query.devicesn;
+    var sgname = req.query.sgname;
 
     async.waterfall(
       [

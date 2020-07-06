@@ -1,0 +1,64 @@
+[
+    {
+        "hasDetail": false,
+        "tabName": "Storage Pools",
+        "template": 7,
+        "url": "/isilon/array/nodes",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "FileSystems",
+        "template": 7,
+        "url": "/isilon/filesystems",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Snapshot",
+        "template": 7,
+        "url": "/isilon/snapshots",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Namespaces",
+        "template": 7,
+        "url": "/ecs/array/namespaces",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Replication Groups",
+        "template": 7,
+        "url": "/ecs/array/replicationgroups",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    } 
+
+]
+

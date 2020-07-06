@@ -72,6 +72,8 @@ require('./controllers/demoController')(app);
 
 require('./controllers/arrayController')(app);
 require('./controllers/virtualArrayController')(app);
+require('./controllers/objectArrayController')(app);
+require('./controllers/fileArrayController')(app);
 
 require('./controllers/switchController')(app);
 require('./controllers/appController')(app);
@@ -112,7 +114,15 @@ require('./controllers/autoScriptsController')(app);
  * Starting Zeebe bpmn process service 
  */
 //ZeeBeLib.deployWorkflow();
-ZeeBeLib.createProcessWorker();
+console.log("---- === ---- === ---- === ---- === ---- ===")
+if ( config.FunctionConfigure.automation == true ) {
+    console.log("config.FunctionConfigure.automation is true, Enable the automation module... ...")
+    ZeeBeLib.createProcessWorker();
+} else {
+    console.log("config.FunctionConfigure.automation is false, Disable the automation module... ...")
+}
+console.log("---- === ---- === ---- === ---- === ---- ===")
+
 
  
 /**

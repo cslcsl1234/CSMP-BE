@@ -58,6 +58,8 @@ var VMAX_AUTO = require('../lib/Automation_VMAX');
 var RPA = require('../lib/Automation_RPA');
 var Automation_VPLEX = require('../lib/Automation_VPLEX');
 var HEALTHCHECK = require('../lib/healthcheck');
+var ECS = require('../lib/Array_ECS')
+const ISILON = require('../lib/Array_Isilon')
 
 var testController = function (app) {
 
@@ -1014,12 +1016,42 @@ var testController = function (app) {
             })
 
         });
-
-
-
     });
 
 
+    app.get('/ecs_test', function (req, res1) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        var systemid = req.query.systemid;
+        var poolid = req.query.poolid;
+        var nodeid = req.query.nodeid
+        console.log(systemid);
+        //ECS.GetArrays(systemid, function(result) {
+        ECS.GetPools(systemid, function (result) {
+        //ECS.GetNodes(systemid, poolid, function (result) {
+        //ECS.GetDisks(systemid, nodeid, function (result) {
+        //ECS.GetNamespaces(systemid, function (result) {
+        //ECS.GetReplicateGroups(systemid, function (result) {
+            
+            res1.json(200, result);
+        })
+    });
+
+    app.get('/Isilon_test', function (req, res1) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        var device = req.query.device;
+        console.log(device);
+        //ISILON.GetArrays(device, function (result) {
+        //ISILON.GetDisks(device, function (result) {
+        //ISILON.GetFileSystems(device, function (result) {    
+        //ISILON.GetNodes(device, function (result) {   
+        //ISILON.GetInterfaces(device, function (result) {   
+        //ISILON.GetShares(device, function (result) {     
+        //ISILON.GetQuotas(device, function (result) {  
+        ISILON.GetSnapshots(device, function (result) {  
+        //ISILON.GetStoragePools(device, function (result) {  
+            res1.json(200, result);
+        })
+    });
 
 
 
@@ -1380,7 +1412,7 @@ var testController = function (app) {
 
         AutoService.BuildParamaterStrucut(req_body, async function (AutoObject) {
             try {
-                const ZEEBE_BROKER_URL = config.ZEEBE.BROKER; 
+                const ZEEBE_BROKER_URL = config.ZEEBE.BROKER;
                 const zbc = new ZB.ZBClient(ZEEBE_BROKER_URL)
                 var request = {
                     bpmnProcessId: 'CSMP-Automation-Main',
@@ -1388,9 +1420,9 @@ var testController = function (app) {
                     requestTimeout: 600000,
                 }
                 //console.log("-----\n" + JSON.stringify(request,null,2))
-                const result = await zbc.createWorkflowInstanceWithResult( request ).catch((e)=> {
-                    console.log("Exception:" + e )
-                }) 
+                const result = await zbc.createWorkflowInstanceWithResult(request).catch((e) => {
+                    console.log("Exception:" + e)
+                })
                 res.json(200, result);
             } catch (e) {
                 console.log(`There was an error running the 'CSMP-Automation-Main'!`)

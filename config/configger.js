@@ -29,6 +29,8 @@ configger.load = function(defaults) {
     else 
         configger.get().SRM_RESTAPI.BASE_FILTER = '!vstatus==\'inactive\'' + "&";
 
+    configger.get().SRM_RESTAPI.BASE_FILTER = '!vstatus==\'inactive\'' + "&";
+
     // add mutil-apg-server function;
     var a = configger.get().Backend;
     //configger.set('Backend', a[0]); 

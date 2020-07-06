@@ -24,3 +24,4 @@
 {"_id":{"$oid":"5be559c35c433c9001000008"},"menuId":"Automation.ServiceHome","parentMenuId":"Automation","title":"服务目录","level":1,"order":1,"icon":"keypad-outline","stateRef":"dashboard.Automation.ServiceHome","__v":0}
 {"_id":{"$oid":"5be558945c433c9001000007"},"menuId":"Automation","parentMenuId":"#","title":"自动化服务","level":0,"order":30,"icon":"log-out-outline","stateRef":"dashboard.Automation","__v":0}
 {"_id":{"$oid":"5e6ca7c7f16e4421c8208e6c"},"menuId":"ConfigManagement.TopologyGraphView","parentMenuId":"ConfigManagement","title":"拓扑图形视图","level":1,"order":1,"icon":"share-outline","stateRef":"dashboard.ConfigManagement.TopologyGraphView","__v":0}
+{"_id":{"$oid":"5e7e03a6bc5dc5158865d4da"},"menuId":"userManagement.discoveryMgmt","parentMenuId":"userManagement","title":"设备接入管理","level":1,"order":60,"icon":"link-2-outline","stateRef":"dashboard.sysManage.discovery-mgmt","__v":0}

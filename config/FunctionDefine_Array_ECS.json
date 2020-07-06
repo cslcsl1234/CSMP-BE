@@ -1,0 +1,76 @@
+[
+    {
+        "hasDetail": false,
+        "tabName": "基本信息",
+        "template": 1,
+        "url": "/ecs/array",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Storage Pools",
+        "template": 8,
+        "url": "/ecs/array/pools",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Nodes",
+        "template": 7,
+        "url": "/ecs/array/nodes",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Disks",
+        "template": 7,
+        "url": "/ecs/array/disks",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Namespaces",
+        "template": 7,
+        "url": "/ecs/array/namespaces",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    },
+    {
+        "hasDetail": false,
+        "tabName": "Replication Groups",
+        "template": 7,
+        "url": "/ecs/array/replicationgroups",
+        "param": [
+            {
+                "postName": "device",
+                "findName": "device"
+            }
+        ]
+    } 
+
+]
+
