@@ -1,6 +1,8 @@
 {
   "FunctionConfigure": {
-    "automation": false
+    "automation": false,
+    "demo": false,
+    "report": false
   },
   "Backend": [
     {
