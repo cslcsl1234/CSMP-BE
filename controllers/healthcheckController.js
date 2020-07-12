@@ -34,9 +34,9 @@ var healthcheckController = function (app) {
 
     app.get('/healthcheck/vmax', function (req, res) {
         var config = configger.load();
+        var ReportOutputPath = config.Reporting.OutputPath;
 
-
-        HealthCheck.VMAX("C:\\","20200227101112",function(outputfile) {
+        HealthCheck.VMAX(ReportOutputPath,"20200227101112",function(outputfile) {
             //console.log(outputfile);
             res.json(200,outputfile);
         })
@@ -45,20 +45,29 @@ var healthcheckController = function (app) {
 
     app.get('/healthcheck/brocade', function (req, res) {
         var config = configger.load();
+        var ReportOutputPath = config.Reporting.OutputPath;
 
-
-        HealthCheck.Brocade("C:\\","20200227101112",function(result) {
+        HealthCheck.Brocade(ReportOutputPath,"20200227101112",function(result) {
             //console.log(outputfile);
             res.json(200,result);
         })
 
     });
 
+    app.get('/healthcheck/vnx', function (req, res) {
+        var config = configger.load();
+        var ReportOutputPath = config.Reporting.OutputPath;
+        HealthCheck.VNX(ReportOutputPath,"20200227101112",function(result) {
+            //console.log(outputfile);
+            res.json(200,result);
+        })
+
+    });
     
     app.get('/healthcheck/unity', function (req, res) {
         var config = configger.load();
- 
-        HealthCheck.Brocade("C:\\","20200227101112",function(result) {
+        var ReportOutputPath = config.Reporting.OutputPath;
+        HealthCheck.Unity(ReportOutputPath,"20200227101112",function(result) {
             //console.log(outputfile);
             res.json(200,result);
         })

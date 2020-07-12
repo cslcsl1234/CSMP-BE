@@ -70,7 +70,7 @@
     "VNX": {
         "hostinfo" : [
             {
-                "host": "10.62.36.151",
+                "host": "172.10.2.244",
                 "port": 22,
                 "username": "root",
                 "privateKeyFile": "C:\\CSMP\\CSMP-BE\\config\\id_rsa",
