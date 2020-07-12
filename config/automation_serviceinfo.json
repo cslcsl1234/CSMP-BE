@@ -86,7 +86,7 @@
     ],
     "HostDeploy": {
         "label": "主机部署模式",
-        "items": [ 
+        "items": [
             { "name": "生产+同城", "value": "SC+TC" },
             { "name": "生产", "value": "SC" },
             { "name": "同城", "value": "TC" }
