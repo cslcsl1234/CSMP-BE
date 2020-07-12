@@ -33,43 +33,48 @@ var healthcheckController = function (app) {
 
 
     app.get('/healthcheck/vmax', function (req, res) {
+        var startdate = req.query.begindate;
         var config = configger.load();
         var ReportOutputPath = config.Reporting.OutputPath;
 
-        HealthCheck.VMAX(ReportOutputPath,"20200227101112",function(outputfile) {
+        HealthCheck.VMAX(ReportOutputPath,startdate,function(outputfile) {
             //console.log(outputfile);
-            res.json(200,outputfile);
+            var retData = { filename: outputfile }
+            res.json(200,retData);
         })
 
     });
 
     app.get('/healthcheck/brocade', function (req, res) {
+        var startdate = req.query.begindate;
         var config = configger.load();
         var ReportOutputPath = config.Reporting.OutputPath;
 
-        HealthCheck.Brocade(ReportOutputPath,"20200227101112",function(result) {
-            //console.log(outputfile);
-            res.json(200,result);
+        HealthCheck.Brocade(ReportOutputPath,startdate,function(result) {
+            var retData = { filename: result }
+            res.json(200,retData);
         })
 
     });
 
     app.get('/healthcheck/vnx', function (req, res) {
+        var startdate = req.query.begindate;
         var config = configger.load();
         var ReportOutputPath = config.Reporting.OutputPath;
-        HealthCheck.VNX(ReportOutputPath,"20200227101112",function(result) {
-            //console.log(outputfile);
-            res.json(200,result);
+        HealthCheck.VNX(ReportOutputPath,startdate,function(result) {
+            var retData = { filename: result }
+            res.json(200,retData);
         })
 
     });
     
     app.get('/healthcheck/unity', function (req, res) {
+        var startdate = req.query.begindate;
         var config = configger.load();
         var ReportOutputPath = config.Reporting.OutputPath;
-        HealthCheck.Unity(ReportOutputPath,"20200227101112",function(result) {
-            //console.log(outputfile);
-            res.json(200,result);
+        HealthCheck.Unity(ReportOutputPath,startdate,function(result) {
+            var retData = { filename: result }
+            res.json(200,retData);
         })
 
     });

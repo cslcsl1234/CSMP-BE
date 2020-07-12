@@ -1,6 +1,6 @@
 {
   "FunctionConfigure": {
-    "automation": false,
+    "automation": true,
     "demo": false,
     "report": false
   },
