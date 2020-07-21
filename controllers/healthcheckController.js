@@ -8,6 +8,7 @@
  * @param app
  */
 const debug = require('debug')('healthcheckController')
+const moment = require('moment');
 var async = require('async');
 
 var configger = require('../config/configger');  
@@ -35,8 +36,11 @@ var healthcheckController = function (app) {
     app.get('/healthcheck/vmax', function (req, res) {
         var config = configger.load();
 
+        var d = new Date(); // Today!
+        d.setDate(d.getDate() - 1); // Yesterday!
+        var startdatetime = monent(d).format('YYYYMMDDHHmmss')
 
-        HealthCheck.VMAX("C:\\","20200227101112",function(outputfile) {
+        HealthCheck.VMAX("C:\\",startdatetime,function(outputfile) {
             //console.log(outputfile);
             res.json(200,outputfile);
         })
@@ -45,9 +49,13 @@ var healthcheckController = function (app) {
 
     app.get('/healthcheck/brocade', function (req, res) {
         var config = configger.load();
+        var ReportOutputPath = config.Reporting.OutputPath;
 
+        var d = new Date(); // Today!
+        d.setDate(d.getDate() - 1); // Yesterday!
+        var startdatetime = monent(d).format('YYYYMMDDHHmmss')
 
-        HealthCheck.Brocade("C:\\","20200227101112",function(result) {
+        HealthCheck.Brocade(ReportOutputPath,startdatetime,function(result) {
             //console.log(outputfile);
             res.json(200,result);
         })
