@@ -34,23 +34,32 @@ var healthcheckController = function (app) {
 
 
     app.get('/healthcheck/vmax', function (req, res) {
+        var startdate = req.query.begindate;
         var config = configger.load();
+        var ReportOutputPath = config.Reporting.OutputPath;
 
+<<<<<<< HEAD
         var d = new Date(); // Today!
         d.setDate(d.getDate() - 1); // Yesterday!
         var startdatetime = monent(d).format('YYYYMMDDHHmmss')
 
         HealthCheck.VMAX("C:\\",startdatetime,function(outputfile) {
+=======
+        HealthCheck.VMAX(ReportOutputPath,startdate,function(outputfile) {
+>>>>>>> bf9c9db4ff96644cd6f4fcf3b0eda24e4ad8bbcc
             //console.log(outputfile);
-            res.json(200,outputfile);
+            var retData = { filename: outputfile }
+            res.json(200,retData);
         })
 
     });
 
     app.get('/healthcheck/brocade', function (req, res) {
+        var startdate = req.query.begindate;
         var config = configger.load();
         var ReportOutputPath = config.Reporting.OutputPath;
 
+<<<<<<< HEAD
         var d = new Date(); // Today!
         d.setDate(d.getDate() - 1); // Yesterday!
         var startdatetime = monent(d).format('YYYYMMDDHHmmss')
@@ -58,17 +67,33 @@ var healthcheckController = function (app) {
         HealthCheck.Brocade(ReportOutputPath,startdatetime,function(result) {
             //console.log(outputfile);
             res.json(200,result);
+=======
+        HealthCheck.Brocade(ReportOutputPath,startdate,function(result) {
+            var retData = { filename: result }
+            res.json(200,retData);
+>>>>>>> bf9c9db4ff96644cd6f4fcf3b0eda24e4ad8bbcc
         })
 
     });
 
+    app.get('/healthcheck/vnx', function (req, res) {
+        var startdate = req.query.begindate;
+        var config = configger.load();
+        var ReportOutputPath = config.Reporting.OutputPath;
+        HealthCheck.VNX(ReportOutputPath,startdate,function(result) {
+            var retData = { filename: result }
+            res.json(200,retData);
+        })
+
+    });
     
     app.get('/healthcheck/unity', function (req, res) {
+        var startdate = req.query.begindate;
         var config = configger.load();
- 
-        HealthCheck.Brocade("C:\\","20200227101112",function(result) {
-            //console.log(outputfile);
-            res.json(200,result);
+        var ReportOutputPath = config.Reporting.OutputPath;
+        HealthCheck.Unity(ReportOutputPath,startdate,function(result) {
+            var retData = { filename: result }
+            res.json(200,retData);
         })
 
     });

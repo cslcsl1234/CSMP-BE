@@ -1,6 +1,6 @@
 {
   "FunctionConfigure": {
-    "automation": false,
+    "automation": true,
     "demo": false,
     "report": false
   },
@@ -26,17 +26,17 @@
     "METRICS_PROPERTIES_VALUE": "/metrics/properties/values",
     "METRICS_SERIES_VALUE": "/metrics/series/values",
     "METRICS_AGGREGATES": "/metrics/aggregates",
-    "BASE_FILTER": ""
+    "BASE_FILTER": "!vstatus=='inactive'&"
   },
   "SERVER": {
     "PORT": 9090,
-    "HOST": "192.168.92.195"
+    "HOST": "172.10.2.124"
   },
-  "ProductType": "Test",
+  "ProductType": "Prod",
   "ProductTypeDesc": [
     "Prod",
     "Dev",
-    "Test" 
+    "Test"
   ],
   "SRMDevLastDT-DLBank": "2018-01-25T14:00:00+08:00",
   "SRMDevLastDT-AirChina": "2017-11-27T08:00:00+08:00",
