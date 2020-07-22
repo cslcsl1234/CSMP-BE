@@ -38,15 +38,7 @@ var healthcheckController = function (app) {
         var config = configger.load();
         var ReportOutputPath = config.Reporting.OutputPath;
 
-<<<<<<< HEAD
-        var d = new Date(); // Today!
-        d.setDate(d.getDate() - 1); // Yesterday!
-        var startdatetime = monent(d).format('YYYYMMDDHHmmss')
-
-        HealthCheck.VMAX("C:\\",startdatetime,function(outputfile) {
-=======
         HealthCheck.VMAX(ReportOutputPath,startdate,function(outputfile) {
->>>>>>> bf9c9db4ff96644cd6f4fcf3b0eda24e4ad8bbcc
             //console.log(outputfile);
             var retData = { filename: outputfile }
             res.json(200,retData);
@@ -59,19 +51,9 @@ var healthcheckController = function (app) {
         var config = configger.load();
         var ReportOutputPath = config.Reporting.OutputPath;
 
-<<<<<<< HEAD
-        var d = new Date(); // Today!
-        d.setDate(d.getDate() - 1); // Yesterday!
-        var startdatetime = monent(d).format('YYYYMMDDHHmmss')
-
-        HealthCheck.Brocade(ReportOutputPath,startdatetime,function(result) {
-            //console.log(outputfile);
-            res.json(200,result);
-=======
         HealthCheck.Brocade(ReportOutputPath,startdate,function(result) {
             var retData = { filename: result }
             res.json(200,retData);
->>>>>>> bf9c9db4ff96644cd6f4fcf3b0eda24e4ad8bbcc
         })
 
     });
