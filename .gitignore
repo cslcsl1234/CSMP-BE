@@ -1,4 +1,4 @@
-node_modules 
+ 
 .idea
 *.iml
 *.log
@@ -26,3 +26,5 @@ __tests__/coverage/config/configger.js.html
 __tests__/coverage/config/index.html 
 __tests__/coverage/lib/*.html
 __tests__/coverage/models/*.html  
+node_modules
+
