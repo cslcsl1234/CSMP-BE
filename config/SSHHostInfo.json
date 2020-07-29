@@ -94,6 +94,26 @@
             }
         ]
 
+    },
+    "VPLEX": {
+        "hostinfo" : [
+            {
+                "name": "EMCCTEST",
+                "array_type": "VPLEX",
+                "version": "5.5",
+                "endpoint": "https://10.32.32.100/vplex",
+                "auth": {
+                  "username": "service",
+                  "password": "password"
+                }
+            } 
+        ],
+        "cmds" : {
+            "5.5": {
+                "status":"health-check"
+            } 
+        }
+    
     }
 
 }

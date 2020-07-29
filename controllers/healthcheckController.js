@@ -97,6 +97,23 @@ var healthcheckController = function (app) {
 
     });
 
+
+    app.get('/healthcheck/vplex', function (req, res) {
+        var config = configger.load();
+        var ReportOutputPath = config.Reporting.OutputPath;
+        
+        var d = new Date(); // Today!
+        d.setDate(d.getDate() - 1); // Yesterday!
+        var startdatetime = moment(d).format('YYYYMMDDHHmmss')
+
+        HealthCheck.VPLEX(ReportOutputPath, startdatetime, function (result) {
+            //console.log(outputfile);
+            res.json(200, result);
+        })
+
+    });
+
+
 };
 
 module.exports = healthcheckController;
