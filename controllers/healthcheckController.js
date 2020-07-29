@@ -99,6 +99,8 @@ var healthcheckController = function (app) {
 
 
     app.get('/healthcheck/vplex', function (req, res) {
+        res.setTimeout(3600 * 1000);
+
         var config = configger.load();
         var ReportOutputPath = config.Reporting.OutputPath;
         
