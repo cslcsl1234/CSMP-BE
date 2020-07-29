@@ -1172,6 +1172,115 @@ var automationController = function (app) {
     });
 
 
+    app.post('/api/auto/service/san/provisioning', function (req, res) {
+        var AutoAPI = require('../lib/Automation');
+
+        res.setTimeout(3600 * 1000);
+        var AutoObject = req.body;
+
+        var resResult = {
+            "resMsg": {
+              "code": 200,
+              "message": [
+                "find a match ResourcePool!",
+                "Begin execute service [ CapacityProvisingService ] !",
+                "[2020-05-21T02:40:19.877Z] # Begin execute each action."
+              ]
+            },
+            "request": {
+              "client": "1590027897134",
+              "appname": "EMC-TC1001",
+              "appname_ext": "VW",
+              "opsType": "review",
+              "hosts": [
+                  {
+                      "name": "hostname1",
+                      "type": "AIX",
+                      "wwpn": [
+                          "11:11:11:11:11:11:11:11",
+                          "62:62:62:62:21:21:21:21"
+                      ]
+                  },
+                  {
+                      "name": "hostname2",
+                      "type": "AIX",
+                      "wwpn": [
+                          "22:22:22:22:22:22:22:22",
+                          "62:62:62:62:21:21:21:21"
+                      ]
+                  }
+              ]
+          }
+          ,
+            "AutoInfo": {
+              "RuleResults": {
+              },
+              "ResourceInfo": {
+              },
+              "ActionParamaters": [
+                {
+                  "StepGroupName": "Providing Product Volume",
+                  "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
+                  "method": "CreatePhysicalDevice",
+                  "DependOnAction": "N/A",
+                  "AsignSGName": "MSCS_SG",
+                  "StorageVolumeName": "EMC-TC1001_VMAX193_0521103643os01",
+                  "capacityByte": 1073741824,
+                  "position": "primary",
+                  "execute": true,
+                  "progress": 1,
+                  "response": {
+                    "code": 200,
+                    "msg": "VMAX.CreateDevice is succeedful. array=[000297800193] sgname=[MSCS_SG] volname=[EMC-TC1001_VMAX193_0521103643os01] capacity=[1(GB)]",
+                    "data": {
+                      "name": "EMC-TC1001_VMAX193_0521103643os01",
+                      "lunwwn": "60000970000297800193533030313038"
+                    }
+                  },
+                  "status": "success"
+                }
+              ],
+              "ActionResult": {
+              },
+              "ActionParamaterLabers": {
+                "method": "执行操作",
+                "DependOnAction": "依赖操作",
+                "StorageVolumeName": "物理存储卷名称",
+                "devicename": "卷名称",
+              }
+            },
+            "ActionResponses": [
+              {
+                "StepGroupName": "Providing Product Volume",
+                "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
+                "method": "CreatePhysicalDevice",
+                "DependOnAction": "N/A",
+                "AsignSGName": "MSCS_SG",
+                "StorageVolumeName": "EMC-TC1001_VMAX193_0521103643os01",
+                "capacityByte": 1073741824,
+                "position": "primary",
+                "execute": true,
+                "progress": 1,
+                "response": {
+                  "code": 200,
+                  "msg": "VMAX.CreateDevice is succeedful. array=[000297800193] sgname=[MSCS_SG] volname=[EMC-TC1001_VMAX193_0521103643os01] capacity=[1(GB)]",
+                  "data": {
+                    "name": "EMC-TC1001_VMAX193_0521103643os01",
+                    "lunwwn": "60000970000297800193533030313038"
+                  }
+                },
+                "status": "success"
+              }
+            ]
+          }
+
+          res.json(200, resResult);
+           
+
+
+
+    });
+
 
     app.post('/api/auto/service/block/provisioning/executetest', function (req, res) {
         var AutoAPI = require('../lib/Automation');
