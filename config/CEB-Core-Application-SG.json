@@ -1,21 +1,23 @@
 [
-    "EBMOP_SG",
-    "EBCPP_SG|VMAX16|云缴费平台（EMCPP）",
+    "EBCPP_SG|VMAX16|云缴费平台（EBCPP）",
     "EBMCP_SG|VMAX16|总行中间业务云平台（EBMCP）",
     "NETBANK_SG|VMAX16|手机银行系统（CEMB）",
+    "EBMOP_SG",
     "NMBFEDB_SG",
     "RACRW_DATA_SG",
-    "EBMCP_SG|VMAX16",
+    "EBMP_SG|VMAX15",
     "NPCP_DATA_SG",
     "ECIF_SG",
     "FUND_SG|VMAX15",
     "IFTS_SG",
+    "NETBANK_SG|VMAX16",
     "EBISZ_SG",
     "PLMSPRO_DB_SG|VMAX12",
     "TPOS_SG|VMAX15",
     "CCS-B_SG",
     "EBIP_RAC_SG",
-    "GTS_RAC_SG",
+    "GTS_RAC_SG|VMAX",
     "ATMP_SG",
-    "IFS_SG|VMAX9"
+    "IFS_SG|VMAX9",
+    "BEBIP_SG|VMAX17"
 ]

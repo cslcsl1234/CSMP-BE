@@ -1317,7 +1317,7 @@ var cebAPIController = function (app) {
   app.get("/ssmp/rest/vmax/sg-snap", function (req, res) {
     var device = req.query.devicesn;
     var sgname = req.query.sgname;
-
+ 
     async.waterfall(
       [
         function (callback) {
@@ -1334,6 +1334,36 @@ var cebAPIController = function (app) {
               }
             }
             callback(null, sgSnapList);
+          });
+        }
+      ],
+      function (err, result) {
+        //result.sort(sortBy("arrayname"));
+        res.json(200, result);
+      }
+    );
+  });
+
+  app.get("/ssmp/rest/vmax/sg-snap1", function (req, res) {
+    var device = req.query.devicesn;
+    var sgname = req.query.sgname;
+
+console.log("$$$$\n" + device );
+
+    async.waterfall(
+      [
+        function (callback) {
+          VMAX.GetStorageGroups(device, function (sg) {
+            var sgSnapList = [];
+            for (var i in sg) {
+              var item = sg[i];
+              var capacity = item.Capacity;
+
+console.log(item.sgname +',' + item.snap);
+              if (item.snap === undefined) continue;
+console.log(JSON.stringify(item.snap,2,2));
+            }
+            callback(null, sg);
           });
         }
       ],

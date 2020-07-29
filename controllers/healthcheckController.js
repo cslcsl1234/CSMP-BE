@@ -11,7 +11,7 @@ const debug = require('debug')('healthcheckController')
 const moment = require('moment');
 var async = require('async');
 
-var configger = require('../config/configger');  
+var configger = require('../config/configger');
 var HealthCheck = require('../lib/healthcheck');
 
 
@@ -38,10 +38,14 @@ var healthcheckController = function (app) {
         var config = configger.load();
         var ReportOutputPath = config.Reporting.OutputPath;
 
-        HealthCheck.VMAX(ReportOutputPath,startdate,function(outputfile) {
+        var d = new Date(); // Today!
+        d.setDate(d.getDate() - 1); // Yesterday!
+        var startdatetime = moment(d).format('YYYYMMDDHHmmss')
+
+        startdate = startdate + "000000";
+        HealthCheck.VMAX(ReportOutputPath, startdate, function (outputfile) {
             //console.log(outputfile);
-            var retData = { filename: outputfile }
-            res.json(200,retData);
+            res.json(200, outputfile);
         })
 
     });
@@ -51,9 +55,13 @@ var healthcheckController = function (app) {
         var config = configger.load();
         var ReportOutputPath = config.Reporting.OutputPath;
 
-        HealthCheck.Brocade(ReportOutputPath,startdate,function(result) {
-            var retData = { filename: result }
-            res.json(200,retData);
+        var d = new Date(); // Today!
+        d.setDate(d.getDate() - 1); // Yesterday!
+        var startdatetime = moment(d).format('YYYYMMDDHHmmss')
+
+        HealthCheck.Brocade(ReportOutputPath, startdate, function (result) {
+            //console.log(outputfile);
+            res.json(200, result);
         })
 
     });
@@ -62,20 +70,29 @@ var healthcheckController = function (app) {
         var startdate = req.query.begindate;
         var config = configger.load();
         var ReportOutputPath = config.Reporting.OutputPath;
-        HealthCheck.VNX(ReportOutputPath,startdate,function(result) {
-            var retData = { filename: result }
-            res.json(200,retData);
+
+        var d = new Date(); // Today!
+        d.setDate(d.getDate() - 1); // Yesterday!
+        var startdatetime = moment(d).format('YYYYMMDDHHmmss')
+
+        HealthCheck.VNX(ReportOutputPath, startdate, function (result) {
+            //console.log(outputfile);
+            res.json(200, result);
         })
 
     });
-    
+
     app.get('/healthcheck/unity', function (req, res) {
-        var startdate = req.query.begindate;
         var config = configger.load();
         var ReportOutputPath = config.Reporting.OutputPath;
-        HealthCheck.Unity(ReportOutputPath,startdate,function(result) {
-            var retData = { filename: result }
-            res.json(200,retData);
+        
+        var d = new Date(); // Today!
+        d.setDate(d.getDate() - 1); // Yesterday!
+        var startdatetime = moment(d).format('YYYYMMDDHHmmss')
+
+        HealthCheck.Unity(ReportOutputPath, startdatetime, function (result) {
+            //console.log(outputfile);
+            res.json(200, result);
         })
 
     });
