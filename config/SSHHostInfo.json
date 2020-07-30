@@ -114,6 +114,20 @@
             } 
         }
     
+    },
+    "XIO": {
+        "hostinfo" : [
+            {
+                "name": "XIO-ARRAY-01",
+                "array_type": "XIO",
+                "version": "5.5",
+                "endpoint": "https://10.32.32.100/api/json/types",
+                "auth": {
+                  "username": "service",
+                  "password": "password"
+                }
+            } 
+        ]  
     }
 
 }

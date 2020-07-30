@@ -116,6 +116,34 @@ var healthcheckController = function (app) {
     });
 
 
+    app.get('/healthcheck/xio', function (req, res) {
+        res.setTimeout(3600 * 1000);
+
+        var config = configger.load();
+        var ReportOutputPath = config.Reporting.OutputPath;
+        
+        var startdatetime = req.query.start;
+        if ( startdatetime === undefined ) {
+            var d = new Date();  
+            d.setDate(d.getDate() - 1); // Yesterday!
+            startdatetime = moment(d).format('YYYYMMDDHHmmss')
+        }
+        var enddatetime = req.query.end;
+        if ( enddatetime === undefined ) {
+            var d = new Date(); // Today!
+            d.setDate(d.getDate()); 
+            enddatetime = moment(d).format('YYYYMMDDHHmmss')
+        } 
+
+ 
+        HealthCheck.XIO(ReportOutputPath, startdatetime, enddatetime, function (result) {
+            //console.log(outputfile);
+            res.json(200, result);
+        })
+
+    });
+
+
 };
 
 module.exports = healthcheckController;
