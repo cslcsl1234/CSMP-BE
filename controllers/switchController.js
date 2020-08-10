@@ -68,7 +68,7 @@ var switchController = function (app) {
                 util.GetLocaltion(function (locations) {
                     console.log(locations);
                     param['Locations'] = locations;
-                    callback(null, param); 
+                    callback(null, param);
 
                 });
 
@@ -113,12 +113,12 @@ var switchController = function (app) {
 
             // get customize info
             function (param, callback) {
- 
+
                 var fields = 'part,psname,pswwn,device,deviceid,fabwwn,lswwn,lsname';
                 var filter = 'parttype==\'Fabric\'|parttype==\'VSAN\'';
 
                 var fabricResult = [];
-                
+
                 console.log(config.Backend);
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
                     .auth(config.Backend.USER, config.Backend.PASSWORD, true)
@@ -137,11 +137,13 @@ var switchController = function (app) {
                                 var item = resultJson[j];
                                 if (swItem.device == item.device) {
                                     swItem['lsname'] = item.lsname;
+                                    swItem['fabwwn'] = item.fabwwn;
                                     isfind = true;
                                 }
                             }
                             if (!isfind) {
                                 swItem['lsname'] = swItem.device;
+                                swItem['fabwwn'] = '';
                             }
                         }
 
@@ -150,7 +152,30 @@ var switchController = function (app) {
                     });
 
 
-            }
+            }, 
+            function (arg1, callback) {
+                var param = {};
+                param['keys'] = ['pswwn'];
+                param['fields'] = ['zsetname'];
+                param['filter'] = 'parttype==\'ZoneMember\'';
+
+                CallGet.CallGet(param, function (param) {
+                    var zsetresult = param.result;
+
+                    for ( var i in arg1.result ) {
+                        var item = arg1.result[i];
+                        for ( var j in zsetresult ) {
+                            var zsetItem = zsetresult[j];
+                            if ( item.fabwwn == zsetItem.pswwn ) {
+                                item["zsetname"] = zsetItem.zsetname;
+                            }
+                        }
+                    }
+                    callback(null, arg1);
+                });
+
+            } 
+
 
         ], function (err, result) {
 
@@ -200,7 +225,7 @@ var switchController = function (app) {
         var param = {};
         //param['filter_name'] = 'name=\'Availability\'';
         param['keys'] = ['device'];
-        param['fields'] = ['devicesn', 'vendor', 'model', 'ip', 'devdesc'];
+        param['fields'] = ['devicesn', 'vendor', 'model', 'ip', 'devdesc', 'fabwwn'];
 
         if (typeof deviceid !== 'undefined') {
             param['filter'] = 'device=\'' + deviceid + '\'&devtype==\'FabricSwitch\'&!(parttype==\'Fabric\'|parttype=\'Zone%\')&!datagrp=\'%ZONE%\'';
@@ -215,75 +240,9 @@ var switchController = function (app) {
 
 
                 CallGet.CallGet(param, function (param) {
-
                     callback(null, param);
-                    /*
-                    console.log(deviceid);
-                    SwitchObj.findOne({"basicInfo.device" : deviceid}, function (err, doc) {
-                        //system error.
-                        if (err) {
-                        return   done(err);
-                        }
-
-                        if ( param.result.length > 0 ) {
-                            if (!doc) { //user doesn't exist.
-                                console.log("app is not exist. insert it."); 
-                                var initRecord = {
-                                        "ability": {
-                                            "maxSlot": "",
-                                            "maxPorts": ""
-                                        },
-                                        "assets": {
-                                            "no": "",
-                                            "department": "",
-                                            "purpose": "",
-                                            "manager": ""
-                                        },
-                                        "maintenance": {
-                                            "purchaseDate": "",
-                                            "contact": "",
-                                            "period": "",
-                                            "vendor": ""
-                                        },
-                                        "basicInfo": {
-                                            "device": "",
-                                            "alias": "",
-                                            "UnitID": ""
-                                        }
-                                    }; 
-
-                                initRecord.basicInfo.device = deviceid;
-
-                                var newswitch = new SwitchObj(initRecord);
-                                newswitch.save(function(err, thor) {
-                                  if (err)  {
-
-                                    console.dir(thor);
-                                    return res.json(400 , err);
-                                  } else 
-                                    return res.json(200, {status: "The Switch insert is succeeds!"});
-                                });                        
-
-                                param.result[0]['info'] = initRecord;
-
-                            }
-                            else {
-                            console.log("App is exist!");
-                            console.log(doc);
-                     
-                            param.result[0]['info'] = doc;
-
-                            }
-                                res.json(200, param.result[0]);
-                        }
-                        else 
-                        res.json(200, {} );
-
-                    });
-                    */
                 });
             },
-            // Get All Localtion Records
             function (param, callback) {
 
                 util.GetLocaltion(function (locations) {
@@ -326,7 +285,29 @@ var switchController = function (app) {
 
                 });
 
-            }
+            },
+            function (arg1, callback) {
+                var param = {};
+                param['keys'] = ['pswwn'];
+                param['fields'] = ['zsetname'];
+                param['filter'] = 'parttype==\'ZoneMember\'';
+
+                CallGet.CallGet(param, function (param) {
+                    var zsetresult = param.result;
+
+                    for ( var i in arg1.result ) {
+                        var item = arg1.result[i];
+                        for ( var j in zsetresult ) {
+                            var zsetItem = zsetresult[j];
+                            if ( item.fabwwn == zsetItem.pswwn ) {
+                                item["zsetname"] = zsetItem.zsetname;
+                            }
+                        }
+                    }
+                    callback(null, arg1);
+                });
+
+            } 
 
         ], function (err, result) {
             // result now equals 'done'
@@ -489,7 +470,7 @@ var switchController = function (app) {
             if (!doc) { //user doesn't exist.
                 console.log("app is not exist. insert it.");
 
-                var newapp = new SwitchObj(reqBody); 
+                var newapp = new SwitchObj(reqBody);
                 newapp.save(function (err, thor) {
                     console.log('Test2');
                     if (err) {
@@ -866,9 +847,9 @@ var switchController = function (app) {
                                 if (isfind == false) {
                                     portItem.zoneinfo.push({ "zonename": item.zname })
                                     var hbaname = item.zname.match(/[A-Za-z0-9)_]+(HBA[0-9])_[A-Za-z0-9)_]+/);
-                                    if (hbaname !== undefined && hbaname != null) { 
+                                    if (hbaname !== undefined && hbaname != null) {
                                         portItem["connectedDevPortName"] = hbaname[1];
-                                    } 
+                                    }
                                 }
 
                             } else if ((portwwn == item.connect_arrayport_swport_wwn) || (connectPortWWN == item.arrayport_wwn)) {
