@@ -61,8 +61,13 @@ var capacityController = function (app) {
                 })
             },
             function (arg1, callback) {
-                var res = CAPACITY.CombineCapacity(arg1);
-                callback(null, res);
+                if ( JSON.stringify(arg1) == "{}" ) 
+                    callback(604, arg1) 
+                else {
+                    var res = CAPACITY.CombineCapacity(arg1);
+                    callback(null, res);
+                }
+
             },
             function (arg1, callback) {
                 callback(null, arg1);

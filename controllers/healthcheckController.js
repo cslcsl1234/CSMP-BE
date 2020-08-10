@@ -136,7 +136,7 @@ var healthcheckController = function (app) {
         } 
 
  
-        HealthCheck.XIO(ReportOutputPath, startdatetime, enddatetime, function (result) {
+        HealthCheck.XtremIO(ReportOutputPath, startdatetime, enddatetime, function (result) {
             //console.log(outputfile);
             res.json(200, result);
         })
