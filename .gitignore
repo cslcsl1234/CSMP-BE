@@ -1,4 +1,49 @@
  
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+/dist
+/tmp
+/build
+
+# dependencies
+/node_modules
+/bower_components
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+*.launch
+.settings/
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage/*
+/libpeerconnection.log
+npm-debug.log
+testem.log
+/typings
+
+# e2e
+/e2e/*.js
+/e2e/*.map
+
+#System Files
+.DS_Store
+Thumbs.db
+
+#logs
+/logs/*
+*.log
+*npm-debug*
+
+bundle.js
+yarn.lock
+
+
+
 .idea
 *.iml
 *.log
@@ -25,6 +70,4 @@ __tests__/coverage/sorter.js
 __tests__/coverage/config/configger.js.html
 __tests__/coverage/config/index.html 
 __tests__/coverage/lib/*.html
-__tests__/coverage/models/*.html  
-node_modules
-
+__tests__/coverage/models/*.html   

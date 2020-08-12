@@ -56,6 +56,7 @@ var VMAX_AUTO = require('../lib/Automation_VMAX');
 var RPA = require('../lib/Automation_RPA');
 var Automation_VPLEX = require('../lib/Automation_VPLEX');
 var HEALTHCHECK = require('../lib/healthcheck');
+const logger = require('../lib/logger')(__filename);
 
 var testController = function (app) {
 
@@ -196,6 +197,7 @@ var testController = function (app) {
 
     });
     app.get('/test111', function (req, res) {
+        logger.info("sssbbb")
         res.json(200, "this is test");
     })
 
@@ -759,10 +761,10 @@ var testController = function (app) {
 
     app.get('/test111', function (req, res) {
         var data = require('c:\\1');
-        console.log(data.values.length)
-        var resData = util.convertSRMPerformanceStructV2(data);
+        logger.info("data.values.length")
+        //var resData = util.convertSRMPerformanceStructV2(data);
 
-        res.json(200, resData);
+        res.json(200, "");
     });
 
 

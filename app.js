@@ -1,6 +1,6 @@
 process.on('uncaughtException', function (error) {
-    console.log(error.stack);
- });
+    logger.info(error.stack);
+});
 
 
 var express = require('express')
@@ -8,11 +8,10 @@ var express = require('express')
     , configger = require('./config/configger')
     , mongoose = require('mongoose');
 var os = require('os');
-var path = require('path'); 
+var path = require('path');
 var moment = require('moment');
-var logger = require('./lib/logger'); 
-const ZeeBeLib = require('./lib/automation/zeebe');
-
+const logger = require('./lib/logger')(__filename);
+const ZeeBeLib = require('./lib/automation/zeebe'); 
 
 var interfaces = os.networkInterfaces();
 var addresses = [];
@@ -34,21 +33,21 @@ configger.set('SERVER:HOST', addresses[0]);
 var SERVERHOST = configger.get('SERVER:HOST')
 if (SERVERHOST_OLD != SERVERHOST)
     configger.save();
+ 
 
-
-// overwrite  console.log
+// overwrite  logger.info
 var fs = require('fs');
 // Override the base console log with winston
-//console.log = function (arguments) {     return logger.info(arguments) } 
+//logger.info = function (arguments) {     return logger.info(arguments) } 
 //console.debug = function (arguments) {     return logger.debug(arguments) } 
 
 /*
-var trueLog = console.log;
-console.log = function(msg) {
+var trueLog = logger.info;
+logger.info = function(msg) {
     var ds = moment().format('YYYY-MM-DD HH:mm:ss.SSS')
     
     var newMsg = `[${ds}] ${msg}`;
-    fs.appendFile("./logs/console.log", newMsg + '\n', function(err) {
+    fs.appendFile("./logs/logger.info", newMsg + '\n', function(err) {
         trueLog(newMsg);
         if(err) {
             return trueLog(err);
@@ -114,33 +113,36 @@ require('./controllers/autoScriptsController')(app);
  * Starting Zeebe bpmn process service 
  */
 //ZeeBeLib.deployWorkflow();
-console.log("---- === ---- === ---- === ---- === ---- ===")
-if ( config.FunctionConfigure.automation == true ) {
-    console.log("config.FunctionConfigure.automation is true, Enable the automation module... ...")
+logger.info("---- === ---- === ---- === ---- === ---- ===")
+if (config.FunctionConfigure.automation == true) {
+    logger.info("config.FunctionConfigure.automation is true, Enable the automation module... ...")
     ZeeBeLib.createProcessWorker();
 } else {
-    console.log("config.FunctionConfigure.automation is false, Disable the automation module... ...")
+    logger.info("config.FunctionConfigure.automation is false, Disable the automation module... ...")
 }
-console.log("---- === ---- === ---- === ---- === ---- ===")
+logger.info("---- === ---- === ---- === ---- === ---- ===")
 
 
- 
+
 /**
  * Starting API listener service
  */
-const server = app.listen(config.SERVER.PORT, function () { 
-    console.log('=== The MongoDB server listening on [' + config.MongoDBURL + '] ===') 
-    console.log('=== The NodeJS server ip addresses is [' + addresses + '] ===');
-    console.log('=== Then App server listening on port ' + config.SERVER.PORT + ' ==='); 
- 
-    console.log(' ---- === ---- === ---- === ---- === ---- ===')
-    console.log('         Begin check depends files ...       ');
-    console.log(' ---- === ---- === ---- === ---- === ---- ===')
+const server = app.listen(config.SERVER.PORT, function () {
+    logger.info('=== The MongoDB server listening on [' + config.MongoDBURL + '] ===')
+    logger.info('=== The NodeJS server ip addresses is [' + addresses + '] ===');
+    logger.info('=== Then App server listening on port ' + config.SERVER.PORT + ' ===');
+
+    logger.info(' ---- === ---- === ---- === ---- === ---- ===')
+    logger.info('         Begin check depends files ...       ');
+    logger.info(' ---- === ---- === ---- === ---- === ---- ===')
     var ReportOutputPath = config.Reporting.OutputPath;
-    var appTopoFile = path.join(ReportOutputPath, 'topology.json');  
-    fs.exists(appTopoFile, function(exists ) {
-        console.log(exists? `File [ ${appTopoFile} ] : is exist.`: `File [ ${appTopoFile}] : !!! is not exits. Please generate it!`)
-    }) 
+    var appTopoFile = path.join(ReportOutputPath, 'topology.json');
+    fs.exists(appTopoFile, function (exists) {
+        if ( exists ) 
+            logger.info(`File [ ${appTopoFile} ] : is exist.`);
+        else
+            logger.warn(`File [ ${appTopoFile}] : !!! is not exits. Please generate it!`);
+    })
 });
 
 

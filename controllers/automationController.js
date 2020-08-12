@@ -10,7 +10,7 @@
 const debug = require('debug')('automationController')
 const name = 'my-app'
 var unirest = require('unirest');
-var autologger = require('../lib/logger');
+var autologger = require('../lib/logger-automation');
 const ServiceCatalogs = require('../lib/automation/servicecatalogs');
 const ResourcePools = require('../lib/automation/resourcepools');
 

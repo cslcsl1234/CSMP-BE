@@ -1,13 +1,26 @@
 {
-  "name": "node-rest-auth-example",
-  "version": "0.0.0",
+  "name": "csmp-be",
+  "version": "0.1.0",
+  "description": "the Backend Services for CSMP",
+  "author": "guozb",
+  "main": "build/main.js",
   "scripts": {
-    "start": "node --max-old-space-size=2048 app.js ",
+    "start:prod": "cross-env NODE_ENV=production node --max-old-space-size=2048 app.js ",
+    "start": "cross-env NODE_ENV=development nodemon -V app.js ",
     "test": "jest"
   },
+  "keywords": [
+    "typescript",
+    "mocha",
+    "sourcemaps",
+    "node",
+    "npm scripts",
+    "tsc"
+  ],
   "dependencies": {
     "app-root-path": "^2.1.0",
     "body-parser": "*",
+    "cross-env": "^7.0.2",
     "debug": "^2.6.3",
     "exceljs": "^4.1.0",
     "express": "~3.1.0",
@@ -32,6 +45,7 @@
     "urlencode": "^1.1.0",
     "uuid": "^8.1.0",
     "winston": "*",
+    "winston-daily-rotate-file": "^4.5.0",
     "ws": "^7.1.1",
     "xls-to-json": "^0.5.0",
     "xlsx": "^0.15.1",
@@ -47,7 +61,8 @@
   "nodemonConfig": {
     "ignore": [
       "__tests__/*",
-      "data/*"
+      "data/*",
+      "logs/*"
     ]
   }
 }
