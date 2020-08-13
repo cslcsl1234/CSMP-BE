@@ -49,20 +49,20 @@ var demoController = function (app) {
 
     app.get('/api/demos/template1', function (req, res) {
         var param = req.query.host_name_param;
-        console.log('API: template1 : ' + param);
+        logger.info('API: template1 : ' + param);
         res.json(200, DEMOS_TEMPLATE1);
     });
 
     app.get('/api/demos/template2', function (req, res) {
         var param = req.query.host_name_param;
-        console.log('API: template2 : ' + param);
+        logger.info('API: template2 : ' + param);
 
         res.json(200, DEMOS_TEMPLATE2);
     });
 
     app.get('/api/demos/template3', function (req, res) {
         var param = req.query.host_name_param;
-        console.log('API: template3 : ' + param);
+        logger.info('API: template3 : ' + param);
 
         res.json(200, DEMOS_TEMPLATE3);
     });
@@ -70,7 +70,7 @@ var demoController = function (app) {
 
     app.get('/api/demos/template4', function (req, res) {
         var param = req.query.host_name_param;
-        console.log('API: template4 : ' + param);
+        logger.info('API: template4 : ' + param);
 
         res.json(200, DEMOS_TEMPLATE4);
     });
@@ -78,7 +78,7 @@ var demoController = function (app) {
 
     app.get('/api/demos/template5', function (req, res) {
         var param = req.query.host_name_param;
-        console.log('API: template5 : ' + param);
+        logger.info('API: template5 : ' + param);
 
         res.json(200, DEMOS_TEMPLATE5);
     });
@@ -86,7 +86,7 @@ var demoController = function (app) {
 
     app.get('/api/demos/template6', function (req, res) {
         var param = req.query.host_name_param;
-        console.log('API: template6 : ' + param);
+        logger.info('API: template6 : ' + param);
 
         res.json(200, DEMOS_TEMPLATE6);
     });
@@ -95,7 +95,7 @@ var demoController = function (app) {
 
     app.get('/api/demos/template7', function (req, res) {
         var param = req.query.host_name_param;
-        console.log('API: template7 : ' + param);
+        logger.info('API: template7 : ' + param);
 
         res.json(200, DEMOS_TEMPLATE7);
     });
@@ -104,7 +104,7 @@ var demoController = function (app) {
         var param1 = req.query.number;
         var param2 = req.query.type;
         
-        console.log('API: template7_detail : ' + param1 + ";" + param2);
+        logger.info('API: template7_detail : ' + param1 + ";" + param2);
 
         res.json(200, DEMOS_TEMPLATE7_DETAIL);
     });
@@ -114,14 +114,14 @@ var demoController = function (app) {
 
     app.get('/api/demos/template8', function (req, res) {
         var param = req.query.host_name_param;
-        console.log('API: template8 : ' + param);
+        logger.info('API: template8 : ' + param);
 
         res.json(200, DEMOS_TEMPLATE8);
     });
 
     app.get('/api/demos/template8_detail', function (req, res) {
         var param = req.query.device;
-        console.log('API: template8_detail : ' + param);
+        logger.info('API: template8_detail : ' + param);
 
         res.json(200, DEMOS_TEMPLATE8_DETAIL);
     });
@@ -134,7 +134,7 @@ var demoController = function (app) {
 
     app.get('/api/demos/template9', function (req, res) {
         var param = req.query.host_name_param;
-        console.log('API: template9 : ' + param);
+        logger.info('API: template9 : ' + param);
 
         res.json(200, DEMOS_TEMPLATE9);
     });
@@ -142,7 +142,7 @@ var demoController = function (app) {
 
     app.get('/api/demos/template10', function (req, res) {
         var param = req.query.host_name_param;
-        console.log('API: template10 : ' + param);
+        logger.info('API: template10 : ' + param);
 
         res.json(200, DEMOS_TEMPLATE10);
     });
@@ -150,14 +150,14 @@ var demoController = function (app) {
 
     app.get('/api/demos/template10_detail', function (req, res) {
         var param = req.query.host_name_param;
-        console.log('API: template10_detail : ' + param);
+        logger.info('API: template10_detail : ' + param);
 
         res.json(200, DEMOS_TEMPLATE10_DETAIL);
     });
 
     app.get('/api/demos/template11', function (req, res) {
         var param = req.query.host_name_param;
-        console.log('API: template11 : ' + param);
+        logger.info('API: template11 : ' + param);
 
         res.json(200, DEMOS_TEMPLATE10);
     });

@@ -70,13 +70,13 @@ var grafanaController = function (app) {
                 for ( var i in ret ) {
                     result.push(ret[i].device);
                 } 
-                console.log(result);
+                logger.info(result);
                 res.json(200 , result);
             });  
     */
-    console.log("----------------- Search ----------------------");
-    console.log(req.url);
-    console.log(req.body);
+    logger.info("----------------- Search ----------------------");
+    logger.info(req.url);
+    logger.info(req.body);
 
     var fields = req.body.target;
     var filter;
@@ -87,9 +87,9 @@ var grafanaController = function (app) {
         fields = 'datagrp,parttype,name';
         filter = arrayBaseFilter;
 
-        console.log("Number-1");
-        console.log("fields="+fields);
-        console.log("filter="+filter);
+        logger.info("Number-1");
+        logger.info("fields="+fields);
+        logger.info("filter="+filter);
 
         unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
         .auth(config.Backend.USER, config.Backend.PASSWORD, true)
@@ -116,7 +116,7 @@ var grafanaController = function (app) {
       case 'sgname':
         filter = arrayBaseFilter;
         var device1;
-        console.log("Number-2"); 
+        logger.info("Number-2"); 
 
         VMAX.GetStorageGroups(device1, function(response) {   
           var result = [];
@@ -133,10 +133,10 @@ var grafanaController = function (app) {
       default: 
         filter = arrayFilter;
         var fabricResult = [];
-        console.log(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE + '/' + fields);
-        console.log("Number-3"); 
-        console.log(fields);
-        console.log(filter);
+        logger.info(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE + '/' + fields);
+        logger.info("Number-3"); 
+        logger.info(fields);
+        logger.info(filter);
         unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE + '/' + fields)
           .auth(config.Backend.USER, config.Backend.PASSWORD, true)
           .headers({
@@ -153,7 +153,7 @@ var grafanaController = function (app) {
             for (var i in resultJson) {
               result.push(resultJson[i]);
             }
-            console.log(result);
+            logger.info(result);
             res.json(200, result);
     
           }); 
@@ -230,8 +230,8 @@ var grafanaController = function (app) {
   app.post('/grafana/query', function (req, res) {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-    console.log(req.url);
-    console.log(req.body); 
+    logger.info(req.url);
+    logger.info(req.body); 
 
 
 
@@ -354,7 +354,7 @@ var grafanaController = function (app) {
       queryString['type'] = param.type;
 
 
-      console.log(queryString);
+      logger.info(queryString);
       unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE)
         .auth(config.Backend.USER, config.Backend.PASSWORD, true)
         .headers({
@@ -363,10 +363,10 @@ var grafanaController = function (app) {
         .query(queryString)
         .end(function (response) {
           if (response.error) {
-            console.log(response.error);
+            logger.error(response.error);
             return response.error;
           } else {
-            //console.log(response.raw_body);   
+            //logger.info(response.raw_body);   
             var resultRecord = JSON.parse(response.raw_body);
 
             var finalRecord = [];
@@ -395,7 +395,7 @@ var grafanaController = function (app) {
               finalRecord.push(recordItem);
 
             }
-            console.log("resultRecord=" + finalRecord.length);
+            logger.info("resultRecord=" + finalRecord.length);
             res.json(200, finalRecord);
           }
 
@@ -446,7 +446,7 @@ var grafanaController = function (app) {
 
   app.post('/grafana/annotations', function (req, res) {
 
-    console.log(req.body);
+    logger.info(req.body);
 
     var annotation = req.body;
 
@@ -490,7 +490,7 @@ var grafanaController = function (app) {
 
   app.post('/grafana/tag-values', function (req, res) {
 
-    console.log(req.body);
+    logger.info(req.body);
     switch (req.body.key) {
       case 'device':
         var fields = 'name';
@@ -553,7 +553,7 @@ var grafanaController = function (app) {
           fields = 'device,part';
           filter = arrayBaseFilter + '&datagrp==\'VMAX-StorageGroup\'';
   
-          console.log(filter);
+          logger.info(filter);
   
           unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
           .auth(config.Backend.USER, config.Backend.PASSWORD, true)

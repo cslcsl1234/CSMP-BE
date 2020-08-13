@@ -81,7 +81,7 @@ var hostController = function (app) {
                 var assignLunByHost = cache.get("AssignedLUNByHosts");
                      
                 if ( assignLunByHost !== undefined && assignLunByHost != null && assignLunByHost != 'null' ) {
-                    console.log("AssignedLUNByHosts is Cached!");
+                    logger.info("AssignedLUNByHosts is Cached!");
                     isCached = true;
                         
                     var ret = [];
@@ -103,7 +103,7 @@ var hostController = function (app) {
                     callback(null,param);
                 } 
                 else {
-                    console.log("AssignedLUNByHosts is not Cached!");
+                    logger.info("AssignedLUNByHosts is not Cached!");
                     callback(null,param);
                 }
                     
@@ -213,7 +213,7 @@ var hostController = function (app) {
             },
             // Get All Localtion Records
             function(wwnlist,  callback){ 
-                console.log("TEST1:"+wwnlist);
+                logger.info("TEST1:"+wwnlist);
                  var hostlist ;
                  host.GetHosts(hostlist,function(errcode,result) {
                      
@@ -236,7 +236,7 @@ var hostController = function (app) {
                         var isfind = false;
                          for ( var i in hosthbas ) {
                             var hbawwn = hosthbas[i];
-                            //console.log(hbawwn+'\t' + wwnitem.HBAWWN);
+                            //logger.info(hbawwn+'\t' + wwnitem.HBAWWN);
                             if ( wwnitem.HBAWWN == hbawwn ) {
                                  
                                 isfind = true;
@@ -716,7 +716,7 @@ var hostController = function (app) {
             //  
         async.eachSeries(hostArray, function(newhost, asyncdone) {
 
-            console.log(newhost.baseinfo.name);
+            logger.info(newhost.baseinfo.name);
 
            HostObj.findOne({"baseinfo.name" : newhost.baseinfo.name}, function (err, doc) {
                 //system error.
@@ -724,16 +724,16 @@ var hostController = function (app) {
                     return   done(err);
                 }
                 if (!doc) { //user doesn't exist.
-                    console.log("host is not exist. insert it."); 
+                    logger.info("host is not exist. insert it."); 
  
                     var newappR = new HostObj(newhost);
-                    ///console.log(newappR);
+                    ///logger.info(newappR);
                     newappR.save(asyncdone);
                 }
                 else { 
                     doc.update(newhost, function(error, course) {
                         if(error) res.json(200 , {status: error});
-                        console.log("The host has exist! Update it.");
+                        logger.info("The host has exist! Update it.");
                         asyncdone();
                     });
 
@@ -743,7 +743,7 @@ var hostController = function (app) {
 
  
         }, function(err) {
-            if ( err ) return console.log(err);
+            if ( err ) return logger.error(err);
         });
 
 
@@ -765,8 +765,8 @@ var hostController = function (app) {
 
 
 
-            console.log("==================  " + i + '\t' + fields.length + '\t' + hbaStr + '\t' + appStr);
-            //console.log(newhost);
+            logger.info("==================  " + i + '\t' + fields.length + '\t' + hbaStr + '\t' + appStr);
+            //logger.info(newhost);
 
             //
             // Insert a new host record into MongoDB
@@ -777,7 +777,7 @@ var hostController = function (app) {
                     return   done(err);
                 }
                 if (!doc) { //user doesn't exist.
-                    console.log("host is not exist. insert it."); 
+                    logger.info("host is not exist. insert it."); 
   
                     newhost.save(function(err, thor) { 
                      if (err)  {  
@@ -822,13 +822,13 @@ var hostController = function (app) {
                 }
  
                 SWITCH.getAlias(wwnlist, function(result) { 
-                    //console.log(result);
+                    //logger.info(result);
                     for ( var i in hbalist ) {
                         var item = hbalist[i];
                         item['alias'] = '';
                         for (var j in result ) {
                             var aliasItem = result[j];
-                            console.log(aliasItem.toString() );
+                            logger.info(aliasItem.toString() );
                             if ( aliasItem.zmemid == item.wwn ) {
                                 item.alias = aliasItem.alias;
                             }
@@ -842,14 +842,14 @@ var hostController = function (app) {
  
             function(host,  callback){ 
 
-                //console.log(host);
+                //logger.info(host);
                 HostObj.findOne({"baseinfo.name" : host.baseinfo.name}, function (err, doc) {
                     //system error.
                     if (err) {
                         return   done(err);
                     }
                     if (!doc) { //user doesn't exist.
-                        console.log("host is not exist. insert it."); 
+                        logger.info("host is not exist. insert it."); 
 
                         var newhost = new HostObj(host);
 
@@ -902,7 +902,7 @@ var hostController = function (app) {
                 return   done(err);
             }
             if (!doc) { //user doesn't exist.
-                console.log("host is not exist. do nothing."); 
+                logger.info("host is not exist. do nothing."); 
                 return  res.json(200 , {status: "host is not exist. do nothing."});
             }
             else { 
@@ -959,10 +959,10 @@ var hostController = function (app) {
 
             
         }
-        //console.log(hostlist);
+        //logger.info(hostlist);
 
         async.forEach(hostlist, function(host) {
-            console.log("doing the host :" + host.baseinfo.name);
+            logger.info("doing the host :" + host.baseinfo.name);
 
                 HostObj.findOne({"baseinfo.name" : host.baseinfo.name}, function (err, doc) {
                     //system error.
@@ -970,7 +970,7 @@ var hostController = function (app) {
                         return   done(err);
                     }
                     if (!doc) { //user doesn't exist.
-                        console.log("host ["+host.baseinfo.name + "] is not exist. insert it."); 
+                        logger.info("host ["+host.baseinfo.name + "] is not exist. insert it."); 
 
                         var newhost = new HostObj(host); 
                         newhost.save(function(err, thor) { 
@@ -985,13 +985,13 @@ var hostController = function (app) {
 
                         // Append the hba list 
                         // 
-                        console.log(doc);
+                        logger.info(doc);
                         var HBAList = Array.prototype.slice.call(doc.HBAs);
 
                         var newhbalist = HBAList.concat(host.HBAs);
                         host.HBAs=newhbalist; 
  
-                         console.log(host.HBAs);
+                         logger.info(host.HBAs);
                         doc.update(host, function(error, course) {
                             if(error) return next(error);
                         });

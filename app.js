@@ -11,6 +11,7 @@ var os = require('os');
 var path = require('path');
 var moment = require('moment');
 const logger = require('./lib/logger')(__filename);
+const requestLogger = require('./lib/logger-automation')
 const ZeeBeLib = require('./lib/automation/zeebe'); 
 
 var interfaces = os.networkInterfaces();
@@ -57,8 +58,8 @@ logger.info = function(msg) {
 }
 */
 
-//express config.
-app.use(express.logger('dev'));
+//express config. 
+app.use(requestLogger.requestLog);
 app.use(express.bodyParser());
 app.use(express.static(__dirname + '/apidocs'));
 app.use("/api-docs", express.static(path.join(__dirname, '/api-docs')));

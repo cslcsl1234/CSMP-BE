@@ -55,10 +55,10 @@ var reportingController = function(app) {
         });
 
         docx.on('finalize', function(written) {
-            console.log('Finish to create Word file.\nTotal bytes created: ' + written + '\n');
+            logger.info('Finish to create Word file.\nTotal bytes created: ' + written + '\n');
         });
         docx.on('error', function(err) {
-            console.log(err);
+            logger.error(err);
         });
 
         res.writeHead(200, {
@@ -77,7 +77,7 @@ var reportingController = function(app) {
         async.waterfall(
             [
                 function(callback) {
-                    console.log(reportInstInfo);
+                    logger.info(reportInstInfo);
                     Reporting.GetReportingInfoList(function(result) {
 
                         for (var i in result) {
@@ -96,7 +96,7 @@ var reportingController = function(app) {
                 },
                 // Get All report status Records
                 function(param, callback) {
-                    console.log(param);
+                    logger.info(param);
 
                     reportStatus["ID"] = param.ID + "-" + param.reportInstance.Name;
                     reportStatus["ReportInfoID"] = param.ID;
@@ -110,7 +110,7 @@ var reportingController = function(app) {
 
 
                     Reporting.generateReportStatus(reportStatus, function(result) {
-                        console.log(result);
+                        logger.info(result);
                         callback(null, param);
                     });
 
@@ -118,14 +118,14 @@ var reportingController = function(app) {
                 // Get All report status Records
                 function(param, callback) {
 
-                    console.log(reportInfo);
+                    logger.info(reportInfo);
 
                     docx.on('finalize', function(written) {
-                        console.log('Finish to create Word file.\nTotal bytes created: ' + written + '\n');
+                        logger.info('Finish to create Word file.\nTotal bytes created: ' + written + '\n');
                     });
 
                     docx.on('error', function(err) {
-                        console.log(err);
+                        logger.error(err);
                     });
 
                     var table = [
@@ -303,7 +303,7 @@ var reportingController = function(app) {
                     var out = fs.createWriteStream(param.GenerateOutputPath + '/' + param.reportInstance.Name + '.' + param.Format);
 
                     out.on('error', function(err) {
-                        console.log(err);
+                        logger.error(err);
                     });
 
                     docx.generate(out);
@@ -315,7 +315,7 @@ var reportingController = function(app) {
                     reportStatus["Status"] = "complete";
                     reportStatus["StatusTime"] = new Date();
                     Reporting.generateReportStatus(reportStatus, function(result) {
-                        console.log(result);
+                        logger.info(result);
                         callback(null, param);
                     });
 
@@ -402,17 +402,17 @@ var reportingController = function(app) {
     app.get('/api/reporting/downloadfiles', function(req, res) {
         var reportInstance = req.query.reportInstance;
         var aa = JSON.parse(reportInstance);
-        console.log(aa);
+        logger.info(aa);
         if (reportInstance === undefined) {
             res.json(400, 'Must be special a reportInstance !')
             return;
         }
 
         var FileURL = aa.ReportFile;
-        console.log(FileURL);
+        logger.info(FileURL);
         var file = __dirname + path.normalize("/") + ".." + path.normalize("/") + path.normalize(FileURL);
         var file1 = "." + path.normalize("/") + path.normalize(FileURL);
-        console.log(file1);
+        logger.info(file1);
         res.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
         res.download(file1);
 
@@ -471,7 +471,7 @@ var reportingController = function(app) {
                 return done(err);
             }
             if (!doc) { //user doesn't exist.
-                console.log("Report info is not exist. insert it.");
+                logger.info("Report info is not exist. insert it.");
 
                 var newreport = new ReportInfoObj(reportinfo);
                 newreport.save(function(err, thor) {
@@ -486,7 +486,7 @@ var reportingController = function(app) {
                     });
                 });
             } else {
-                console.log(reportinfo);
+                logger.info(reportinfo);
                 doc.update(reportinfo, function(error, course) {
                     if (error) return next(error);
                 });
@@ -524,7 +524,7 @@ var reportingController = function(app) {
             if (err) {
                 return done(err);
             } else {
-                console.log("the report info is remove !");
+                logger.info("the report info is remove !");
                 return res.json(200, {
                     status: "The report info has removed!"
                 });
@@ -575,7 +575,7 @@ var reportingController = function(app) {
 
     app.post('/api/report/reporttest01_api', function(req, res) {
 
-        console.log(req.body);
+        logger.info(req.body);
 
         res.json(200, "OK");
 
@@ -587,7 +587,7 @@ var reportingController = function(app) {
         res.setTimeout(1200 * 1000);
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
-        console.log("BeginDate=" + start + ',EndDate=' + end);
+        logger.info("BeginDate=" + start + ',EndDate=' + end);
         var device;
         Report.GetArraysIncludeHisotry(device, start, end, function(ret) {
             var finalRecord = [];
@@ -677,7 +677,7 @@ var reportingController = function(app) {
                             var item = ret[i];
                             for (var j in arrayinfo) {
                                 var arrayItem = arrayinfo[j];
-                                //console.log(item.sn + '\t' + arrayItem.storagesn);
+                                //logger.info(item.sn + '\t' + arrayItem.storagesn);
                                 if (item.sn == arrayItem.storagesn) {
                                     item.name = arrayItem.name
                                 }
@@ -715,7 +715,7 @@ var reportingController = function(app) {
         res.setTimeout(1200 * 1000);
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
-        console.log("BeginDate=" + start + ',EndDate=' + end);
+        logger.info("BeginDate=" + start + ',EndDate=' + end);
 
 
         async.waterfall([
@@ -937,7 +937,7 @@ var reportingController = function(app) {
         res.setTimeout(1200 * 1000);
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
-        console.log("BeginDate=" + start + ',EndDate=' + end);
+        logger.info("BeginDate=" + start + ',EndDate=' + end);
 
 
         async.waterfall([
@@ -1152,7 +1152,7 @@ var reportingController = function(app) {
         res.setTimeout(1200 * 1000);
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
-        console.log("BeginDate=" + start + ',EndDate=' + end);
+        logger.info("BeginDate=" + start + ',EndDate=' + end);
         var device;
 
 
@@ -1689,7 +1689,7 @@ var reportingController = function(app) {
         res.setTimeout(1200 * 1000);
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
-        console.log("BeginDate=" + start + ',EndDate=' + end);
+        logger.info("BeginDate=" + start + ',EndDate=' + end);
         var device;
 
         async.waterfall(
@@ -1882,7 +1882,7 @@ var reportingController = function(app) {
         res.setTimeout(1200 * 1000);
         var start = moment(req.query.from).toISOString();
         var end = moment(req.query.to).toISOString();
-        console.log("BeginDate=" + start + ',EndDate=' + end);
+        logger.info("BeginDate=" + start + ',EndDate=' + end);
         var device;
 
         async.waterfall(
@@ -2513,7 +2513,7 @@ var reportingController = function(app) {
                                 var top10Item = param[j];
 
                                 if (top10Item.device_sn == item.device && top10Item.sg_name == item.sgname) {
-                                    //console.log( top10Item.device_sn +"\t" + item.device +"\t" + top10Item.sg_name +"\t" + item.sgname);
+                                    //logger.info( top10Item.device_sn +"\t" + item.device +"\t" + top10Item.sg_name +"\t" + item.sgname);
                                     top10Item.iops_avg_lastyear = item.matricsStat.ReadRequests.avg + item.matricsStat.WriteRequests.avg;
                                     //top10Item.iops_avg_increase = top10Item.iops_avg_lastyear > 0 ? ( top10Item.iops_avg - top10Item.iops_avg_lastyear ) /top10Item.iops_avg_lastyear : 0 ;
                                     break;
@@ -2530,7 +2530,7 @@ var reportingController = function(app) {
                     var UNKNOW = [];
                     for (var i in arg) {
                         var item = arg[i];
-                        if (item.sg_name == 'XIAOI_SG') console.log(item);
+                        if (item.sg_name == 'XIAOI_SG') logger.info(item);
                         if (item.device_name === undefined) UNKNOW.push(item);
                         else if (item.device_name.indexOf('JXQ') > 0) JXQ.push(item);
                         else if (item.device_name.indexOf('SD') > 0) SD.push(item);
@@ -3133,7 +3133,7 @@ var reportingController = function(app) {
                     var xls = json2xls(FEDirector);
 
                     var outputFilename = ReportOutputPath + '//' + 'ArrayResource.xlsx';
-                    console.log("Write Result to file [" + outputFilename + "]");
+                    logger.info("Write Result to file [" + outputFilename + "]");
                     fs.writeFileSync(outputFilename, xls, 'binary');
                     callback(null, arg1);
 
@@ -3182,9 +3182,9 @@ var reportingController = function(app) {
 
 
 
-        console.log("Report output filename: " + outputFilename);
-        console.log("Data filename:" + DataFilename);
-        console.log("Priv Data:" + priv_dt);
+        logger.info("Report output filename: " + outputFilename);
+        logger.info("Data filename:" + DataFilename);
+        logger.info("Priv Data:" + priv_dt);
 
         var data = {};
 
@@ -3220,7 +3220,7 @@ var reportingController = function(app) {
 
                 },
                 function(arg1, callback) {
-                    console.log("================== Begin getAppStorageRelation ================");
+                    logger.info("================== Begin getAppStorageRelation ================");
                     Report.getAppStorageRelationV2(device, function(result) {
                         for (var i in result) {
                             var item = result[i];
@@ -3280,7 +3280,7 @@ var reportingController = function(app) {
                 },
                 // calculate response time for each storage group
                 function(arg1, callback) {
-                    console.log("================== Begin GetStorageGroupsPerformance ================");
+                    logger.info("================== Begin GetStorageGroupsPerformance ================");
                     var period_detail = 0;
                     var valuetype1 = 'average';
 
@@ -3299,7 +3299,7 @@ var reportingController = function(app) {
                     CallGet.CallGetPerformance(param, function(rest) {
 
 
-                        console.log("filter the sg in the CEB-Core-Application-sg ");
+                        logger.info("filter the sg in the CEB-Core-Application-sg ");
                         var retArray = [];
                         var sgperf_result = [];
                         var appResult = {};
@@ -3311,7 +3311,7 @@ var reportingController = function(app) {
                             var sgname = CEB_Core_Application_SG[j].split('|')[0];
 
 
-                            console.log("SGName=" + sgname + "," + "array=" + sgname_arrayname_head);
+                            logger.info("SGName=" + sgname + "," + "array=" + sgname_arrayname_head);
 
                             appResult[sgname] = [];
 
@@ -3376,8 +3376,8 @@ var reportingController = function(app) {
                                     /*
 
                                         if (item.sgname == 'EBPP_SG') {
-                                            console.log(item);
-                                            console.log("**************");
+                                            logger.info(item);
+                                            logger.info("**************");
                                         }
                                     */
 
@@ -3401,7 +3401,7 @@ var reportingController = function(app) {
                                     itemResult["ResponeTimeByDay"] = item.ResponeTimeByDay;
                                     itemResult["ResponeTimeTotal"] = item.ResponeTimeTotal;
                                     appResult[sgname].push(itemResult);
-                                    if (item.sgname == 'EBPP_SG') console.log(itemResult);
+                                    if (item.sgname == 'EBPP_SG') logger.info(itemResult);
 
                                     retArray.push(item);
                                 }
@@ -3460,7 +3460,7 @@ var reportingController = function(app) {
                 // Get IOPS peak value 
                 // -----------------------------------------
                 function(data, callback) {
-                    console.log("================== Begin GetStorageGroupsPerformance (Get IOPS peak value)================");
+                    logger.info("================== Begin GetStorageGroupsPerformance (Get IOPS peak value)================");
                     VMAX.GetStorageGroupsPerformance(device, period, start, end, valuetype, function(rest) {
                         var rets = [];
                         var arg1 = data.data.AppStorageRelation;
@@ -3532,7 +3532,7 @@ var reportingController = function(app) {
                             for (var appItem in item.appinfo) {
                                 var appname = item.appinfo[appItem].app;
                                 if (appname === "" || appname === undefined)
-                                    console.log(JSON.stringify(item));
+                                    logger.info(JSON.stringify(item));
                             }
                         }
 
@@ -3565,8 +3565,8 @@ var reportingController = function(app) {
 
 
                             if (item.perf === undefined) {
-                                console.log("Not Exist Performance Data ====\n" + finalRecords[appname].sgname.length);
-                                console.log(JSON.stringify(item));
+                                logger.info("Not Exist Performance Data ====\n" + finalRecords[appname].sgname.length);
+                                logger.info(JSON.stringify(item));
                             } else
                                 finalRecords[appname].sgname.push(item.perf);
                         }
@@ -3602,8 +3602,8 @@ var reportingController = function(app) {
                             var sgperf = item.sgname[j];
 
                             if (sgperf === undefined) {
-                                console.log("====================\n" + j);
-                                //console.log(JSON.stringify(item) );
+                                logger.info("====================\n" + j);
+                                //logger.info(JSON.stringify(item) );
                                 continue;
                             }
 
@@ -3923,7 +3923,7 @@ var reportingController = function(app) {
                             for (var j in JXQ) {
                                 var item_jxq = JXQ[j];
 
-                                //console.log(item_sd["系统名称"] +'\t'+ item_jxq["系统名称"]);
+                                //logger.info(item_sd["系统名称"] +'\t'+ item_jxq["系统名称"]);
                                 if (item_sd["系统名称"] == item_jxq["系统名称"])
                                     for (var name in item_jxq) {
                                         if (name == '系统名称' || name == 'localtion') continue;
@@ -3993,11 +3993,11 @@ var reportingController = function(app) {
                                     var item = PrivData.application.Throughput[i];
 
                                     if (item1["系统名称"] == item["系统名称"]) {
-                                        //console.log(item1["系统名称"] +'\t' + item["系统名称"])
+                                        //logger.info(item1["系统名称"] +'\t' + item["系统名称"])
                                         isfind = true;
                                         item1["上周工作日均值"] = item["本周工作日均值"];
-                                        //console.log(item);
-                                        //console.log(item1["系统名称"] +'\t' + item["系统名称"]+"\t"+item1["上周工作日均值"] +"\t"+ item["本周工作日均值"]);
+                                        //logger.info(item);
+                                        //logger.info(item1["系统名称"] +'\t' + item["系统名称"]+"\t"+item1["上周工作日均值"] +"\t"+ item["本周工作日均值"]);
                                         break;
                                     }
                                 }
@@ -4022,11 +4022,11 @@ var reportingController = function(app) {
                                     var item = PrivData.application.ResponseTime[i];
 
                                     if (item1["系统名称"] == item["系统名称"]) {
-                                        //console.log(item1["系统名称"] +'\t' + item["系统名称"])
+                                        //logger.info(item1["系统名称"] +'\t' + item["系统名称"])
                                         isfind = true;
                                         item1["上周日均响应时间峰值"] = item["本周日均响应时间峰值"];
-                                        //console.log(item);
-                                        //console.log(item1["系统名称"] +'\t' + item["系统名称"]+"\t"+item1["上周日均响应时间峰值"] +"\t"+ item["本周日均响应时间峰值"]);
+                                        //logger.info(item);
+                                        //logger.info(item1["系统名称"] +'\t' + item["系统名称"]+"\t"+item1["上周日均响应时间峰值"] +"\t"+ item["本周日均响应时间峰值"]);
                                         break;
                                     }
                                 }
@@ -4051,7 +4051,7 @@ var reportingController = function(app) {
                                     var item = PrivData.array.IOPS[i];
 
                                     if (item1["系统名称"] == item["系统名称"]) {
-                                        // console.log(item1["系统名称"] +'\t' + item["系统名称"])
+                                        // logger.info(item1["系统名称"] +'\t' + item["系统名称"])
                                         isfind = true;
                                         item1["上周工作日均值"] = item["本周工作日均值"];
                                         var percent = item1["上周工作日均值"] > 0 ? (item1["本周工作日均值"] - item1["上周工作日均值"]) / item1["上周工作日均值"] * 100 : 0;
@@ -4421,7 +4421,7 @@ var reportingController = function(app) {
             for (var j in fullConfigIOInfos) {
                 var newItem = fullConfigIOInfos[j];
 
-                //if ( newItem["应用ID"] == "FTS" ) console.log(newItem);
+                //if ( newItem["应用ID"] == "FTS" ) logger.info(newItem);
 
                 if (
                     newItem["关联主机HbaWwn"] == item.hbawwn &&
@@ -4494,7 +4494,7 @@ var reportingController = function(app) {
         const csv = json2csvParser.parse(fullConfigIOInfos);
 
         var filename = ['fullConfigIOInfos', moment().format('YYYY-MM-DD'), '.csv'].join('');
-        //console.log(csv);
+        //logger.info(csv);
         fs.writeFileSync(filename, csv);
 
         res.setHeader("Content-disposition", "attachment; filename=" + filename + "\"");
@@ -4525,17 +4525,17 @@ var reportingController = function(app) {
                 queryString['period'] = 0;
                 queryString['type'] = 'last';
 
-                console.log(queryString);
+                logger.info(queryString);
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE)
                     .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                     .headers({ 'Content-Type': 'multipart/form-data' })
                     .query(queryString)
                     .end(function(response) {
                         if (response.error) {
-                            console.log(response.error);
+                            logger.error(response.error);
                             return response.error;
                         } else {
-                            //console.log(response.raw_body);   
+                            //logger.info(response.raw_body);   
                             var resultRecord = JSON.parse(response.raw_body);
                             callback(null, resultRecord.values);
 

@@ -44,7 +44,7 @@ var healthcheckController = function (app) {
 
         startdate = startdate + "000000";
         HealthCheck.VMAX(ReportOutputPath, startdate, function (outputfile) {
-            //console.log(outputfile);
+            //logger.info(outputfile);
             res.json(200, outputfile);
         })
 
@@ -60,7 +60,7 @@ var healthcheckController = function (app) {
         var startdatetime = moment(d).format('YYYYMMDDHHmmss')
 
         HealthCheck.Brocade(ReportOutputPath, startdate, function (result) {
-            //console.log(outputfile);
+            //logger.info(outputfile);
             res.json(200, result);
         })
 
@@ -76,7 +76,7 @@ var healthcheckController = function (app) {
         var startdatetime = moment(d).format('YYYYMMDDHHmmss')
 
         HealthCheck.VNX(ReportOutputPath, startdate, function (result) {
-            //console.log(outputfile);
+            //logger.info(outputfile);
             res.json(200, result);
         })
 
@@ -91,7 +91,7 @@ var healthcheckController = function (app) {
         var startdatetime = moment(d).format('YYYYMMDDHHmmss')
 
         HealthCheck.Unity(ReportOutputPath, startdatetime, function (result) {
-            //console.log(outputfile);
+            //logger.info(outputfile);
             res.json(200, result);
         })
 
@@ -109,7 +109,7 @@ var healthcheckController = function (app) {
         var startdatetime = moment(d).format('YYYYMMDDHHmmss')
 
         HealthCheck.VPLEX(ReportOutputPath, startdatetime, function (result) {
-            //console.log(outputfile);
+            //logger.info(outputfile);
             res.json(200, result);
         })
 
@@ -137,7 +137,7 @@ var healthcheckController = function (app) {
 
  
         HealthCheck.XtremIO(ReportOutputPath, startdatetime, enddatetime, function (result) {
-            //console.log(outputfile);
+            //logger.info(outputfile);
             res.json(200, result);
         })
 

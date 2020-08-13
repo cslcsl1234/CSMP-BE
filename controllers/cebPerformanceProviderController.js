@@ -968,8 +968,8 @@ var cebPerformanceProviderController = function (app) {
                             }
 
                         }
-                        console.log(directorList);
-                        console.log(vnxout);
+                        logger.info(directorList);
+                        logger.info(vnxout);
                         for ( var i in vnxout.storageList ) {
                             var storageItem = vnxout.storageList[i];
 
@@ -1158,8 +1158,8 @@ var cebPerformanceProviderController = function (app) {
                         var item = swports[i];
                         if ( item.connectedToWWN != ' ' ) {
                             if ( ports[item.connectedToWWN] !== undefined ) { 
-                                console.log("WARNNING: Duplicate port! " );
-                                console.log(item);
+                                logger.info("WARNNING: Duplicate port! " );
+                                logger.info(item);
                             } else {
                                 ports[item.connectedToWWN] = item;
                             }
@@ -1256,7 +1256,7 @@ var cebPerformanceProviderController = function (app) {
         var port = req.query.port;
         var ReportOutputPath = config.Reporting.OutputPath;
 
-        //console.log(Date() + '\t' + storageTmp+"\t"+storageSn+"\t"+storageType+"\t"+director+"\t"+port);
+        //logger.info(Date() + '\t' + storageTmp+"\t"+storageSn+"\t"+storageType+"\t"+director+"\t"+port);
  
         var device;
         async.auto(
@@ -1266,7 +1266,7 @@ var cebPerformanceProviderController = function (app) {
                     Analysis.getAppTopology(function(apptopo) {
                         
                         var appTopo1 = []; 
-                        console.log(Date() + '\t' + "apptopo="+apptopo.length);
+                        logger.info(Date() + '\t' + "apptopo="+apptopo.length);
                         for ( var i in apptopo) {
                             var item = apptopo[i];
                             item["TEST"] = director;
@@ -1287,7 +1287,7 @@ var cebPerformanceProviderController = function (app) {
                                 }
 
                             } else if ( director != 'all' && port == 'all') {
-                                //console.log(item.array + ',' + item.arrayport); 
+                                //logger.info(item.array + ',' + item.arrayport); 
                                     var directors = director.split(','); 
                                     for ( var dir_i in directors ) {
                                         var directorItem = directors[dir_i]; 
@@ -1308,13 +1308,13 @@ var cebPerformanceProviderController = function (app) {
                             } else 
                                 if ( item.array == storageSn ) appTopo1.push(item);
                         }
-                        //console.log("appTopo1 = " + appTopo1);
+                        //logger.info("appTopo1 = " + appTopo1);
                         callback(null,appTopo1);
                     })
                 } ,
                 appinfo: function ( callback, result ) {  
                     Report.GetApplicationInfo( function (ret) {
-                        console.log(Date() + '\t' + "GetApplicationInfo="+ret.length); 
+                        logger.info(Date() + '\t' + "GetApplicationInfo="+ret.length); 
                         //var appJson = JSON.parse(ret); 
                         callback(null,(ret));
                     });    
@@ -1329,7 +1329,7 @@ var cebPerformanceProviderController = function (app) {
                             var app = {} ;
                             for ( var z in result.appinfo ) {
                                 var appitem = result.appinfo[z];
-                                //if ( appitem.WWN === undefined ) console.log(appitem);
+                                //if ( appitem.WWN === undefined ) logger.info(appitem);
                                 if ( appitem.WWN == item.hbawwn ) 
                                     app = appitem;
                             }
@@ -1470,7 +1470,7 @@ var cebPerformanceProviderController = function (app) {
                 }]
             }, function(err, result ) {
 
-                console.log(Date() + '\t' + "Finished");
+                logger.info(Date() + '\t' + "Finished");
                 res.json(200,result.mergeResult);
             }
             
@@ -1493,7 +1493,7 @@ var cebPerformanceProviderController = function (app) {
             var portid = wwpn.split('(')[0];
             var portwwn = wwpn.split('(')[1].replace(')','');
         } 
-        console.log(switemsn+"\t"+wwpn+"\t"+portid+"\t"+portwwn);
+        logger.info(switemsn+"\t"+wwpn+"\t"+portid+"\t"+portwwn);
  
         var device;
         async.auto(
@@ -1541,7 +1541,7 @@ var cebPerformanceProviderController = function (app) {
                                     appTopo1.push(retItem);
                                 }
                             } else {
-                                console.log(item);
+                                logger.info(item);
                                 if ( item.connect_hba_swport_wwn == portwwn ) {
                                     var retItem = {};
                                     retItem["hostName"] = item.host;
@@ -1634,7 +1634,7 @@ var cebPerformanceProviderController = function (app) {
         res.setTimeout(1200*1000);
 
         var hostname = req.params.hostname;
-        console.log("HOSTNAME="+hostname);
+        logger.info("HOSTNAME="+hostname);
         var device;
         async.auto(
             {

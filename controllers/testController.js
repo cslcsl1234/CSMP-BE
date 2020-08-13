@@ -221,7 +221,7 @@ var testController = function (app) {
         /*
         RPA.GetClusters(RPAInfo, function(result) { 
             var id = RPA.GetClusterID(result,"cluster2");
-            console.log(result);
+            logger.info(result);
             res.json(200, result) ; 
         }); 
         */
@@ -479,7 +479,7 @@ var testController = function (app) {
         ];
 
         VMAX.SyncDeviceID(physicalArrayInfos, function (result) {
-            console.log("----- SyncDeviceID is finished ----- " + JSON.stringify(result));
+            logger.info("----- SyncDeviceID is finished ----- " + JSON.stringify(result));
             res.json(200, result);
         })
     });
@@ -549,8 +549,8 @@ var testController = function (app) {
         */
 
         Ansible.executeAWXService(servicename, postbody, function (result) {
-            console.log("executeAWXService is return. ")
-            //console.log(msg); 
+            logger.info("executeAWXService is return. ")
+            //logger.info(msg); 
             res.json(result.code, result);
 
 
@@ -785,7 +785,7 @@ var testController = function (app) {
             eventParam['filter'] = '!acknowledged&active=\'1\'';
         }
 
-        //console.log(eventParam);
+        //logger.info(eventParam);
         //GetEvents.GetEvents(eventParam, function(result1) {   
         var fabwwn;
 
@@ -877,9 +877,9 @@ var testController = function (app) {
             readyTimeout: 5000
         }
         SSH.remoteCommand(hostinfo, "symcfg list -output xml", function (xmloutput) {
-            console.log("----");
-            console.log(xmloutput)
-            console.log("---");
+            logger.info("----");
+            logger.info(xmloutput)
+            logger.info("---");
             var options = {
                 object: true
             };
@@ -995,7 +995,7 @@ var testController = function (app) {
         req.end(function (response) {
             var sessionid = response.headers['set-cookie'][0];
             var session = sessionid.match(/JSESSIONID=([A-Z0-9]*);[ a-zA-Z0-9=;/]*/i);
-            console.log(session[1]);
+            logger.info(session[1]);
 
             var req1 = unirest("POST", "https://csmpcollecter:58443/centralized-management/j_security_check?j_username=admin&j_password=changeme");
             req1.headers({ 
@@ -1004,10 +1004,10 @@ var testController = function (app) {
             });
     
             req1.end(function (response1) { 
-                console.log(response1.header);
+                logger.info(response1.header);
                 //var sessionid = response1.headers['set-cookie'][0];
                 //var session = sessionid.match(/JSESSIONID=([A-Z0-9]*);[ a-zA-Z0-9=;/]*/i);
-                //console.log(session[1]);
+                //logger.info(session[1]);
     
                 res1.json(200,response1);
             })
@@ -1080,7 +1080,7 @@ var testController = function (app) {
                     backendMgmt.BackEndLogin(function (BEInfo) {
                         var sso_token = BEInfo.sso_token;
                         var BEVersion = BEInfo.BEVersion;
-                        console.log(`SSOTOKEN=${sso_token}`)
+                        logger.info(`SSOTOKEN=${sso_token}`)
                         var req = unirest("GET", REQUIRE_URL);
 
                         req.headers({
@@ -1090,9 +1090,9 @@ var testController = function (app) {
                         });
 
                         req.end(function (res) {
-                            if (res.error) console.log(res.error);
+                            if (res.error) logger.error(res.error);
 
-                            console.log(res.body);
+                            logger.info(res.body);
 
                             var xmlstr = "<div>" + res.body + "</div>";
                             var options = {
@@ -1100,7 +1100,7 @@ var testController = function (app) {
                             };
                             var json = xml2json.toJson(xmlstr, options);
 
-                            console.log(json);
+                            logger.info(json);
 
                             var serverList = [];
                             for (var i in json.div.div.div) {
@@ -1166,8 +1166,8 @@ var testController = function (app) {
                         var req = unirest("GET", REQUIRE_URL);
 
                         req.query(query);
-                        console.log(query);
-                        console.log(REQUIRE_URL);
+                        logger.info(query);
+                        logger.info(REQUIRE_URL);
                         req.headers({
                             "content-type": "application/x-www-form-urlencoded",
                             "referer": config.BackendMgmt.URL,
@@ -1175,8 +1175,8 @@ var testController = function (app) {
                         });
 
                         req.end(function (res) {
-                            console.log("query result is done");
-                            if (res.error) console.log(res.error);
+                            logger.info("query result is done");
+                            if (res.error) logger.error(res.error);
                             var xmlstr = res.body; 
                             var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.\-=\"]*)(">)/g, '$1"\/>');
                             //var newdata = xmlstr;
@@ -1184,13 +1184,13 @@ var testController = function (app) {
                             parser.parseString(newdata, function (err, result) {
                                 //Extract the value from the data element
                                 //extractedData = result['config']['data']; 
-                                //console.log(result);
+                                //logger.info(result);
                                 callback(null, result);
                             });
 
                             /*
                             var newdata = newdata.replace(new RegExp("\\\\n", "g"), " ");
-                            console.log(newdata);
+                            logger.info(newdata);
 
                             var options = {
                                 object: true
@@ -1204,7 +1204,7 @@ var testController = function (app) {
 
                 }
             ], function (err, result) {
-                //console.log("TEST2==" + result.length + "--");
+                //logger.info("TEST2==" + result.length + "--");
                 res1.json(200, result);
 
 
@@ -1384,7 +1384,7 @@ var testController = function (app) {
                     fs.readFile('./demodata/backmgmt-get.xml', 'utf-8', function (err, data) {
                         if (err) res.json(500, err);
                         else {
-                            console.log("----");
+                            logger.info("----");
                             var options = {
                                 object: true
                             };

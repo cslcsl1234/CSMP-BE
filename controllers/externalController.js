@@ -196,7 +196,7 @@ function vplexinfo(device, callback) {
                             var item = arg1[i];
                             
                             if ( deviceItem.device == item.ProviderByDevice && deviceItem.part == item.ProviderFromObject ) {
-                                //console.log(deviceItem.device +'|' + item.ProviderByDevice +'|' + deviceItem.part +'|' +item.ProviderFromObject);
+                                //logger.info(deviceItem.device +'|' + item.ProviderByDevice +'|' + deviceItem.part +'|' +item.ProviderFromObject);
                                 item['disktype'] = deviceItem.disktype; 
                                 item['PyhsicalCapacity'] = parseFloat(deviceItem.Capacity); 
                                 item['PyhsicalUsedCapacity'] = parseFloat(deviceItem.UsedCapacity); 
@@ -220,7 +220,7 @@ function vplexinfo(device, callback) {
                 for ( var i in arg1 ) {
                     var item = arg1[i];
 
-                    //console.log(item.disktype);
+                    //logger.info(item.disktype);
                     if ( item.disktype !==  undefined ) {
                         var vvolItem = {};
                         vvolItem["array"] = item.device;
@@ -362,7 +362,7 @@ function vplexinfo(device, callback) {
                 const csv = json2csvParser.parse(finalResult);
                  
                 var filename = [ReportOutputPath,'/', 'array_info', moment().format('YYYY-MM-DD') , '.csv'].join('');
-                console.log(filename);
+                logger.info(filename);
                 fs.writeFileSync(filename, csv);
 
                 res.json(200,finalResult);
@@ -409,7 +409,7 @@ function vplexinfo(device, callback) {
             const csv = json2csvParser.parse(finalResult);
              
             var filename = [ReportOutputPath,'/', 'switch_info', moment().format('YYYY-MM-DD') , '.csv'].join('');
-            console.log(filename);
+            logger.info(filename);
             fs.writeFileSync(filename, csv);
 
 

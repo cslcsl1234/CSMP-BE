@@ -1629,7 +1629,7 @@ var arrayController = function (app) {
 
         CallGet.CallGet(param, function(param) {
   
-                console.log(param.result);
+                logger.info(param.result);
                 var data = param.result;
 
                 var finalResult = {};
@@ -1956,7 +1956,7 @@ var arrayController = function (app) {
                         }
                     }
 
-                    //console.log(item.part + "--------------------------"+ResponseTime);
+                    //logger.info(item.part + "--------------------------"+ResponseTime);
                     if ( ResponseTime > 100 ) {
                         item.Availability = 100;
                     } else {
@@ -2047,7 +2047,7 @@ var arrayController = function (app) {
                         }
                     }
 
-                    //console.log(item.part + "--------------------------"+ResponseTime);
+                    //logger.info(item.part + "--------------------------"+ResponseTime);
                     if ( ResponseTime > 100 ) {
                         item.Availability = 100;
                     } else {
@@ -2779,7 +2779,7 @@ var arrayController = function (app) {
             var chartData = [] ;
             var tmpArray = [];
             for ( var i in result ) {
-                //console.log(" ................................... ");
+                //logger.info(" ................................... ");
                 var item = result[i];
                 var chartItem = {};
 
@@ -2798,7 +2798,7 @@ var arrayController = function (app) {
                         var FEDirNum = parseInt(FEDir.substring(0,FEDir.length - 1));
                         var FEDirABC = FEDir.substring(FEDir.length - 1);
                     }
-                    //console.log(item.feport + "\t" + FEDir + "\t" + FEDirNum + "\t" + FEDirABC);
+                    //logger.info(item.feport + "\t" + FEDir + "\t" + FEDirNum + "\t" + FEDirABC);
 
                     for ( var j in result ) {
                         if ( i != j ) {
@@ -2822,7 +2822,7 @@ var arrayController = function (app) {
 
                             if ( FEDirABC == subFEDirABC && FEPort == subFEPort ) {
                                 if ( FEDirNum + subFEDirNum == 17 ) {
-                                    //console.log("=====partFE is find ==== : " + subItem.feport + "\t" + subFEDir);
+                                    //logger.info("=====partFE is find ==== : " + subItem.feport + "\t" + subFEDir);
                                     tmpArray.push(subItem);
 
                                     chartItem["catalog"] = item.feport + ', ' + subItem.feport;
@@ -3076,14 +3076,14 @@ var arrayController = function (app) {
 
 
 
-        console.log(queryString);
+        logger.info(queryString);
         unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
                 .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                 .headers({'Content-Type': 'multipart/form-data'}) 
                 .query(queryString) 
                 .end(function (response) { 
                     if ( response.error ) {
-                        console.log(response.error);
+                        logger.error(response.error);
                         return response.error;
                     } else {  
                         var result = JSON.parse(response.raw_body).values;    
@@ -3226,12 +3226,12 @@ var arrayController = function (app) {
         start = start.replace(/"/g,'');
         end = end.replace(/"/g,'');
 
-        console.log(arraysn + "|" + start + "|" + end);
+        logger.info(arraysn + "|" + start + "|" + end);
 
 
         var finalResult = [];
 
-        console.log(start);
+        logger.info(start);
         async.waterfall([
             function(callback){ 
  
@@ -3246,14 +3246,14 @@ var arrayController = function (app) {
 
 
 
-                console.log(queryString);
+                logger.info(queryString);
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
                         .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                         .headers({'Content-Type': 'multipart/form-data'}) 
                         .query(queryString) 
                         .end(function (response) { 
                             if ( response.error ) {
-                                console.log(response.error);
+                                logger.error(response.error);
                                 return response.error;
                             } else {  
                                 var result = JSON.parse(response.raw_body).values;    
@@ -3295,14 +3295,14 @@ var arrayController = function (app) {
 
 
 
-                console.log(queryString);
+                logger.info(queryString);
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
                         .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                         .headers({'Content-Type': 'multipart/form-data'}) 
                         .query(queryString) 
                         .end(function (response) { 
                             if ( response.error ) {
-                                console.log(response.error);
+                                logger.error(response.error);
                                 return response.error;
                             } else {  
                                 var result = JSON.parse(response.raw_body).values;    
@@ -3340,14 +3340,14 @@ var arrayController = function (app) {
                 //var queryString =  {"filter":filter,"fields":fields}; 
                 var queryString =  {'properties': fields, 'filter': filter, 'start': start , 'end': end , period: '3600', type: 'max'}; 
 
-                console.log(queryString);
+                logger.info(queryString);
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
                         .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                         .headers({'Content-Type': 'multipart/form-data'}) 
                         .query(queryString) 
                         .end(function (response) { 
                             if ( response.error ) {
-                                console.log(response.error);
+                                logger.error(response.error);
                                 return response.error;
                             } else {  
 
@@ -3859,14 +3859,14 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
 
 
 
-        console.log(queryString);
+        logger.info(queryString);
         unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
                 .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                 .headers({'Content-Type': 'multipart/form-data'}) 
                 .query(queryString) 
                 .end(function (response) { 
                     if ( response.error ) {
-                        console.log(response.error);
+                        logger.error(response.error);
                         return response.error;
                     } else {  
                         var result = JSON.parse(response.raw_body).values;    
@@ -3905,14 +3905,14 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
 
                 //var queryString =  {"filter":filter,"fields":fields}; 
                 var queryString =  util.CombineQueryString(filter,fields); 
-                console.log(queryString);
+                logger.info(queryString);
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE )
                         .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                         .headers({'Content-Type': 'multipart/form-data'}) 
                         .query(queryString) 
                         .end(function (response) { 
                             if ( response.error ) {
-                                console.log(response.error);
+                                logger.error(response.error);
                                 return response.error;
                             } else {  
                                     var arrayCapacitys = RecordFlat.RecordFlat(response.raw_body, keys);   
@@ -3997,7 +3997,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
             eventParam['filter'] = '!acknowledged&active=\'1\'&devtype=\'Array\'';
         } 
 
-        //console.log(eventParam);
+        //logger.info(eventParam);
         GetEvents.GetEvents(eventParam, function(result) {   
 
             res.json(200,result);
@@ -4031,7 +4031,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
             eventParam['filter'] = '!acknowledged&active=\'1\'&devtype=\'Array\'';
         } 
 
-        //console.log(eventParam);
+        //logger.info(eventParam);
         VMAX.getArrayPerformance( function(result) {   
 
             res.json(200,result);
@@ -4055,7 +4055,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
         } ;
 
 
-        //console.log(eventParam);
+        //logger.info(eventParam);
         VMAX.getArrayLunPerformance(arraysn, function(result) {   
 
             res.json(200,result);
@@ -4084,7 +4084,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
                 return   done(err);
             }
             if (!doc) { //user doesn't exist.
-                console.log("array is not exist. insert it."); 
+                logger.info("array is not exist. insert it."); 
 
                 var newarray = new ArrayObj(array);
                 newarray.save(function(err, thor) {
@@ -4098,7 +4098,7 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
                 });
             }
             else { 
-                console.log(array);
+                logger.info(array);
                 doc.update(array, function(error, course) {
                     if(error) return next(error);
                 });
@@ -4184,14 +4184,14 @@ if ( item.sgname == 'PDE_ASD_CSE_lppa047_ESX_cluster_CSG') continue;
 app.post('/api/array/redovolume', function (req, res) { 
     var redovol = req.body;
 
-    console.log("|"+ redovol.toString() + "|");
+    logger.info("|"+ redovol.toString() + "|");
     ArraySGRedoVolumeObj.findOne({"devicesn" : redovol.devicesn, "sgname" : redovol.sgname }, function (err, doc) {
         //system error.
         if (err) {
             return   done(err);
         }
         if (!doc) { //user doesn't exist.
-            console.log("redo volumes is not exist. insert it."); 
+            logger.info("redo volumes is not exist. insert it."); 
 
             var newredovol = new ArraySGRedoVolumeObj(redovol);
             newredovol.save(function(err, thor) {
@@ -4238,7 +4238,7 @@ app.get('/api/array/redovolume', function (req, res) {
         return;
     };
     
-console.log(storage_sn+"|"+sg+"|");
+logger.info(storage_sn+"|"+sg+"|");
 
     async.waterfall([
         function(callback){ 
@@ -5212,7 +5212,7 @@ app.get('/api/vnx/block/port/perf', function ( req, res )  {
         ], function (err, result) {
            // result now equals 'done'
            cache.put('vnx_storagegroup_result_'+device,result); 
-           console.log('---- put cache : vnx_storagegroup_result_'+device); 
+           logger.info('---- put cache : vnx_storagegroup_result_'+device); 
            res.json(200, result);
         });
        
@@ -5250,7 +5250,7 @@ app.get('/api/vnx/block/port/perf', function ( req, res )  {
          async.waterfall([
             function(callback){   
  
- console.log('---- get cache : vnx_storagegroup_result_'+device); 
+ logger.info('---- get cache : vnx_storagegroup_result_'+device); 
                  var result = cache.get('vnx_storagegroup_result_'+device); 
                 var viewDetailData = result.tableBody;
                 var viewItem = {};
@@ -5848,9 +5848,9 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
                 })
             },
             function(arrayinfo,callback){ 
-                console.log(arrayinfo);
+                logger.info(arrayinfo);
                 if ( arrayinfo.model.indexOf('Unity') >= 0 ) {
-                    console.log("AAAA");
+                    logger.info("AAAA");
                     VNX.GetUNITY_NFSExport(device,function(result) {  
                         var isfind = false;
                         for ( var i in result) {
@@ -5869,7 +5869,7 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
                         var isfind = false;
                         for ( var i in result) {
                             var item = result[i];
-                            //console.log(device+'='+item.device+'\t'+fsid + '=' + item.fsid);
+                            //logger.info(device+'='+item.device+'\t'+fsid + '=' + item.fsid);
                             
                             if ( device ==  item.device && fsid == item.fsid ) {
                                 
@@ -6069,7 +6069,7 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
 
         var arg1 = testjson;
 
-                console.log(arg1);
+                logger.info(arg1);
                 var charts = [];
 
                 for ( var i in arg1 ) {
@@ -6078,9 +6078,9 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
                     for ( var matricsi in item.matrics ) {
 
                         var matrics = item.matrics[matricsi];
-                        //console.log("--------matrics begin ------------");
-                        //console.log(matrics);
-                        //console.log("--------matrics end------------");
+                        //logger.info("--------matrics begin ------------");
+                        //logger.info(matrics);
+                        //logger.info("--------matrics end------------");
                         var keys = Object.keys(matrics);
                         var lunname = item.part;                //lunname;
                         var arrayname  = item.device;           //array
@@ -6095,12 +6095,12 @@ app.get('/api/vnx/replication_perf', function ( req, res )  {
                                 var categoryname = keyname;         //perf-matrics-name
                                 var value = matrics[keyname];       //perf-matrics-value
                             }
-                            //console.log("array="+arrayname);
-                            //console.log("lunname="+lunname);
-                            //console.log("ts="+timestamp);
-                            //console.log("categoryname="+categoryname);
-                            //console.log("value="+value);
-                            //console.log("---------");
+                            //logger.info("array="+arrayname);
+                            //logger.info("lunname="+lunname);
+                            //logger.info("ts="+timestamp);
+                            //logger.info("categoryname="+categoryname);
+                            //logger.info("value="+value);
+                            //logger.info("---------");
 
                             // Search in result struct 
                             var isFind_chart = false;

@@ -61,8 +61,8 @@ var registerController = function (app) {
   
         var queryString =  util.CombineQueryString(filter,fields);
 
-        console.log(filter);
-        console.log(queryString);
+        logger.info(filter);
+        logger.info(queryString);
 
         unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE)
                 .auth(config.Backend.USER, config.Backend.PASSWORD, true)
@@ -70,10 +70,10 @@ var registerController = function (app) {
                 .query(queryString) 
                 .end(function (response) { 
                     if ( response.error ) {
-                        console.log(response.error);
+                        logger.error(response.error);
                         res.json(response.error);
                     } else {
-                        console.log(response.raw_body);
+                        logger.info(response.raw_body);
                         var resultFinal = RecordFlat(response.raw_body, 'serialnb'); 
                         res.json(200, resultFinal);
 
@@ -112,10 +112,10 @@ var registerController = function (app) {
                 .query(queryString) 
                 .end(function (response) { 
                     if ( response.error ) {
-                        console.log(response.error);
+                        logger.error(response.error);
                         res.json(response.error);
                     } else {
-                        //console.log(response.raw_body);
+                        //logger.info(response.raw_body);
                         var resultFinal = RecordFlat(response.raw_body, 'device','part'); 
                         res.json(200, resultFinal);
 
@@ -141,7 +141,7 @@ var registerController = function (app) {
 
         if ( typeof arraysn !== 'undefined' && typeof lunid !== 'undefined' ) {
             var filter = 'device=\''+arraysn+'\'&part=\''+lunid+'\'&'+basefilter;
-            console.log(filter);
+            logger.info(filter);
         } else if (typeof arraysn !== 'undefined') {
              var filter = 'device=\''+arraysn+'\'&'+basefilter;
  
@@ -162,7 +162,7 @@ var registerController = function (app) {
                 .query(queryString) 
                 .end(function (response) { 
                     if ( response.error ) {
-                        console.log(response.error);
+                        logger.error(response.error);
                         return response.error;
                     } else {
                         result = response.raw_body;
@@ -190,7 +190,7 @@ var registerController = function (app) {
 
         if ( typeof arraysn !== 'undefined' && typeof poolid !== 'undefined' ) {
             var filter = 'device=\''+arraysn+'\'&part=\''+poolid+'\'&'+basefilter;
-            console.log(filter);
+            logger.info(filter);
         } else if (typeof arraysn !== 'undefined') {
              var filter = 'device=\''+arraysn+'\'&'+basefilter;
  
@@ -204,7 +204,7 @@ var registerController = function (app) {
         var queryString =  util.CombineQueryString(filter,fields);
  
 
-        console.log(filter);
+        logger.info(filter);
         var result;
         unirest1.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE)
                 .auth(config.Backend.USER, config.Backend.PASSWORD, true)
@@ -212,7 +212,7 @@ var registerController = function (app) {
                 .query(queryString) 
                 .end(function (response) { 
                     if ( response.error ) {
-                        console.log(response.error);
+                        logger.error(response.error);
                         return response.error;
                     } else {
                         result = response.raw_body;

@@ -69,7 +69,7 @@ var objectArrayController = function (app) {
 
 
         ECS.GetArrays(device, function (ret) {
-            console.log(JSON.stringify(ret, 2, 2))
+            logger.info(JSON.stringify(ret, 2, 2))
             var item = ret[0];
             var result = [
                 {

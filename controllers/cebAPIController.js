@@ -256,7 +256,7 @@ var cebAPIController = function (app) {
   app.get("/ssmp/rest/vmax/summary/:device", function (req, res) {
     var device = req.params.device;
 
-    console.log("deiv=" + device);
+    logger.info("deiv=" + device);
     var realtimeDatetime = util.getRealtimeDateTimeByDay(-1);
     var start = realtimeDatetime.begin;
     var end = realtimeDatetime.end;
@@ -867,7 +867,7 @@ var cebAPIController = function (app) {
             async.map(datas, function (data, subcallback) {
               DeviceMgmt.putMgmtObjectInfo(data, function (result) {
 
-                console.log("INSERT INTO " + data.sn);
+                logger.info("INSERT INTO " + data.sn);
                 if (result.status == "FAIL") {
                   subcallback(501, data);
                 } else {
@@ -1348,7 +1348,7 @@ var cebAPIController = function (app) {
     var device = req.query.devicesn;
     var sgname = req.query.sgname;
 
-console.log("$$$$\n" + device );
+logger.info("$$$$\n" + device );
 
     async.waterfall(
       [
@@ -1359,9 +1359,9 @@ console.log("$$$$\n" + device );
               var item = sg[i];
               var capacity = item.Capacity;
 
-console.log(item.sgname +',' + item.snap);
+logger.info(item.sgname +',' + item.snap);
               if (item.snap === undefined) continue;
-console.log(JSON.stringify(item.snap,2,2));
+logger.info(JSON.stringify(item.snap,2,2));
             }
             callback(null, sg);
           });
