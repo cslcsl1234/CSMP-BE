@@ -48,14 +48,16 @@ yarn.lock
 *.iml
 *.log
 *.csv
+nohup.out
 config/config.json 
 scripts/nohup.out
 scripts/*.out
 data/*.json
+data/mgmtobjects_status.json*
 demodata/VPLEX/*.json
 demodata/VPLEX/*.rar
 demodata/VPLEX/*/*.json
-demodata/VPLEX/*.gz 
+demodatnohupa/VPLEX/*.gz 
 
 __tests__/automation/data/*_result.json
 __tests__/*.html

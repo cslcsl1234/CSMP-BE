@@ -14,6 +14,13 @@
                 "username": "root",
                 "privateKeyFile": "/root/.ssh/id_rsa",
                 "readyTimeout": 5000
+            },
+            {
+                "host": "10.1.31.101",
+                "port": 22,
+                "username": "root",
+                "privateKeyFile": "/root/.ssh/id_rsa",
+                "readyTimeout": 5000
             }
         ],
         "cmds" : {
@@ -27,6 +34,74 @@
     "Brocade": {
         "hostinfo" : [
 
+{
+   "host": "10.1.31.230",
+   "port": 22,
+   "username": "admin",
+   "password": "5-GETill",
+   "readyTimeout": 5000,
+   "algorithms": { 
+       "kex": [ "diffie-hellman-group1-sha1", "diffie-hellman-group-exchange-sha256","diffie-hellman-group14-sha1","ecdh-sha2-nistp256","ecdh-sha2-nistp521","ecdh-sha2-nistp384" ] ,
+       "serverHostKey": [ "ssh-rsa", "ssh-dss","ecdsa-sha2-nistp256","ecdsa-sha2-nistp521","ecdsa-sha2-nistp384" ]
+   } 
+
+},
+{
+   "host": "10.1.7.55",
+   "port": 22,
+   "username": "admin",
+   "password": "5-GETill",
+   "readyTimeout": 5000,
+   "rbash": true,
+   "algorithms": { 
+       "kex": [ "diffie-hellman-group1-sha1", "diffie-hellman-group-exchange-sha256","diffie-hellman-group14-sha1","ecdh-sha2-nistp256","ecdh-sha2-nistp521","ecdh-sha2-nistp384" ] ,
+       "serverHostKey": [ "ssh-rsa", "ssh-dss","ecdsa-sha2-nistp256","ecdsa-sha2-nistp521","ecdsa-sha2-nistp384" ]
+   } 
+},
+{
+   "host": "10.1.31.156",
+   "port": 22,
+   "username": "admin",
+   "password": "5-GETill",
+   "readyTimeout": 5000,
+   "algorithms": { "serverHostKey": [ "ssh-rsa", "ssh-dss" ] } 
+},
+{
+   "host": "10.1.7.56",
+   "port": 22,
+   "username": "admin",
+   "password": "5-GETill",
+   "readyTimeout": 5000,
+   "rbash": true,
+   "algorithms": {
+       "kex": [ "diffie-hellman-group1-sha1", "diffie-hellman-group-exchange-sha256","diffie-hellman-group14-sha1","ecdh-sha2-nistp256","ecdh-sha2-nistp521","ecdh-sha2-nistp384" ] ,
+       "serverHostKey": [ "ssh-rsa", "ssh-dss","ecdsa-sha2-nistp256","ecdsa-sha2-nistp521","ecdsa-sha2-nistp384" ]
+   }
+},
+{
+   "host": "10.1.7.88",
+   "port": 22,
+   "username": "admin",
+   "password": "5-GETill",
+   "readyTimeout": 5000,
+   "rbash": true,
+   "algorithms": {
+       "kex": [ "diffie-hellman-group1-sha1", "diffie-hellman-group-exchange-sha256","diffie-hellman-group14-sha1","ecdh-sha2-nistp256","ecdh-sha2-nistp521","ecdh-sha2-nistp384" ] ,
+       "serverHostKey": [ "ssh-rsa", "ssh-dss","ecdsa-sha2-nistp256","ecdsa-sha2-nistp521","ecdsa-sha2-nistp384" ]
+   }
+},
+{
+   "host": "10.1.31.50",
+   "port": 22,
+   "username": "admin",
+   "password": "5-GETill",
+   "readyTimeout": 5000,
+   "rbash": true,
+   "algorithms": {
+       "kex": [ "diffie-hellman-group1-sha1", "diffie-hellman-group-exchange-sha256","diffie-hellman-group14-sha1","ecdh-sha2-nistp256","ecdh-sha2-nistp521","ecdh-sha2-nistp384" ] ,
+       "serverHostKey": [ "ssh-rsa", "ssh-dss","ecdsa-sha2-nistp256","ecdsa-sha2-nistp521","ecdsa-sha2-nistp384" ]
+   }
+},
 {
    "host": "10.1.228.119",
    "port": 22,
@@ -1474,13 +1549,6 @@
         ]  ,
         "SPlist" : [
             {
-                "host": "10.1.31.130",
-                "username": "sysadmin",
-                "password": "5-GETill",
-                "cli": "naviseccli",
-                "scope": 0
-            },
-            {
                 "host": "10.1.31.30",
                 "username": "sysadmin",
                 "password": "5-GETill",
@@ -1489,6 +1557,34 @@
             },
             {
                 "host": "10.1.31.133",
+                "username": "sysadmin",
+                "password": "5-GETill",
+                "cli": "naviseccli",
+                "scope": 0
+            },
+            {
+                "host": "10.226.33.80",
+                "username": "sysadmin",
+                "password": "5-GETill",
+                "cli": "naviseccli",
+                "scope": 0
+            },
+            {
+                "host": "10.1.228.6",
+                "username": "admin",
+                "password": "5-GETill",
+                "cli": "naviseccli",
+                "scope": 0
+            },
+            {
+                "host": "10.1.228.106",
+                "username": "admin",
+                "password": "5-GETill",
+                "cli": "naviseccli",
+                "scope": 0
+            },
+            {
+                "host": "10.1.31.130",
                 "username": "sysadmin",
                 "password": "5-GETill",
                 "cli": "naviseccli",
@@ -1573,6 +1669,82 @@
             }
         ]
 
+    },
+    "VPLEX": {
+        "hostinfo" : [
+            {
+                "name": "VPLEX-JXQ",
+                "array_type": "VPLEX",
+                "version": "5.5",
+                "endpoint": "https://10.1.31.132/vplex",
+                "auth": {
+                  "username": "service",
+                  "password": "5-GETill"
+                }
+            },
+            {
+                "name": "VPLEX-SD",
+                "array_type": "VPLEX",
+                "version": "5.5",
+                "endpoint": "https://10.1.31.32/vplex",
+                "auth": {
+                  "username": "service",
+                  "password": "5-GETill"
+                }
+            }
+        ],
+        "cmds" : {
+            "5.5": {
+                "status":"health-check"
+            }
+        }
+
+    },
+    "XIO": {
+        "hostinfo" : [
+            {
+                "name": "XtremIO-SD",
+                "array_type": "XIO",
+                "version": "5.5",
+                "endpoint": "https://10.1.228.57/api/json/types",
+                "auth": {
+                  "username": "admin",
+                  "password": "5-GETill"
+                }
+            },
+            {
+                "name": "XtremIO-JXQ",
+                "array_type": "XIO",
+                "version": "5.5",
+                "endpoint": "https://10.1.228.157/api/json/types",
+                "auth": {
+                  "username": "admin",
+                  "password": "5-GETill"
+                }
+            },
+            {
+                "name": "XtremIO-YZ",
+                "array_type": "XIO",
+                "version": "5.5",
+                "endpoint": "https://10.200.104.189/api/json/types",
+                "auth": {
+                  "username": "admin",
+                  "password": "5-GETill"
+                }
+            }
+        ]
+    },
+    "Unity": {
+        "hostinfo" : [
+            {
+                "host": "10.1.228.174",
+                "port": 443,
+                "username": "admin",
+                "password": "1qaz!QAZ",
+                "readyTimeout": 5000
+            }
+        ]
     }
+
 }
 

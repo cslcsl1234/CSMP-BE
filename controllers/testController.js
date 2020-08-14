@@ -197,7 +197,6 @@ var testController = function (app) {
 
     });
     app.get('/test111', function (req, res) {
-        logger.info("sssbbb")
         res.json(200, "this is test");
     })
 
@@ -761,10 +760,10 @@ var testController = function (app) {
 
     app.get('/test111', function (req, res) {
         var data = require('c:\\1');
-        logger.info("data.values.length")
-        //var resData = util.convertSRMPerformanceStructV2(data);
+        logger.info(data.values.length)
+        var resData = util.convertSRMPerformanceStructV2(data);
 
-        res.json(200, "");
+        res.json(200, resData);
     });
 
 
