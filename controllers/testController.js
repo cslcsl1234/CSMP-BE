@@ -827,9 +827,9 @@ var testController = function (app) {
         //VMAX.getArrayPerformanceV3( device, start, end , valuetype, period, function(result) {            res.json(200,result);       }); 
 
 
-	var device1;
-	var period = 86400;
-	var valuetype = 'average';
+        var device1;
+        var period = 86400;
+        var valuetype = 'average';
 
         //VMAX.GetStorageGroupsPerformance(device1, period, start, end, valuetype, function(rest) {        res.json(200,rest);           });
         //function GetFCSwitchPart(devtype,parttype,callback) { 
@@ -847,10 +847,10 @@ var testController = function (app) {
         //getTopos.getTopos(function(result) { res.json(200, result) });
 
         // SWITCH.getZone(device, function(rest) {             res.json(200,rest);        });
-	//var device='000497000436'
-	var device='000497000436'
-	var ddd ;
-        VMAX.GetStorageGroups(ddd, function(result) {   res.json(200,result);   }); 
+        //var device='000497000436'
+        var device = '000497000436'
+        var ddd;
+        VMAX.GetStorageGroups(ddd, function (result) { res.json(200, result); });
 
         /*
         var device = '000497700088';
@@ -866,25 +866,25 @@ var testController = function (app) {
         }); 
         */
 
-/*
-        var hostinfo = {
-            host: '10.62.36.151',
-            port: 22,
-            username: 'root',
-            privateKey: require('fs').readFileSync('C:\\CSMP\\CSMP-BE\\config\\id_rsa'),
-            readyTimeout: 5000
-        }
-        SSH.remoteCommand(hostinfo, "symcfg list -output xml", function (xmloutput) {
-            console.log("----");
-            console.log(xmloutput)
-            console.log("---");
-            var options = {
-                object: true
-            };
-            var json = xml2json.toJson(xmloutput, options)
-            res.json(200, json);
-        })
-*/
+        /*
+                var hostinfo = {
+                    host: '10.62.36.151',
+                    port: 22,
+                    username: 'root',
+                    privateKey: require('fs').readFileSync('C:\\CSMP\\CSMP-BE\\config\\id_rsa'),
+                    readyTimeout: 5000
+                }
+                SSH.remoteCommand(hostinfo, "symcfg list -output xml", function (xmloutput) {
+                    console.log("----");
+                    console.log(xmloutput)
+                    console.log("---");
+                    var options = {
+                        object: true
+                    };
+                    var json = xml2json.toJson(xmloutput, options)
+                    res.json(200, json);
+                })
+        */
 
         //VMAX.GetDirectorPerformance(device, period, start, valuetype, function(rest) {             res.json(200,rest);        });
         //VMAX.GetDiskPerformance(device, period, start,end,  valuetype, function(rest) {             res.json(200,rest);        });
@@ -975,9 +975,9 @@ var testController = function (app) {
         //VPLEX.GetStorageVolumeByDevices(device, function(ret) {  res.json(200,ret);   }); 
     });
 
-    
+
     app.get('/test_backmgmt_login', function (req, res1) {
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; 
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
         var req = unirest("GET", "https://csmpcollecter:58443/centralized-management");
 
@@ -996,22 +996,22 @@ var testController = function (app) {
             console.log(session[1]);
 
             var req1 = unirest("POST", "https://csmpcollecter:58443/centralized-management/j_security_check?j_username=admin&j_password=changeme");
-            req1.headers({ 
+            req1.headers({
                 //Host": "csmpcollecter:58443",
                 "cookie": "JSESSIONID=" + session[1]
             });
-    
-            req1.end(function (response1) { 
+
+            req1.end(function (response1) {
                 console.log(response1.header);
                 //var sessionid = response1.headers['set-cookie'][0];
                 //var session = sessionid.match(/JSESSIONID=([A-Z0-9]*);[ a-zA-Z0-9=;/]*/i);
                 //console.log(session[1]);
-    
-                res1.json(200,response1);
+
+                res1.json(200, response1);
             })
 
         });
-        
+
 
 
     });
@@ -1021,14 +1021,14 @@ var testController = function (app) {
 
 
     app.get('/test_backmgmt_test', function (req, res1) {
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; 
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         async.waterfall(
             [
                 function (callback) {
                     backendMgmt.BackEndLogin(function (BEInfo) {
                         var sso_token = BEInfo.sso_token;
                         var BEVersion = BEInfo.BEVersion;
-                        callback(null,sso_token);
+                        callback(null, sso_token);
                     });
 
                 }
@@ -1043,14 +1043,14 @@ var testController = function (app) {
 
 
     app.get('/test_backmgmt_test2', function (req, res1) {
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; 
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         async.waterfall(
             [
                 function (callback) {
                     backendMgmt.BackEndLogin2(function (BEInfo) {
                         var sso_token = BEInfo.sso_token;
                         var BEVersion = BEInfo.BEVersion;
-                        callback(null,sso_token);
+                        callback(null, sso_token);
                     });
 
                 }
@@ -1175,7 +1175,7 @@ var testController = function (app) {
                         req.end(function (res) {
                             console.log("query result is done");
                             if (res.error) console.log(res.error);
-                            var xmlstr = res.body; 
+                            var xmlstr = res.body;
                             var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.\-=\"]*)(">)/g, '$1"\/>');
                             //var newdata = xmlstr;
                             var parser = new xml2js.Parser();
@@ -1339,37 +1339,61 @@ var testController = function (app) {
 
     app.get("/test14", function (req, res) {
 
-        var arrayinfo = {
-            "name": "EMCCTEST",
-            "type": "VPLEX",
-            "version": "5.5",
-            "endpoint": "https://10.32.32.100/vplex",
-            "auth": {
-                "username": "service",
-                "password": "password"
-            }
-        }
+        var device;
+        var finalResult = [];
+        async.waterfall(
+            [
+                function (callback) {
+                    VMAX.GetArrays(device, function (ret) {
+                        for ( var i in ret ) {
+                            var item = ret[i];
+                            var resultItem = {
+                                device_type: "Array",
+                                serial_no: item.device,
+                                name: "",
+                                model: item.model,
+                                microcode: item.devdesc,
+                                vendor: item.vendor
+                            }
+                            finalResult.push(resultItem);
+                        }
+                        callback(null,finalResult);
+                    })
+                },
+                function (arg1, callback) {
 
-        var aa = [{
-            "name": "VOLTEST_1228171527",
-            "lunwwn": "60000970000297800193533030303444"
-        },
-        {
-            "name": "VOLTEST_1228171527",
-            "lunwwn": "600601602f204100130a075e6f5f3475"
-        }
-        ]
+                    VNX.GetArrays(device, function (ret) {
+                        for ( var i in ret ) {
+                            var item = ret[i];
+                            var resultItem = {
+                                device_type: "Array",
+                                serial_no: item.serialnb,
+                                name: item.device,
+                                model: item.model,
+                                microcode: item.devdesc,
+                                vendor: item.vendor
+                            }
+                            arg1.push(resultItem);
+                        }
+                        callback(null,arg1);
+                    })
+                }
+            ],
+            function (err, result) {
 
-        Automation_VPLEX.ClaimStorageVolume(arrayinfo, aa, function (result) {
-            res.json(200, result);
-        })
+                res.json(200, result);
+            });
 
     });
 
 
 
-
-
+    app.get("/test15", function (req, res) {
+        var device ;
+        VNX.GetArrays(device, function (ret) {
+            res.json(200,ret);
+        })
+    })
 
     app.get('/test12', function (req, res) {
 

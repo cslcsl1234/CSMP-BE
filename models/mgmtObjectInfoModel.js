@@ -48,6 +48,9 @@ MgmtObjectInfoSchema = new Schema({
             type: String,
             required: true
         },
+        assetNumber: {
+            type: String
+        },
         name: {
             type: String 
         },  
