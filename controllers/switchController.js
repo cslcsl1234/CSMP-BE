@@ -66,7 +66,7 @@ var switchController = function (app) {
             function (param, callback) {
 
                 util.GetLocaltion(function (locations) {
-                    console.log(locations);
+                    logger.info(locations);
                     param['Locations'] = locations;
                     callback(null, param);
 
@@ -86,14 +86,14 @@ var switchController = function (app) {
                         item['localtion'] = "";
                         item['datacenter'] = "undefine";
                         var switchsn = item.device;
-                        //console.log("Begin get switch info : " + switchsn);
+                        //logger.info("Begin get switch info : " + switchsn);
                         for (var j in result) {
                             var infoItem = result[j];
                             if (infoItem.basicInfo.device == switchsn) {
                                 var unitID = infoItem.basicInfo.UnitID;
                                 for (var z in locations) {
                                     if (unitID == locations[z].UnitID) {
-                                        //console.log(locations[z].Location);
+                                        //logger.info(locations[z].Location);
                                         item['localtion'] = locations[z].Location;
                                         item['datacenter'] = locations[z].datacenter;
                                         break;
@@ -119,19 +119,19 @@ var switchController = function (app) {
 
                 var fabricResult = [];
 
-                console.log(config.Backend);
+                logger.info(config.Backend);
                 unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
                     .auth(config.Backend.USER, config.Backend.PASSWORD, true)
                     .headers({ 'Content-Type': 'multipart/form-data' })
                     .query({ 'fields': fields, 'filter': filter })
                     .end(function (response) {
 
-                        //console.log(response.raw_body);
+                        //logger.info(response.raw_body);
                         var resultJson = JSON.parse(response.raw_body).values;
-                        //console.log(resultJson);
+                        //logger.info(resultJson);
                         for (var i in param.result) {
                             var swItem = param.result[i];
-                            //console.log(swItem);
+                            //logger.info(swItem);
                             var isfind = false;
                             for (var j in resultJson) {
                                 var item = resultJson[j];
@@ -263,14 +263,14 @@ var switchController = function (app) {
                         var item = param.result[i];
                         item['info'] = {};
                         var switchsn = item.device;
-                        //console.log("Begin get switch info : " + switchsn);
+                        //logger.info("Begin get switch info : " + switchsn);
                         for (var j in result) {
                             var infoItem = result[j];
                             if (infoItem.basicInfo.device == switchsn) {
                                 var unitID = infoItem.basicInfo.UnitID;
                                 for (var z in locations) {
                                     if (unitID == locations[z].UnitID) {
-                                        //console.log(locations[z].Location);
+                                        //logger.info(locations[z].Location);
                                         item['localtion'] = locations[z].Location;
                                         break;
                                     }
@@ -325,12 +325,12 @@ var switchController = function (app) {
                 return done(err);
             }
             if (!doc) { //user doesn't exist.
-                console.log("switch info record is not exist.");
+                logger.info("switch info record is not exist.");
 
                 callback(null, []);
 
             } else {
-                console.log("Switch is exist!");
+                logger.info("Switch is exist!");
                 callback(doc);
 
             }
@@ -385,7 +385,7 @@ var switchController = function (app) {
             .query({ 'fields': fields, 'filter': filter })
             .end(function (response) {
 
-                //console.log(response.raw_body);
+                //logger.info(response.raw_body);
                 var resultJson = JSON.parse(response.raw_body).values;
 
                 for (var i in resultJson) {
@@ -421,7 +421,7 @@ var switchController = function (app) {
 
                 }
 
-                console.log('The number of Fabrics = ' + fabricResult.length);
+                logger.info('The number of Fabrics = ' + fabricResult.length);
                 res.json(200, fabricResult);
 
             });
@@ -468,11 +468,11 @@ var switchController = function (app) {
                 return done(err);
             }
             if (!doc) { //user doesn't exist.
-                console.log("app is not exist. insert it.");
+                logger.info("app is not exist. insert it.");
 
                 var newapp = new SwitchObj(reqBody);
                 newapp.save(function (err, thor) {
-                    console.log('Test2');
+                    logger.info('Test2');
                     if (err) {
                         console.dir(thor);
                         return res.json(400, err);
@@ -540,14 +540,14 @@ var switchController = function (app) {
                         var item = param.result[i];
                         item['info'] = {};
                         var switchsn = item.device;
-                        //console.log("Begin get switch info : " + switchsn);
+                        //logger.info("Begin get switch info : " + switchsn);
                         for (var j in result) {
                             var infoItem = result[j];
                             if (infoItem.basicInfo.device == switchsn) {
                                 var unitID = infoItem.basicInfo.UnitID;
                                 for (var z in locations) {
                                     if (unitID == locations[z].UnitID) {
-                                        //console.log(locations[z].Location);
+                                        //logger.info(locations[z].Location);
                                         item['localtion'] = locations[z].Location;
                                         break;
                                     }
@@ -568,7 +568,7 @@ var switchController = function (app) {
             // result now equals 'done'
             //res.json(200, result.result); 
             var returnData = result.result[0];
-            //console.log(returnData);
+            //logger.info(returnData);
             var finalResult = [];
             var item = {};
             // Combine the UI element for VMAX Basic Info page.

@@ -84,7 +84,7 @@ var dashboardController = function (app) {
  
                             var equipmentAllList = finalResult.equipmentList;
 
-                            console.log(equipmentInfo);
+                            logger.info(equipmentInfo);
 
                             for ( var j in equipmentAllList ) {
                                 var item = equipmentAllList[j];
@@ -267,7 +267,7 @@ function GetEquipmentInfo(callback) {
              }
          ], function (err, result) {
                // result now equals 'done'
-               console.log(result);
+               logger.info(result);
                callback(result);
          });
 
@@ -295,7 +295,7 @@ function GetDatacenterInfo(callback) {
 
 
 function SearchDatacenterByUnitID(UnitID, datacenterInfo ) {
-    //console.log(datacenterInfo);
+    //logger.info(datacenterInfo);
     var dcInfo = {};
     for ( var i in datacenterInfo ) {
         var dc = datacenterInfo[i];

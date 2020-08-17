@@ -77,7 +77,7 @@ var appController = function (app) {
 *  Create a app record 
 */
     app.post('/api/application', function (req, res) {
-        console.log(req.body);
+        logger.info(req.body);
 
         var app = req.body;
 
@@ -87,12 +87,12 @@ var appController = function (app) {
                 return   done(err);
             }
             if (!doc) { //user doesn't exist.
-                console.log("app is not exist. insert it."); 
+                logger.info("app is not exist. insert it."); 
 
                 var newapp = new AppObj(app);
-                console.log(app);
+                logger.info(app);
                 newapp.save(function(err, thor) {
-                 console.log('Test2');
+                 logger.info('Test2');
                  if (err)  {
                     console.dir(thor);
                     return res.json(400 , err);
@@ -156,7 +156,7 @@ var appController = function (app) {
             //  
         async.eachSeries(appArray, function(newapp, asyncdone) {
 
-            console.log(newapp.name);
+            logger.info(newapp.name);
 
            AppObj.findOne({"id" : newapp.id}, function (err, doc) {
                 //system error.
@@ -164,16 +164,16 @@ var appController = function (app) {
                     return   done(err);
                 }
                 if (!doc) { //user doesn't exist.
-                    console.log("app is not exist. insert it."); 
+                    logger.info("app is not exist. insert it."); 
  
                     var newappR = new AppObj(newapp);
-                    console.log(newappR);
+                    logger.info(newappR);
                     newappR.save(asyncdone);
                 }
                 else { 
                     doc.update(newapp, function(error, course) {
                         if(error) res.json(200 , {status: error});
-                        console.log("The App has exist! Update it.");
+                        logger.info("The App has exist! Update it.");
                         asyncdone();
                     });
 
@@ -183,7 +183,7 @@ var appController = function (app) {
 
  
         }, function(err) {
-            if ( err ) return console.log(err);
+            if ( err ) return logger.error(err);
         });
 
 
@@ -203,7 +203,7 @@ var appController = function (app) {
                 return   done(err);
             }
             if (!doc) {  
-                console.log("application is not exist. do nothing."); 
+                logger.info("application is not exist. do nothing."); 
                 return  res.json(200 , {status: "application is not exist. do nothing."});
             }
             else { 

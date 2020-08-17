@@ -354,7 +354,7 @@ var BackendMgmtController = function (app) {
                         });
 
                         req.end(function (res) {
-                            if (res.error) console.log(res.error);
+                            if (res.error) logger.error(res.error);
                             var xmlstr = "<div>" + res.body + "</div>";
                             var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.\-=_\"]*)(">)/g, '$1"\/>').replace(/\"data-default=\"/g, '" data-default="');
 
@@ -375,7 +375,7 @@ var BackendMgmtController = function (app) {
                     for (var i in tbody) {
                         var item = tbody[i];
                         if (item.class == "device-location") {
-                            console.log(JSON.stringify(item));
+                            logger.info(JSON.stringify(item));
                             //var elementItem = item.div[0].div[2];
                             var elementItem = item.div;
 
@@ -476,7 +476,7 @@ var BackendMgmtController = function (app) {
                         });
 
                         req.end(function (res) {
-                            if (res.error) console.log(res.error);
+                            if (res.error) logger.error(res.error);
                             var xmlstr = "<div>" + res.raw_body + "</div>";
                             var newdata = xmlstr.replace(/(<input[ a-zA-Z{}0-9.\-=_\"]*)(">)/g, '$1"\/>').replace(/\"data-default=\"/g, '" data-default="');
 
@@ -534,12 +534,12 @@ var BackendMgmtController = function (app) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         var body = req.body; 
                 
-        console.log("========\nBegin execute device test operate.\n==========\n" ); 
+        logger.info("========\nBegin execute device test operate.\n==========\n" ); 
           
-        console.log(body);
+        logger.info(body);
         
         if (body instanceof Array) {
-            console.log("----------\nit's mutil-tasks, #task="+body.length+". execute type = ["+ body[0].exeType + "]\n----------\n")
+            logger.info("----------\nit's mutil-tasks, #task="+body.length+". execute type = ["+ body[0].exeType + "]\n----------\n")
             async.map(body, function (item, subcallback) {
                 backendMgmt.testCollectObject(item, function (result) {
                     subcallback(null, result);
@@ -551,7 +551,7 @@ var BackendMgmtController = function (app) {
             )
 
         } else {
-            console.log("----------\nit's single task. execute type = ["+ body.exe_type + "]\n----------\n")
+            logger.info("----------\nit's single task. execute type = ["+ body.exe_type + "]\n----------\n")
             backendMgmt.testCollectObject(body, function (result) {
                 res1.json(200, result);
             });
@@ -609,7 +609,7 @@ var BackendMgmtController = function (app) {
                         var statusResult = [];
 
                         async.mapSeries(serverList, function (serverItem, callback) {
-                            console.log(serverItem.id);
+                            logger.info(serverItem.id);
 
 
                             backendMgmt.getBackendServerStatus(serverItem.id, function (status) {
@@ -631,7 +631,7 @@ var BackendMgmtController = function (app) {
 
                         }, function (err, result) {
                             if (err) {
-                                console.log(err);
+                                logger.error(err);
                             };
                             for (var i in result) {
                                 var item = result[i];
@@ -752,7 +752,7 @@ var BackendMgmtController = function (app) {
                             })
                         }, function (err, result) {
                             if (err) {
-                                console.log(err);
+                                logger.error(err);
                             };
                             callback(null, result);
                         }
@@ -847,7 +847,7 @@ var BackendMgmtController = function (app) {
                             else storageStatistics.storage.FAILED++;
                             var dt = moment(storageItem.testDateTime, 'MMM DD, YYYY hh:mm:ss A').unix();
                             if (dt > testtimestamp) testtimestamp = dt;
-                            //console.log(dt+'\t' + dt.format() + '\t' +testtimestamp.format() );
+                            //logger.info(dt+'\t' + dt.format() + '\t' +testtimestamp.format() );
                         }
                         for (var i in objStatus.switch) {
                             var switchItem = objStatus.switch[i];
@@ -856,7 +856,7 @@ var BackendMgmtController = function (app) {
 
                             var dt = moment(storageItem.testDateTime, 'MMM DD, YYYY hh:mm:ss A').unix();
                             if (dt > testtimestamp) testtimestamp = dt;
-                            //console.log(dt+'\t' + dt.format() + '\t' +testtimestamp.format() );
+                            //logger.info(dt+'\t' + dt.format() + '\t' +testtimestamp.format() );
 
                         }
                         var dtStr = moment.unix(testtimestamp).format("YYYY-MM-DD HH:mm:ss");
@@ -928,7 +928,7 @@ var BackendMgmtController = function (app) {
                         })
                     }, function (err, result) {
                         if (err) {
-                            console.log(err);
+                            logger.error(err);
                         };
                         callback(null, result);
                     }
@@ -970,7 +970,7 @@ var BackendMgmtController = function (app) {
                     var q = async.queue(function (task, callback) {
                         log('worker is processing task: ', task.name);
                         backendMgmt.testCollectObject(task.taskInfo, function (vaildResult) {
-                            //console.log(task.taskInfo.collecter.deviceinfo);
+                            //logger.info(task.taskInfo.collecter.deviceinfo);
                             callback(vaildResult);
                         })
 
@@ -1010,9 +1010,9 @@ var BackendMgmtController = function (app) {
                         // 加入任务
                         q.push(taskItem, function (err) {
                             if (err) {
-                                return console.log('error in adding tasks to queue');
+                                return logger.error('error in adding tasks to queue');
                             }
-                            console.log('pushed to queue!');
+                            logger.info('pushed to queue!');
                         });
 
                     }
@@ -1093,7 +1093,7 @@ var BackendMgmtController = function (app) {
                         var timestamp = moment(item.timestamp).unix();
                         if (timestamp < start) continue;
 
-                        console.log(moment(item.timestamp).unix() + '\t' + (moment(moment().format('YYYY-MM-DD')).unix() - 3600 * 24));
+                        logger.info(moment(item.timestamp).unix() + '\t' + (moment(moment().format('YYYY-MM-DD')).unix() - 3600 * 24));
 
                         switch (item.sourcetype) {
                             case "mongodb":

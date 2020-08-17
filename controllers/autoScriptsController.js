@@ -46,12 +46,12 @@ var autoScriptsController = function (app) {
     /* list scripts */
     app.get('/scripts', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
-        console.log('list scripts called');
+        logger.info('list scripts called');
         scriptDAO.list(function (scripts) {
-            //console.log(scripts);
-            console.log("------------");
+            //logger.info(scripts);
+            logger.info("------------");
             res.json(result.createResult(true, scripts));
-            //console.log(res);
+            //logger.info(res);
         });
     });
 
@@ -60,7 +60,7 @@ var autoScriptsController = function (app) {
     app.get('/scripts/:id', function (req, res) {
         res.setHeader("Access-Control-Allow-Origin", "*");
         var id = req.params.id;
-        console.log('get script called, id: ' + id);
+        logger.info('get script called, id: ' + id);
         scriptDAO.getById(id, function (script) {
             res.json(result.createResult(true, script));
         });
@@ -71,7 +71,7 @@ var autoScriptsController = function (app) {
 app.delete('/scripts/:id', function (req, res) {
 	res.setHeader("Access-Control-Allow-Origin", "*"); 
     var id = req.params.id;
-    console.log('delete script called, id=' + id);
+    logger.info('delete script called, id=' + id);
     scriptDAO.deleteById(id, function (success) {
         res.json(result.createResult(success, null));
     });
@@ -80,10 +80,10 @@ app.delete('/scripts/:id', function (req, res) {
 /* add scripts */
 app.post('/scripts', function (req, res) {
 	res.setHeader("Access-Control-Allow-Origin", "*"); 
-    console.log('post scripts called');	
+    logger.info('post scripts called');	
     var script = req.body;
     
-    console.log(script); 
+    logger.info(script); 
     scriptDAO.add(script, function (success,id) {
         var r =  result.createResult(success, id);
         res.json(r);
@@ -93,7 +93,7 @@ app.post('/scripts', function (req, res) {
 /* update scripts */
 app.put('/scripts/:id', function (req, res) {
 	res.setHeader("Access-Control-Allow-Origin", "*");
-    console.log('update script called');
+    logger.info('update script called');
     var script = req.body;
     scriptDAO.update(script, function (success,id) {
         var r =  result.createResult(success, id);
@@ -103,7 +103,7 @@ app.put('/scripts/:id', function (req, res) {
 /* patch scripts */
 app.patch('/scripts/:id', function (req, res) {
 	res.setHeader("Access-Control-Allow-Origin", "*"); 
-    console.log('patch script called');
+    logger.info('patch script called');
     scriptDAO.getById(req.params.id, function (script) {
         var name = req.body.name;
         if(name) {
@@ -129,7 +129,7 @@ app.patch('/scripts/:id', function (req, res) {
         if(closetime) {
             script.closetime = closetime;
         }
-        console.log(script);
+        logger.info(script);
         scriptDAO.update(script, function (success) {
             var r =  result.createResult(success, null);
             res.json(r);

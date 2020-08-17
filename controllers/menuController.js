@@ -72,7 +72,7 @@ var menuController = function (app) {
     *  Create a menu record 
     */
     app.post('/api/menu/add', function (req, res) {
-        console.log(req.body);
+        logger.info(req.body);
 
         var menu = req.body;
 
@@ -82,7 +82,7 @@ var menuController = function (app) {
                 return done(err);
             }
             if (!doc) { //user doesn't exist.
-                console.log("menu item is not exist. insert it.");
+                logger.info("menu item is not exist. insert it.");
 
                 var newmenu = new MenuObj(menu);
                 newmenu.save(function (err, thor) {
@@ -94,7 +94,7 @@ var menuController = function (app) {
                 });
             }
             else {
-                console.log("the menu is exist!");
+                logger.info("the menu is exist!");
 
 
                 doc.update(menu, function (error, course) {
@@ -117,7 +117,7 @@ var menuController = function (app) {
     *  Delete a menu record 
     */
     app.post('/api/menu/del', function (req, res) {
-        console.log(req.body);
+        logger.info(req.body);
 
         var menu = req.body;
         var conditions = { menuId: menu.menuId };
@@ -127,7 +127,7 @@ var menuController = function (app) {
                 return done(err);
             }
             else {
-                console.log("the menu is remove !");
+                logger.info("the menu is remove !");
                 return res.json(200, { status: "The menu has removed!" });
             }
 
@@ -179,7 +179,7 @@ var menuController = function (app) {
                 break;
 
             default:
-                console.log("ERROR: No Support array type! type=[" + arraytype.toUpperCase() + "]");
+                logger.error("ERROR: No Support array type! type=[" + arraytype.toUpperCase() + "]");
                 res.json(400, "尚不支持此种设备型号[" + arraytype + "] !");
         }
 

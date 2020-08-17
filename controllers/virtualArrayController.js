@@ -361,7 +361,7 @@ var virtualArrayController = function (app) {
                         var item = arg1[i];
                         
                         if ( deviceItem.device == item.ProviderByDevice && deviceItem.part == item.ProviderFromObject ) {
-                            //console.log(deviceItem.device +'|' + item.ProviderByDevice +'|' + deviceItem.part +'|' +item.ProviderFromObject);
+                            //logger.info(deviceItem.device +'|' + item.ProviderByDevice +'|' + deviceItem.part +'|' +item.ProviderFromObject);
                             item['disktype'] = deviceItem.disktype; 
                             item['PyhsicalCapacity'] = deviceItem.Capacity; 
                             item['PyhsicalUsedCapacity'] = deviceItem.UsedCapacity; 
@@ -689,7 +689,7 @@ var virtualArrayController = function (app) {
 
                     var groupbyValue = item[groupby]; 
                     var itemValue = item[groupbyField];
-console.log(itemValue);
+logger.info(itemValue);
                     var isFind = false;
                     for ( var j in chartData ) {
                         var charItem = chartData[j];
@@ -947,7 +947,7 @@ console.log(itemValue);
  
             for ( var vvoli in vvolDataList ) {
                 var item = vvolDataList[vvoli];
-                console.log(vvolname[i]+"\t" + item.part);
+                logger.info(vvolname[i]+"\t" + item.part);
                 if ( vvolname[i] == item.part ) {
                     deviceArray = item.ProviderByDevice;
                     vvolList.push(item.ProviderFromObject); 
@@ -956,7 +956,7 @@ console.log(itemValue);
 
         }
 
-        console.log(deviceArray+"|" + vvolList);
+        logger.info(deviceArray+"|" + vvolList);
         var interval = 'hours';
         VMAX.getArrayLunGroupPerformance(deviceArray, vvolList , perfStartDate, perfEndDate , interval, function(finalResult) {
 

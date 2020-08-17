@@ -68,7 +68,7 @@ var datacenterController = function (app) {
     app.post('/api/matadata/datacenter', function (req, res) { 
 
         var datacenter = req.body; 
-        console.log(datacenter);
+        logger.info(datacenter);
         var DCName = datacenter.Name; 
 
         DatacenterObj.findOne({"Name" : DCName}, function (err, doc) {
@@ -77,7 +77,7 @@ var datacenterController = function (app) {
                 return   done(err);
             }
             if (!doc) { //user doesn't exist.
-                console.log("datacenter item is not exist. insert it."); 
+                logger.info("datacenter item is not exist. insert it."); 
 
                 var newDC = new DatacenterObj(datacenter); 
                 newDC.save(function(err, thor) { 
@@ -89,7 +89,7 @@ var datacenterController = function (app) {
                 });
             }
             else {
-                console.log("the datacenter is exist!");
+                logger.info("the datacenter is exist!");
  
 
                 doc.update(datacenter, function(error, course) {
@@ -112,7 +112,7 @@ var datacenterController = function (app) {
 *  Delete a menu record 
 */
     app.post('/api/menu1/del', function (req, res) {
-        console.log(req.body);
+        logger.info(req.body);
 
         var menu = req.body;
         var conditions = {menuId: menu.menuId};
@@ -122,7 +122,7 @@ var datacenterController = function (app) {
                 return   done(err);
             }
             else {
-                console.log("the menu is remove !"); 
+                logger.info("the menu is remove !"); 
                 return  res.json(200 , {status: "The menu has removed!"});
             }
 
@@ -137,14 +137,14 @@ var datacenterController = function (app) {
     app.post('/api/mgmtObject/info', function (req, res) { 
         var mgmtobj = req.body;
     
-        console.log("|"+ mgmtobj.toString() + "|");
+        logger.info("|"+ mgmtobj.toString() + "|");
         MgmtObjectInfoObject.findOne({"sn" : mgmtobj.sn }, function (err, doc) {
             //system error.
             if (err) {
                 return   done(err);
             }
             if (!doc) { //user doesn't exist.
-                console.log("Management Object  is not exist. insert it."); 
+                logger.info("Management Object  is not exist. insert it."); 
     
                 var newmgmtobj = new MgmtObjectInfoObject(mgmtobj);
                 newmgmtobj.save(function(err, thor) {

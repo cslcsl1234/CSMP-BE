@@ -37,7 +37,7 @@ var eventController = function (app) {
         var startdt = req.query.startdt;
         var enddt = req.query.enddt;
 
-        console.log("device=" + device+"\n"+"state=" + state+"\n"+"startdt=" + startdt+"\n"+"enddt=" + enddt);
+        logger.info("device=" + device+"\n"+"state=" + state+"\n"+"startdt=" + startdt+"\n"+"enddt=" + enddt);
         var eventParam = {};
         if (typeof device !== 'undefined') { 
             eventParam['filter'] = 'device=\''+device + '\'&!acknowledged&active=\'1\'';
@@ -46,7 +46,7 @@ var eventController = function (app) {
             eventParam['filter'] = '!acknowledged&active=\'1\'';
         } 
  
-        //console.log(eventParam);
+        //logger.info(eventParam);
         GetEvents.GetEvents(eventParam, function(result1) {   
 
             var result = [];
@@ -149,7 +149,7 @@ var eventController = function (app) {
                     return   done(err);
                 }
                 if (!doc) { //user doesn't exist.
-                    console.log("Event Record is not exist. insert it."); 
+                    logger.info("Event Record is not exist. insert it."); 
 
                     var newevent = new EventObj(item);
                     newevent.save(function(err, thor) {
@@ -269,9 +269,9 @@ var eventController = function (app) {
                 
                                 newRecord.save(function(err, thor) {  
                                     if (err == 400 )  { 
-                                        console.log("Duplicate Record : ", thor , " ; ignore insert." ); 
+                                        logger.info("Duplicate Record : ", thor , " ; ignore insert." ); 
                                     }  else {
-                                        //console.log('insert record :', resItem.id);
+                                        //logger.info('insert record :', resItem.id);
                                         results.push(resItem);
                                     }
                                 }); 
@@ -280,7 +280,7 @@ var eventController = function (app) {
                         }
                     }
 
-                    //console.log(results.length);
+                    //logger.info(results.length);
                     callback (null, results);
                 }
             ], function (err, result) { 
@@ -338,9 +338,9 @@ var eventController = function (app) {
 
                             newRecord.save(function(err, thor) {  
                                 if (err == 400 )  { 
-                                    console.log("Duplicate Record : ", thor , " ; ignore insert." ); 
+                                    logger.info("Duplicate Record : ", thor , " ; ignore insert." ); 
                                 }  else {
-                                    console.log('insert record :', resItem.id); 
+                                    logger.info('insert record :', resItem.id); 
                                 }
                             });    
                             
@@ -367,9 +367,9 @@ var eventController = function (app) {
 
                             newRecord.save(function(err, thor) {  
                                 if (err == 400 )  { 
-                                    console.log("Duplicate Record : ", thor , " ; ignore insert." ); 
+                                    logger.info("Duplicate Record : ", thor , " ; ignore insert." ); 
                                 }  else {
-                                    console.log('insert record :', resItem.id); 
+                                    logger.info('insert record :', resItem.id); 
                                 }
                             });     
 
@@ -406,14 +406,14 @@ var eventController = function (app) {
 
                         newRecord.save(function(err, thor) {  
                             if (err == 400 )  { 
-                                console.log("Duplicate Record : ", thor , " ; ignore insert." ); 
+                                logger.info("Duplicate Record : ", thor , " ; ignore insert." ); 
                             }  else {
-                                console.log('insert record :', resItem.id); 
+                                logger.info('insert record :', resItem.id); 
                             }
                         });     
                     }
  
-                    //console.log(results.length);
+                    //logger.info(results.length);
                     callback (null, arg);
                 }
             ], function (err, result) { 
@@ -459,13 +459,13 @@ var eventController = function (app) {
             var filter = {};
         } 
 
-        console.log(acknowlaged_param);
+        logger.info(acknowlaged_param);
         var retData = {};
 
         async.waterfall(
             [
                 function(callback){ 
-                    console.log(filter);
+                    logger.info(filter);
                     IOLimitEventObj.find(filter).select({ "__v": 0, "_id": 0}).exec(  function (err, doc) {
                         //system error. 
                         if (err) {
@@ -497,7 +497,7 @@ var eventController = function (app) {
                     });   
                 } ,
                 function ( arg, callback ) {
-                    console.log(filter);
+                    logger.info(filter);
                     EventObj.find(filter).select({ "__v": 0, "_id": 0}).exec(  function (err, doc) {
                         //system error. 
                         if (err) {
@@ -569,7 +569,7 @@ app.post('/api/event/performance/sg/iolimit/update', function (req, res) {
                         return   done(err);
                     }
                     if (!doc) { //user doesn't exist.
-                        console.log("app is not exist. insert it."); 
+                        logger.info("app is not exist. insert it."); 
         
                         var newapp = new EventObj(reqBody); 
                         newapp.save(function(err, thor) { 
@@ -596,12 +596,12 @@ app.post('/api/event/performance/sg/iolimit/update', function (req, res) {
                         return   done(err);
                     }
                     if (!doc) { //user doesn't exist.
-                        console.log("app is not exist. insert it."); 
+                        logger.info("app is not exist. insert it."); 
         
                         var newapp = new IOLimitEventObj(reqBody);
                         
                         newapp.save(function(err, thor) {
-                        console.log('Test2');
+                        logger.info('Test2');
                         if (err)  {
                             console.dir(thor);
                             return res.json(400 , err);

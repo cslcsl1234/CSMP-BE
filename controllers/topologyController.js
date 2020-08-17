@@ -55,7 +55,7 @@ var topologyController = function(app) {
 
     app.get('/api/topology/level2', function(req, res) {
         //app.get('/level2', function(req, res) {
-        console.log(req.query.params);
+        logger.info(req.query.params);
         var queryParamater = JSON.parse(req.query.params);
         var category = queryParamater.category;
         var device = queryParamater.key;
@@ -400,9 +400,9 @@ var topologyController = function(app) {
         var ReportOutputPath = config.Reporting.OutputPath;
         var crypto = require('crypto');
         var md5sum = crypto.createHash('md5');
-        console.log(" =========================================================== ");
-        console.log(" Begin topology for application.  " + Date());
-        console.log(" =========================================================== ");
+        logger.info(" =========================================================== ");
+        logger.info(" Begin topology for application.  " + Date());
+        logger.info(" =========================================================== ");
 
         Report.initiatalApplicationInfo(function(apps) {
             var fs = require('fs');
@@ -411,7 +411,7 @@ var topologyController = function(app) {
             for (var i in apps) {
                 var item = apps[i];
 
-                //console.log(item.maskingview);
+                //logger.info(item.maskingview);
                 if (i == 0)
                     fs.appendFileSync(fsname, JSON.stringify(item) + '\n');
                 else
@@ -420,7 +420,7 @@ var topologyController = function(app) {
             fs.appendFileSync(fsname, ']\n');
 
 
-            console.log(Date() + " ===== Get ApplicationInfo is done. ===== apps:" + apps.length);
+            logger.info(Date() + " ===== Get ApplicationInfo is done. ===== apps:" + apps.length);
             Report.E2ETopology(device, function(topoAll) {
                 //Report.E2ETopologyTest(device, function(topoAll) {
                 var masking = topoAll.masking;
@@ -429,8 +429,8 @@ var topologyController = function(app) {
                 var nomarched_masking = topoAll.nomarched;
                 var topo = topoAll.marched;
 
-                console.log(Date() + "===== Begin execute application capacity analysis ======");
-                console.log("========================================================");
+                logger.info(Date() + "===== Begin execute application capacity analysis ======");
+                logger.info("========================================================");
                 Report.ApplicationCapacityAnalysis(masking, apps, function(applicationCapacity) {
                     var fs = require('fs');
                     var wstream = fs.createWriteStream("./data/ApplicationCapacityAnalysis.json");
@@ -443,7 +443,7 @@ var topologyController = function(app) {
                     }
                     wstream.write(']\n');
                     wstream.end();
-                    console.log(Date() + "===== End  execute application capacity analysis ======");
+                    logger.info(Date() + "===== End  execute application capacity analysis ======");
                 });
 
 
@@ -503,7 +503,7 @@ var topologyController = function(app) {
                             finalRecords_new.push(retItem);
                     }
                 }
-                console.log(Date() + "===== execute write topology file ======");
+                logger.info(Date() + "===== execute write topology file ======");
 
 
 
@@ -520,14 +520,14 @@ var topologyController = function(app) {
                 wstream.end();
 
 
-                console.log("finalRecords_new record number: " + finalRecords_new.length);
+                logger.info("finalRecords_new record number: " + finalRecords_new.length);
 
                 var fsname = ReportOutputPath + '//' + 'topology.json';
                 fs.writeFileSync(fsname, '[\n');
                 for (var i in finalRecords_new) {
                     var item = finalRecords_new[i];
 
-                    //console.log(item.maskingview);
+                    //logger.info(item.maskingview);
                     if (i == 0)
                         fs.appendFileSync(fsname, JSON.stringify(item) + '\n');
                     else
@@ -535,14 +535,14 @@ var topologyController = function(app) {
                 }
                 fs.appendFileSync(fsname, ']\n');
 
-                console.log("finalRecords_all record number: " + finalRecords_all.length);
+                logger.info("finalRecords_all record number: " + finalRecords_all.length);
 
                 var fsname = ReportOutputPath + '//' + 'topology_all.json';
                 fs.writeFileSync(fsname, '[\n');
                 for (var i in finalRecords_all) {
                     var item = finalRecords_all[i];
 
-                    //console.log(item.maskingview);
+                    //logger.info(item.maskingview);
                     if (i == 0)
                         fs.appendFileSync(fsname, JSON.stringify(item) + '\n');
                     else
@@ -554,7 +554,7 @@ var topologyController = function(app) {
                 var json2xls = require('json2xls');
                 var xls = json2xls(finalRecords_new);
                 var outputFilename = ReportOutputPath + '//' + 'topology.xlsx';
-                console.log("Write Result to file [" + outputFilename + "]");
+                logger.info("Write Result to file [" + outputFilename + "]");
                 fs.writeFileSync(outputFilename, xls, 'binary');
 
                 var ret = {};
@@ -572,7 +572,7 @@ var topologyController = function(app) {
                 //appTopologyRecord.zone = zone ; 
                 //appTopologyRecord.masking = masking ;
 
-                console.log(Date() + "===== execute write lunmappping file ======");
+                logger.info(Date() + "===== execute write lunmappping file ======");
 
 
                 /*  ------------------------------
@@ -587,7 +587,7 @@ var topologyController = function(app) {
                 for (var i in lunTopoViews) {
                     var item = lunTopoViews[i];
 
-                    //console.log(item.maskingview);
+                    //logger.info(item.maskingview);
                     if (i == 0)
                         fs.appendFileSync(fsname, JSON.stringify(item) + '\n');
                     else
@@ -600,10 +600,10 @@ var topologyController = function(app) {
                 var xls1 = json2xls(lunTopoViews);
 
                 var outputFilename1 = ReportOutputPath + '//' + 'lunmapping.xlsx';
-                console.log(Date() + "Write Result to file [" + outputFilename1 + "]");
+                logger.info(Date() + "Write Result to file [" + outputFilename1 + "]");
                 fs.writeFileSync(outputFilename1, xls1, 'binary');
 
-                console.log(Date() + "===== execute write mongo record ======");
+                logger.info(Date() + "===== execute write mongo record ======");
 
 
 
@@ -613,8 +613,8 @@ var topologyController = function(app) {
                     if (err) {
                         return res.json(400, err);
                     } else
-                        console.log(Date() + " FINISHED ! ");
-                    console.log("========================================================");
+                        logger.info(Date() + " FINISHED ! ");
+                    logger.info("========================================================");
 
                     res.json(200, ret);
                 });
@@ -725,7 +725,7 @@ var topologyController = function(app) {
             var json2xls = require('json2xls');
             var xls = json2xls(result);
             var outputFilename = ReportOutputPath + '//' + 'topology-vplex.xlsx';
-            console.log("Write Result to file [" + outputFilename + "]");
+            logger.info("Write Result to file [" + outputFilename + "]");
             fs.writeFileSync(outputFilename, xls, 'binary');
 
             res.json(200, result);

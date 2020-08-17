@@ -10,7 +10,7 @@
 const debug = require('debug')('automationController')
 const name = 'my-app'
 var unirest = require('unirest');
-var autologger = require('../lib/logger');
+var autologger = require('../lib/logger-automation');
 const ServiceCatalogs = require('../lib/automation/servicecatalogs');
 const ResourcePools = require('../lib/automation/resourcepools');
 
@@ -32,31 +32,31 @@ var wsList = {};
 
 wss.on('connection', function (ws) {
 
-    console.log("\n\n****************\n    WebSocket connect\n*******************");
+    logger.info("\n\n****************\n    WebSocket connect\n*******************");
     var sendStockUpdates = function (ws) {
         if (ws.readyState == 1) {
             var DataFilename = './data.json';
 
             fs.readFile(DataFilename, function (err, re1) {
-                //console.log(result);
+                //logger.info(result);
                 var result = JSON.parse(re1);
                 if (result === undefined) {
                     var outputRecord = {};
                 } else {
-                    console.log(JSON.stringify(result.AutoInfo.ActionParamaters))
+                    logger.info(JSON.stringify(result.AutoInfo.ActionParamaters))
                     ws.send(JSON.stringify(result.AutoInfo.ActionParamaters));  //需要将对象转成字符串。WebSocket只支持文本和二进制数据
-                    console.log("--------------------------------------------------------");
+                    logger.info("--------------------------------------------------------");
                 }
             });
         }
     }
     ws.on('message', function (message) {
-        console.log("WebSocket receive message: [" + message + "]");
+        logger.info("WebSocket receive message: [" + message + "]");
         if (message == '     ') {
-            console.log(" WebSocket receive data is not vaild");
+            logger.info(" WebSocket receive data is not vaild");
         } else {
             var ms = JSON.parse(message);
-            console.log(`WebSocket Client ID=${ms.client}`)
+            logger.info(`WebSocket Client ID=${ms.client}`)
             wsList[ms.client] = ws;
             ws.send("this is message"); 
         }
@@ -143,7 +143,7 @@ var automationController = function (app) {
             }
         ];
 
-        //console.log(pools);
+        //logger.info(pools);
         res.json(200, pools);
 
 
@@ -211,7 +211,7 @@ var automationController = function (app) {
                         retinfo["ChoosedPhysicalArray"] = arrayInfo;
                         var applist = [];
     
-                        console.log(`array type : ${arrayInfo.array_type}`)
+                        logger.info(`array type : ${arrayInfo.array_type}`)
                         switch ( arrayInfo.array_type ) {
                             case "VPLEX":
                                 var Auto = require('../lib/Automation_VPLEX');
@@ -224,7 +224,7 @@ var automationController = function (app) {
                                 //break; 
                             default:
                                 var msg = `not support physical type [${arrayInfo.array_type}]`;
-                                console.log(msg)
+                                logger.info(msg)
                                 callback(600,msg);      
                                 break;          
                         }
@@ -243,7 +243,7 @@ var automationController = function (app) {
                                                 var name = item.name;
         
                                                 var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW)/);
-                                                //console.log(name+','+matchResult); 
+                                                //logger.info(name+','+matchResult); 
         
                                                 if (matchResult != null) {
                                                     var appItem = { "name": matchResult[1], "name_ext": matchResult[2] };
@@ -268,7 +268,7 @@ var automationController = function (app) {
                                                 var name = item.name;
         
                                                 var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW|SG|sg)$/);
-                                                //console.log(name+','+matchResult); 
+                                                //logger.info(name+','+matchResult); 
         
                                                 if (matchResult != null) {
                                                     var appItem = { "name": matchResult[1], "name_ext": matchResult[2] };
@@ -304,7 +304,7 @@ var automationController = function (app) {
                     }
                 ], function (err, result) {
                     if (err) {
-                        console.log(result);
+                        logger.info(result);
                         res.json(err, result);
                     } else
                         res.json(200, result);
@@ -392,14 +392,14 @@ var automationController = function (app) {
 
         UNITY.CreateDevice(item.arrayinfo, item.AsignSGName, item.capacityByte, item.StorageVolumeName, function (result) {
             if (result.code != 200) {
-                //console.log(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
+                //logger.info(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
                 var msg = result.data.msg.error.messages;
-                console.log(msg)
+                logger.info(msg)
 
                 res.json(result.code, result);
             } else {
-                console.log(result);
-                //console.log(result.code, `UNITY.CreateDevice is succeedful. array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)]`, AutoObject);
+                logger.info(result);
+                //logger.info(result.code, `UNITY.CreateDevice is succeedful. array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)]`, AutoObject);
                 res.json(200, result);
             }
 
@@ -436,14 +436,14 @@ var automationController = function (app) {
         var capacity = 20;
         VMAX.CreateDevice(item.arrayinfo, item.AsignSGName, capacity, item.StorageVolumeName, function (result) {
             if (result.code != 200) {
-                //console.log(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
+                //logger.info(result.code, `UNITY.CreateDevice is Fail! array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)] msg=[${result.msg}]`, AutoObject);
                 //var msg = result.messages;
-                //console.log(msg)
+                //logger.info(msg)
 
                 res.json(result.code, result);
             } else {
-                console.log(result);
-                //console.log(result.code, `UNITY.CreateDevice is succeedful. array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)]`, AutoObject);
+                logger.info(result);
+                //logger.info(result.code, `UNITY.CreateDevice is succeedful. array=[${item.arrayinfo.unity_sn}] sgname=[${item.AsignSGName}] volname=[${item.StorageVolumeName}] capacity=[${capacity}(GB)]`, AutoObject);
                 res.json(200, result);
             }
 
@@ -488,7 +488,7 @@ var automationController = function (app) {
     app.get('/auto/testget', function (req, res) {
         //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
         if (util.isEmptyObject(arrayInfo)) {
-            console.log("not find array info");
+            logger.info("not find array info");
             res.json(200, {});
         } else {
             /*
@@ -499,9 +499,9 @@ var automationController = function (app) {
                         var item = result[i];
                         var name = item.name;
         
-                        console.log(name);
+                        logger.info(name);
                         var matchResult = name.match(/([A-Za-z_0-9]+)_VW/);
-                        console.log(name+','+matchResult[1]); 
+                        logger.info(name+','+matchResult[1]); 
                     }
                     res.json(200,result);  
                 } else {
@@ -817,7 +817,7 @@ var automationController = function (app) {
         }
 
 
-        //console.log(JSON.stringify(req.body));
+        //logger.info(JSON.stringify(req.body));
         var RequestParamater = req.body;
 
         var newRequestParamater = {
@@ -849,7 +849,7 @@ var automationController = function (app) {
             [
                 // Get All Cluster
                 function (callback) {
-                    console.log("AutoService.BuildParamaterStrucut:" + newRequestParamater);
+                    logger.info("AutoService.BuildParamaterStrucut:" + newRequestParamater);
                     AutoService.BuildParamaterStrucut(newRequestParamater, function (AutoObject) {
                         callback(null, AutoObject);
                     })
@@ -860,15 +860,15 @@ var automationController = function (app) {
                         callback(null, testResult);
                     else {
                         var ws = AutoObject.request.ws;
-                        console.log(" ----------- BEGIN ----------------");
+                        logger.info(" ----------- BEGIN ----------------");
                         for (var i in testResult.AutoInfo.ActionParamaters) {
-                            console.log("BEGIN ============" + i);
+                            logger.info("BEGIN ============" + i);
                             var item = testResult.AutoInfo.ActionParamaters[i];
                             item.show = 'true';
-                            console.log(JSON.stringify(testResult.AutoInfo.ActionParamaters));
+                            logger.info(JSON.stringify(testResult.AutoInfo.ActionParamaters));
                             ws.send(JSON.stringify(testResult.AutoInfo.ActionParamaters));
                             sleep(5000);
-                            console.log("END ============" + i);
+                            logger.info("END ============" + i);
                         }
                     }
                 }
@@ -884,7 +884,7 @@ var automationController = function (app) {
     app.post('/review', function (req, res) {
         res.setTimeout(3600 * 1000);
 
-        //console.log(JSON.stringify(req.body));
+        //logger.info(JSON.stringify(req.body));
         var RequestParamater = req.body;
 
         var newRequestParamater = {
@@ -916,7 +916,7 @@ var automationController = function (app) {
             [
                 // Get All Cluster
                 function (callback) {
-                    console.log("AutoService.BuildParamaterStrucut:" + newRequestParamater);
+                    logger.info("AutoService.BuildParamaterStrucut:" + newRequestParamater);
                     AutoService.BuildParamaterStrucut(newRequestParamater, function (AutoObject) {
                         callback(null, AutoObject);
                     })
@@ -935,7 +935,7 @@ var automationController = function (app) {
         res.setTimeout(3600 * 1000);
         var RequestParamater = req.body;
         var usedfor = RequestParamater.requests[0].usedfor; 
-        //console.log(JSON.stringify(req.body));
+        //logger.info(JSON.stringify(req.body));
 
         var newRequestParamater = {
             "appname": "ebankwebesxi",
@@ -968,7 +968,7 @@ var automationController = function (app) {
             [
                 // Get All Cluster
                 function (callback) {
-                    console.log("AutoService.BuildParamaterStrucut:" + JSON.stringify(newRequestParamater,2,2));
+                    logger.info("AutoService.BuildParamaterStrucut:" + JSON.stringify(newRequestParamater,2,2));
                     AutoService.BuildParamaterStrucut(newRequestParamater, function (AutoObject) {
                         callback(null, AutoObject);
                     })
@@ -1020,7 +1020,7 @@ var automationController = function (app) {
         res.setTimeout(3600 * 1000);
         var RequestParamater = req.body;
         var usedfor = RequestParamater.requests[0].usedfor; 
-        //console.log(JSON.stringify(req.body));
+        //logger.info(JSON.stringify(req.body));
 
         var newRequestParamater = {
             "appname": "ebankwebesxi",
@@ -1053,7 +1053,7 @@ var automationController = function (app) {
             [
                 // Get All Cluster
                 function (callback) {
-                    //console.log("AutoService.BuildParamaterStrucut:" + JSON.stringify(newRequestParamater,2,2));
+                    //logger.info("AutoService.BuildParamaterStrucut:" + JSON.stringify(newRequestParamater,2,2));
                     AutoService.BuildParamaterStrucut(newRequestParamater, async function (AutoObject) { 
                             try {
                                 
@@ -1064,13 +1064,13 @@ var automationController = function (app) {
                                     variables: AutoObject,
                                     requestTimeout: 600000,
                                 }
-                                //console.log("-----\n" + JSON.stringify(request,null,2))
+                                //logger.info("-----\n" + JSON.stringify(request,null,2))
                                 const bpmnresult = await zbc.createWorkflowInstanceWithResult( request ).catch((e)=> {
-                                    console.log("Exception:" + e )
+                                    logger.info("Exception:" + e )
                                 }) 
                                 callback(null, bpmnresult);
                             } catch (e) {
-                                console.log(`There was an error running the 'CSMP-Automation-Main'!`)
+                                logger.error(`There was an error running the 'CSMP-Automation-Main'!`)
                                 throw e
                             }  
                     })
@@ -1144,12 +1144,12 @@ var automationController = function (app) {
             var RequestParamater = AutoObject.request;
             var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info;
             var ws = wsList[RequestParamater.client];
-            //console.log(RequestParamater.client);
-            //console.log(wsList);
+            //logger.info(RequestParamater.client);
+            //logger.info(wsList);
 
             //var ws = AutoObject.request.ws; 
             if (ws === undefined) {
-                console.log(JSON.stringify(wsList, 2, 2));
+                logger.info(JSON.stringify(wsList, 2, 2));
                 res.json(505, "not find the websocket client. clientID=" + RequestParamater.client);
             } else {
                 autologger.logs(200, "Begin execute each action.", AutoObject);
@@ -1157,7 +1157,7 @@ var automationController = function (app) {
 
                 AutoAPI.ExecuteActions(ActionsParamater, ws, function (result) {
                     AutoObject.ActionResponses = result.data;
-                    //console.log("&&&&&\n" + JSON.stringify(result));
+                    //logger.info("&&&&&\n" + JSON.stringify(result));
                     if (result.code != 200)
                         autologger.logs(result.code, "Provising execute is fail!.", AutoObject);
                     res.json(result.code, AutoObject);
@@ -1294,8 +1294,8 @@ var automationController = function (app) {
             var RequestParamater = AutoObject.request;
             var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info;
             var ws = wsList[RequestParamater.client];
-            //console.log(RequestParamater.client);
-            //console.log(wsList);
+            //logger.info(RequestParamater.client);
+            //logger.info(wsList);
 
             //var ws = AutoObject.request.ws;  
             autologger.logs(200, "Begin execute each action.", AutoObject);
@@ -1303,7 +1303,7 @@ var automationController = function (app) {
 
             AutoAPI.ExecuteActions(ActionsParamater, ws, function (result) {
                 //AutoObject.ActionResponses = result.data;
-                //console.log("&&&&&\n" + JSON.stringify(result));
+                //logger.info("&&&&&\n" + JSON.stringify(result));
                 if (result.code != 200) {
                     var errmsg = "Provising execute is fail!.";
                     if (result.msg !== undefined) errmsg = result.msg;

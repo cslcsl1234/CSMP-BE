@@ -63,9 +63,9 @@ var grafanaVMAXController = function (app) {
 
 
   app.post('/grafana/vmax/search', function (req, res) { 
-    console.log("----------------- Search ----------------------");
-    console.log(req.url);
-    console.log(req.body);
+    logger.info("----------------- Search ----------------------");
+    logger.info(req.url);
+    logger.info(req.body);
 
     var target = req.body.target;
 
@@ -82,8 +82,8 @@ var grafanaVMAXController = function (app) {
         break;
     }
 
-    console.log(filter);
-    console.log(key.toString());
+    logger.info(filter);
+    logger.info(key.toString());
 
     unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
     .auth(config.Backend.USER, config.Backend.PASSWORD, true)
@@ -189,8 +189,8 @@ var grafanaVMAXController = function (app) {
   */
   app.post('/grafana/vmax/query', function (req, res) {
 
-    console.log(req.url);
-    console.log(JSON.stringify(req.body));
+    logger.info(req.url);
+    logger.info(JSON.stringify(req.body));
 
 
     var start = req.body.range.from;
@@ -257,7 +257,7 @@ var grafanaVMAXController = function (app) {
       //queryString['period'] = param.period;
       //queryString['type'] = valuetype;
 
-      console.log(queryString);
+      logger.info(queryString);
       unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_SERIES_VALUE)
         .auth(config.Backend.USER, config.Backend.PASSWORD, true)
         .headers({
@@ -266,10 +266,10 @@ var grafanaVMAXController = function (app) {
         .query(queryString)
         .end(function (response) {
           if (response.error) {
-            console.log(response.error);
+            logger.error(response.error);
             return response.error;
           } else {
-            //console.log(response.raw_body);   
+            //logger.info(response.raw_body);   
             var resultRecord = JSON.parse(response.raw_body);
 
             var finalRecord = []; 
@@ -293,7 +293,7 @@ var grafanaVMAXController = function (app) {
               finalRecord.push(recordItem);
 
             }
-            console.log("resultRecord=" + finalRecord.length);
+            logger.info("resultRecord=" + finalRecord.length);
             res.json(200, finalRecord);
           }
 
@@ -310,7 +310,7 @@ var grafanaVMAXController = function (app) {
 
   app.post('/grafana/vmax/annotations', function (req, res) {
 
-    console.log(req.body);
+    logger.info(req.body);
 
     var annotation = req.body;
 
@@ -353,7 +353,7 @@ var grafanaVMAXController = function (app) {
 
   app.post('/grafana/vmax/tag-values', function (req, res) {
 
-    console.log(req.body);
+    logger.info(req.body);
     switch (req.body.key) {
       case 'device':
         var fields = 'name';
@@ -416,7 +416,7 @@ var grafanaVMAXController = function (app) {
         fields = 'device,part';
         filter = arrayBaseFilter + '&datagrp==\'VMAX-StorageGroup\'';
 
-        console.log(filter);
+        logger.info(filter);
 
         unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
           .auth(config.Backend.USER, config.Backend.PASSWORD, true)

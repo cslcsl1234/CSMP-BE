@@ -76,7 +76,7 @@ var analysisController = function (app) {
         async.waterfall(
             [
                 function(callback){
-                    console.log(moment.utc(Date.now()).format() + " Begin Query mongodb ...");
+                    logger.info(moment.utc(Date.now()).format() + " Begin Query mongodb ...");
                     var query = AppTopologyObj.find({}).sort({"metadata.generateDatetime":-1}).limit(1).select({ "metadata": 1, "data": 1,  "_id": 0});
                     query.exec(function (err, doc) {
                         //system error.
@@ -87,7 +87,7 @@ var analysisController = function (app) {
                             res.json(200 , []); 
                         }
                         else {
-                            console.log(moment.utc(Date.now()).format() + " mongodb has return. ");
+                            logger.info(moment.utc(Date.now()).format() + " mongodb has return. ");
                             var lastRecord ;
                             for ( var i in doc ) {
                                 var item = doc[i];
@@ -100,15 +100,15 @@ var analysisController = function (app) {
                                         lastRecord = item;
                                 } 
                             } 
-                            console.log(moment.utc(Date.now()).format() + " It has got the last record.");
+                            logger.info(moment.utc(Date.now()).format() + " It has got the last record.");
 
-                            //console.log(lastRecord.data); 
+                            //logger.info(lastRecord.data); 
                             callback(null,lastRecord.data); 
                         } 
                     }); 
                 },  
                 function( param, callback ) {  
-                    console.log(moment.utc(Date.now()).format() + " Begin Query REDO volumes in Mongodb ...");
+                    logger.info(moment.utc(Date.now()).format() + " Begin Query REDO volumes in Mongodb ...");
  
                     ArraySGRedoVolumeObj.find( {} , {"appname":1, "device":1, "devicesn":1, "sgname":1, "redovol":1, "_id": 0 },  function (err, doc) {
                         //system error.
@@ -116,7 +116,7 @@ var analysisController = function (app) {
                             return   done(err);
                         }
                         if (!doc) { //user doesn't exist. 
-                            console.log("is not exits!");
+                            logger.info("is not exits!");
                         }
                         else {   
                             var results = [];
@@ -127,7 +127,7 @@ var analysisController = function (app) {
                                     var redoItem = doc[j];
                                     if ( item.array == redoItem.devicesn && item.SG == redoItem.sgname ) {
                                         
-                                   // console.log(item.array +"|"+ redoItem.devicesn +"|"+ item.SG +"|"+ redoItem.sgname+"\t" +redoItem.redovol);
+                                   // logger.info(item.array +"|"+ redoItem.devicesn +"|"+ item.SG +"|"+ redoItem.sgname+"\t" +redoItem.redovol);
                                         item.redovol = redoItem.redovol;
                                     }
                                 }
@@ -151,13 +151,13 @@ var analysisController = function (app) {
                     });   
                 }, 
                 function(param,  callback) {  
-                    console.log(moment.utc(Date.now()).format() + " Begin get array alias name ...");
+                    logger.info(moment.utc(Date.now()).format() + " Begin get array alias name ...");
 
                     var res = [];
  
                     DeviceMgmt.GetArrayAliasName(function(arrayinfo) {  
                          
-                        //console.log(arrayinfo);
+                        //logger.info(arrayinfo);
                         for ( var i in param ) {
                             var resItem = param[i]; 
                             
@@ -327,13 +327,13 @@ var analysisController = function (app) {
 
                                 
                                 if ( item.device == arrayItem.devicesn ) {
-                                    //console.log(item.device+"\t"+arrayItem.devicesn);
+                                    //logger.info(item.device+"\t"+arrayItem.devicesn);
                                     arrayItem["model"] = item.model;
                                     break;
                                 }
                             }
                         }
-                       // console.log(arg);
+                       // logger.info(arg);
                         callback(null,arg);
                     } );
                 }, 
@@ -348,7 +348,7 @@ var analysisController = function (app) {
                             res.json(200 , []); 
                         }
                         else {
-                            console.log(moment.utc(Date.now()).format() + " mongodb has return. ");
+                            logger.info(moment.utc(Date.now()).format() + " mongodb has return. ");
                             var lastRecord ;
                             for ( var i in doc ) {
                                 var item = doc[i];
@@ -361,9 +361,9 @@ var analysisController = function (app) {
                                         lastRecord = item;
                                 } 
                             } 
-                            console.log(moment.utc(Date.now()).format() + " It has got the last record.");
+                            logger.info(moment.utc(Date.now()).format() + " It has got the last record.");
 
-                            //console.log(lastRecord.data);
+                            //logger.info(lastRecord.data);
                             var relaFE = {};
 
                             for ( var i in lastRecord.data ) {
@@ -406,7 +406,7 @@ var analysisController = function (app) {
             [
 
                 function(callback){
-                    console.log(moment.utc(Date.now()).format() + " Begin Query mongodb ...");
+                    logger.info(moment.utc(Date.now()).format() + " Begin Query mongodb ...");
                     var query = AppTopologyObj.find({}).sort({"metadata.generateDatetime":-1}).limit(1).select({ "metadata": 1, "data": 1,  "_id": 0});
                     query.exec(function (err, doc) {
                         //system error.
@@ -420,7 +420,7 @@ var analysisController = function (app) {
                            
                             var lastRecord ;
                             for ( var i in doc ) {
-                                console.log(moment.utc(Date.now()).format() + " mongodb has return. ");
+                                logger.info(moment.utc(Date.now()).format() + " mongodb has return. ");
                                 var item = doc[i];
                                 var generateDT = new Date(item.metadata.generateDatetime);
                                 if ( lastRecord === undefined ) {
@@ -431,10 +431,10 @@ var analysisController = function (app) {
                                         lastRecord = item;
                                 } 
                             } 
-                            console.log(moment.utc(Date.now()).format() + " It has got the last record.");
+                            logger.info(moment.utc(Date.now()).format() + " It has got the last record.");
 
-                            console.log(lastRecord.metadata); 
-                            console.log(lastRecord.data.length);
+                            logger.info(lastRecord.metadata); 
+                            logger.info(lastRecord.data.length);
                             callback(null,lastRecord.data); 
                         } 
                     }); 
@@ -478,7 +478,7 @@ var analysisController = function (app) {
                             ret.push(retItem);
                         }
                     }
-                    console.log("Step 3: " , ret.length);
+                    logger.info("Step 3: " , ret.length);
                     callback(null,ret); 
                 } ,
                 function( arg , callback ) {
@@ -496,18 +496,18 @@ var analysisController = function (app) {
                                 var item = arrays.result[i];
 
                                 if ( item.device == arrayItem.devicesn ) {
-                                    //console.log(item.device+"\t"+arrayItem.devicesn);
+                                    //logger.info(item.device+"\t"+arrayItem.devicesn);
                                     arrayItem["model"] = item.model;
                                     break;
                                 }
                             }
                         }
-                       // console.log(arg);
+                       // logger.info(arg);
                         callback(null,arg);
                     } );
                 },
                 function( param, callback ) {  
-                    console.log(moment.utc(Date.now()).format() + " Begin Query REDO volumes in Mongodb ...");
+                    logger.info(moment.utc(Date.now()).format() + " Begin Query REDO volumes in Mongodb ...");
  
                     ArraySGRedoVolumeObj.find( {} , {"appname":1, "device":1, "devicesn":1, "sgname":1, "redovol":1, "_id": 0 },  function (err, doc) {
                         //system error.
@@ -515,7 +515,7 @@ var analysisController = function (app) {
                             return   done(err);
                         }
                         if (!doc) { //user doesn't exist. 
-                            console.log("is not exits!");
+                            logger.info("is not exits!");
                         }
                         else {   
                             var results = [];
@@ -528,7 +528,7 @@ var analysisController = function (app) {
                                          item.SG == redoItem.sgname  
                                         ) {
                                         
-                                   // console.log(item.array +"|"+ redoItem.devicesn +"|"+ item.SG +"|"+ redoItem.sgname+"\t" +redoItem.redovol);
+                                   // logger.info(item.array +"|"+ redoItem.devicesn +"|"+ item.SG +"|"+ redoItem.sgname+"\t" +redoItem.redovol);
                                         item.redovol = redoItem.redovol;
                                     }
                                 }
@@ -1909,7 +1909,7 @@ var analysisController = function (app) {
                         return count < arg1.length;
                     },
                     function(interCallback) {
-                        console.log("==== Count = " + count);
+                        logger.info("==== Count = " + count);
                         var i = count;
                         var lunlist=""; 
                         var interCount = 0;
@@ -1965,9 +1965,9 @@ var analysisController = function (app) {
                     },
                     function(err) {
                         if ( err !== null ) 
-                            console.log(err);
+                            logger.error(err);
                         else {
-                            console.log("====DONE===" + lunResult.volumes.length);
+                            logger.info("====DONE===" + lunResult.volumes.length);
                             callback(null, lunResult);
                         }
                        
