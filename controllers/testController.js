@@ -1,4 +1,5 @@
 "use strict";
+const logger = require("../lib/logger")(__filename);
 
 
 /**
@@ -55,8 +56,7 @@ var Automation = require('../lib/Automation');
 var VMAX_AUTO = require('../lib/Automation_VMAX');
 var RPA = require('../lib/Automation_RPA');
 var Automation_VPLEX = require('../lib/Automation_VPLEX');
-var HEALTHCHECK = require('../lib/healthcheck');
-const logger = require('../lib/logger')(__filename);
+var HEALTHCHECK = require('../lib/healthcheck'); 
 
 var testController = function (app) {
 

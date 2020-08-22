@@ -1,4 +1,5 @@
 ﻿"use strict";
+const logger = require("../lib/logger")(__filename);
 
 /**
  * This controller is to demo the common APIs a project provides.
