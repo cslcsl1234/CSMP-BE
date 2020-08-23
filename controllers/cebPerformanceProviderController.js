@@ -611,7 +611,7 @@ var cebPerformanceProviderController = function (app) {
         
         async.waterfall([
             function(callback){
-                var query = AppTopologyObj.find({}).select({ "metadata": 1, "data": 1,  "_id": 0});
+                var query = AppTopologyObj.find({}).sort({_id:-1}).limit(1).select({ "metadata": 1, "data": 1, "_id": 0 });
                 query.exec(function (err, doc) {
                     //system error.
                     if (err) { 
