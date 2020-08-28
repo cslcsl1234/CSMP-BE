@@ -3527,7 +3527,7 @@ var reportingController = function(app) {
                     for (var i in arg1.data.AppStorageRelation) {
                         var item = arg1.data.AppStorageRelation[i];
 
-                        if (item.appinfo === undefined) {
+                        if (item.appinfo === undefined || item.appinfo.length == 0) {
                             var appname = item.sgname;
                         } else {
                             for (var appItem in item.appinfo) {

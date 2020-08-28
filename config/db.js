@@ -16,6 +16,8 @@ console.log(dbUrl);
 /**
  * This may use a loop to automatically load all models.
  */
+require('./../models/autoServiceInstance');
+
 require('./../models/userModel');
 require('./../models/arrayModel');
 

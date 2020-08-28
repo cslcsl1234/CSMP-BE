@@ -11,6 +11,7 @@ const logger = require("../lib/logger")(__filename);
 const debug = require('debug')('automationController')
 const name = 'my-app'
 var unirest = require('unirest');
+const mongoose = require('mongoose');
 var autologger = require('../lib/logger-automation');
 const ServiceCatalogs = require('../lib/automation/servicecatalogs');
 const ResourcePools = require('../lib/automation/resourcepools');
@@ -23,6 +24,7 @@ var AutoService = require('../lib/Automation');
 var UNITY = require('../lib/Automation_UNITY');
 var VMAX = require('../lib/Automation_VMAX');
 var moment = require('moment');
+var autoServiceInstanceObj = mongoose.model('autoServiceInstance');
 
 var WebSocketServer = require('ws').Server
 var wss = new WebSocketServer({ port: 9000 });
@@ -59,13 +61,13 @@ wss.on('connection', function (ws) {
             var ms = JSON.parse(message);
             logger.info(`WebSocket Client ID=${ms.client}`)
             wsList[ms.client] = ws;
-            ws.send("this is message"); 
+            ws.send("this is message");
         }
 
 
     });
 });
- 
+
 
 
 var automationController = function (app) {
@@ -167,6 +169,12 @@ var automationController = function (app) {
     });
 
 
+    // 返回配置的存储资源池列表及相应配置
+    app.get('/api/auto/resourcepool', function (req, res) {
+        var resourcepool = ResourcePools.GetResourcePool();
+        res.json(200, resourcepool);
+    });
+
     app.get('/api/auto/service/block/provisioning/getinfo', function (req, res) {
 
         var poolname = req.query.poolname;
@@ -176,11 +184,11 @@ var automationController = function (app) {
             async.waterfall(
                 [
                     function (callback) {
-    
+
                         var ret = {};
                         var resourcepool = ResourcePools.GetResourcePool();
-                        
-                        if (poolname === undefined) { 
+
+                        if (poolname === undefined) {
                             ret["resourcepools"] = resourcepool;
                             ret["ChoosedResourcePool"] = resourcepool[0];
                             callback(null, ret);
@@ -199,7 +207,7 @@ var automationController = function (app) {
                             if (isfind == false)
                                 callback(504, "not found the specical storate resource pool name [" + arrayname + "]");
                         }
-    
+
                     },
                     // Get All Cluster
                     function (retinfo, callback) {
@@ -211,9 +219,9 @@ var automationController = function (app) {
                         var arrayInfo = choosedPhysicalArray.info;
                         retinfo["ChoosedPhysicalArray"] = arrayInfo;
                         var applist = [];
-    
+
                         logger.info(`array type : ${arrayInfo.array_type}`)
-                        switch ( arrayInfo.array_type ) {
+                        switch (arrayInfo.array_type) {
                             case "VPLEX":
                                 var Auto = require('../lib/Automation_VPLEX');
                                 break;
@@ -221,16 +229,16 @@ var automationController = function (app) {
                                 var Auto = require('../lib/Automation_VMAX');
                                 break;
                             //case "Unity":
-                                //var Auto = require('../lib/Automation_UNITY');
-                                //break; 
+                            //var Auto = require('../lib/Automation_UNITY');
+                            //break; 
                             default:
                                 var msg = `not support physical type [${arrayInfo.array_type}]`;
                                 logger.info(msg)
-                                callback(600,msg);      
-                                break;          
+                                callback(600, msg);
+                                break;
                         }
-    
-                        if ( Auto !== undefined ) {
+
+                        if (Auto !== undefined) {
                             switch (config.ProductType) {
                                 case 'Dev':
                                 case 'Test':
@@ -242,10 +250,10 @@ var automationController = function (app) {
                                             for (var i in result) {
                                                 var item = result[i];
                                                 var name = item.name;
-        
+
                                                 var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW)/);
                                                 //logger.info(name+','+matchResult); 
-        
+
                                                 if (matchResult != null) {
                                                     var appItem = { "name": matchResult[1], "name_ext": matchResult[2] };
                                                     applist.push(appItem);
@@ -258,7 +266,7 @@ var automationController = function (app) {
                                     break;
                                 case 'Prod':
                                     //var arrayInfo = Auto.GetArrayInfoObject("EMCCTEST");
-        
+
                                     Auto.GetStorageViewsV1(arrayInfo, 'cluster-1', function (response) {
                                         if (response.code !== 200) {
                                             callback(response.code, response.message);
@@ -267,10 +275,10 @@ var automationController = function (app) {
                                             for (var i in result) {
                                                 var item = result[i];
                                                 var name = item.name;
-        
+
                                                 var matchResult = name.match(/([A-Za-z_0-9\-]+)_(VW|View|view|VIEW|SG|sg)$/);
                                                 //logger.info(name+','+matchResult); 
-        
+
                                                 if (matchResult != null) {
                                                     var appItem = { "name": matchResult[1], "name_ext": matchResult[2] };
                                                     applist.push(appItem);
@@ -283,25 +291,25 @@ var automationController = function (app) {
                                     break;
                             }
                         } else {
-                            callback( 504, "Auto Object is undefined ");
-                        } 
-    
+                            callback(504, "Auto Object is undefined ");
+                        }
+
                     }
-                    , function (arg1, callback) { 
+                    , function (arg1, callback) {
                         var applist = arg1.applist;
                         var serviceMetadata = ServiceCatalogs.GetServiceMetadata();
                         var autoServiceInfo = {
                             "Application": applist,
                             "StorageResourcePool": arg1.resourcepools,
-                            "ChoosedResourcePool" : arg1.ChoosedResourcePool,
+                            "ChoosedResourcePool": arg1.ChoosedResourcePool,
                             "ChoosedPhysicalArray": arg1.ChoosedPhysicalArray,
                             "ProtectLevel": serviceMetadata.ProtectLevel,
                             "usedfor": serviceMetadata.usedfor,
                             "HostDeploy": serviceMetadata.HostDeploy
                         };
-    
+
                         callback(null, autoServiceInfo);
-    
+
                     }
                 ], function (err, result) {
                     if (err) {
@@ -310,12 +318,12 @@ var automationController = function (app) {
                     } else
                         res.json(200, result);
                 });
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
 
     });
- 
+
 
 
     app.get('/autotest/test1', function (req, res) {
@@ -854,7 +862,7 @@ var automationController = function (app) {
                     AutoService.BuildParamaterStrucut(newRequestParamater, function (AutoObject) {
                         callback(null, AutoObject);
                     })
-                }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+                }
                 , function (AutoObject, callback) {
 
                     if (RequestParamater.opsType == 'review')
@@ -935,7 +943,7 @@ var automationController = function (app) {
     app.post('/api/auto/service/block/provisioning/review-v2', function (req, res) {
         res.setTimeout(3600 * 1000);
         var RequestParamater = req.body;
-        var usedfor = RequestParamater.requests[0].usedfor; 
+        var usedfor = RequestParamater.requests[0].usedfor;
         //logger.info(JSON.stringify(req.body));
 
         var newRequestParamater = {
@@ -969,7 +977,7 @@ var automationController = function (app) {
             [
                 // Get All Cluster
                 function (callback) {
-                    logger.info("AutoService.BuildParamaterStrucut:" + JSON.stringify(newRequestParamater,2,2));
+                    logger.info("AutoService.BuildParamaterStrucut:" + JSON.stringify(newRequestParamater, 2, 2));
                     AutoService.BuildParamaterStrucut(newRequestParamater, function (AutoObject) {
                         callback(null, AutoObject);
                     })
@@ -1015,12 +1023,144 @@ var automationController = function (app) {
             });
     });
 
+    app.post('/api/auto/service/block/provisioning', function (req, res) {
+        res.setTimeout(3600 * 1000);
+        var ServiceRequestParamater = req.body;
+        var responseInfo = ServiceRequestParamater.ResponseMessage;
 
-    
+        async.waterfall(
+            [
+                // Insert Automation Service Instance record into MongoDB
+                function (callback) {
+                    var newObj = new autoServiceInstanceObj(ServiceRequestParamater);
+                    newObj.save(function (err, thor) {
+                        if (err) {
+                            console.dir(thor); 
+                            responseInfo.Code = err.code;
+                            responseInfo.Status = 'Failed';
+                            responseInfo.Message = err.errmsg;
+                            responseInfo.StatusDatetime = util.CurrentDateTime();  
+                            callback( err.code , ServiceRequestParamater);
+                        } else {
+                            responseInfo.Code = 200;
+                            responseInfo.Status = 'Succeed';
+                            responseInfo.Message = "The object record was inserted.";
+                            responseInfo.StatusDatetime = util.CurrentDateTime();  
+                            callback(null, ServiceRequestParamater)
+                        } 
+                    });
+                },
+                function(arg1, callback ) {
+                    var usedfor = ServiceRequestParamater.Requests[0].UsedFor;
+                    //logger.info(JSON.stringify(req.body));
+            
+                    var newRequestParamater = {
+                        "appname": "ebankwebesxi",
+                        "usedfor": "oraredo",
+                        "capacity": 202,
+                        "resourceLevel": "Gold",
+                        "ProtectLevel": {
+                            "Backup": "true",
+                            "AppVerification_SameCity": false,
+                            "AppVerification_DiffCity": false,
+                            "hostDeplpy": "SC"
+                        },
+                        "opsType": "review"   // [ review | execute ]
+                    }
+                    newRequestParamater.client = 0;
+                    newRequestParamater.ws = null;
+ 
+                    newRequestParamater.appname = ServiceRequestParamater.AppCode;            
+                    newRequestParamater.appalias = ServiceRequestParamater.AppName;
+                    newRequestParamater.appname_ext = "VW";
+                    newRequestParamater.usedfor = (usedfor == undefined || usedfor == "") ? "data" : usedfor;
+                    newRequestParamater.opsType = "review";
+                    newRequestParamater.capacity = ServiceRequestParamater.Requests[0].CapacityGB;
+                    newRequestParamater.count = 1;
+                    newRequestParamater.resourceLevel = "Gold";
+                    newRequestParamater.resourcePoolName = ServiceRequestParamater.ResourcePoolName;
+                    // newRequestParamater.ProtectLevel = RequestParamater.Requests[0].ProtectLevel;
+                    newRequestParamater.timestamp = moment().format('MMDDHHmmss');
+
+                    AutoService.BuildParamaterStrucut(newRequestParamater, async function (AutoObject) {
+                        try {
+
+                            const ZEEBE_BROKER_URL = config.ZEEBE.BROKER;
+                            const zbc = new ZB.ZBClient(ZEEBE_BROKER_URL)
+                            var request = {
+                                bpmnProcessId: 'CSMP-Automation-Main',
+                                variables: AutoObject,
+                                requestTimeout: 600000,
+                            }
+                            //logger.info("-----\n" + JSON.stringify(request,null,2))
+                            const bpmnresult = await zbc.createWorkflowInstanceWithResult(request).catch((e) => {
+                                logger.info("Exception:" + e)
+                            })
+                            callback(null, bpmnresult);
+                        } catch (e) {
+                            logger.error(`There was an error running the 'CSMP-Automation-Main'!`)
+                            throw e
+                        }
+                    })
+                     
+                },
+                function( bpmnresult, callback ) {
+                    var AutoObject = bpmnresult.variables;
+                    if (AutoObject.resMsg.code != 200) {
+                        callback( AutoObject.resMsg.code, AutoObject ) 
+                    } else {
+                        var ActionsParamater = AutoObject.AutoInfo.ActionParamaters;
+                        var RequestParamater = AutoObject.request;
+                        var arrayInfo = AutoObject.AutoInfo.RuleResults.ArrayInfo.info;
+                        var ws = wsList[RequestParamater.client];
+                        //logger.info(RequestParamater.client);
+                        //logger.info(wsList);
+            
+                        //var ws = AutoObject.request.ws; 
+                        if (ws === undefined) {
+                            logger.info(JSON.stringify(wsList, 2, 2));
+                            responseInfo.Code = 505;
+                            responseInfo.Status = 'Failed';
+                            responseInfo.Message = "not find the websocket client. clientID=" + RequestParamater.client ;
+                            responseInfo.StatusDatetime = util.CurrentDateTime();  
+                            callback(505,ServiceRequestParamater );
+                        } else {
+                            autologger.logs(200, "Begin execute each action.", AutoObject);
+            
+            
+                            AutoAPI.ExecuteActions(ActionsParamater, ws, function (result) {
+                                AutoObject.ActionResponses = result.data;
+                                //logger.info("&&&&&\n" + JSON.stringify(result));
+                                if (result.code != 200)
+                                    autologger.logs(result.code, "Provising execute is fail!.", AutoObject);
+                                callback(result.code, AutoObject);
+                            })
+            
+                        }
+            
+                    }
+            
+            
+                }
+            ], function (err, result) {
+                if (err) {
+                    res.json(501, result);
+                } else { 
+                    res.json(200, result);
+                }
+                // result now equals 'done'
+
+            });
+
+
+    });
+
+
+
     app.post('/api/auto/service/block/provisioning/review', function (req, res) {
         res.setTimeout(3600 * 1000);
         var RequestParamater = req.body;
-        var usedfor = RequestParamater.requests[0].usedfor; 
+        var usedfor = RequestParamater.requests[0].usedfor;
         //logger.info(JSON.stringify(req.body));
 
         var newRequestParamater = {
@@ -1039,7 +1179,7 @@ var automationController = function (app) {
         newRequestParamater.client = RequestParamater.client;
         newRequestParamater.ws = wsList[RequestParamater.client];
 
-        newRequestParamater.appname = RequestParamater.appname;
+        newRequestParamater.appname = RequestParamater.appname; 
         newRequestParamater.appname_ext = RequestParamater.appname_ext;
         newRequestParamater.usedfor = (usedfor == undefined || usedfor == "") ? "data" : RequestParamater.requests[0].usedfor;
         newRequestParamater.opsType = RequestParamater.opsType;
@@ -1055,25 +1195,25 @@ var automationController = function (app) {
                 // Get All Cluster
                 function (callback) {
                     //logger.info("AutoService.BuildParamaterStrucut:" + JSON.stringify(newRequestParamater,2,2));
-                    AutoService.BuildParamaterStrucut(newRequestParamater, async function (AutoObject) { 
-                            try {
-                                
-                                const ZEEBE_BROKER_URL = config.ZEEBE.BROKER;
-                                const zbc = new ZB.ZBClient(ZEEBE_BROKER_URL)
-                                var request = {
-                                    bpmnProcessId: 'CSMP-Automation-Main',
-                                    variables: AutoObject,
-                                    requestTimeout: 600000,
-                                }
-                                //logger.info("-----\n" + JSON.stringify(request,null,2))
-                                const bpmnresult = await zbc.createWorkflowInstanceWithResult( request ).catch((e)=> {
-                                    logger.info("Exception:" + e )
-                                }) 
-                                callback(null, bpmnresult);
-                            } catch (e) {
-                                logger.error(`There was an error running the 'CSMP-Automation-Main'!`)
-                                throw e
-                            }  
+                    AutoService.BuildParamaterStrucut(newRequestParamater, async function (AutoObject) {
+                        try {
+
+                            const ZEEBE_BROKER_URL = config.ZEEBE.BROKER;
+                            const zbc = new ZB.ZBClient(ZEEBE_BROKER_URL)
+                            var request = {
+                                bpmnProcessId: 'CSMP-Automation-Main',
+                                variables: AutoObject,
+                                requestTimeout: 600000,
+                            }
+                            //logger.info("-----\n" + JSON.stringify(request,null,2))
+                            const bpmnresult = await zbc.createWorkflowInstanceWithResult(request).catch((e) => {
+                                logger.info("Exception:" + e)
+                            })
+                            callback(null, bpmnresult);
+                        } catch (e) {
+                            logger.error(`There was an error running the 'CSMP-Automation-Main'!`)
+                            throw e
+                        }
                     })
                 }
                 , function (bpmnresult, callback) {
@@ -1081,7 +1221,7 @@ var automationController = function (app) {
 
                     var ActionParamaterLabers = {};
 
-                    
+
                     ActionParamaterLabers["StepGroupName"] = "自动化操作组名称";
                     ActionParamaterLabers["method"] = "执行操作";
                     ActionParamaterLabers["DependOnAction"] = "依赖操作";
@@ -1106,8 +1246,8 @@ var automationController = function (app) {
                     ActionParamaterLabers["ReplicationsetName"] = "RPA复制集(Replicate Set)名称";
                     ActionParamaterLabers["CGName"] = "RPA复制一致性组(CG)名称";
                     ActionParamaterLabers["prod"] = "生产卷名称";
-                    ActionParamaterLabers["local"] = "本地复制卷名称";                    
-                    ActionParamaterLabers["remote"] = "远程复制卷名称";                                    
+                    ActionParamaterLabers["local"] = "本地复制卷名称";
+                    ActionParamaterLabers["remote"] = "远程复制卷名称";
                     ActionParamaterLabers["ProdJournalVolume"] = "生产日志卷名称";
                     ActionParamaterLabers["LocalJournalVolume"] = "本地复制日志卷名称";
                     ActionParamaterLabers["RemoteJournalVolume"] = "远程复制日志卷名称";
@@ -1181,102 +1321,102 @@ var automationController = function (app) {
 
         var resResult = {
             "resMsg": {
-              "code": 200,
-              "message": [
-                "find a match ResourcePool!",
-                "Begin execute service [ CapacityProvisingService ] !",
-                "[2020-05-21T02:40:19.877Z] # Begin execute each action."
-              ]
+                "code": 200,
+                "message": [
+                    "find a match ResourcePool!",
+                    "Begin execute service [ CapacityProvisingService ] !",
+                    "[2020-05-21T02:40:19.877Z] # Begin execute each action."
+                ]
             },
             "request": {
-              "client": "1590027897134",
-              "appname": "EMC-TC1001",
-              "appname_ext": "VW",
-              "opsType": "review",
-              "hosts": [
-                  {
-                      "name": "hostname1",
-                      "type": "AIX",
-                      "wwpn": [
-                          "11:11:11:11:11:11:11:11",
-                          "62:62:62:62:21:21:21:21"
-                      ]
-                  },
-                  {
-                      "name": "hostname2",
-                      "type": "AIX",
-                      "wwpn": [
-                          "22:22:22:22:22:22:22:22",
-                          "62:62:62:62:21:21:21:21"
-                      ]
-                  }
-              ]
-          }
-          ,
-            "AutoInfo": {
-              "RuleResults": {
-              },
-              "ResourceInfo": {
-              },
-              "ActionParamaters": [
-                {
-                  "StepGroupName": "Providing Product Volume",
-                  "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
-                  "method": "CreatePhysicalDevice",
-                  "DependOnAction": "N/A",
-                  "AsignSGName": "MSCS_SG",
-                  "StorageVolumeName": "EMC-TC1001_VMAX193_0521103643os01",
-                  "capacityByte": 1073741824,
-                  "position": "primary",
-                  "execute": true,
-                  "progress": 1,
-                  "response": {
-                    "code": 200,
-                    "msg": "VMAX.CreateDevice is succeedful. array=[000297800193] sgname=[MSCS_SG] volname=[EMC-TC1001_VMAX193_0521103643os01] capacity=[1(GB)]",
-                    "data": {
-                      "name": "EMC-TC1001_VMAX193_0521103643os01",
-                      "lunwwn": "60000970000297800193533030313038"
+                "client": "1590027897134",
+                "appname": "EMC-TC1001",
+                "appname_ext": "VW",
+                "opsType": "review",
+                "hosts": [
+                    {
+                        "name": "hostname1",
+                        "type": "AIX",
+                        "wwpn": [
+                            "11:11:11:11:11:11:11:11",
+                            "62:62:62:62:21:21:21:21"
+                        ]
+                    },
+                    {
+                        "name": "hostname2",
+                        "type": "AIX",
+                        "wwpn": [
+                            "22:22:22:22:22:22:22:22",
+                            "62:62:62:62:21:21:21:21"
+                        ]
                     }
-                  },
-                  "status": "success"
+                ]
+            }
+            ,
+            "AutoInfo": {
+                "RuleResults": {
+                },
+                "ResourceInfo": {
+                },
+                "ActionParamaters": [
+                    {
+                        "StepGroupName": "Providing Product Volume",
+                        "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
+                        "method": "CreatePhysicalDevice",
+                        "DependOnAction": "N/A",
+                        "AsignSGName": "MSCS_SG",
+                        "StorageVolumeName": "EMC-TC1001_VMAX193_0521103643os01",
+                        "capacityByte": 1073741824,
+                        "position": "primary",
+                        "execute": true,
+                        "progress": 1,
+                        "response": {
+                            "code": 200,
+                            "msg": "VMAX.CreateDevice is succeedful. array=[000297800193] sgname=[MSCS_SG] volname=[EMC-TC1001_VMAX193_0521103643os01] capacity=[1(GB)]",
+                            "data": {
+                                "name": "EMC-TC1001_VMAX193_0521103643os01",
+                                "lunwwn": "60000970000297800193533030313038"
+                            }
+                        },
+                        "status": "success"
+                    }
+                ],
+                "ActionResult": {
+                },
+                "ActionParamaterLabers": {
+                    "method": "执行操作",
+                    "DependOnAction": "依赖操作",
+                    "StorageVolumeName": "物理存储卷名称",
+                    "devicename": "卷名称",
                 }
-              ],
-              "ActionResult": {
-              },
-              "ActionParamaterLabers": {
-                "method": "执行操作",
-                "DependOnAction": "依赖操作",
-                "StorageVolumeName": "物理存储卷名称",
-                "devicename": "卷名称",
-              }
             },
             "ActionResponses": [
-              {
-                "StepGroupName": "Providing Product Volume",
-                "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
-                "method": "CreatePhysicalDevice",
-                "DependOnAction": "N/A",
-                "AsignSGName": "MSCS_SG",
-                "StorageVolumeName": "EMC-TC1001_VMAX193_0521103643os01",
-                "capacityByte": 1073741824,
-                "position": "primary",
-                "execute": true,
-                "progress": 1,
-                "response": {
-                  "code": 200,
-                  "msg": "VMAX.CreateDevice is succeedful. array=[000297800193] sgname=[MSCS_SG] volname=[EMC-TC1001_VMAX193_0521103643os01] capacity=[1(GB)]",
-                  "data": {
-                    "name": "EMC-TC1001_VMAX193_0521103643os01",
-                    "lunwwn": "60000970000297800193533030313038"
-                  }
-                },
-                "status": "success"
-              }
+                {
+                    "StepGroupName": "Providing Product Volume",
+                    "Step": "Create device and assign to sg [ MSCS_SG ] in pyhsical array [ 000297800193 ], arraytype= [ VMAX ]",
+                    "method": "CreatePhysicalDevice",
+                    "DependOnAction": "N/A",
+                    "AsignSGName": "MSCS_SG",
+                    "StorageVolumeName": "EMC-TC1001_VMAX193_0521103643os01",
+                    "capacityByte": 1073741824,
+                    "position": "primary",
+                    "execute": true,
+                    "progress": 1,
+                    "response": {
+                        "code": 200,
+                        "msg": "VMAX.CreateDevice is succeedful. array=[000297800193] sgname=[MSCS_SG] volname=[EMC-TC1001_VMAX193_0521103643os01] capacity=[1(GB)]",
+                        "data": {
+                            "name": "EMC-TC1001_VMAX193_0521103643os01",
+                            "lunwwn": "60000970000297800193533030313038"
+                        }
+                    },
+                    "status": "success"
+                }
             ]
-          }
+        }
 
-          res.json(200, resResult);
-           
+        res.json(200, resResult);
+
 
 
 

@@ -1,6 +1,6 @@
 {
   "FunctionConfigure": {
-    "automation": false,
+    "automation": true,
     "demo": false,
     "report": false
   },
@@ -32,7 +32,7 @@
     "PORT": 9090,
     "HOST": "192.168.92.195"
   },
-  "ProductType": "Prod",
+  "ProductType": "Test",
   "ProductTypeDesc": [
     "Prod",
     "Dev",
