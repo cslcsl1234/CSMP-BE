@@ -21,8 +21,6 @@ var SwitchObj = mongoose.model('Switch');
 var SWITCH = require('../lib/Switch');
 var VMAX = require('../lib/Array_VMAX');
 var HOST = require('../lib/Host');
-var Analysis = require('../lib/analysis');
-var DeviceMgmt = require("../lib/DeviceManagement");
 
 // -----------------------------------
 // For demo data
@@ -32,6 +30,7 @@ var demo_switch_ports = require('../demodata/switch_ports');
 var demo_fabrics = require('../demodata/fabrics');
 var demo_fabric_zone = require('../demodata/fabric_zone');
 var sortBy = require("sort-by");
+const Switch = require("../lib/Switch");
 
 
 var switchController = function (app) {
@@ -153,7 +152,7 @@ var switchController = function (app) {
                     });
 
 
-            }, 
+            },
             function (arg1, callback) {
                 var param = {};
                 param['keys'] = ['pswwn'];
@@ -163,11 +162,11 @@ var switchController = function (app) {
                 CallGet.CallGet(param, function (param) {
                     var zsetresult = param.result;
 
-                    for ( var i in arg1.result ) {
+                    for (var i in arg1.result) {
                         var item = arg1.result[i];
-                        for ( var j in zsetresult ) {
+                        for (var j in zsetresult) {
                             var zsetItem = zsetresult[j];
-                            if ( item.fabwwn == zsetItem.pswwn ) {
+                            if (item.fabwwn == zsetItem.pswwn) {
                                 item["zsetname"] = zsetItem.zsetname;
                             }
                         }
@@ -175,7 +174,7 @@ var switchController = function (app) {
                     callback(null, arg1);
                 });
 
-            } 
+            }
 
 
         ], function (err, result) {
@@ -296,11 +295,11 @@ var switchController = function (app) {
                 CallGet.CallGet(param, function (param) {
                     var zsetresult = param.result;
 
-                    for ( var i in arg1.result ) {
+                    for (var i in arg1.result) {
                         var item = arg1.result[i];
-                        for ( var j in zsetresult ) {
+                        for (var j in zsetresult) {
                             var zsetItem = zsetresult[j];
-                            if ( item.fabwwn == zsetItem.pswwn ) {
+                            if (item.fabwwn == zsetItem.pswwn) {
                                 item["zsetname"] = zsetItem.zsetname;
                             }
                         }
@@ -308,7 +307,7 @@ var switchController = function (app) {
                     callback(null, arg1);
                 });
 
-            } 
+            }
 
         ], function (err, result) {
             // result now equals 'done'
@@ -353,80 +352,81 @@ var switchController = function (app) {
 
     });
 
+    app.get('/api/fabrics/switchs/ports', function (req, res) {
+
+        var fabwwn = req.query.fabwwn;
+        var device = req.query.device;
+
+        async.waterfall([
+            function (callback) {
+                SWITCH.getSwitchsByFabric(fabwwn, device, function (fabricResult) {
+                    logger.info('The number of Fabrics = ' + fabricResult.length);
+                    callback(null, fabricResult);
+                })
+            },
+            function (arg1, callback) {
+                var fabric = arg1[0];
+                var fabricwwn = fabric.fabwwn;
+                var switchs = [];
+                for (var i in fabric.switchs) {
+                    var item = fabric.switchs[i];
+                    switchs.push(item.device);
+                }
+                async.mapSeries(switchs, function (switchItem, subcallback) {
+                    var isPortStatics;
+                    SWITCH.GetSwitchPortsDetail(switchItem, isPortStatics, function (result) {
+                        subcallback(null, result);
+                    })
+
+                },
+                    function (err, result) {
+
+                        var mergedResult = [];
+                        for ( var i in result ) {
+                            var item = result[i];
+                            for ( var j in item ) {
+                                var item1 = item[j];
+                                var isfind = false;
+                                for ( var z in mergedResult ) {
+                                    var item2 = mergedResult[z];
+                                    if ( item1.partwwn == item2.partwwn ) {
+                                        isfind = true;
+                                        break;
+                                    }
+                                }
+                                if ( isfind == false ) mergedResult.push(item1);
+                            }
+                        }
+                        callback(null, mergedResult);
+                    }
+                )
+
+            }
+        ], function (err, result) {
+            // result now equals 'done'  
+            res.json(200, result);
+        });
+    });
+
 
     app.get('/api/fabrics', function (req, res) {
 
         //var fields = 'device,deviceid,vendor,model,ip,devdesc,devicesn,domainid,firmware,psname,pswwn,bootdate';
 
-        var deviceid = req.query.deviceid;
+        var fabwwn = req.query.fabwwn;
+        var device = req.query.device;
 
 
         if (config.ProductType == 'demo') {
             res.json(200, demo_fabrics);
             return;
-        };
-
-
-
-        if (typeof deviceid === 'undefined') {
-            var fields = 'part,psname,pswwn,device,deviceid,fabwwn,lswwn,lsname';
-            var filter = 'parttype==\'Fabric\'|parttype==\'VSAN\'';
-
-        } else {
-            var fields = 'device,deviceid,vendor,model,ip,devdesc,devicesn,firmware,psname,pswwn';
-            var filter = 'deviceid=\'' + deviceid + '\'&devtype=\'FabricSwitch\'';
-
         }
 
+        SWITCH.getSwitchsByFabric(fabwwn, device, function (fabricResult) {
+            logger.info('The number of Fabrics = ' + fabricResult.length);
+            res.json(200, fabricResult);
 
-        var fabricResult = [];
-        unirest.get(config.Backend.URL + config.SRM_RESTAPI.METRICS_PROPERTIES_VALUE)
-            .auth(config.Backend.USER, config.Backend.PASSWORD, true)
-            .headers({ 'Content-Type': 'multipart/form-data' })
-            .query({ 'fields': fields, 'filter': filter })
-            .end(function (response) {
-
-                //logger.info(response.raw_body);
-                var resultJson = JSON.parse(response.raw_body).values;
-
-                for (var i in resultJson) {
-                    var item = resultJson[i];
-                    var fabricItem = {};
-                    var switchItem = {};
-                    switchItem['deviceid'] = item.deviceid;
-                    switchItem['device'] = item.device;
-                    switchItem['lsname'] = item.lsname;
-                    switchItem['lswwn'] = item.lswwn;
-
-
-                    fabricItem['fabwwn'] = item.fabwwn;
-                    fabricItem['psname'] = item.psname;
-                    fabricItem['switchs'] = [];
-                    fabricItem.switchs.push(switchItem);
-
-                    if (fabricResult.length == 0) {
-                        fabricResult.push(fabricItem);
-                    } else {
-                        var isFind = false;
-                        for (var j in fabricResult) {
-                            var item1 = fabricResult[j];
-                            if (item1.fabwwn == item.fabwwn) {
-                                item1.switchs.push(switchItem);
-                                isFind = true;
-                            }
-                        }
-                        if (!isFind) {
-                            fabricResult.push(fabricItem);
-                        }
-                    }
-
-                }
-
-                logger.info('The number of Fabrics = ' + fabricResult.length);
-                res.json(200, fabricResult);
-
-            });
-
+        })
 
 
     });
@@ -677,233 +677,9 @@ var switchController = function (app) {
         var device = req.query.device;
         var isPortStatics = req.query.isPortStatics;
 
-        async.waterfall([
-            function (callback) {
-
-                SWITCH.GetSwitchPorts(device, function (result) {
-                    callback(null, result);
-                });
-            },
-            function (arg1, callback) {
-                // 20181108 add "ZoneName" field for SMS alert at Dalian bank;
-                var fabric;
-                SWITCH.getFabric(fabric, function (result) {
-                    for (var i in arg1) {
-                        var item = arg1[i];
-                        for (var j in result) {
-                            var FabricItem = result[j];
-                            if (FabricItem.pswwn == item.fabwwn & FabricItem.zmemid == item.connectedToWWN) {
-                                if (item.ZoneName === undefined)
-                                    item["ZoneName"] = FabricItem.zname;
-                                else
-                                    item["ZoneName"] = item.ZoneName + ',' + FabricItem.zname;
-                            }
-                        }
-                    }
-
-                    callback(null, arg1);
-                })
-            },
-            function (arg1, callback) {
-
-                if (isPortStatics === undefined)
-                    callback(null, arg1);
-                else if (isPortStatics != 'true')
-                    callback(null, arg1);
-                else {
-
-                    SWITCH.GetSwitchPortsStatics(device, function (result) {
-
-                        for (var i in arg1) {
-                            var portItem = arg1[i];
-
-                            for (var j in result) {
-                                var item = result[j];
-                                if (item.device == portItem.device && item.partwwn == portItem.partwwn) {
-                                    for (var key in item) {
-
-                                        switch (key) {
-                                            case 'device':
-                                            case 'name':
-                                            case 'partwwn':
-                                            case 'porttype':
-                                                break;
-                                            default:
-                                                portItem[key] = item[key];
-                                                break;
-                                        }
-
-                                    }
-                                }
-                            }
-
-                        }
-                        callback(null, arg1);
-                    });
-                }
-
-
-            },
-            function (arg1, callback) {
-                var host;
-                HOST.GetHBAFlatRecord(host, function (hosts) {
-                    for (var i in arg1) {
-                        var portItem = arg1[i];
-                        portItem["hostname"] = portItem.connectedToAlias; // default equal the port alias name;
-
-                        for (var j in hosts) {
-                            var hostItem = hosts[j];
-                            if (portItem.portwwn == hostItem.hba_wwn) {
-                                portItem["hostname"] = hostItem.hostname;
-                                portItem["hostip"] = hostItem.managementip;
-                                portItem["connectedToDeviceType"] = 'Host';
-                                portItem["connectedToDevice"] = hostItem.hostname;
-                                portItem["connectedToPart"] = hostItem.hba_name;
-                                break;
-                            }
-                        }
-                    }
-                    callback(null, arg1);
-                })
-            },
-
-            function (arg1, callback) {
-                var param = {};
-                //param['filter_name'] = '(name=\'Availability\')';
-                param['keys'] = ['serialnb', 'feport'];
-                param['fields'] = ['portwwn', 'porttype'];
-                //param['period'] = 3600;
-                //param['valuetype'] = 'MAX'; 
-                param['filter'] = '(datagrp=\'VMAX-PORTS\'&source=\'VMAX-Collector\'&partgrp=\'Front-End\')|(source=\'VNXBlock-Collector\'&parttype==\'Port\')';
-
-                CallGet.CallGet(param, function (param) {
-
-                    for (var i in arg1) {
-                        var item1 = arg1[i];
-
-                        for (var j in param.result) {
-                            var FEPortItem = param.result[j];
-
-                            if (item1.connectedToWWN == FEPortItem.portwwn) {
-                                item1["connectedToDeviceType"] = 'Array';
-                                item1["connectedToDevice"] = FEPortItem.serialnb;
-                                item1["connectedToPart"] = FEPortItem.feport;
-                                break;
-                            }
-                        }
-                    }
-                    var data = { arg1: arg1 };
-                    callback(null, data);
-                });
-
-
-            },
-            function (data, callback) {
-                var filter;
-                DeviceMgmt.getMgmtObjectInfo(filter, function (arrayinfo) {
-                    data["arrayinfo"] = arrayinfo;
-                    // storagesn, name
-
-                    callback(null, data);
-                });
-            },
-            function (data, callback) {
-                var arg1 = data.arg1;
-                Analysis.getAppTopology(function (apptopo) {
-
-                    for (var i in arg1) {
-                        var portItem = arg1[i];
-
-                        var portwwn = portItem.partwwn;
-                        var connectPortWWN = portItem.connectedToWWN;
-                        portItem["connectedDevType"] = '';
-                        portItem["connectedDevName"] = '';
-                        portItem["connectedDevPortName"] = '';
-                        portItem["zoneinfo"] = [];
-
-                        var portIsFind = false;
-                        for (var j in apptopo) {
-                            var item = apptopo[j];
-
-                            if (portwwn == item.connect_hba_swport_wwn) {
-                                portIsFind = true;
-                                portItem["connectedDevType"] = 'host';
-                                if (portItem.connectedDevName === '') portItem["connectedDevName"] = item.host;
-                                else if (portItem.connectedDevName.indexOf(item.host) < 0)
-                                    portItem["connectedDevName"] = portItem.connectedDevName + ',' + item.host;
-
-                                if (portItem.connectedDevPortName === '') portItem["connectedDevPortName"] = item.connect_hba_swport_alias;
-                                else if (portItem.connectedDevPortName.indexOf(item.connect_hba_swport_alias) < 0)
-                                    portItem["connectedDevPortName"] = portItem.connectedDevPortName + ',' + item.connect_hba_swport_alias;
-
-
-                                var isfind = false;
-                                for (var z in portItem.zoneinfo) {
-                                    var zoneItem = portItem.zoneinfo[z];
-                                    if (item.zname == zoneItem.zonename) {
-                                        isfind = true;
-                                        break;
-                                    }
-                                }
-                                if (isfind == false) {
-                                    portItem.zoneinfo.push({ "zonename": item.zname })
-                                    var hbaname = item.zname.match(/[A-Za-z0-9)_]+(HBA[0-9])_[A-Za-z0-9)_]+/);
-                                    if (hbaname !== undefined && hbaname != null) {
-                                        portItem["connectedDevPortName"] = hbaname[1];
-                                    }
-                                }
-
-                            } else if ((portwwn == item.connect_arrayport_swport_wwn) || (connectPortWWN == item.arrayport_wwn)) {
-                                portIsFind = true;
-                                portItem["connectedDevType"] = 'array';
-                                portItem["connectedDevName"] = item.arrayname;
-                                portItem["connectedDevPortName"] = item.arrayport;
-                                var isfind = false;
-                                for (var z in portItem.zoneinfo) {
-                                    var zoneItem = portItem.zoneinfo[z];
-                                    if (item.zname == zoneItem.zonename) {
-                                        isfind = true;
-                                        break;
-                                    }
-                                }
-                                if (isfind == false)
-                                    portItem.zoneinfo.push({ "zonename": item.zname })
-                            }
-
-                        }
-
-                        if (portIsFind == false && portItem["connectedToDeviceType"] == 'Array') {
-                            portItem["connectedDevType"] = 'array';
-                            portItem["connectedDevPortName"] = portItem["connectedToPart"];
-
-                            var arraysn = portItem["connectedToDevice"];
-                            var isfind = false;
-                            for (var i in data.arrayinfo ) {
-                                var arrayinfoItem = data.arrayinfo[i];
-                                if ( arrayinfoItem.storagesn == arraysn )  {
-                                    isfind = true;
-                                    portItem["connectedDevName"] = arrayinfoItem.name;
-                                    break;
-                                }
-                            }
-                            if ( isfind == false )
-                                portItem["connectedDevName"] = portItem["connectedToDevice"];
-
-                        }
-
-
-                    }
-
-                    callback(null, arg1);
-
-                })
-            }
-        ], function (err, result) {
-            // result now equals 'done'  
-            result.sort(sortBy('partid'));
-            res.json(200, result);
-        });
-
+        SWITCH.GetSwitchPortsDetail(device, isPortStatics, function (result) {
+            res.json(200, result)
+        })
 
     });
 
