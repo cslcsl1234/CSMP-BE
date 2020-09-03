@@ -5,7 +5,8 @@
    "BACKUP": "osback1_VW",
    "RP": "RP_C1_VW",
    "CDP": "N/A",
-   "CG": "jrpub_CG_Prod"
+   "CG": "jrpub_CG_Prod",
+   "YD": "jieaaaaaa"
  },
  {
    "SC": "chxesxi_VW",
@@ -77,7 +78,8 @@
   "BACKUP": "osback1_VW",
   "RP": "RP",
   "CDP": "RP",
-  "CG": "ebankwebesxi_CG_Prod"
+  "CG": "ebankwebesxi_CG_Prod",
+  "YD-VIEW": "YD_ebankwebesxi_VW"
 },
  {
    "SC": "dbus_View",

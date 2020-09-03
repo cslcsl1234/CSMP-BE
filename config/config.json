@@ -30,9 +30,9 @@
   },
   "SERVER": {
     "PORT": 9090,
-    "HOST": "192.168.92.195"
+    "HOST": "10.121.2.125"
   },
-  "ProductType": "Test",
+  "ProductType": "Prod",
   "ProductTypeDesc": [
     "Prod",
     "Dev",

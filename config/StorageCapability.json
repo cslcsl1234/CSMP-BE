@@ -53,13 +53,13 @@
                             {
                                 "clustername": "cluster-1",
                                 "array_type": "VMAX",
-                                "serial_no": "000297800193",
+                                "serial_no": "000297800192",
                                 "password": "smc",
-                                "unispherehost": "10.121.0.204",
+                                "unispherehost": "10.121.0.207",
                                 "universion": "90",
                                 "user": "smc",
                                 "verifycert": false,
-                                "sgname": "MSCS_SG"
+                                "sgname": "VPLEX100"
                             }
                         ]
                     },
@@ -101,13 +101,13 @@
                                 {
                                     "clustername": "cluster-1",
                                     "array_type": "VMAX",
-                                    "serial_no": "000297800193",
+                                    "serial_no": "000297800192",
                                     "password": "smc",
-                                    "unispherehost": "10.121.0.204",
+                                    "unispherehost": "10.121.0.207",
                                     "universion": "90",
                                     "user": "smc",
                                     "verifycert": false,
-                                    "sgname": "MSCS_SG"
+                                    "sgname": "VPLEX100"
                                 }
                             ]
                         }
@@ -134,13 +134,13 @@
                                 {
                                     "clustername": "cluster-1",
                                     "array_type": "VMAX",
-                                    "serial_no": "000297800193",
+                                    "serial_no": "000297800192",
                                     "password": "smc",
-                                    "unispherehost": "10.121.0.204",
+                                    "unispherehost": "10.121.0.207",
                                     "universion": "90",
                                     "user": "smc",
                                     "verifycert": false,
-                                    "sgname": "MSCS_SG"
+                                    "sgname": "VPLEX100"
                                 }
                             ]
                         }

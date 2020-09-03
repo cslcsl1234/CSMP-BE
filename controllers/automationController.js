@@ -1290,7 +1290,7 @@ var automationController = function (app) {
 
             //var ws = AutoObject.request.ws; 
             if (ws === undefined) {
-                logger.info(JSON.stringify(wsList, 2, 2));
+                logger.info("WocketClient List = " + JSON.stringify(wsList, 2, 2));
                 res.json(505, "not find the websocket client. clientID=" + RequestParamater.client);
             } else {
                 autologger.logs(200, "Begin execute each action.", AutoObject);
